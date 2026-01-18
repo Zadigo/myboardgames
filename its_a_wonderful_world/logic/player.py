@@ -1,6 +1,6 @@
 from collections import deque
 from dataclasses import dataclass
-from typing import Type
+from typing import Optional
 from uuid import uuid4
 
 from its_a_wonderful_world.typings import TypeGame, TypePlayer, TypePlayerCard
@@ -33,10 +33,20 @@ class PlayerHand(PlayerMixin):
     def __repr__(self):
         return f"<PlayerHand player={self.player.username} hand_index={self.hand_index}>"
 
+    @property
+    def current_hand_cards(self) -> list[TypePlayerCard]:
+        if self.player.game is None:
+            return []
+        return self.player.game.board.hands[self.hand_index]
+
+    def set_hand(self, hand_index: str | int):
+        """Set the current hand index for the player."""
+        self.hand_index = int(hand_index)
+
     def pass_cards(self):
         """Pass the current hand to the next player based on 
         the rotation type."""
-        pass
+        self.hand_index = (self.hand_index + 1) % self.player.game.board.number_of_players  # noqa: E501
 
     def discard_leftover_cards(self):
         """Discard all leftover cards in the player's hand."""
@@ -103,17 +113,16 @@ class PlayerBuiltCards(PlayerMixin):
 @dataclass
 class Player:
     """A player in the game."""
-
-    game: TypeGame
-
     username: str
+
     firstname: str = ''
     lastname: str = ''
     player_id: str = ''
 
-    current_hand: PlayerHand = None
-    current_card_selection: PlayerSelectedCards = None
-    current_built_cards: PlayerBuiltCards = None
+    game: Optional[TypeGame] = None
+    current_hand: Optional[PlayerHand] = None
+    current_card_selection: Optional[PlayerSelectedCards] = None
+    current_built_cards: Optional[PlayerBuiltCards] = None
 
     # selected_empire: str = ''
 

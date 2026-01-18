@@ -1,11 +1,12 @@
 import random
 from collections import defaultdict, deque
+from itertools import chain
 from typing import Optional, Type
 from uuid import uuid4
-from itertools import chain
+
 from its_a_wonderful_world.actions import Actions
-from its_a_wonderful_world.material.card.research import RESEARCH_CARDS
-from its_a_wonderful_world.material.card.vehicle import VEHICLE_CARDS
+from its_a_wonderful_world.material import (RESEARCH_CARDS, STRUCTURE_CARDS,
+                                            VEHICLE_CARDS, PROJECT_CARDS, DISCOVERY_CARDS)
 from its_a_wonderful_world.typings import (PhaseTypes, RotationTypes,
                                            TypePlayer, TypePlayerCard)
 
@@ -71,22 +72,45 @@ class Board:
             raise ValueError(
                 "Cannot determine number of cards to select without a game instance.")
 
-        if self.current_game.is_ascension_and_corruption_expansion:
-            if self.number_of_players <= 2:
-                return (10, 2)
-            else:
-                return (6, 3)
+        if not self.current_game.is_ascension_and_corruption_expansion:
+            if self.number_of_players == 2:
+                return (8, 0)
+
+            if self.number_of_players >= 3 and self.number_of_players <= 4:
+                return (6, 0)
+
+            if self.number_of_players >= 5 and self.number_of_players <= 6:
+                return (6, 0)
+
+            if self.number_of_players == 7:
+                return (6, 0)
         else:
-            if self.number_of_players <= 2:
-                return (10, 0)
-            else:
-                return (7, 0)
+            if self.number_of_players == 2:
+                return (8, 4)
+
+            if self.number_of_players >= 3 and self.number_of_players <= 4:
+                return (6, 3)
+
+            if self.number_of_players >= 5 and self.number_of_players <= 6:
+                return (6, 2)
+
+            if self.number_of_players == 7:
+                return (6, 2)
+
+        raise ValueError("Invalid number of players.")
 
     @property
     def total_cards_to_select(self) -> int:
         """Total number of cards a player selects."""
         default_cards, extension_cards = self.number_of_cards_to_select
         return sum((default_cards, extension_cards)) * self.number_of_players
+
+    def _finalize_hands(self):
+        """Finalize the hands for each player after cards have been picked."""
+        for player in self.players.values():
+            for key in self.hands.keys():
+                if player.current_hand is not None:
+                    player.current_hand.set_hand(key)
 
     def prepare(self):
         """Prepare the board for a new game:
@@ -98,7 +122,7 @@ class Board:
             raise ValueError("Cannot prepare board without a game instance.")
 
         available_cards = chain(*self.current_game.available_cards)
-        
+
         for item in available_cards:
             card_instance = item()
 
@@ -107,7 +131,10 @@ class Board:
 
         if len(self.all_default_cards) != 150:
             # raise ValueError("The total number of cards in the deck is incorrect.")
-            print("The total number of cards in the deck is incorrect")
+            print(
+                "The total number of cards in the "
+                f"deck is incorrect: {len(self.all_default_cards)}"
+            )
 
         self.game_started = True
 
@@ -129,14 +156,18 @@ class Board:
                 "select the required number of cards."
             )
 
+        random.shuffle(self.all_default_cards)
+
         for _ in range(self.total_cards_to_select):
             selected_cards.append(self.all_default_cards.popleft())
 
-        cards_per_player = len(selected_cards) // self.number_of_players
+        cards_per_player, expansion_cards_per_player = self.number_of_cards_to_select
 
         for index in range(self.number_of_players):
             for _ in range(cards_per_player):
                 self.hands[index].append(selected_cards.popleft())
+
+        self._finalize_hands()
 
     def pick_cards_with_random(self):
         """Pick a set of cards for the players to choose from by randomly
@@ -163,7 +194,10 @@ class Game:
     number_of_rounds: int = 4
     available_cards: list[tuple[TypePlayerCard, ...]] = [
         VEHICLE_CARDS,
-        RESEARCH_CARDS
+        RESEARCH_CARDS,
+        STRUCTURE_CARDS,
+        PROJECT_CARDS,
+        DISCOVERY_CARDS
     ]
 
     def __init__(self):

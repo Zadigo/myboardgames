@@ -290,7 +290,7 @@ class Zeppelin(BaseDevelopmentCardMixin):
 
     @classmethod
     def number_of_copies(cls):
-        return 7
+        return 6
 
 
 VEHICLE_CARDS = (
