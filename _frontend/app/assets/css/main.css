@@ -1,0 +1,16 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+@theme static {
+    --color-green-50: #e8f4f9;
+    --color-green-100: #d1e9f3;
+    --color-green-200: #a4d3e8;
+    --color-green-300: #76bedc;
+    --color-green-400: #49a8d1;
+    --color-green-500: #1b92c5;
+    --color-green-600: #13668a;
+    --color-green-700: #0e4963;
+    --color-green-800: #0b3a4f;
+    --color-green-900: #051d27;
+    --color-green-950: #030f14;
+}
