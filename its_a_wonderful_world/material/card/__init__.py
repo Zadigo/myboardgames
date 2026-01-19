@@ -82,11 +82,25 @@ class BaseDevelopmentCardMixin:
     def __repr__(self):
         return f"<{self.__class__.__name__} name={self.name}>"
 
-    @classmethod
-    def number_of_copies(cls) -> int:
+    @staticmethod
+    def number_of_copies() -> int:
         """The total number of cards of this 
         type in the game."""
         return 0
+
+    @property
+    def has_construction_bonus(self) -> bool:
+        """Whether this card has a construction bonus."""
+        return bool(self.construction_bonus)
+
+    @property
+    def has_character_token_bonus(self) -> bool:
+        """Whether this card has a character token bonus."""
+        truth_array = []
+        for item in self.construction_bonus:
+            if isinstance(item, CharacterTokenTypes):
+                truth_array.append(True)
+        return any(truth_array)
 
     @property
     def construction_cost_count(self) -> int:
@@ -105,6 +119,10 @@ class BaseDevelopmentCardMixin:
             return len(self.construction_progress) / len(self.construction_cost)
         except ZeroDivisionError:
             return 0.0
+
+    @property
+    def get_image(self):
+        return f'{self.card_type.value.lower()}/{self.image}'
 
     @property
     def card_difficulty(self):

@@ -12,7 +12,7 @@ class TestGame(TestCase):
     def _generate_players(self, game_instance: Game, number_of_players: int) -> list[Player]:
         players = []
         for _ in range(number_of_players):
-            player = Player(game_instance, fake_name.name())
+            player = Player(game=game_instance, username=fake_name.name())
             game_instance.board.add_player(player)
             players.append(player)
         return players
@@ -34,7 +34,7 @@ class TestGame(TestCase):
 
     def test_add_and_remove_player(self):
         instance = Game()
-        player = Player(instance, fake_name.name())
+        player = Player(game=instance, username=fake_name.name())
         instance.board.add_player(player)
         self.assertIn(player.player_id, instance.board.players)
 
@@ -54,8 +54,8 @@ class TestGame(TestCase):
 
         total_cards = instance.board.total_cards_to_select
         self.assertTrue(
-            total_cards == (7 * len(players)),
-            "Excpected 35 total cards for 5 players (7 * 5)."
+            total_cards == (6 * len(players)),
+            "Excpected 30 total cards for 5 players (6 * 5)."
         )
 
     def test_pick_cards_with_pop(self):

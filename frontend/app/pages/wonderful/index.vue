@@ -34,4 +34,6 @@ definePageMeta({
 onMounted(() => {
   document.body.classList.add('bg-wonderful-blue-500/20')
 })
+
+const { wsObject } = useGameWebsocket()
 </script>

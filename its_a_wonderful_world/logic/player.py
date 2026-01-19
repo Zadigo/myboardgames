@@ -87,27 +87,27 @@ class PlayerBuiltCards(PlayerMixin):
 
     @property
     def total_production(self) -> int:
-        pass
+        return 0
 
     @property
     def energy_production(self) -> int:
-        pass
+        return 0
 
     @property
     def victory_points(self) -> int:
-        pass
+        return 0
 
     @property
     def character_points(self) -> int:
-        pass
+        return 0
 
     @property
     def character_general_points(self) -> int:
-        pass
+        return 0
 
     @property
     def character_financier_points(self) -> int:
-        pass
+        return 0
 
 
 @dataclass

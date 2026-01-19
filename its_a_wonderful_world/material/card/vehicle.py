@@ -4,8 +4,9 @@ from its_a_wonderful_world.typings import CardCategory, CharacterTokenTypes, Dev
 
 
 @dataclass
-class AirbornLaboratory(BaseDevelopmentCardMixin):
-    name: str = "Airborn Laboratory"
+class AirborneLaboratory(BaseDevelopmentCardMixin):
+    name: str = "Airborne Laboratory"
+    image: str = "airborne-laboratory.jpg"
     card_category: CardCategory = CardCategory.DEFAULT
     card_type: DevelopmentTypes = DevelopmentTypes.VEHICLE
 
@@ -25,14 +26,16 @@ class AirbornLaboratory(BaseDevelopmentCardMixin):
         ]
     )
 
-    @classmethod
-    def number_of_copies(cls):
+    @staticmethod
+    def number_of_copies():
         return 3
 
 
 @dataclass
 class AircraftCarrier(BaseDevelopmentCardMixin):
     name: str = "Aircraft Carrier"
+    image: str = "aircraft-carrier.jpg"
+
     card_category: CardCategory = CardCategory.DEFAULT
     card_type: DevelopmentTypes = DevelopmentTypes.VEHICLE
 
@@ -59,16 +62,18 @@ class AircraftCarrier(BaseDevelopmentCardMixin):
         ]
     )
 
-    @classmethod
-    def number_of_copies(cls):
+    @staticmethod
+    def number_of_copies():
         return 1
 
 
 @dataclass
 class IceBreaker(BaseDevelopmentCardMixin):
     name: str = "Ice Breaker"
-    card_category: CardCategory = CardCategory.DEFAULT
+    image: str = "icebreaker.jpg"
     card_type: DevelopmentTypes = DevelopmentTypes.VEHICLE
+
+    card_category: CardCategory = CardCategory.DEFAULT
 
     construction_cost: list[ResourceCubesTypes] = field(
         default_factory=lambda: [
@@ -88,16 +93,18 @@ class IceBreaker(BaseDevelopmentCardMixin):
         ]
     )
 
-    @classmethod
-    def number_of_copies(cls):
+    @staticmethod
+    def number_of_copies():
         return 4
 
 
 @dataclass
 class Juggernaut(BaseDevelopmentCardMixin):
     name: str = "Juggernaut"
-    card_category: CardCategory = CardCategory.DEFAULT
+    image: str = "juggernaut.jpg"
     card_type: DevelopmentTypes = DevelopmentTypes.VEHICLE
+
+    card_category: CardCategory = CardCategory.DEFAULT
 
     construction_cost: list[ResourceCubesTypes] = field(
         default_factory=lambda: [
@@ -135,14 +142,16 @@ class Juggernaut(BaseDevelopmentCardMixin):
         ]
     )
 
-    @classmethod
-    def number_of_copies(cls):
+    @staticmethod
+    def number_of_copies():
         return 1
 
 
 @dataclass
 class MegaDrill(BaseDevelopmentCardMixin):
     name: str = "Mega Drill"
+    image = "mega-drill.jpg"
+
     card_category: CardCategory = CardCategory.DEFAULT
     card_type: DevelopmentTypes = DevelopmentTypes.VEHICLE
 
@@ -162,14 +171,15 @@ class MegaDrill(BaseDevelopmentCardMixin):
         ]
     )
 
-    @classmethod
-    def number_of_copies(cls):
+    @staticmethod
+    def number_of_copies():
         return 4
 
 
 @dataclass
 class SaucerSquadron(BaseDevelopmentCardMixin):
     name: str = "Saucer Squadron"
+    image: str = "saucer-squadron.jpg"
     card_category: CardCategory = CardCategory.DEFAULT
     card_type: DevelopmentTypes = DevelopmentTypes.VEHICLE
 
@@ -193,14 +203,15 @@ class SaucerSquadron(BaseDevelopmentCardMixin):
         ]
     )
 
-    @classmethod
-    def number_of_copies(cls):
+    @staticmethod
+    def number_of_copies():
         return 2
 
 
 @dataclass
 class Submarine(BaseDevelopmentCardMixin):
     name: str = "Submarine"
+    image: str = "submarine.jpg"
     card_category: CardCategory = CardCategory.DEFAULT
     card_type: DevelopmentTypes = DevelopmentTypes.VEHICLE
 
@@ -229,14 +240,15 @@ class Submarine(BaseDevelopmentCardMixin):
         ]
     )
 
-    @classmethod
-    def number_of_copies(cls):
+    @staticmethod
+    def number_of_copies():
         return 3
 
 
 @dataclass
 class TankDivision(BaseDevelopmentCardMixin):
     name: str = "Tank Division"
+    image: str = "tank-division.jpg"
     card_category: CardCategory = CardCategory.DEFAULT
     card_type: DevelopmentTypes = DevelopmentTypes.VEHICLE
 
@@ -262,14 +274,16 @@ class TankDivision(BaseDevelopmentCardMixin):
         ]
     )
 
-    @classmethod
-    def number_of_copies(cls):
+    @staticmethod
+    def number_of_copies():
         return 7
 
 
 @dataclass
 class Zeppelin(BaseDevelopmentCardMixin):
     name: str = "Zeppelin"
+    image: str = "zeppelin.jpg"
+
     card_category: CardCategory = CardCategory.DEFAULT
     card_type: DevelopmentTypes = DevelopmentTypes.VEHICLE
 
@@ -288,13 +302,13 @@ class Zeppelin(BaseDevelopmentCardMixin):
         ]
     )
 
-    @classmethod
-    def number_of_copies(cls):
+    @staticmethod
+    def number_of_copies():
         return 6
 
 
 VEHICLE_CARDS = (
-    AirbornLaboratory,
+    AirborneLaboratory,
     AircraftCarrier,
     IceBreaker,
     Juggernaut,

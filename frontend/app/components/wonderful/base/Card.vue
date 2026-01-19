@@ -1,6 +1,6 @@
 <template>
-  <div ref="cardEl" class="overflow-hidden relative rounded-lg hover:shadow-lg transition-all ease-in-out duration-300 cursor-move hover:scale-105">
-    <nuxt-img :src="card?.image" />
+  <article ref="cardEl" :data-nam="card?.name" class="overflow-hidden relative rounded-lg hover:shadow-lg transition-all ease-in-out duration-300 cursor-move hover:scale-105">
+    <nuxt-img :src="`wonderful/material/developments/${card?.category.toLowerCase()}/${card?.image}`" :alt="card?.name" />
 
     <transition
       enter-active-class="transition-all ease-in-out duration-500"
@@ -16,7 +16,7 @@
         </nuxt-button>
       </div>
     </transition>
-  </div>
+  </article>
 </template>
 
 <script lang="ts" setup>

@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from its_a_wonderful_world.logic.base import Game
@@ -84,3 +84,15 @@ class RotationTypes(Enum):
 
     CLOCKWISE = "Clockwise"
     COUNTER_CLOCKWISE = "Counter Clockwise"
+
+
+class WebsocketActionsTypes(Enum):
+    """The different actions that can be sent over the websocket."""
+
+    CREATE_GAME = "Create Game"
+    JOIN_GAME = "Join Game"
+    LEAVE_GAME = "Leave Game"
+    START_GAME = "Start Game"
+    PLAYER_MOVE = "Player Move"
+    GAME_UPDATE = "Game Update"
+    ERROR = "Error"

@@ -1,74 +1,115 @@
 from dataclasses import dataclass
 from its_a_wonderful_world.material.card import BaseDevelopmentCardMixin
+from its_a_wonderful_world.typings import DevelopmentTypes
 
 
 @dataclass
 class FinancialCenter(BaseDevelopmentCardMixin):
-    @classmethod
-    def number_of_copies(cls) -> int:
+    name = "Financial Center"
+    image = "financial-center.jpg"
+    card_type = DevelopmentTypes.STRUCTURE
+
+    @staticmethod
+    def number_of_copies() -> int:
         return 5
 
 
 @dataclass
 class GoldMine(BaseDevelopmentCardMixin):
-    @classmethod
-    def number_of_copies(cls) -> int:
+    name = "Gold Mine"
+    image = "gold-mine.jpg"
+    card_type = DevelopmentTypes.STRUCTURE
+
+    @staticmethod
+    def number_of_copies() -> int:
         return 2
 
 
 @dataclass
 class IndustrialComplex(BaseDevelopmentCardMixin):
-    @classmethod
-    def number_of_copies(cls) -> int:
+    name = "Industrial Complex"
+    image = "industrial-complex.jpg"
+    card_type = DevelopmentTypes.STRUCTURE
+
+    @staticmethod
+    def number_of_copies() -> int:
         return 6
 
 
 @dataclass
 class MilitaryBase(BaseDevelopmentCardMixin):
-    @classmethod
-    def number_of_copies(cls) -> int:
+    name = "Military Base"
+    image = "military-base.jpg"
+    card_type = DevelopmentTypes.STRUCTURE
+
+    @staticmethod
+    def number_of_copies() -> int:
         return 6
 
 
 @dataclass
 class NuclearPlant(BaseDevelopmentCardMixin):
-    @classmethod
-    def number_of_copies(cls) -> int:
+    name = "Nuclear Plant"
+    image = "nuclear-plant.jpg"
+    card_type = DevelopmentTypes.STRUCTURE
+
+    @staticmethod
+    def number_of_copies() -> int:
         return 5
 
 
 @dataclass
 class OffshoreOilRig(BaseDevelopmentCardMixin):
-    @classmethod
-    def number_of_copies(cls) -> int:
+    name = "Offshore Oil Rig"
+    image = "offshore-oil-rig.jpg"
+    card_type = DevelopmentTypes.STRUCTURE
+
+    @staticmethod
+    def number_of_copies() -> int:
         return 5
 
 
 @dataclass
 class RecyclingPlant(BaseDevelopmentCardMixin):
-    @classmethod
-    def number_of_copies(cls) -> int:
+    name = "Recycling Plant"
+    image = "recycling-plant.jpg"
+    card_type = DevelopmentTypes.STRUCTURE
+
+    @staticmethod
+    def number_of_copies() -> int:
         return 7
 
 
 @dataclass
 class ResearchCenter(BaseDevelopmentCardMixin):
-    @classmethod
-    def number_of_copies(cls) -> int:
+    name = "Research Center"
+    image = "research-center.jpg"
+    card_type = DevelopmentTypes.STRUCTURE
+
+    @staticmethod
+    def number_of_copies() -> int:
         return 7
 
 
 @dataclass
 class TransportatonNetwork(BaseDevelopmentCardMixin):
-    @classmethod
-    def number_of_copies(cls) -> int:
+    name = "Transportation Network"
+    image = "transportation-network.jpg"
+    card_type = DevelopmentTypes.STRUCTURE
+
+    @staticmethod
+    def number_of_copies() -> int:
         return 2
 
 
 @dataclass
 class WindTurbines(BaseDevelopmentCardMixin):
-    @classmethod
-    def number_of_copies(cls) -> int:
+    name = "Wind Turbines"
+    image = "wind-turbines.jpg"
+    card_type = DevelopmentTypes.STRUCTURE
+
+    @staticmethod
+    def number_of_copies() -> int:
         return 7
 
 

@@ -35,5 +35,12 @@ export default defineNuxtConfig({
         name: 'Fira Code',
       }
     ]
+  },
+
+  runtimeConfig: {
+    public: {
+      apiDomain: 'http://127.0.0.1:8000',
+      wsDomain: 'ws://127.0.0.1:8000'
+    }
   }
 })

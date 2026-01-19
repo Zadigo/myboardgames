@@ -1,11 +1,13 @@
 from dataclasses import dataclass
 from its_a_wonderful_world.material.card import BaseDevelopmentCardMixin
+from its_a_wonderful_world.typings import DevelopmentTypes
 
 
 @dataclass
 class Aquaculture(BaseDevelopmentCardMixin):
-    # name: str = "Aquaculture"
-    # card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
+    name: str = "Aquaculture"
+    image = "aquaculture.jpg"
+    card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
 
     # construction_cost: list[ResourceCubesTypes] = field(
     #     default_factory=lambda: [
@@ -34,15 +36,16 @@ class Aquaculture(BaseDevelopmentCardMixin):
     #     ]
     # )
 
-    @classmethod
-    def number_of_copies(cls):
+    @staticmethod
+    def number_of_copies():
         return 1
 
 
 @dataclass
 class ArtificialIntelligence(BaseDevelopmentCardMixin):
-    # name: str = "Artificial Intelligence"
-    # card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
+    name: str = "Artificial Intelligence"
+    image = "artificial-intelligence.jpg"
+    card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
 
     # construction_cost: list[ResourceCubesTypes] = field(
     #     default_factory=lambda: [
@@ -66,15 +69,16 @@ class ArtificialIntelligence(BaseDevelopmentCardMixin):
 
     # victory_points: int = 1
 
-    @classmethod
-    def number_of_copies(cls):
+    @staticmethod
+    def number_of_copies():
         return 1
 
 
 @dataclass
 class ArtificialSun(BaseDevelopmentCardMixin):
-    # name: str = "Artificial Sun"
-    # card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
+    name: str = "Artificial Sun"
+    image = "artificial-sun.jpg"
+    card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
 
     # construction_cost: list[ResourceCubesTypes] = field(
     #     default_factory=lambda: [
@@ -108,15 +112,16 @@ class ArtificialSun(BaseDevelopmentCardMixin):
 
     # victory_points: int = 1
 
-    @classmethod
-    def number_of_copies(cls):
+    @staticmethod
+    def number_of_copies():
         return 1
 
 
 @dataclass
 class BionicCrafts(BaseDevelopmentCardMixin):
-    # name: str = "Bionic Crafts"
-    # card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
+    name: str = "Bionic Crafts"
+    image = "bionic-crafts.jpg"
+    card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
 
     # construction_cost: list[ResourceCubesTypes] = field(
     #     default_factory=lambda: [
@@ -138,15 +143,16 @@ class BionicCrafts(BaseDevelopmentCardMixin):
 
     # victory_points: int = 4
 
-    @classmethod
-    def number_of_copies(cls):
+    @staticmethod
+    def number_of_copies():
         return 1
 
 
 @dataclass
 class ClimateControl(BaseDevelopmentCardMixin):
-    # name: str = "Bionic Crafts"
-    # card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
+    name: str = "Bionic Crafts"
+    image = "climate-control.jpg"
+    card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
 
     # construction_cost: list[ResourceCubesTypes] = field(
     #     default_factory=lambda: [
@@ -170,15 +176,16 @@ class ClimateControl(BaseDevelopmentCardMixin):
 
     # victory_points: int = 2
 
-    @classmethod
-    def number_of_copies(cls):
+    @staticmethod
+    def number_of_copies():
         return 1
 
 
 @dataclass
 class CryoPreservation(BaseDevelopmentCardMixin):
-    # name: str = "Cryo Preservation"
-    # card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
+    name: str = "Cryo Preservation"
+    image = "cryopreservation.jpg"
+    card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
 
     # construction_cost: list[ResourceCubesTypes] = field(
     #     default_factory=lambda: [
@@ -207,15 +214,16 @@ class CryoPreservation(BaseDevelopmentCardMixin):
     #     ]
     # )
 
-    @classmethod
-    def number_of_copies(cls):
+    @staticmethod
+    def number_of_copies():
         return 1
 
 
 @dataclass
 class GeneticUpgrades(BaseDevelopmentCardMixin):
-    # name: str = "Genetic Upgrade"
-    # card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
+    name: str = "Genetic Upgrade"
+    image = "genetic-upgrades.jpg"
+    card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
 
     # construction_cost: list[ResourceCubesTypes] = field(
     #     default_factory=lambda: [
@@ -237,170 +245,206 @@ class GeneticUpgrades(BaseDevelopmentCardMixin):
 
     # victory_points: int = 3
 
-    @classmethod
-    def number_of_copies(cls):
+    @staticmethod
+    def number_of_copies():
         return 1
 
 
 @dataclass
 class GravityInverter(BaseDevelopmentCardMixin):
     name = "Gravity Inverter"
+    image = "gravity-inverter.jpg"
+    card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
 
-    @classmethod
-    def number_of_copies(cls) -> int:
+    @staticmethod
+    def number_of_copies() -> int:
         return 1
 
 
 @dataclass
 class HumanCloning(BaseDevelopmentCardMixin):
     name = "Human Cloning"
+    image = "human-cloning.jpg"
+    card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
 
-    @classmethod
-    def number_of_copies(cls) -> int:
+    @staticmethod
+    def number_of_copies() -> int:
         return 1
 
 
 @dataclass
 class MegaBomb(BaseDevelopmentCardMixin):
     name = "Mega Bomb"
+    image = "mega-bomb.jpg"
+    card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
 
-    @classmethod
-    def number_of_copies(cls) -> int:
+    @staticmethod
+    def number_of_copies() -> int:
         return 1
 
 
 @dataclass
 class Neuroscience(BaseDevelopmentCardMixin):
     name = "Neuroscience"
+    image = "neuroscience.jpg"
+    card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
 
-    @classmethod
-    def number_of_copies(cls) -> int:
+    @staticmethod
+    def number_of_copies() -> int:
         return 1
 
 
 @dataclass
 class PlanetaryArchives(BaseDevelopmentCardMixin):
     name = "Planetary Archives"
+    image = "planetary-archives.jpg"
+    card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
 
-    @classmethod
-    def number_of_copies(cls) -> int:
+    @staticmethod
+    def number_of_copies() -> int:
         return 1
 
 
 @dataclass
 class QuantumGenerator(BaseDevelopmentCardMixin):
     name = "Quantum Generator"
+    image = "quantum-generator.jpg"
+    card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
 
-    @classmethod
-    def number_of_copies(cls) -> int:
+    @staticmethod
+    def number_of_copies() -> int:
         return 1
 
 
 @dataclass
 class RobotAssistants(BaseDevelopmentCardMixin):
     name = "Robot Assistants"
+    image = "robot-assistants.jpg"
+    card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
 
-    @classmethod
-    def number_of_copies(cls) -> int:
+    @staticmethod
+    def number_of_copies() -> int:
         return 1
 
 
 @dataclass
 class RoboticAnimals(BaseDevelopmentCardMixin):
     name = "Robotic Animals"
+    image = "robotic-animals.jpg"
+    card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
 
-    @classmethod
-    def number_of_copies(cls) -> int:
+    @staticmethod
+    def number_of_copies() -> int:
         return 1
 
 
 @dataclass
 class Satellites(BaseDevelopmentCardMixin):
     name = "Satellites"
+    image = "satellites.jpg"
+    card_type = DevelopmentTypes.RESEARCH
 
-    @classmethod
-    def number_of_copies(cls) -> int:
+    @staticmethod
+    def number_of_copies() -> int:
         return 1
 
 
 @dataclass
 class SecurityAutomatons(BaseDevelopmentCardMixin):
     name = "Security Automatons"
+    image = "security-automatons.jpg"
+    card_type = DevelopmentTypes.RESEARCH
 
-    @classmethod
-    def number_of_copies(cls) -> int:
+    @staticmethod
+    def number_of_copies() -> int:
         return 1
 
 
 @dataclass
 class SuperSoldiers(BaseDevelopmentCardMixin):
     name = "Super Soldiers"
+    image = "super-soldiers.jpg"
+    card_type = DevelopmentTypes.RESEARCH
 
-    @classmethod
-    def number_of_copies(cls) -> int:
+    @staticmethod
+    def number_of_copies() -> int:
         return 1
 
 
 @dataclass
 class SuperSonar(BaseDevelopmentCardMixin):
     name = "Super Sonar"
+    image = "super-sonar.jpg"
+    card_type = DevelopmentTypes.RESEARCH
 
-    @classmethod
-    def number_of_copies(cls) -> int:
+    @staticmethod
+    def number_of_copies() -> int:
         return 1
 
 
 @dataclass
 class SuperComputer(BaseDevelopmentCardMixin):
     name = "Super Computer"
+    image = "supercomputer.jpg"
+    card_type = DevelopmentTypes.RESEARCH
 
-    @classmethod
-    def number_of_copies(cls) -> int:
+    @staticmethod
+    def number_of_copies() -> int:
         return 1
 
 
 @dataclass
 class Teleportation(BaseDevelopmentCardMixin):
     name = "Teleportation"
+    image = "teleportation.jpg"
+    card_type = DevelopmentTypes.RESEARCH
 
-    @classmethod
-    def number_of_copies(cls) -> int:
+    @staticmethod
+    def number_of_copies() -> int:
         return 1
 
 
 @dataclass
 class TimeTravel(BaseDevelopmentCardMixin):
     name = "Time Travel"
+    image = "time-travel.jpg"
+    card_type = DevelopmentTypes.RESEARCH
 
-    @classmethod
-    def number_of_copies(cls) -> int:
+    @staticmethod
+    def number_of_copies() -> int:
         return 1
 
 
 @dataclass
 class Transmutation(BaseDevelopmentCardMixin):
     name = "Transmutation"
+    image = "transmutation.jpg"
+    card_type = DevelopmentTypes.RESEARCH
 
-    @classmethod
-    def number_of_copies(cls) -> int:
+    @staticmethod
+    def number_of_copies() -> int:
         return 1
 
 
 @dataclass
 class UnknownTechnology(BaseDevelopmentCardMixin):
     name = "Unknown Technology"
+    image = "unknown-technology.jpg"
+    card_type = DevelopmentTypes.RESEARCH
 
-    @classmethod
-    def number_of_copies(cls) -> int:
+    @staticmethod
+    def number_of_copies() -> int:
         return 1
 
 
 @dataclass
-class VirtualSecurity(BaseDevelopmentCardMixin):
-    name = "Virtual Security"
+class VirtualReality(BaseDevelopmentCardMixin):
+    name = "Virtual Reality"
+    image = "virtual-reality.jpg"
+    card_type = DevelopmentTypes.RESEARCH
 
-    @classmethod
-    def number_of_copies(cls) -> int:
+    @staticmethod
+    def number_of_copies() -> int:
         return 1
 
 
@@ -429,5 +473,5 @@ RESEARCH_CARDS = (
     TimeTravel,
     Transmutation,
     UnknownTechnology,
-    VirtualSecurity,
+    VirtualReality,
 )
