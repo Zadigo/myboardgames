@@ -9,6 +9,9 @@
         <nuxt-switch v-model="hasConstructionBonus" label="Construction bonus tokens" />
         <nuxt-switch v-model="hasCharacterBonus" label="Character bonus tokens" />
         <nuxt-switch v-model="hasMaterialBonus" label="Material bonus tokens" />
+        <nuxt-select v-model="recycleBonus" :items="resourcesConstant" label-key="label" class="w-200" label="Recycle Bonus" />
+
+        {{ recycleBonus }}
       </nuxt-card>
 
       <div class="grid grid-cols-4 gap-3">
@@ -16,9 +19,9 @@
           enter-from-class="opacity-0 scale-95"
           enter-to-class="opacity-100 scale-100"
         >
-          <nuxt-card v-for="(card, idx) in filteredCards" :key="idx">
+          <nuxt-card v-for="(card, idx) in filteredByRecycleBonus" :key="idx">
            <div class="rounded-lg h-full w-full">
-             <nuxt-img :src="`wonderful/material/developments/${card?.category.toLowerCase()}/${card?.image}`" :alt="card.name" :width="325" />
+             <nuxt-img :src="`wonderful/material/developments/${card?.card_type.toLowerCase()}/${card?.image}`" :alt="card.name" :width="325" />
            </div>
  
            <template #footer>
@@ -34,7 +37,8 @@
 </template>
 
 <script lang="ts" setup>
-import type { BaseCard, Arrayable } from '~/types'
+import { resourcesConstant } from '~/data/constants'
+import type { BaseCard, Arrayable, ResourceCubesTypes } from '~/types'
 
 definePageMeta({
   layout: 'default',
@@ -77,8 +81,18 @@ const filteredCards = computed(() => {
     if (hasMaterialBonus.value && !card.isDrafted) {
       return false
     }
-    
+
     return true
+  })
+})
+
+const recycleBonus = ref<ResourceCubesTypes>('All')
+
+const filteredByRecycleBonus = computed(() => {
+  if (recycleBonus.value === 'All') return filteredCards.value
+
+  return filteredCards.value.filter((card) => {
+    return card.recycling_bonus === recycleBonus.value
   })
 })
 </script>

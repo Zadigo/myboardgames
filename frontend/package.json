@@ -46,6 +46,7 @@
     "@vitest/coverage-v8": "^4.0.17",
     "@vue/test-utils": "^2.4.6",
     "happy-dom": "^20.3.1",
+    "openapi-typescript": "^7.10.1",
     "oxlint": "^1.39.0",
     "playwright-core": "^1.57.0",
     "vitest": "^4.0.17"

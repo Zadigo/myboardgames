@@ -18,8 +18,14 @@ class GameCardItem(pydantic.BaseModel):
     card_type: str
     category: str
     image: str
+    recycling_bonus: str
     has_construction_bonus: bool = pydantic.Field(default=False)
     has_character_token_bonus: bool = pydantic.Field(default=False)
+
+    # @pydantic.field_validator('recycling_bonus')
+    # @classmethod
+    # def set_has_construction_bonus(cls, v, values):
+    #     return values.get('has_construction_bonus', False)
 
 
 class GameCardsResponse(pydantic.BaseModel):

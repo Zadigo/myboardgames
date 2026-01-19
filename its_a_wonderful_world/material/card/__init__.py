@@ -122,7 +122,7 @@ class BaseDevelopmentCardMixin:
 
     @property
     def get_image(self):
-        return f'{self.card_type.value.lower()}/{self.image}'
+        return f'wonderful/material/developments/{self.card_category.value}'
 
     @property
     def card_difficulty(self):
