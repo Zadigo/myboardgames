@@ -19,6 +19,7 @@ class GameCardItem(pydantic.BaseModel):
     category: str
     image: str
     recycling_bonus: str
+    number_of_copies: int = pydantic.Field(default=0)
     has_construction_bonus: bool = pydantic.Field(default=False)
     has_character_token_bonus: bool = pydantic.Field(default=False)
 

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from its_a_wonderful_world.material.card import BaseDevelopmentCardMixin
-from its_a_wonderful_world.typings import DevelopmentTypes
+from its_a_wonderful_world.typings import DevelopmentTypes, ResourceCubesTypes
 
 
 @dataclass
@@ -8,6 +8,7 @@ class Aquaculture(BaseDevelopmentCardMixin):
     name: str = "Aquaculture"
     image = "aquaculture.jpg"
     card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.SCIENCE
 
     # construction_cost: list[ResourceCubesTypes] = field(
     #     default_factory=lambda: [
@@ -19,8 +20,6 @@ class Aquaculture(BaseDevelopmentCardMixin):
     #         ResourceCubesTypes.GOLD,
     #     ]
     # )
-
-    # recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.SCIENCE
 
     # construction_bonus: list[TypeConstructionBonuses] = field(
     #     default_factory=lambda: [
@@ -46,6 +45,7 @@ class ArtificialIntelligence(BaseDevelopmentCardMixin):
     name: str = "Artificial Intelligence"
     image = "artificial-intelligence.jpg"
     card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.SCIENCE
 
     # construction_cost: list[ResourceCubesTypes] = field(
     #     default_factory=lambda: [
@@ -55,8 +55,6 @@ class ArtificialIntelligence(BaseDevelopmentCardMixin):
 
     #     ]
     # )
-
-    # recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.SCIENCE
 
     # construction_bonus: list[TypeConstructionBonuses] = field(
     #     default_factory=lambda: [
@@ -79,6 +77,7 @@ class ArtificialSun(BaseDevelopmentCardMixin):
     name: str = "Artificial Sun"
     image = "artificial-sun.jpg"
     card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.ENERGY
 
     # construction_cost: list[ResourceCubesTypes] = field(
     #     default_factory=lambda: [
@@ -98,8 +97,6 @@ class ArtificialSun(BaseDevelopmentCardMixin):
     #         ResourceCubesTypes.KRYSTALLIUM,
     #     ]
     # )
-
-    # recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.SCIENCE
 
     # construction_bonus: list[TypeConstructionBonuses] = field(
     #     default_factory=lambda: [
@@ -122,6 +119,7 @@ class BionicCrafts(BaseDevelopmentCardMixin):
     name: str = "Bionic Crafts"
     image = "bionic-crafts.jpg"
     card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.MATERIAL
 
     # construction_cost: list[ResourceCubesTypes] = field(
     #     default_factory=lambda: [
@@ -132,8 +130,6 @@ class BionicCrafts(BaseDevelopmentCardMixin):
     #         ResourceCubesTypes.SCIENCE
     #     ]
     # )
-
-    # recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.MATERIAL
 
     # construction_bonus: list[TypeConstructionBonuses] = field(
     #     default_factory=lambda: [
@@ -153,6 +149,7 @@ class ClimateControl(BaseDevelopmentCardMixin):
     name: str = "Bionic Crafts"
     image = "climate-control.jpg"
     card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.ENERGY
 
     # construction_cost: list[ResourceCubesTypes] = field(
     #     default_factory=lambda: [
@@ -163,8 +160,6 @@ class ClimateControl(BaseDevelopmentCardMixin):
     #         ResourceCubesTypes.SCIENCE
     #     ]
     # )
-
-    # recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.ENERGY
 
     # construction_bonus: list[TypeConstructionBonuses] = field(
     #     default_factory=lambda: [
@@ -186,6 +181,7 @@ class CryoPreservation(BaseDevelopmentCardMixin):
     name: str = "Cryo Preservation"
     image = "cryopreservation.jpg"
     card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.GOLD
 
     # construction_cost: list[ResourceCubesTypes] = field(
     #     default_factory=lambda: [
@@ -198,8 +194,6 @@ class CryoPreservation(BaseDevelopmentCardMixin):
     #         ResourceCubesTypes.SCIENCE,
     #     ]
     # )
-
-    # recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.GOLD
 
     # construction_bonus: list[TypeConstructionBonuses] = field(
     #     default_factory=lambda: [
@@ -224,6 +218,7 @@ class GeneticUpgrades(BaseDevelopmentCardMixin):
     name: str = "Genetic Upgrade"
     image = "genetic-upgrades.jpg"
     card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.SCIENCE
 
     # construction_cost: list[ResourceCubesTypes] = field(
     #     default_factory=lambda: [
@@ -233,8 +228,6 @@ class GeneticUpgrades(BaseDevelopmentCardMixin):
     #         ResourceCubesTypes.SCIENCE
     #     ]
     # )
-
-    # recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.GOLD
 
     # construction_bonus: list[TypeConstructionBonuses] = field(
     #     default_factory=lambda: [
@@ -255,6 +248,7 @@ class GravityInverter(BaseDevelopmentCardMixin):
     name = "Gravity Inverter"
     image = "gravity-inverter.jpg"
     card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.SCIENCE
 
     @staticmethod
     def number_of_copies() -> int:
@@ -266,6 +260,7 @@ class HumanCloning(BaseDevelopmentCardMixin):
     name = "Human Cloning"
     image = "human-cloning.jpg"
     card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.GOLD
 
     @staticmethod
     def number_of_copies() -> int:
@@ -277,6 +272,7 @@ class MegaBomb(BaseDevelopmentCardMixin):
     name = "Mega Bomb"
     image = "mega-bomb.jpg"
     card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.ENERGY
 
     @staticmethod
     def number_of_copies() -> int:
@@ -288,6 +284,7 @@ class Neuroscience(BaseDevelopmentCardMixin):
     name = "Neuroscience"
     image = "neuroscience.jpg"
     card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.SCIENCE
 
     @staticmethod
     def number_of_copies() -> int:
@@ -299,6 +296,7 @@ class PlanetaryArchives(BaseDevelopmentCardMixin):
     name = "Planetary Archives"
     image = "planetary-archives.jpg"
     card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.EXPLORATION
 
     @staticmethod
     def number_of_copies() -> int:
@@ -310,6 +308,7 @@ class QuantumGenerator(BaseDevelopmentCardMixin):
     name = "Quantum Generator"
     image = "quantum-generator.jpg"
     card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.ENERGY
 
     @staticmethod
     def number_of_copies() -> int:
@@ -321,6 +320,7 @@ class RobotAssistants(BaseDevelopmentCardMixin):
     name = "Robot Assistants"
     image = "robot-assistants.jpg"
     card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.MATERIAL
 
     @staticmethod
     def number_of_copies() -> int:
@@ -332,6 +332,7 @@ class RoboticAnimals(BaseDevelopmentCardMixin):
     name = "Robotic Animals"
     image = "robotic-animals.jpg"
     card_type: DevelopmentTypes = DevelopmentTypes.RESEARCH
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.ENERGY
 
     @staticmethod
     def number_of_copies() -> int:
@@ -343,6 +344,7 @@ class Satellites(BaseDevelopmentCardMixin):
     name = "Satellites"
     image = "satellites.jpg"
     card_type = DevelopmentTypes.RESEARCH
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.EXPLORATION
 
     @staticmethod
     def number_of_copies() -> int:
@@ -354,6 +356,7 @@ class SecurityAutomatons(BaseDevelopmentCardMixin):
     name = "Security Automatons"
     image = "security-automatons.jpg"
     card_type = DevelopmentTypes.RESEARCH
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.GOLD
 
     @staticmethod
     def number_of_copies() -> int:
@@ -365,6 +368,7 @@ class SuperSoldiers(BaseDevelopmentCardMixin):
     name = "Super Soldiers"
     image = "super-soldiers.jpg"
     card_type = DevelopmentTypes.RESEARCH
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.EXPLORATION
 
     @staticmethod
     def number_of_copies() -> int:
@@ -376,6 +380,7 @@ class SuperSonar(BaseDevelopmentCardMixin):
     name = "Super Sonar"
     image = "super-sonar.jpg"
     card_type = DevelopmentTypes.RESEARCH
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.EXPLORATION
 
     @staticmethod
     def number_of_copies() -> int:
@@ -387,6 +392,7 @@ class SuperComputer(BaseDevelopmentCardMixin):
     name = "Super Computer"
     image = "supercomputer.jpg"
     card_type = DevelopmentTypes.RESEARCH
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.SCIENCE
 
     @staticmethod
     def number_of_copies() -> int:
@@ -398,6 +404,7 @@ class Teleportation(BaseDevelopmentCardMixin):
     name = "Teleportation"
     image = "teleportation.jpg"
     card_type = DevelopmentTypes.RESEARCH
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.EXPLORATION
 
     @staticmethod
     def number_of_copies() -> int:
@@ -409,6 +416,7 @@ class TimeTravel(BaseDevelopmentCardMixin):
     name = "Time Travel"
     image = "time-travel.jpg"
     card_type = DevelopmentTypes.RESEARCH
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.EXPLORATION
 
     @staticmethod
     def number_of_copies() -> int:
@@ -420,6 +428,7 @@ class Transmutation(BaseDevelopmentCardMixin):
     name = "Transmutation"
     image = "transmutation.jpg"
     card_type = DevelopmentTypes.RESEARCH
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.GOLD
 
     @staticmethod
     def number_of_copies() -> int:
@@ -431,6 +440,7 @@ class UnknownTechnology(BaseDevelopmentCardMixin):
     name = "Unknown Technology"
     image = "unknown-technology.jpg"
     card_type = DevelopmentTypes.RESEARCH
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.SCIENCE
 
     @staticmethod
     def number_of_copies() -> int:
@@ -442,6 +452,7 @@ class VirtualReality(BaseDevelopmentCardMixin):
     name = "Virtual Reality"
     image = "virtual-reality.jpg"
     card_type = DevelopmentTypes.RESEARCH
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.GOLD
 
     @staticmethod
     def number_of_copies() -> int:

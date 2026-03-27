@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from its_a_wonderful_world.material.card import BaseDevelopmentCardMixin
-from its_a_wonderful_world.typings import DevelopmentTypes
+from its_a_wonderful_world.typings import CardCategory, DevelopmentTypes, ResourceCubesTypes
 
 
 @dataclass
@@ -8,6 +8,7 @@ class FinancialCenter(BaseDevelopmentCardMixin):
     name = "Financial Center"
     image = "financial-center.jpg"
     card_type = DevelopmentTypes.STRUCTURE
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.GOLD
 
     @staticmethod
     def number_of_copies() -> int:
@@ -15,21 +16,11 @@ class FinancialCenter(BaseDevelopmentCardMixin):
 
 
 @dataclass
-class GoldMine(BaseDevelopmentCardMixin):
-    name = "Gold Mine"
-    image = "gold-mine.jpg"
-    card_type = DevelopmentTypes.STRUCTURE
-
-    @staticmethod
-    def number_of_copies() -> int:
-        return 2
-
-
-@dataclass
 class IndustrialComplex(BaseDevelopmentCardMixin):
     name = "Industrial Complex"
     image = "industrial-complex.jpg"
     card_type = DevelopmentTypes.STRUCTURE
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.GOLD
 
     @staticmethod
     def number_of_copies() -> int:
@@ -41,6 +32,7 @@ class MilitaryBase(BaseDevelopmentCardMixin):
     name = "Military Base"
     image = "military-base.jpg"
     card_type = DevelopmentTypes.STRUCTURE
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.MATERIAL
 
     @staticmethod
     def number_of_copies() -> int:
@@ -52,6 +44,7 @@ class NuclearPlant(BaseDevelopmentCardMixin):
     name = "Nuclear Plant"
     image = "nuclear-plant.jpg"
     card_type = DevelopmentTypes.STRUCTURE
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.ENERGY
 
     @staticmethod
     def number_of_copies() -> int:
@@ -63,6 +56,7 @@ class OffshoreOilRig(BaseDevelopmentCardMixin):
     name = "Offshore Oil Rig"
     image = "offshore-oil-rig.jpg"
     card_type = DevelopmentTypes.STRUCTURE
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.ENERGY
 
     @staticmethod
     def number_of_copies() -> int:
@@ -74,6 +68,7 @@ class RecyclingPlant(BaseDevelopmentCardMixin):
     name = "Recycling Plant"
     image = "recycling-plant.jpg"
     card_type = DevelopmentTypes.STRUCTURE
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.MATERIAL
 
     @staticmethod
     def number_of_copies() -> int:
@@ -85,6 +80,7 @@ class ResearchCenter(BaseDevelopmentCardMixin):
     name = "Research Center"
     image = "research-center.jpg"
     card_type = DevelopmentTypes.STRUCTURE
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.SCIENCE
 
     @staticmethod
     def number_of_copies() -> int:
@@ -96,6 +92,7 @@ class TransportatonNetwork(BaseDevelopmentCardMixin):
     name = "Transportation Network"
     image = "transportation-network.jpg"
     card_type = DevelopmentTypes.STRUCTURE
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.MATERIAL
 
     @staticmethod
     def number_of_copies() -> int:
@@ -107,10 +104,24 @@ class WindTurbines(BaseDevelopmentCardMixin):
     name = "Wind Turbines"
     image = "wind-turbines.jpg"
     card_type = DevelopmentTypes.STRUCTURE
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.ENERGY
 
     @staticmethod
     def number_of_copies() -> int:
         return 7
+
+
+@dataclass
+class GoldMine(BaseDevelopmentCardMixin):
+    name = "Gold Mine"
+    image = "gold-mine.jpg"
+    card_category: CardCategory = CardCategory.ASCENSION_AND_CORRUPTION
+    card_type = DevelopmentTypes.STRUCTURE
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.GOLD
+
+    @staticmethod
+    def number_of_copies() -> int:
+        return 2
 
 
 STRUCTURE_CARDS = (

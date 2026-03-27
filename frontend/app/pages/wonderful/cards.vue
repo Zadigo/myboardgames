@@ -10,8 +10,14 @@
         <nuxt-switch v-model="hasCharacterBonus" label="Character bonus tokens" />
         <nuxt-switch v-model="hasMaterialBonus" label="Material bonus tokens" />
         <nuxt-select v-model="recycleBonus" :items="resourcesConstant" label-key="label" class="w-200" label="Recycle Bonus" />
+        <nuxt-switch v-model="defaultCardsOnly" label="Default cards" />
 
         {{ recycleBonus }}
+      </nuxt-card>
+
+      <nuxt-card>
+        <h2 class="text-lg font-bold mb-2">Found {{ filteredByRecycleBonus.length }} cards</h2>
+        <h2 class="text-lg font-bold mb-2">Found {{ numberOfCopies }} copies</h2>
       </nuxt-card>
 
       <div class="grid grid-cols-4 gap-3">
@@ -27,6 +33,7 @@
            <template #footer>
              <div class="p-2">
                <h2 class="text-lg font-bold">{{ card.name }}</h2>
+               <nuxt-badge>{{ card.number_of_copies }}</nuxt-badge>
              </div>
            </template>
           </nuxt-card>
@@ -38,7 +45,7 @@
 
 <script lang="ts" setup>
 import { resourcesConstant } from '~/data/constants'
-import type { BaseCard, Arrayable, ResourceCubesTypes } from '~/types'
+import { type BaseCard, type Arrayable, type ResourceCubesTypes, CardCategory } from '~/types'
 
 definePageMeta({
   layout: 'default',
@@ -63,9 +70,15 @@ const search = ref('')
 const hasConstructionBonus = ref(false)
 const hasCharacterBonus = ref(false)
 const hasMaterialBonus = ref(false)
+const defaultCardsOnly = ref(true)
 
 const searchedCards = computed(() => {
-  return cards.data.filter((card) => card.name.toLowerCase().includes(search.value.toLowerCase()))
+  return cards.data.filter((card) => card.name.toLowerCase().includes(search.value.toLowerCase())).filter((card) => {
+    if (defaultCardsOnly.value) {
+      return card.category === CardCategory.Default
+    }
+    return true
+  })
 })
 
 const filteredCards = computed(() => {
@@ -78,7 +91,7 @@ const filteredCards = computed(() => {
       return false
     }
     
-    if (hasMaterialBonus.value && !card.isDrafted) {
+    if (hasMaterialBonus.value && !card.has_material_bonus) {
       return false
     }
 
@@ -95,4 +108,6 @@ const filteredByRecycleBonus = computed(() => {
     return card.recycling_bonus === recycleBonus.value
   })
 })
+
+const numberOfCopies = computed(() => filteredByRecycleBonus.value.reduce((acc, card) => acc + card.number_of_copies, 0))
 </script>

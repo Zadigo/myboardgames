@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from its_a_wonderful_world.material.card import BaseDevelopmentCardMixin
-from its_a_wonderful_world.typings import DevelopmentTypes
+from its_a_wonderful_world.typings import DevelopmentTypes, ResourceCubesTypes
 
 
 @dataclass
@@ -8,6 +8,7 @@ class CasinoCity(BaseDevelopmentCardMixin):
     name = "Casino City"
     image = "casino-city.jpg"
     card_type = DevelopmentTypes.PROJECT
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.GOLD
 
     @staticmethod
     def number_of_copies() -> int:
@@ -19,6 +20,7 @@ class EspionageAgency(BaseDevelopmentCardMixin):
     name = "Espionage Agency"
     image = "espionage-agency.jpg"
     card_type = DevelopmentTypes.PROJECT
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.EXPLORATION
 
     @staticmethod
     def number_of_copies() -> int:
@@ -41,6 +43,7 @@ class GiantTower(BaseDevelopmentCardMixin):
     name = "Giant Tower"
     image = "giant-tower.jpg"
     card_type = DevelopmentTypes.PROJECT
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.GOLD
 
     @staticmethod
     def number_of_copies() -> int:
@@ -52,6 +55,7 @@ class HarborZone(BaseDevelopmentCardMixin):
     name = "Harbor Zone"
     image = "harbor-zone.jpg"
     card_type = DevelopmentTypes.PROJECT
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.GOLD
 
     @staticmethod
     def number_of_copies() -> int:
@@ -63,6 +67,7 @@ class LunarBase(BaseDevelopmentCardMixin):
     name = "Lunar Base"
     image = "lunar-base.jpg"
     card_type = DevelopmentTypes.PROJECT
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.EXPLORATION
 
     @staticmethod
     def number_of_copies() -> int:
@@ -74,6 +79,7 @@ class MagneticTrain(BaseDevelopmentCardMixin):
     name = "Magnetic Train"
     image = "magnetic-train.jpg"
     card_type = DevelopmentTypes.PROJECT
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.GOLD
 
     @staticmethod
     def number_of_copies() -> int:
@@ -85,6 +91,7 @@ class Museum(BaseDevelopmentCardMixin):
     name = "Museum"
     image = "museum.jpg"
     card_type = DevelopmentTypes.PROJECT
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.EXPLORATION
 
     @staticmethod
     def number_of_copies() -> int:
@@ -96,6 +103,7 @@ class NationalMonument(BaseDevelopmentCardMixin):
     name = "National Monument"
     image = "national-monument.jpg"
     card_type = DevelopmentTypes.PROJECT
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.GOLD
 
     @staticmethod
     def number_of_copies() -> int:
@@ -107,6 +115,7 @@ class PolarBase(BaseDevelopmentCardMixin):
     name = "Polar Base"
     image = "polar-base.jpg"
     card_type = DevelopmentTypes.PROJECT
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.EXPLORATION
 
     @staticmethod
     def number_of_copies() -> int:
@@ -117,6 +126,7 @@ class PropagandaCenter(BaseDevelopmentCardMixin):
     name = "Propaganda Center"
     image = "propaganda-center.jpg"
     card_type = DevelopmentTypes.PROJECT
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.GOLD
 
     @staticmethod
     def number_of_copies() -> int:
@@ -128,6 +138,7 @@ class SecretLaboratory(BaseDevelopmentCardMixin):
     name = "Secret Laboratory"
     image = "secret-laboratory.jpg"
     card_type = DevelopmentTypes.PROJECT
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.SCIENCE
 
     @staticmethod
     def number_of_copies() -> int:
@@ -139,6 +150,7 @@ class SecretSociety(BaseDevelopmentCardMixin):
     name = "Secret Society"
     image = "secret-society.jpg"
     card_type = DevelopmentTypes.PROJECT
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.GOLD
 
     @staticmethod
     def number_of_copies() -> int:
@@ -150,6 +162,7 @@ class SolarCannon(BaseDevelopmentCardMixin):
     name = "Solar Cannon"
     image = "solar-cannon.jpg"
     card_type = DevelopmentTypes.PROJECT
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.ENERGY
 
     @staticmethod
     def number_of_copies() -> int:
@@ -161,6 +174,7 @@ class SpaceElevator(BaseDevelopmentCardMixin):
     name = "Space Elevator"
     image = "space-elevator.jpg"
     card_type = DevelopmentTypes.PROJECT
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.ENERGY
 
     @staticmethod
     def number_of_copies() -> int:
@@ -172,6 +186,7 @@ class UndergroundCity(BaseDevelopmentCardMixin):
     name = "Underground City"
     image = "underground-city.jpg"
     card_type = DevelopmentTypes.PROJECT
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.ENERGY
 
     @staticmethod
     def number_of_copies() -> int:
@@ -183,6 +198,7 @@ class UnderwaterCity(BaseDevelopmentCardMixin):
     name = "Underwater City"
     image = "underwater-city.jpg"
     card_type = DevelopmentTypes.PROJECT
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.EXPLORATION
 
     @staticmethod
     def number_of_copies() -> int:
@@ -194,6 +210,7 @@ class UniversalExposition(BaseDevelopmentCardMixin):
     name = "Universal Exposition"
     image = "universal-exposition.jpg"
     card_type = DevelopmentTypes.PROJECT
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.GOLD
 
     @staticmethod
     def number_of_copies() -> int:
@@ -205,6 +222,7 @@ class Univeristy(BaseDevelopmentCardMixin):
     name = "University"
     image = "university.jpg"
     card_type = DevelopmentTypes.PROJECT
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.SCIENCE
 
     @staticmethod
     def number_of_copies() -> int:
@@ -216,6 +234,7 @@ class WorldCongress(BaseDevelopmentCardMixin):
     name = "World Congress"
     image = "world-congress.jpg"
     card_type = DevelopmentTypes.PROJECT
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.GOLD
 
     @staticmethod
     def number_of_copies() -> int:

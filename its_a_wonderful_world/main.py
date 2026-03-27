@@ -61,7 +61,8 @@ async def cards() -> GameCardsResponse:
             'card_type': card.card_type.value,
             'category': card.card_category.value,
             'image': card.image,
-            'recycling_bonus': card.recycling_bonus.value
+            'recycling_bonus': card.recycling_bonus.value,
+            'number_of_copies': card.number_of_copies(),
             # 'has_construction_bonus': card.has_construction_bonus,
             # 'has_character_token_bonus': card.has_character_token_bonus,
         }

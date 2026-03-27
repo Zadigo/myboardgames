@@ -3,7 +3,10 @@ import type { BaseCard } from "~/types";
 export const cardFixtures: BaseCard[] = [
   {
     image: "/wonderful/material/developments/vehicle/armored-convoy.jpg",
-    isDrafted: false
+    isDrafted: false,
+    card_type: 'VEHICLE',
+    category: '',
+
   },
   {
     image: '/wonderful/material/developments/vehicle/submarine.jpg',

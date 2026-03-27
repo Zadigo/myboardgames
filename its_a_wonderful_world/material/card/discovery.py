@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from its_a_wonderful_world.material.card import BaseDevelopmentCardMixin
-from its_a_wonderful_world.typings import DevelopmentTypes
+from its_a_wonderful_world.typings import DevelopmentTypes, ResourceCubesTypes
 
 
 @dataclass
@@ -8,6 +8,7 @@ class AlexandersTomb(BaseDevelopmentCardMixin):
     name = "Alexander's Tomb"
     image = "alexanders-tomb.jpg"
     card_type = DevelopmentTypes.DISCOVERY
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.GOLD
 
     @staticmethod
     def number_of_copies() -> int:
@@ -19,6 +20,7 @@ class AncientAstronauts(BaseDevelopmentCardMixin):
     name = "Ancient Astronauts"
     image = "ancient-astronauts.jpg"
     card_type = DevelopmentTypes.DISCOVERY
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.SCIENCE
 
     @staticmethod
     def number_of_copies() -> int:
@@ -30,6 +32,7 @@ class ArkOfTheCovenant(BaseDevelopmentCardMixin):
     name = "Ark Of The Covenant"
     image = "ark-of-the-covenant.jpg"
     card_type = DevelopmentTypes.DISCOVERY
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.EXPLORATION
 
     @staticmethod
     def number_of_copies() -> int:
@@ -41,6 +44,7 @@ class Atlantis(BaseDevelopmentCardMixin):
     name = "Atlantis"
     image = "atlantis.jpg"
     card_type = DevelopmentTypes.DISCOVERY
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.GOLD
 
     @staticmethod
     def number_of_copies() -> int:
@@ -52,6 +56,7 @@ class BermudaTriangle(BaseDevelopmentCardMixin):
     name = "Bermuda Triangle"
     image = "bermuda-triangle.jpg"
     card_type = DevelopmentTypes.DISCOVERY
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.SCIENCE
 
     @staticmethod
     def number_of_copies() -> int:
@@ -63,6 +68,7 @@ class BlackbeardsTreasure(BaseDevelopmentCardMixin):
     name = "Blackbeard's Treasure"
     image = "blackbeards-treasure.jpg"
     card_type = DevelopmentTypes.DISCOVERY
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.GOLD
 
     @staticmethod
     def number_of_copies() -> int:
@@ -74,6 +80,7 @@ class CenterOfTheEarth(BaseDevelopmentCardMixin):
     name = "Center Of The Earth"
     image = "center-of-the-earth.jpg"
     card_type = DevelopmentTypes.DISCOVERY
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.EXPLORATION
 
     @staticmethod
     def number_of_copies() -> int:
@@ -85,6 +92,7 @@ class CitiesOfGold(BaseDevelopmentCardMixin):
     name = "Cities Of Gold"
     image = "cities-of-gold.jpg"
     card_type = DevelopmentTypes.DISCOVERY
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.GOLD
 
     @staticmethod
     def number_of_copies() -> int:
@@ -96,6 +104,7 @@ class CityOfAgartha(BaseDevelopmentCardMixin):
     name = "City Of Agartha"
     image = "city-of-agartha.jpg"
     card_type = DevelopmentTypes.DISCOVERY
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.EXPLORATION
 
     @staticmethod
     def number_of_copies() -> int:
@@ -107,6 +116,7 @@ class FountainOfYouth(BaseDevelopmentCardMixin):
     name = "Fountain Of Youth"
     image = "fountain-of-youth.jpg"
     card_type = DevelopmentTypes.DISCOVERY
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.ENERGY
 
     @staticmethod
     def number_of_copies() -> int:
@@ -118,6 +128,7 @@ class GardensOfTheHesperides(BaseDevelopmentCardMixin):
     name = "Gardens Of The Hesperides"
     image = "gardens-of-the-hesperides.jpg"
     card_type = DevelopmentTypes.DISCOVERY
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.EXPLORATION
 
     @staticmethod
     def number_of_copies() -> int:
@@ -129,6 +140,7 @@ class IslandOfAvalon(BaseDevelopmentCardMixin):
     name = "Island Of Avalon"
     image = "island-of-avalon.jpg"
     card_type = DevelopmentTypes.DISCOVERY
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.SCIENCE
 
     @staticmethod
     def number_of_copies() -> int:
@@ -140,6 +152,7 @@ class KingSolomonsMines(BaseDevelopmentCardMixin):
     name = "King Solomon's Mines"
     image = "king-solomons-mines.jpg"
     card_type = DevelopmentTypes.DISCOVERY
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.GOLD
 
     @staticmethod
     def number_of_copies() -> int:
@@ -151,6 +164,7 @@ class LostContinentOfMu(BaseDevelopmentCardMixin):
     name = "Lost Continent Of Mu"
     image = "lost-continent-of-mu.jpg"
     card_type = DevelopmentTypes.DISCOVERY
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.GOLD
 
     @staticmethod
     def number_of_copies() -> int:
@@ -162,6 +176,7 @@ class ParallelDimension(BaseDevelopmentCardMixin):
     name = "Parallel Dimension"
     image = "parallel-dimension.jpg"
     card_type = DevelopmentTypes.DISCOVERY
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.EXPLORATION
 
     @staticmethod
     def number_of_copies() -> int:
@@ -173,6 +188,7 @@ class Roswell(BaseDevelopmentCardMixin):
     name = "Roswell"
     image = "roswell.jpg"
     card_type = DevelopmentTypes.DISCOVERY
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.SCIENCE
 
     @staticmethod
     def number_of_copies() -> int:
@@ -184,6 +200,7 @@ class TreasureOfTheTemplars(BaseDevelopmentCardMixin):
     name = "Treasure Of The Templars"
     image = "treasure-of-the-templars.jpg"
     card_type = DevelopmentTypes.DISCOVERY
+    recycling_bonus: ResourceCubesTypes = ResourceCubesTypes.GOLD
 
     @staticmethod
     def number_of_copies() -> int:
