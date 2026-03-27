@@ -8,9 +8,9 @@
     leave-from-class="translate-y-0 opacity-100"
     leave-to-class="translate-y-184 opacity-0"
   >
-    <section v-if="showPlayerHands" id="players-hands" ref="playerHandsEl" class="fixed h-200 bg-blue-500/50 w-full bottom-0 left-0 shadow-lg backdrop-blur-2xl z-50">
+    <section v-if="showPlayerHands" id="players-hands" ref="playerHandsEl" class="fixed h-200 bg-primary-500/50 w-full bottom-0 left-0 shadow-lg backdrop-blur-2xl z-50">
       <div class="relative">
-        <div class="py-1 px-20 bg-blue-100/50 backdrop-blur-2xl" @click="() => { togglePlayerHands() }">
+        <div class="py-1 px-20 bg-primary-100/50 backdrop-blur-2xl" @click="() => { togglePlayerHands() }">
           <div class="p-5 rounded-lg hover:bg-primary-100/20 transition-colors ease-in-out duration-300 cursor-pointer">
             <h2 class="font-bold text-lg">
               Player Name
@@ -26,11 +26,11 @@
           </div>
 
           <div class="grid grid-cols-12 gap-2">
-            <div id="player-1-hand" class="h-80 bg-blue-400 rounded-lg shadow-sm col-span-2 col-start-2">
+            <div id="player-1-hand" class="h-80 bg-primary-400 rounded-lg shadow-sm col-span-2 col-start-2">
               Player 1 Hand
             </div>
 
-            <div id="player-2-hand" class="h-80 bg-blue-400 rounded-lg shadow-sm col-span-2">
+            <div id="player-2-hand" class="h-80 bg-primary-400 rounded-lg shadow-sm col-span-2">
               Player 2 Hand
             </div>
           </div>

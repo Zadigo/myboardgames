@@ -46,7 +46,7 @@ definePageMeta({
  * Background
  */
 
-useStyleTag('body { background-color: var(--color-blue-100); }')
+useStyleTag('body { background-color: var(--color-primary-100); }')
 
 /**
  * Hands
