@@ -22,6 +22,19 @@
   --color-green-950: #1a0c0c;
 
   --color-secondary-500: #0072b3;
+
+  /* Flip Seven Game Colors */
+  --color-flip-seven-100: #f4fbfb;
+  --color-flip-seven-200: #dff4f2;
+  --color-flip-seven-300: #caece9;
+  --color-flip-seven-400: #a9e1db;
+  --color-flip-seven-500: #94d9d2;
+  --color-flip-seven-600: #85c3bd;
+  --color-flip-seven-700: #689893;
+  --color-flip-seven-800: #59827e;
+  --color-flip-seven-900: #2c413f;
+  --color-flip-seven-950: #0f1615;
+
 }
 
 h1, h2, h3, h4, h5, h6 {
