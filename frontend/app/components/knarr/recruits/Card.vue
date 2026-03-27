@@ -1,5 +1,5 @@
 <template>
-  <div ref="cardEl" :class="theme" class="relative overflow-hidden hover:scale-101 transition-all ease-in-out duration-300 h-80 bg-primary-700 rounded-lg shadow-sm col-span-2 first:col-start-1 cursor-pointer" @click="() => { setIsClicked() }">
+  <div ref="cardEl" :class="theme" class="relative bg-no-repeat bg-center bg-cover overflow-hidden hover:scale-101 transition-all ease-in-out duration-300 h-80 bg-primary-700 rounded-lg shadow-sm col-span-2 first:col-start-1 cursor-pointer" @click="() => { setIsClicked() }">
     <nuxt-popover :open-delay="300" mode="hover" hover>
       <div class="h-full w-full mx-auto" />
 

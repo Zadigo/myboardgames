@@ -20,7 +20,7 @@ export function usePlayerHandsStore() {
 }
 
 const [useExplorationComposable, _useExplorationStore] = createInjectionState(() => {
-  const [showExploration, toggleExploration] = useToggle(false)
+  const [showExploration, toggleExploration] = useToggle(true)
 
   return {
     showExploration,
