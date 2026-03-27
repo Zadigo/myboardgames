@@ -38,6 +38,10 @@
 <script lang="ts" setup>
 import { usePlayerHandsComposable, useExplorationComposable } from '~/composables/knarr'
 
+definePageMeta({
+  layout: 'game'
+})
+
 /**
  * Background
  */
