@@ -12,7 +12,7 @@ const [isClicked, setIsClicked] = useToggle()
 const theme = computed(() => {
   return [
     {
-      '-translate-y-2 border-5 border-blue-100': isClicked.value
+      '-translate-y-2 border-5 border-dashed border-blue-200': isClicked.value
     }
   ]
 })

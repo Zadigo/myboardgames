@@ -9,15 +9,20 @@
     </section>
 
     <!-- Exploration Section -->
-    <knarr-exploration-zones v-if="showExploration" />
+    <transition
+      mode="out-in"
+      enter-active-class="transition-all duration-800"
+      leave-active-class="transition-all duration-800"
+      enter-from-class="-translate-x-5 opacity-0"
+      enter-to-class="translate-x-0 opacity-100"
+      leave-from-class="translate-x-0 opacity-100"
+      leave-to-class="-translate-x-10 opacity-0"
+    >
+      <knarr-exploration-zones v-if="showExploration" />
+    </transition>
 
-    <section id="map">
-      <div class="grid grid-cols-12">
-        <div id="artifact-1" class="h-90 bg-blue-500 rounded-lg shadow-sm col-span-8 col-start-5">
-          Map
-        </div>
-      </div>
-    </section>
+    <!-- Map -->
+    <knarr-map />
 
     <!-- Recruits Section -->
     <knarr-recruits-grid />
@@ -33,15 +38,11 @@
 <script lang="ts" setup>
 import { usePlayerHandsComposable, useExplorationComposable } from '~/composables/knarr'
 
-const tokens = ['bg-blue-200']
+/**
+ * Background
+ */
 
-onMounted(() => {
-  document.body.classList.add(...tokens)
-})
-
-onUnmounted(() => {
-  document.body.classList.remove(...tokens)
-})
+useStyleTag('body { background-color: var(--color-blue-100); }')
 
 /**
  * Hands
