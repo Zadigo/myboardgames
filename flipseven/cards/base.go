@@ -19,6 +19,23 @@ type Card struct {
 	isSpecial bool
 }
 
+type Player struct {
+	// Player's username
+	username string
+	// Unique identifier for the player
+	uuid string
+	// The table on which the player is currently playing
+	tableUuid string
+	// The current number of cards the player has flipped
+	numberOfCards int
+	// Whether the player was stopped by the freeze card
+	isFreezed bool
+	// The number of rounds played by the player
+	numberOfRounds int
+	// The cards that the player has hands
+	cards []Card
+}
+
 func getNumberCards() []Card {
 	numbers := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
 	cards := []Card{}
@@ -77,7 +94,7 @@ func getSpecialCards() []Card {
 	names := []string{"Freeze", "Flip 3", "Second Chance"}
 
 	for i := range names {
-		for _ = range 3 {
+		for range 3 {
 			cards = append(cards, Card{
 				value:    0,
 				category: names[i],
@@ -88,6 +105,9 @@ func getSpecialCards() []Card {
 	return cards
 }
 
+// Create a new deck of X cards that
+// will serve as the main deck for
+// flipping cards for each player
 func GetDeck() []Card {
 	cards := []Card{}
 
