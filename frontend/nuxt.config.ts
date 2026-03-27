@@ -36,6 +36,7 @@ export default defineNuxtConfig({
   ui: {
     prefix: 'Nuxt'
   },
+
   fonts: {
     families: [
       {
@@ -45,5 +46,9 @@ export default defineNuxtConfig({
         name: 'Source Code Pro'
       }
     ]
+  },
+
+  app: {
+    pageTransition: { name: 'fade', mode: 'out-in' }
   }
 })

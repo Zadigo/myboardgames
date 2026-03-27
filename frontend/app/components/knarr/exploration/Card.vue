@@ -1,6 +1,6 @@
 <template>
   <div :id="`exploration-${id}`" ref="cardEl" :class="theme" class="h-40 bg-primary-700 rounded-lg shadow-sm col-span-3 first:col-start-1 cursor-pointer relative" @click="() => { setIsClicked() }">
-    <nuxt-popover :open-delay="800" mode="hover" class="w-70" hover>
+    <nuxt-popover :open-delay="300" mode="hover" class="w-70" hover>
       <div class="h-30 w-30 mx-auto" />
 
       <template #content>

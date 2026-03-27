@@ -27,3 +27,25 @@
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-title);
 }
+
+html {
+  transition: all 0.8s ease;
+  transition-duration: 500ms;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.8s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.fade-enter-to,
+.fade-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}

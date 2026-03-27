@@ -1,5 +1,5 @@
 <template>
-  <nuxt-container id="knarr" class="my-10 space-y-2" as="section">
+  <nuxt-container id="knarr" class="h-screen space-y-2" as="section">
     <!-- Artifacts Section -->
     <section id="artifacts">
       <div class="grid grid-cols-12 auto-cols-max gap-1">
@@ -46,7 +46,17 @@ definePageMeta({
  * Background
  */
 
-useStyleTag('body { background-color: var(--color-primary-100); }')
+// useStyleTag('body { background-color: var(--color-primary-100); }')
+
+// useStyleTag(`
+//   html {
+//     background-image: url('/images/back.jpg');
+//     background-size: cover;
+//     background-position: center;
+//     background-repeat: no-repeat;
+//     backdrop-filter: blur(20px);
+//   }
+// `)
 
 /**
  * Hands
