@@ -1,21 +1,5 @@
 package cards
 
-type Player struct {
-	// Player's username
-	username string
-	// Unique identifier for the player
-	uuid string
-	// The table on which the player is currently playing
-	tableUuid string
-	// The current number of cards the player has flipped
-	numberOfCards int
-	// Whether the player was stopped by the freeze card
-	isFreezed bool
-	// The number of rounds played by the player
-	numberOfRounds int
-	// The cards that the player has hands
-	cards []Card
-}
 
 func getNumberCards() []Card {
 	numbers := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}

@@ -1,21 +1,26 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
+	"sync"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
 
-// import (
-// 	"github.com/Zadigo/flipseven/cards"
-// )
-
-// const NumberOfPlayers int = 12
+const NumberOfPlayers int = 12
 
 // const numberOfCards int = 179
+
+// var tables = make(map[string]logic.ConnectedPlayer)
+var clients = make(map[*websocket.Conn]bool)
+var mutex = sync.RWMutex{}
 
 // func startGame() func(int) {
 // 	var currentPlayer int
@@ -29,9 +34,6 @@ import (
 // 		}
 // 	}
 // }
-
-type WebsocketMessage interface {
-}
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -54,6 +56,38 @@ func Cors(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+func createTableHandler(response http.ResponseWriter, request *http.Request) {
+	if request.Method != http.MethodPost {
+		http.Error(response, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	if request.Header.Get("Content-Type") != "application/json" {
+		http.Error(response, "Unsupported media type", http.StatusInternalServerError)
+		return
+	}
+
+	_, err := io.ReadAll(request.Body)
+
+	if err != nil {
+		http.Error(response, "Failed to parse data", http.StatusInternalServerError)
+		return
+	}
+
+	request.Header.Set("Content-Type", "application/json")
+	response.WriteHeader(http.StatusOK)
+
+	tableId := uuid.New()
+
+	var responseData = struct {
+		TableId string
+	}{
+		TableId: tableId.String(),
+	}
+
+	json.NewEncoder(response).Encode(responseData)
+}
+
 func liveGameHandler(response http.ResponseWriter, request *http.Request) {
 	connection, err := upgrader.Upgrade(response, request, nil)
 
@@ -62,20 +96,44 @@ func liveGameHandler(response http.ResponseWriter, request *http.Request) {
 		return
 	}
 
+	mutex.Lock()
+	clients[connection] = true
+	mutex.RUnlock()
+
+	defer func() {
+		mutex.Lock()
+		delete(clients, connection)
+		mutex.RUnlock()
+		connection.Close()
+	}()
+
 	for {
-		messageType, content, err := connection.ReadMessage()
+		// _, content, err := connection.ReadMessage()
+
+		var message WebsocketMessage
+		err := connection.ReadJSON(&message)
 
 		if err != nil {
-			connection.WriteJSON(WebsocketMessage{})
+			connection.WriteJSON(WebsocketMessage{
+				Action:  "error",
+				Message: err.Error(),
+			})
 			return
 		}
 
-		
+		switch message.Action {
+		case "initial_connection":
+
+		case "start_game":
+
+		default:
+		}
 	}
 }
 
 func main() {
 	http.HandleFunc("/ws/flip-seven", Cors(liveGameHandler))
+	http.HandleFunc("/v1/flip-seven/create", Cors(createTableHandler))
 
 	err := http.ListenAndServe(":9000", nil)
 
