@@ -35,5 +35,15 @@ export default defineNuxtConfig({
   
   ui: {
     prefix: 'Nuxt'
+  },
+  fonts: {
+    families: [
+      {
+        name: 'Source Sans Pro'
+      },
+      {
+        name: 'Source Code Pro'
+      }
+    ]
   }
 })
