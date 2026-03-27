@@ -48,7 +48,7 @@ const mouse = ref({ x: -1000, y: -1000 })
 let animationId: number | undefined
 const startTime = Date.now()
 
-function hexToRgb(hex: string): { r: number; g: number; b: number } {
+function hexToRgb(hex: string): { r: number, g: number, b: number } {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
   return result
     ? {
@@ -209,6 +209,6 @@ onUnmounted(() => {
 // Rebuild grid when relevant props change
 watch(
   () => [props.dotSize, props.gap],
-  () => buildGrid(),
+  () => buildGrid()
 )
 </script>
