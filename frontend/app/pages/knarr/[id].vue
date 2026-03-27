@@ -3,8 +3,8 @@
     <!-- Artifacts Section -->
     <section id="artifacts">
       <div class="grid grid-cols-12 auto-cols-max gap-1">
-        <knarr-artifacts-card id="artifact-1" />
-        <knarr-artifacts-card id="artifact-2" />
+        <lazy-knarr-artifacts-card id="artifact-1" hydrate-on-idle />
+        <lazy-knarr-artifacts-card id="artifact-2" hydrate-on-idle />
       </div>
     </section>
 
@@ -28,58 +28,16 @@
     </section>
 
     <!-- Player Hands -->
-    <section v-if="showPlayerHands" id="players-hands" class="fixed h-200 bg-blue-500/20 w-full bottom-0 left-0 shadow-lg backdrop-blur-2xl z-50">
-      <div class="relative">
-        <div class="py-5 px-20 bg-blue-100/50 backdrop-blur-2xl" @click="() => { togglePlayerHands() }">
-          <div class="p-5 rounded-lg hover:bg-primary-100/20 transition-colors ease-in-out duration-300 cursor-pointer">
-            <h2 class="font-bold text-2xl">
-              Player Name
-            </h2>
-          </div>
-        </div>
-
-        <div class="p-20">
-          <div class="absolute left-5 top-1/2 -translate-y-1/2">
-            <nuxt-button id="previous-player">
-              <icon name="lucide:arrow-left" />
-            </nuxt-button>
-          </div>
-
-          <div class="grid grid-cols-12 gap-2">
-            <div id="player-1-hand" class="h-80 bg-blue-400 rounded-lg shadow-sm col-span-2 col-start-2">
-              Player 1 Hand
-            </div>
-  
-            <div id="player-2-hand" class="h-80 bg-blue-400 rounded-lg shadow-sm col-span-2">
-              Player 2 Hand
-            </div>
-          </div>
-
-          <div class="absolute right-5 top-1/2 -translate-y-1/2">
-            <nuxt-button id="next-player">
-              <icon name="lucide:arrow-right" />
-            </nuxt-button>
-          </div>
-        </div>
-      </div>
-    </section>
+    <lazy-knarr-hands-modal hydrate-on-idle />
 
     <!-- Action Bar -->
-    <div id="actions" ref="actionEl" class="fixed bg-primary-500/20 backdrop-blur-2xl shadow-lg w-auto h-auto rounded-xl py-5 px-3 z-50 flex flex-col gap-2" :style="style">
-      <nuxt-button variant="subtle" @click="() => { togglePlayerHands() }">
-        <icon name="lucide:hand" />
-        Hands
-      </nuxt-button>
-
-      <nuxt-button variant="subtle" @click="() => { toggleExploration() }">
-        <icon name="lucide:map" />
-        Exploration
-      </nuxt-button>
-    </div>
+    <knarr-actions />
   </nuxt-container>
 </template>
 
 <script lang="ts" setup>
+import { usePlayerHandsComposable, useExplorationComposable } from '~/composables/knarr'
+
 const tokens = ['bg-blue-200']
 
 onMounted(() => {
@@ -90,13 +48,29 @@ onUnmounted(() => {
   document.body.classList.remove(...tokens)
 })
 
-const [showPlayerHands, togglePlayerHands] = useToggle(false)
+/**
+ * Hands
+ */
 
-const actionEl = useTemplateRef('actionEl')
+const { togglePlayerHands } = usePlayerHandsComposable()
 
-const { style } = useDraggable(actionEl, {
-  initialValue: { x: 1400, y: 20 }
+/**
+ * Exploration
+ */
+
+const { showExploration, toggleExploration } = useExplorationComposable()
+
+/**
+ * Modifier Keys
+ */
+
+onKeyStroke('h', (e) => {
+  e.preventDefault()
+  togglePlayerHands()
 })
 
-const [showExploration, toggleExploration] = useToggle(false)
+onKeyStroke('e', (e) => {
+  e.preventDefault()
+  toggleExploration()
+})
 </script>
