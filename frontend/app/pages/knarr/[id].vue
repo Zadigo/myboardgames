@@ -19,13 +19,8 @@
       </div>
     </section>
 
-    <section id="recruits">
-      <div class="grid grid-cols-12 gap-2">
-        <div v-for="i in 6" :id="`recruit-${i}`" :key="i" class="h-80 bg-blue-400 rounded-lg shadow-sm col-span-2 first:col-start-1">
-          Recruit {{ i }}
-        </div>
-      </div>
-    </section>
+    <!-- Recruits Section -->
+    <knarr-recruits-grid />
 
     <!-- Player Hands -->
     <lazy-knarr-hands-modal hydrate-on-idle />
