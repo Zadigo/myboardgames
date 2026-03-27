@@ -1,7 +1,7 @@
 <template>
   <section id="flip-seven" class="h-screen px-20 space-y-2 mx-auto" as="section">
     <div class="grid grid-cols-12 gap-2">
-      <div class="bg-flip-seven-200 col-span-3 flex justify-center p-5 rounded-lg gap-2">
+      <div class="bg-flip-seven-300/70 backdrop-blur-xl col-span-3 flex justify-center p-5 rounded-lg gap-2">
         <div id="hidden-card" class="h-50 w-30 bg-flip-seven-900 rounded-lg">
           Another 1
         </div>
@@ -14,7 +14,7 @@
 
     <!-- Tables -->
     <div class="grid grid-cols-2 grid-flow-row-dense gap-2">
-      <div v-for="i in 12" :key="i" :class="{ 'bg-flip-seven-300/70': i === 2, 'bg-flip-seven-200/70': i !== 2 }" class="w-auto gap-2 shadow-sm backdrop-blur-lg rounded-lg p-5 relative flex flex-col">
+      <div v-for="i in 12" :key="i" :class="{ 'bg-flip-seven-300/70': i === 2, 'bg-flip-seven-200/70': i !== 2 }" class="w-auto gap-2 shadow-sm backdrop-blur-xl rounded-lg p-5 relative flex flex-col">
         <div id="infos" class="flex gap-1 place-self-end">
           <div id="score" class="p-2 rounded-lg bg-[#fffceb] font-semibold text-center flex items-center">
             15
@@ -33,7 +33,7 @@
     </div>
 
     <!-- Actions -->
-    <base-actions color="bg-flip-seven-200">
+    <lazy-base-actions color="bg-flip-seven-200" hydrate-on-idle>
       <nuxt-button>
         Action 1
       </nuxt-button>
@@ -41,7 +41,7 @@
       <nuxt-button>
         Action 2
       </nuxt-button>
-    </base-actions>
+    </lazy-base-actions>
   </section>
 </template>
 
