@@ -6,4 +6,5 @@ type WebsocketMessage struct {
 	Action  string `json:"action"`
 	Message string `json:"message"`
 	Deck    []cards.Card `json:"deck"`
+	TableId  string `json:"table_id"`
 }

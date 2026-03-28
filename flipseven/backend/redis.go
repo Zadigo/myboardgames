@@ -6,8 +6,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// NewRedisClient initializes and returns a new Redis client
-func NewRedisClient(config *ServerBackendConfig) (*redis.Client, error) {
+func CreateRedisClient(config *ServerBackendConfig) (*redis.Client, error) {
 	options, err := redis.ParseURL("redis://:@localhost:6379/0")
 
 	if err != nil {

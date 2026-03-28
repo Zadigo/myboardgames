@@ -1,85 +1,83 @@
 package backend
 
-import (
-	"context"
-	"log"
-	"time"
+// import (
+// 	"context"
+// 	"log"
+// 	"time"
 
-	"github.com/Zadigo/zanalytics/utils"
+// 	amqp "github.com/rabbitmq/amqp091-go"
+// )
 
-	amqp "github.com/rabbitmq/amqp091-go"
-)
+// // Function used to create a new RabbitMQ connection and channel
+// func createRabbitChannel() (*amqp.Connection, *amqp.Channel, *amqp.Queue) {
+// 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+// 	utils.FailOnError(err, "Failed to connect to RabbitMQ")
 
-// Function used to create a new RabbitMQ connection and channel
-func createRabbitChannel() (*amqp.Connection, *amqp.Channel, *amqp.Queue) {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
-	utils.FailOnError(err, "Failed to connect to RabbitMQ")
+// 	channel, err := conn.Channel()
+// 	utils.FailOnError(err, "Failed to open a channel")
 
-	channel, err := conn.Channel()
-	utils.FailOnError(err, "Failed to open a channel")
+// 	q, err := channel.QueueDeclare(
+// 		"analytics_queue", // name
+// 		true,              // durable
+// 		false,             // autoDelete
+// 		false,             // exclusive
+// 		false,             // noWait
+// 		nil,               // args
+// 	)
+// 	utils.FailOnError(err, "Failed to declare a queue")
 
-	q, err := channel.QueueDeclare(
-		"analytics_queue", // name
-		true,              // durable
-		false,             // autoDelete
-		false,             // exclusive
-		false,             // noWait
-		nil,               // args
-	)
-	utils.FailOnError(err, "Failed to declare a queue")
+// 	return conn, channel, &q
+// }
 
-	return conn, channel, &q
-}
+// // Function used to create a new RabbitMQ connection and channel
+// func PublishRabbitMessage(body string) error {
+// 	_, channel, queue := createRabbitChannel()
 
-// Function used to create a new RabbitMQ connection and channel
-func PublishRabbitMessage(body string) error {
-	_, channel, queue := createRabbitChannel()
+// 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+// 	defer cancel()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+// 	err := channel.PublishWithContext(
+// 		ctx,
+// 		"",         // exchange
+// 		queue.Name, // routing key
+// 		false,      // mandatory
+// 		false,      // immediate
+// 		amqp.Publishing{
+// 			ContentType: "application/json",
+// 			Body:        []byte(body),
+// 		},
+// 	)
+// 	utils.FailOnError(err, "Failed to publish a message")
 
-	err := channel.PublishWithContext(
-		ctx,
-		"",         // exchange
-		queue.Name, // routing key
-		false,      // mandatory
-		false,      // immediate
-		amqp.Publishing{
-			ContentType: "application/json",
-			Body:        []byte(body),
-		},
-	)
-	utils.FailOnError(err, "Failed to publish a message")
+// 	return nil
+// }
 
-	return nil
-}
+// // Server that listens for messages from RabbitMQ
+// func RabbitConsumerServer() {
+// 	conn, channel, queue := createRabbitChannel()
 
-// Server that listens for messages from RabbitMQ
-func RabbitConsumerServer() {
-	conn, channel, queue := createRabbitChannel()
+// 	defer conn.Close()
+// 	defer channel.Close()
 
-	defer conn.Close()
-	defer channel.Close()
+// 	msgs, err := channel.Consume(
+// 		queue.Name,
+// 		"",    // consumer
+// 		true,  // auto-ack
+// 		false, // exclusive
+// 		false, // no-local
+// 		false, // no-wait
+// 		nil,   // args
+// 	)
+// 	utils.FailOnError(err, "Failed to register a consumer")
 
-	msgs, err := channel.Consume(
-		queue.Name,
-		"",    // consumer
-		true,  // auto-ack
-		false, // exclusive
-		false, // no-local
-		false, // no-wait
-		nil,   // args
-	)
-	utils.FailOnError(err, "Failed to register a consumer")
+// 	var forever chan struct{}
 
-	var forever chan struct{}
+// 	go func() {
+// 		for d := range msgs {
+// 			log.Printf("Received a message: %s", d.Body)
+// 		}
+// 	}()
 
-	go func() {
-		for d := range msgs {
-			log.Printf("Received a message: %s", d.Body)
-		}
-	}()
-
-	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
-	<-forever
-}
+// 	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
+// 	<-forever
+// }

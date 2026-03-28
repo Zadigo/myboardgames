@@ -8,9 +8,11 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/Zadigo/flipseven/backend"
 	"github.com/Zadigo/flipseven/cards"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
+	"github.com/redis/go-redis/v9"
 )
 
 const NumberOfPlayers int = 12
@@ -141,21 +143,48 @@ func liveGameHandler(response http.ResponseWriter, request *http.Request) {
 		}
 
 		switch message.Action {
-		case "initial_connection":
+		case "waiting_lobby":
+			tableId := message.TableId
 
-		case "distribute_cards":
+			if tableId == "" {
+				connection.WriteJSON(WebsocketMessage{
+					Action:  "error",
+					Message: "Table ID is required",
+				})
+				return
+			}
+
+		case "get_deck":
 			baseDeck := cards.GetDeck()
 
 			connection.WriteJSON(WebsocketMessage{
-				Action: "distribute_cards",
+				Action: "get_deck",
 				Deck:   baseDeck,
 			})
-
-		case "start_game":
 
 		default:
 		}
 	}
+}
+
+func beforeStart() *redis.Client {
+	baseConfig := backend.ServerConfig{
+		Config: backend.ServerBaseConfig{
+			Backends: &backend.ServerBackendsConfig{
+				Redis: &backend.ServerBackendConfig{
+					Url: "redis://:@localhost:6379/0",
+				},
+			},
+		},
+	}
+
+	client, err := backend.CreateRedisClient(baseConfig.Config.Backends.Redis)
+
+	if err != nil {
+		log.Panicln("❌ Failed to create Redis client", err.Error())
+	}
+
+	return client
 }
 
 func main() {
@@ -164,6 +193,8 @@ func main() {
 
 	http.HandleFunc("/ws/flip-seven", Cors(liveGameHandler))
 	http.HandleFunc("/v1/flip-seven/create", Cors(createTableHandler))
+
+	// defer beforeStart()
 
 	err := http.ListenAndServe(":9000", nil)
 
