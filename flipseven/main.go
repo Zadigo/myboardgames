@@ -3,13 +3,12 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
-	"os"
 	"sync"
 
+	"github.com/Zadigo/flipseven/cards"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
@@ -35,9 +34,23 @@ var mutex = sync.RWMutex{}
 // 	}
 // }
 
+var allowedOrigins = map[string]bool{
+	"http://localhost:3000": true,
+}
+
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
+	CheckOrigin: func(request *http.Request) bool {
+		origin := request.Header.Get("Origin")
+
+		_, ok := allowedOrigins[origin]
+		if !ok {
+			return false
+		}
+
+		return allowedOrigins[origin]
+	},
 }
 
 // CORS middleware to handle cross-origin requests
@@ -92,20 +105,26 @@ func liveGameHandler(response http.ResponseWriter, request *http.Request) {
 	connection, err := upgrader.Upgrade(response, request, nil)
 
 	if err != nil {
-		log.Panic("❌ Failed to upgrade request")
+		log.Println("❌ Failed to upgrade request", err.Error())
 		return
 	}
 
 	mutex.Lock()
 	clients[connection] = true
-	mutex.RUnlock()
+	log.Println("⚡️ New connection from client: 1.1.1.1")
+	mutex.Unlock()
 
 	defer func() {
 		mutex.Lock()
 		delete(clients, connection)
-		mutex.RUnlock()
+		mutex.Unlock()
 		connection.Close()
 	}()
+
+	connection.WriteJSON(WebsocketMessage{
+		Action:  "initial_connection",
+		Message: "Connection successful!",
+	})
 
 	for {
 		// _, content, err := connection.ReadMessage()
@@ -124,6 +143,14 @@ func liveGameHandler(response http.ResponseWriter, request *http.Request) {
 		switch message.Action {
 		case "initial_connection":
 
+		case "distribute_cards":
+			baseDeck := cards.GetDeck()
+
+			connection.WriteJSON(WebsocketMessage{
+				Action: "distribute_cards",
+				Deck:   baseDeck,
+			})
+
 		case "start_game":
 
 		default:
@@ -132,15 +159,17 @@ func liveGameHandler(response http.ResponseWriter, request *http.Request) {
 }
 
 func main() {
+	log.Println("🚀 Starting Flip 7 Webserver...")
+	log.Println("✅ Server started on 127.0.0.1:9000")
+
 	http.HandleFunc("/ws/flip-seven", Cors(liveGameHandler))
 	http.HandleFunc("/v1/flip-seven/create", Cors(createTableHandler))
 
 	err := http.ListenAndServe(":9000", nil)
 
 	if errors.Is(err, http.ErrServerClosed) {
-		log.Print("❌ Server closed")
+		log.Println("❌ Server closed")
 	} else {
-		log.Fatal("❌ Could not start server")
-		os.Exit(1)
+		log.Fatalln("❌ Could not start server")
 	}
 }

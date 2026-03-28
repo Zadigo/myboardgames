@@ -53,4 +53,9 @@ definePageMeta({
 useStyleTag('body { background-color: var(--color-flip-seven-100); }')
 
 // Secondary: #fade34
+
+// Test Websocket
+
+const ws = useWebSocket('ws://127.0.0.1:9000/ws/flip-seven')
+ws.open()
 </script>
