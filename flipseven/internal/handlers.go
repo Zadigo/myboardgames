@@ -76,20 +76,24 @@ func CreateTableHandler(response http.ResponseWriter, request *http.Request, red
 		return
 	}
 
-	
 	tableId := uuid.New()
-	
+
 	var message struct{ Username string }
 	err := json.NewDecoder(request.Body).Decode(&message)
-	
+
+	if message.Username == "" {
+		http.Error(response, "Username is required", http.StatusBadRequest)
+		return
+	}
+
 	if err != nil {
-		http.Error(response, "Failed to parse data", http.StatusInternalServerError)
+		http.Error(response, fmt.Sprintf("Failed to parse data: %v", err.Error()), http.StatusInternalServerError)
 		return
 	}
 
 	response.Header().Set("Content-Type", "application/json")
 	response.WriteHeader(http.StatusOK)
-	
+
 	if message.Username == "" {
 		http.Error(response, "Username is required", http.StatusBadRequest)
 		return
@@ -103,9 +107,11 @@ func CreateTableHandler(response http.ResponseWriter, request *http.Request, red
 	})
 
 	if err != nil {
-		http.Error(response, "Failed to encode response", http.StatusInternalServerError)
+		http.Error(response, fmt.Sprintf("Failed to encode response: %v", err.Error()), http.StatusInternalServerError)
 		return
 	}
+
+	log.Printf("✅ Created new table with ID: %s", tableId.String())
 }
 
 // Handler for the live game websocket connection. This is used for real-time
