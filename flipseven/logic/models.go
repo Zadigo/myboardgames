@@ -7,26 +7,38 @@ import (
 
 type Player struct {
 	// Player's username
-	username string
+	Username string
 	// Unique identifier for the player
-	uuid string
+	Uuid string
 	// The table on which the player is currently playing
-	tableUuid string
+	TableUuid string
 	// The current number of cards the player has flipped
-	numberOfCards int
+	NumberOfCards int
 	// Whether the player was stopped by the freeze card
-	isFreezed bool
+	// or cannot continue flipping cards because he has
+	// two similar card numbers
+	IsFreezed bool
+	// Indicates that a player has flipped seven cards which
+	// is the end of the current round
+	HasSevenCards bool
 	// The number of rounds played by the player
-	numberOfRounds int
+	// NumberOfRounds int
 	// The cards that the player has hands
-	cards []cards.Card
+	Cards []cards.Card
+	// The player's current score
+	Score int
 }
 
+// Stores the connection and the detailed
+// information of player
 type ConnectedPlayer struct {
-	conn    websocket.Conn
-	details Player
+	Conn    *websocket.Conn
+	Details Player
 }
 
 type PlayersTable struct {
-	clients []ConnectedPlayer
+	Clients         []*ConnectedPlayer
+	CurrentDeck     []cards.Card
+	NumberOfPlayers int
+	GameStarted     bool
 }

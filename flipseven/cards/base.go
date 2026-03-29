@@ -1,30 +1,18 @@
 package cards
 
-
 func getNumberCards() []Card {
 	numbers := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
 	cards := []Card{}
 
-	for i := range numbers {
-		if i == 0 {
-			cards = append(cards, Card{
-				value:    0,
-				isNumber: true,
-			})
-		}
-
-		if i == 1 {
-			cards = append(cards, Card{
-				value:    0,
-				isNumber: true,
-			})
-		}
-
-		if i > 1 {
-			for j := range i {
+	for _, n := range numbers {
+		if n <= 1 {
+			// 0 and 1 appear once
+			cards = append(cards, Card{Value: n, IsNumber: true})
+		} else {
+			for j := range n {
 				cards = append(cards, Card{
-					value:    j,
-					isNumber: true,
+					Value:    j,
+					IsNumber: true,
 				})
 			}
 		}
@@ -38,16 +26,16 @@ func getBonusCards() []Card {
 	numbers := []int{2, 4, 6, 8, 10}
 
 	cards = append(cards, Card{
-		value:        2,
-		isMultiplier: true,
-		isSpecial:    true,
+		Value:        2,
+		IsMultiplier: true,
+		IsSpecial:    true,
 	})
 
 	for i := range numbers {
 		cards = append(cards, Card{
-			value:        i,
-			isBonus:      true,
-			isMultiplier: false,
+			Value:        i,
+			IsBonus:      true,
+			IsMultiplier: false,
 		})
 	}
 
@@ -61,8 +49,8 @@ func getSpecialCards() []Card {
 	for i := range names {
 		for range 3 {
 			cards = append(cards, Card{
-				value:    0,
-				category: names[i],
+				Value:    0,
+				Category: names[i],
 			})
 		}
 	}
@@ -86,4 +74,13 @@ func GetDeck() []Card {
 	cards = append(cards, specialCards...)
 
 	return cards
+}
+
+func GetShuffledDeck() []Card {
+	deck := GetDeck()
+
+	copiedDeck := make([]Card, len(deck))
+	copy(copiedDeck, deck)
+
+	return copiedDeck
 }

@@ -3,8 +3,9 @@ package main
 import "github.com/Zadigo/flipseven/cards"
 
 type WebsocketMessage struct {
-	Action  string `json:"action"`
-	Message string `json:"message"`
-	Deck    []cards.Card `json:"deck"`
-	TableId  string `json:"table_id"`
+	Action   string       `json:"action"`
+	Message  string       `json:"message"`
+	Deck     []cards.Card `json:"deck"`
+	TableId  string       `json:"table_id"`
+	PlayerId string       `json:"player_id"`
 }

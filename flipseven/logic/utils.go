@@ -7,3 +7,9 @@ func SumValues(numbers []int) int {
 	}
 	return sum
 }
+
+func CalcualtePlayerScores(player *ConnectedPlayer) {
+	for _, card := range player.Details.Cards {
+		player.Details.Score += card.Value
+	}
+}
