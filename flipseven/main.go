@@ -39,14 +39,17 @@ func main() {
 	// in order to close the current task
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-
+	
+	redisClient := beforeStart()
+	defer redisClient.Close()
+	
 	http.HandleFunc("/ws/flip-seven", internal.Cors(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		internal.LiveGameHandler(w, r, ctx)
 	})))
-	http.HandleFunc("/v1/flip-seven/create", internal.Cors(internal.CreateTableHandler))
 
-	redisClient := beforeStart()
-	defer redisClient.Close()
+	http.HandleFunc("/v1/flip-seven/create", internal.Cors(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		internal.CreateTableHandler(w, r, redisClient)
+	})))
 
 	err := http.ListenAndServe(":9000", nil)
 

@@ -6,6 +6,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
+// Returns a Redis client instance
 func CreateRedisClient(config *ServerBackendConfig) (*redis.Client, error) {
 	options, err := redis.ParseURL("redis://:@localhost:6379/0")
 

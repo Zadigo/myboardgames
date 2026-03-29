@@ -16,3 +16,7 @@ type WebsocketMessage struct {
 }
 
 type ContextHandlerFunc func(w http.ResponseWriter, r *http.Request, ctx context.Context)
+
+type PostDataMessage struct {
+	TableId string `json:"table_id"`
+}

@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"sync"
@@ -13,11 +12,18 @@ import (
 	"github.com/Zadigo/flipseven/internal/logic"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
+	"github.com/redis/go-redis/v9"
 )
 
 var mutex = sync.RWMutex{}
 
-var tables = make(map[string]*logic.PlayersTable)
+// In-memory storage for game tables and connected clients.
+// This is used for managing the state of the game and
+// the connected clients.
+var Tables = make(map[string]*logic.PlayersTable)
+
+// In-memory storage for connected clients. This is used for
+// broadcasting messages to all connected clients.
 var clients = make(map[*websocket.Conn]bool)
 
 const maxNumberOfPlayers int = 12
@@ -59,36 +65,47 @@ func Cors(next http.HandlerFunc) http.HandlerFunc {
 
 // Handler for creating a new game table. This is used when the user creates
 // a new game and needs a unique table ID that needs to be shared with other players.
-func CreateTableHandler(response http.ResponseWriter, request *http.Request) {
+func CreateTableHandler(response http.ResponseWriter, request *http.Request, redisClient *redis.Client) {
 	if request.Method != http.MethodPost {
 		http.Error(response, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	if request.Header.Get("Content-Type") != "application/json" {
-		http.Error(response, "Unsupported media type", http.StatusInternalServerError)
+		http.Error(response, "Unsupported media type", http.StatusUnsupportedMediaType)
 		return
 	}
 
-	_, err := io.ReadAll(request.Body)
-
+	
+	tableId := uuid.New()
+	
+	var message struct{ Username string }
+	err := json.NewDecoder(request.Body).Decode(&message)
+	
 	if err != nil {
 		http.Error(response, "Failed to parse data", http.StatusInternalServerError)
 		return
 	}
 
-	request.Header.Set("Content-Type", "application/json")
+	response.Header().Set("Content-Type", "application/json")
 	response.WriteHeader(http.StatusOK)
-
-	tableId := uuid.New()
-
-	var responseData = struct {
-		TableId string
-	}{
-		TableId: tableId.String(),
+	
+	if message.Username == "" {
+		http.Error(response, "Username is required", http.StatusBadRequest)
+		return
 	}
 
-	json.NewEncoder(response).Encode(responseData)
+	ctx := context.Background()
+	redisClient.HSet(ctx, tableId.String(), "initiator", message.Username)
+
+	err = json.NewEncoder(response).Encode(PostDataMessage{
+		TableId: tableId.String(),
+	})
+
+	if err != nil {
+		http.Error(response, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }
 
 // Handler for the live game websocket connection. This is used for real-time
@@ -175,7 +192,7 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 
 			// Connect any new players to the table
 			mutex.Lock()
-			table := tables[tableId]
+			table := Tables[tableId]
 
 			if table == nil {
 				return
@@ -208,7 +225,7 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 			// 1. Return the deck of cards
 			baseDeck := cards.GetDeck()
 
-			table := tables[message.TableId]
+			table := Tables[message.TableId]
 			table.CurrentDeck = baseDeck
 
 			WriteWsMessage(connection, WebsocketMessage{
@@ -218,7 +235,7 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 
 		case "flip_card":
 			message = ReadWsMessage(connection)
-			table := tables[message.TableId]
+			table := Tables[message.TableId]
 
 			for _, player := range table.Clients {
 				if player.Details.IsFreezed {

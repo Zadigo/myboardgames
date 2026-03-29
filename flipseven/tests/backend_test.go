@@ -18,11 +18,14 @@ func TestRedisBackend(t *testing.T) {
 	}
 
 	client, err := backend.CreateRedisClient(serverConfig.Config.Backends.Redis)
+	
 	if err != nil {
 		t.Fatalf("Failed to create Redis client: %v", err)
 	}
-
+	
 	if client == nil {
 		t.Fatal("Redis client is nil")
 	}
+	
+	defer client.Close()
 }
