@@ -7,26 +7,25 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func CustomPanic(err error, msg string) {
+func CustomPanic(err error, message string) {
 	if err != nil {
-		log.Panicf("%v: %v", msg, err)
+		log.Panicf("%v: %v", message, err)
 	}
 }
 
+// Read an incomming websocket message
 func ReadWsMessage(connection *websocket.Conn) WebsocketMessage {
 	var message WebsocketMessage
 	err := connection.ReadJSON(WebsocketMessage{})
 
 	if err != nil {
-		connection.WriteJSON(WebsocketMessage{
-			Action:  "error",
-			Message: fmt.Sprintf("Could not read JSON message: %v", err.Error()),
-		})
+		WriteWsError(connection, err)
 	}
 
 	return message
 }
 
+// Return a message to the client
 func WriteWsMessage(connection *websocket.Conn, message WebsocketMessage) {
 	err := connection.WriteJSON(message)
 
@@ -34,4 +33,16 @@ func WriteWsMessage(connection *websocket.Conn, message WebsocketMessage) {
 		log.Fatalf("❌ Could not send message: %v", err.Error())
 		return
 	}
+}
+
+// Return an error message to the client
+func WriteWsError(connection *websocket.Conn, err error) {
+	formattedError := fmt.Sprintf("❌ An error occurred: %v", err.Error())
+
+	WriteWsMessage(connection, WebsocketMessage{
+		Action:  "error",
+		Message: formattedError,
+	})
+
+	log.Fatal(formattedError)
 }

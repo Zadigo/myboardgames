@@ -2,6 +2,7 @@ package internal
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -126,14 +127,10 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request) {
 		err := connection.ReadJSON(&message)
 
 		if err != nil {
-			err := connection.WriteJSON(WebsocketMessage{
-				Action:  "error",
-				Message: err.Error(),
+			WriteWsMessage(connection, WebsocketMessage{
+				Action: "error",
+				Message: fmt.Sprintf("❌ Failed to send JSON message: %v", err.Error()),
 			})
-
-			if err != nil {
-				log.Fatalf("❌ Failed to send JSON message")
-			}
 			return
 		}
 
@@ -148,7 +145,7 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request) {
 			tableId := message.TableId
 
 			if tableId == "" {
-				connection.WriteJSON(WebsocketMessage{
+				WriteWsMessage(connection, WebsocketMessage{
 					Action:  "error",
 					Message: "Table ID is required",
 				})

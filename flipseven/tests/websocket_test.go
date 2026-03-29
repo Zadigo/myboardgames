@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/Zadigo/flipseven/internal"
 	"github.com/gorilla/websocket"
@@ -29,17 +30,9 @@ func newWebsocketConnection(t *testing.T, handler http.HandlerFunc) (*websocket.
 		t.Fatalf("Failed to connect to test server: %v", err)
 	}
 
+	time.Sleep(90 * time.Millisecond)
+
 	return conn, server
-}
-
-func writeWsMessage(t *testing.T, connection *websocket.Conn, message internal.WebsocketMessage) {
-	t.Helper()
-
-	err := connection.WriteJSON(message)
-
-	if err != nil {
-		t.Fatalf("Failed to send message: %v", err.Error())
-	}
 }
 
 func TestLiveHandlerInitialConnection(t *testing.T) {
@@ -52,6 +45,6 @@ func TestLiveHandlerInitialConnection(t *testing.T) {
 	log.Printf("Result: %v", message)
 
 	if message.Action != "initial_connection" {
-		t.Error("Action should be initial connetion")
+		t.Error("Action should be initial connection")
 	}
 }
