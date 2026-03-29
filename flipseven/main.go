@@ -129,10 +129,14 @@ func liveGameHandler(response http.ResponseWriter, request *http.Request) {
 		err := connection.ReadJSON(&message)
 
 		if err != nil {
-			connection.WriteJSON(WebsocketMessage{
+			err := connection.WriteJSON(WebsocketMessage{
 				Action:  "error",
 				Message: err.Error(),
 			})
+
+			if err != nil {
+				log.Fatalf("❌ Failed to send JSON message")
+			}
 			return
 		}
 
@@ -174,9 +178,14 @@ func liveGameHandler(response http.ResponseWriter, request *http.Request) {
 			mutex.Unlock()
 
 			if table.NumberOfPlayers == maxNumberOfPlayers {
-				connection.WriteJSON(WebsocketMessage{
+				err := connection.WriteJSON(WebsocketMessage{
 					Action: "start_game",
 				})
+
+				if err != nil {
+					log.Fatalf("❌ Failed to send JSON message: start game")
+				}
+
 				return
 			}
 
@@ -189,10 +198,15 @@ func liveGameHandler(response http.ResponseWriter, request *http.Request) {
 			table := tables[message.TableId]
 			table.CurrentDeck = baseDeck
 
-			connection.WriteJSON(WebsocketMessage{
+			err := connection.WriteJSON(WebsocketMessage{
 				Action: "deck_created",
 				Deck:   baseDeck,
 			})
+
+			if err != nil {
+				log.Fatalf("❌ Failed to send JSON message: get deck")
+				return
+			}
 
 		case "flip_card":
 			message = ReadWebsocketMessage(connection)
@@ -238,9 +252,14 @@ func liveGameHandler(response http.ResponseWriter, request *http.Request) {
 					logic.CalcualtePlayerScores(player)
 				}
 
-				connection.WriteJSON(WebsocketMessage{
+				err := connection.WriteJSON(WebsocketMessage{
 					Action: "new_round",
 				})
+
+				if err != nil {
+					log.Fatalf("❌ Failed to send JSON message: go to next round")
+					return
+				}
 
 				currentRound += 1
 			}
