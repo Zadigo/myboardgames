@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -92,7 +93,7 @@ func CreateTableHandler(response http.ResponseWriter, request *http.Request) {
 
 // Handler for the live game websocket connection. This is used for real-time
 // communication between the server and the clients during the game.
-func LiveGameHandler(response http.ResponseWriter, request *http.Request) {
+func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx context.Context) {
 	connection, err := RequestUpgrader.Upgrade(response, request, nil)
 
 	if err != nil {
@@ -112,6 +113,13 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request) {
 		mutex.Lock()
 		delete(clients, connection)
 		mutex.Unlock()
+
+		// Send proper closing handshake before closing
+		connection.WriteMessage(
+			websocket.CloseMessage,
+			websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""),
+		)
+
 		connection.Close()
 	}()
 
@@ -128,19 +136,20 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request) {
 
 		if err != nil {
 			WriteWsMessage(connection, WebsocketMessage{
-				Action: "error",
+				Action:  "error",
 				Message: fmt.Sprintf("❌ Failed to send JSON message: %v", err.Error()),
 			})
 			return
 		}
 
-		switch message.Action {
-		case "ping":
-			WriteWsMessage(connection, WebsocketMessage{
-				Action: "ping",
-				Message: "pong",
-			})
+		// select {
+		// case <-ctx.Done():
+		// 	log.Println("⚠️ Context cancelled, closing handler")
+		// 	return
+		// default:
+		// }
 
+		switch message.Action {
 		case "waiting_lobby":
 			tableId := message.TableId
 
@@ -167,6 +176,10 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request) {
 			// Connect any new players to the table
 			mutex.Lock()
 			table := tables[tableId]
+
+			if table == nil {
+				return
+			}
 
 			if table.GameStarted {
 				mutex.Unlock()
@@ -198,15 +211,10 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request) {
 			table := tables[message.TableId]
 			table.CurrentDeck = baseDeck
 
-			err := connection.WriteJSON(WebsocketMessage{
+			WriteWsMessage(connection, WebsocketMessage{
 				Action: "deck_created",
 				Deck:   baseDeck,
 			})
-
-			if err != nil {
-				log.Fatalf("❌ Failed to send JSON message: get deck")
-				return
-			}
 
 		case "flip_card":
 			message = ReadWsMessage(connection)

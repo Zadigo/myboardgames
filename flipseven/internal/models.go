@@ -1,6 +1,11 @@
 package internal
 
-import "github.com/Zadigo/flipseven/internal/cards"
+import (
+	"context"
+	"net/http"
+
+	"github.com/Zadigo/flipseven/internal/cards"
+)
 
 type WebsocketMessage struct {
 	Action   string       `json:"action"`
@@ -9,3 +14,5 @@ type WebsocketMessage struct {
 	TableId  string       `json:"table_id"`
 	PlayerId string       `json:"player_id"`
 }
+
+type ContextHandlerFunc func(w http.ResponseWriter, r *http.Request, ctx context.Context)

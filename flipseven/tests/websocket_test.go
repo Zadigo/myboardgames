@@ -1,7 +1,8 @@
 package tests
 
 import (
-	"log"
+	"context"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -19,10 +20,17 @@ func init() {
 	}
 }
 
-func newWebsocketConnection(t *testing.T, handler http.HandlerFunc) (*websocket.Conn, *httptest.Server) {
+func newWebsocketConnection(t *testing.T, handler internal.ContextHandlerFunc) (*websocket.Conn, *httptest.Server, context.CancelFunc) {
 	t.Helper()
 
-	server := httptest.NewServer(handler)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	wrappedHanlder := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handler(w, r, ctx)
+	})
+
+	server := httptest.NewServer(wrappedHanlder)
 	wsURL := "ws" + strings.TrimPrefix(server.URL, "http")
 	conn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
 
@@ -32,19 +40,39 @@ func newWebsocketConnection(t *testing.T, handler http.HandlerFunc) (*websocket.
 
 	time.Sleep(90 * time.Millisecond)
 
-	return conn, server
+	return conn, server, cancel
 }
 
-func TestLiveHandlerInitialConnection(t *testing.T) {
-	conn, server := newWebsocketConnection(t, internal.LiveGameHandler)
+func TestInitialConnection(t *testing.T) {
+	conn, server, cancel := newWebsocketConnection(t, internal.LiveGameHandler)
 
+	defer cancel()
 	defer server.Close()
 	defer conn.Close()
 
 	message := internal.ReadWsMessage(conn)
-	log.Printf("Result: %v", message)
 
 	if message.Action != "initial_connection" {
 		t.Error("Action should be initial connection")
 	}
+}
+
+func TestWaitingLobby(t *testing.T) {
+	conn, server, cancel := newWebsocketConnection(t, internal.LiveGameHandler)
+
+	defer cancel()
+	defer server.Close()
+	defer conn.Close()
+
+	internal.ReadWsMessage(conn)
+
+	internal.WriteWsMessage(conn, internal.WebsocketMessage{
+		Action:  "waiting_lobby",
+		TableId: "test-table-id",
+	})
+
+	message := internal.ReadWsMessage(conn)
+	fmt.Print(message)
+
+	cancel()
 }

@@ -16,23 +16,26 @@ func CustomPanic(err error, message string) {
 // Read an incomming websocket message
 func ReadWsMessage(connection *websocket.Conn) WebsocketMessage {
 	var message WebsocketMessage
-	err := connection.ReadJSON(WebsocketMessage{})
+	err := connection.ReadJSON(&message)
 
 	if err != nil {
 		WriteWsError(connection, err)
+		return WebsocketMessage{}
 	}
 
 	return message
 }
 
-// Return a message to the client
-func WriteWsMessage(connection *websocket.Conn, message WebsocketMessage) {
+// Return a message to the client. Returns true if the message was
+// sent successfully, false otherwise
+func WriteWsMessage(connection *websocket.Conn, message WebsocketMessage) bool {
 	err := connection.WriteJSON(message)
 
 	if err != nil {
 		log.Fatalf("❌ Could not send message: %v", err.Error())
-		return
+		return false
 	}
+	return true
 }
 
 // Return an error message to the client

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"log"
 	"net/http"
@@ -34,7 +35,14 @@ func main() {
 	log.Println("🚀 Starting Flip 7 Webserver...")
 	log.Println("✅ Server started on 127.0.0.1:9000")
 
-	http.HandleFunc("/ws/flip-seven", internal.Cors(internal.LiveGameHandler))
+	// Pass a context to the handler with a cancel method
+	// in order to close the current task
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	http.HandleFunc("/ws/flip-seven", internal.Cors(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		internal.LiveGameHandler(w, r, ctx)
+	})))
 	http.HandleFunc("/v1/flip-seven/create", internal.Cors(internal.CreateTableHandler))
 
 	redisClient := beforeStart()
