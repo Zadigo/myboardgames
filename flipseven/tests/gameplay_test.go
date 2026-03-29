@@ -4,8 +4,8 @@ import (
 	"log"
 	"testing"
 
-	"github.com/Zadigo/flipseven/cards"
-	"github.com/Zadigo/flipseven/logic"
+	"github.com/Zadigo/flipseven/internal/cards"
+	"github.com/Zadigo/flipseven/internal/logic"
 )
 
 func TestCheckPlayerCardsNoDuplicates(*testing.T) {

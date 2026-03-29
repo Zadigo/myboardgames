@@ -3,9 +3,8 @@ package tests
 import (
 	"testing"
 
-	"github.com/Zadigo/flipseven/backend"
+	"github.com/Zadigo/flipseven/internal/backend"
 )
-
 
 func TestRedisBackend(t *testing.T) {
 	serverConfig := backend.ServerConfig{

@@ -1,7 +1,7 @@
 package logic
 
 import (
-	"github.com/Zadigo/flipseven/cards"
+	"github.com/Zadigo/flipseven/internal/cards"
 	"github.com/gorilla/websocket"
 )
 

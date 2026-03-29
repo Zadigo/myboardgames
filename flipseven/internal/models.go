@@ -1,6 +1,6 @@
-package main
+package internal
 
-import "github.com/Zadigo/flipseven/cards"
+import "github.com/Zadigo/flipseven/internal/cards"
 
 type WebsocketMessage struct {
 	Action   string       `json:"action"`

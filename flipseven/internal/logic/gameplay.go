@@ -1,8 +1,6 @@
 package logic
 
-import (
-	"github.com/Zadigo/flipseven/cards"
-)
+import "github.com/Zadigo/flipseven/internal/cards"
 
 // Checks the cards for the given player. A player cannot have
 // two cards with the same number (except for special and bonus cards)

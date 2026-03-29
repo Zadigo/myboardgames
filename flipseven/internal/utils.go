@@ -1,4 +1,4 @@
-package main
+package internal
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ func CustomPanic(err error, msg string) {
 	}
 }
 
-func ReadWebsocketMessage(connection *websocket.Conn) WebsocketMessage {
+func ReadWsMessage(connection *websocket.Conn) WebsocketMessage {
 	var message WebsocketMessage
 	err := connection.ReadJSON(WebsocketMessage{})
 
@@ -25,4 +25,12 @@ func ReadWebsocketMessage(connection *websocket.Conn) WebsocketMessage {
 	}
 
 	return message
+}
+
+func WriteWsMessage(connection *websocket.Conn, message WebsocketMessage) {
+	err := connection.WriteJSON(message)
+	if err != nil {
+		log.Fatalf("❌ Could not send message: %s", err.Error())
+		return
+	}
 }
