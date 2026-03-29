@@ -104,7 +104,7 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request) {
 	// or not
 	mutex.Lock()
 	clients[connection] = true
-	log.Println("⚡️ New connection from client: 1.1.1.1")
+	log.Printf("⚡️ New connection from client: %v", connection.LocalAddr().String())
 	mutex.Unlock()
 
 	defer func() {
@@ -114,9 +114,9 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request) {
 		connection.Close()
 	}()
 
-	connection.WriteJSON(WebsocketMessage{
+	WriteWsMessage(connection, WebsocketMessage{
 		Action:  "initial_connection",
-		Message: "Connection successful!",
+		Message: "Connection successful",
 	})
 
 	var currentRound int = 1
@@ -138,6 +138,12 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request) {
 		}
 
 		switch message.Action {
+		case "ping":
+			WriteWsMessage(connection, WebsocketMessage{
+				Action: "ping",
+				Message: "pong",
+			})
+
 		case "waiting_lobby":
 			tableId := message.TableId
 

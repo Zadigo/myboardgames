@@ -29,6 +29,7 @@ func ReadWsMessage(connection *websocket.Conn) WebsocketMessage {
 
 func WriteWsMessage(connection *websocket.Conn, message WebsocketMessage) {
 	err := connection.WriteJSON(message)
+
 	if err != nil {
 		log.Fatalf("❌ Could not send message: %s", err.Error())
 		return
