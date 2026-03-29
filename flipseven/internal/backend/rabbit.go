@@ -74,7 +74,7 @@ package backend
 
 // 	go func() {
 // 		for d := range msgs {
-// 			log.Printf("Received a message: %s", d.Body)
+// 			log.Printf("Received a message: %v", d.Body)
 // 		}
 // 	}()
 

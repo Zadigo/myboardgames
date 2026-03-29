@@ -1,7 +1,7 @@
 package tests
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -48,26 +48,10 @@ func TestLiveHandlerInitialConnection(t *testing.T) {
 	defer server.Close()
 	defer conn.Close()
 
-	// message := internal.ReadWsMessage(conn)
-	// fmt.Print(message)
-
-	writeWsMessage(t, conn, internal.WebsocketMessage{
-		Action: "ping",
-	})
-
 	message := internal.ReadWsMessage(conn)
-	fmt.Print(message)
+	log.Printf("Result: %v", message)
 
-	// 	writeWsMessage(t, conn, internal.WebsocketMessage{
-	// 		Action:  "waiting_lobby",
-	// 		TableId: "", // missing table ID
-	// 	})
-
-	// 	if message.Action != "error" {
-	// 		t.Errorf("expected action 'error', got '%s'", message.Action)
-	// 	}
-
-	//	if message.Message != "Table ID is required" {
-	//		t.Errorf("expected 'Table ID is required', got '%s'", message.Message)
-	//	}
+	if message.Action != "initial_connection" {
+		t.Error("Action should be initial connetion")
+	}
 }
