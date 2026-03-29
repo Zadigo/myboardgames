@@ -24,7 +24,7 @@ var allowedOrigins = map[string]bool{
 	"http://localhost:3000": true,
 }
 
-var upgrader = websocket.Upgrader{
+var RequestUpgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 	CheckOrigin: func(request *http.Request) bool {
@@ -92,7 +92,7 @@ func CreateTableHandler(response http.ResponseWriter, request *http.Request) {
 // Handler for the live game websocket connection. This is used for real-time
 // communication between the server and the clients during the game.
 func LiveGameHandler(response http.ResponseWriter, request *http.Request) {
-	connection, err := upgrader.Upgrade(response, request, nil)
+	connection, err := RequestUpgrader.Upgrade(response, request, nil)
 
 	if err != nil {
 		log.Println("❌ Failed to upgrade request", err.Error())

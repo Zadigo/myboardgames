@@ -10,6 +10,13 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+func init() {
+	// Allow all origins in tests since ports are dynamic
+	internal.RequestUpgrader.CheckOrigin = func(r *http.Request) bool {
+		return true
+	}
+}
+
 func newWebsocketConnection(t *testing.T, handler http.HandlerFunc) (*websocket.Conn, *httptest.Server) {
 	t.Helper()
 
@@ -20,7 +27,7 @@ func newWebsocketConnection(t *testing.T, handler http.HandlerFunc) (*websocket.
 	if err != nil {
 		t.Fatalf("Failed to connect to test server: %v", err)
 	}
-	
+
 	return conn, server
 }
 
