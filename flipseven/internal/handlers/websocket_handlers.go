@@ -259,6 +259,10 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 			}
 
 		default:
+			WriteWsMessage(connection, WebsocketMessage{
+				Action:  "error",
+				Message: "Unknown action",
+			})
 		}
 	}
 }

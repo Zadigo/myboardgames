@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/Zadigo/flipseven/internal"
+	"github.com/Zadigo/flipseven/internal/backend"
 	"github.com/Zadigo/flipseven/internal/handlers"
 	"github.com/gorilla/websocket"
 	"github.com/redis/go-redis/v9"
@@ -49,14 +50,17 @@ func newWebsocketConnection(t *testing.T, handler handlers.ContextHandlerFunc) (
 		t.Fatalf("Failed to connect to test server: %v", err)
 	}
 
-	time.Sleep(90 * time.Millisecond)
+	time.Sleep(50 * time.Millisecond)
 
 	return conn, server, cancel
 }
 
 func TestInitialConnection(t *testing.T) {
+	pubSub := backend.NewSubscription(redisConn(), t.Context())
+	registry := backend.NewRegistry(pubSub, t.Context())
+
 	conn, server, cancel := newWebsocketConnection(t, func(w http.ResponseWriter, r *http.Request, ctx context.Context) {
-		handlers.LiveGameHandler(w, r, context.Background(), redisConn())
+		handlers.LiveGameHandler(w, r, context.Background(), redisConn(), registry)
 	})
 
 	defer cancel()
@@ -68,11 +72,17 @@ func TestInitialConnection(t *testing.T) {
 	if message.Action != "initial_connection" {
 		t.Error("Action should be initial connection")
 	}
+
+	message = handlers.ReadWsMessage(conn)
+	fmt.Print(message)
 }
 
 func TestWaitingLobby(t *testing.T) {
+	pubSub := backend.NewSubscription(redisConn(), t.Context())
+	registry := backend.NewRegistry(pubSub, t.Context())
+
 	conn, server, cancel := newWebsocketConnection(t, func(w http.ResponseWriter, r *http.Request, ctx context.Context) {
-		handlers.LiveGameHandler(w, r, context.Background(), redisConn())
+		handlers.LiveGameHandler(w, r, context.Background(), redisConn(), registry)
 	})
 
 	defer cancel()
@@ -114,8 +124,11 @@ func TestWaitingLobby(t *testing.T) {
 }
 
 func TestGetDeck(t *testing.T) {
+	pubSub := backend.NewSubscription(redisConn(), t.Context())
+	registry := backend.NewRegistry(pubSub, t.Context())
+
 	conn, server, cancel := newWebsocketConnection(t, func(w http.ResponseWriter, r *http.Request, ctx context.Context) {
-		handlers.LiveGameHandler(w, r, context.Background(), redisConn())
+		handlers.LiveGameHandler(w, r, context.Background(), redisConn(), registry)
 	})
 
 	defer cancel()
