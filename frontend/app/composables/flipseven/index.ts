@@ -65,6 +65,7 @@ export const useFlipSevenLiveGameComposable = createGlobalState((tableId: MaybeR
           case WsActions.DeckCreated:
             console.log('Received deck created message:', message)
             initialDeck.value = message.deck
+            tableDetails.value.currentDeck = initialDeck.value
             break
 
           case WsActions.UpdateWaitingLobby:
@@ -80,9 +81,12 @@ export const useFlipSevenLiveGameComposable = createGlobalState((tableId: MaybeR
     }
   })
 
+  const isConnected = computed(() => wsObject.status.value === 'OPEN')
+
   return {
     wsObject,
     initialDeck,
-    tableDetails
+    tableDetails,
+    isConnected
   }
 })

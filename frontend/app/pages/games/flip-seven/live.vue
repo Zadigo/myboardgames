@@ -1,25 +1,23 @@
 <template>
-  <section id="flip-seven" class="h-screen px-20 space-y-2 mx-auto" as="section">
+  <section id="flip-seven" class="h-screen px-20 space-y-2 mx-auto my-10">
     <div class="grid grid-cols-12 gap-2">
-      <div class="bg-flip-seven-300/70 backdrop-blur-xl col-span-3 flex justify-center p-5 rounded-lg gap-2">
-        <div id="hidden-card" class="h-50 w-30 bg-flip-seven-900 rounded-lg">
-          Another 1
-        </div>
-
-        <div id="current-card" class="h-50 w-30 bg-flip-seven-900 rounded-lg">
-          Another 1
-        </div>
-      </div>
+      <flip-deck />
     </div>
-
-    <nuxt-button @click="wsObject.send(encode({ action: 'get_deck' }))">
-      Get deck
-    </nuxt-button>
 
     <!-- Tables -->
     <div v-if="isDefined(tableDetails)" class="grid grid-cols-2 grid-flow-row-dense gap-2">
       <flip-player v-for="(tableClient, index) in tableDetails.clients" :key="index" :index="index" :table-client="tableClient" />
     </div>
+
+    <div v-if="!isConnected" class="rounded-lg bg-primary-200 w-full p-10 text-center space-y-4">
+      <nuxt-button @click="wsObject.open()">
+        <icon name="lucide:refresh-cw" />
+        Reconnect
+      </nuxt-button>
+    </div>
+
+    <!-- Dev -->
+    <lazy-flip-dev hydrate-on-idle />
 
     <!-- Actions -->
     <lazy-base-actions color="bg-flip-seven-200" hydrate-on-idle>
@@ -41,19 +39,17 @@ definePageMeta({
   layout: 'game'
 })
 
-const { encode } = useWebsocketMessage()
-
 /**
  * Websocket
  */
 
 const { tableId } = useFlipSevenGameComposable()
-const { wsObject, tableDetails } = useFlipSevenLiveGameComposable(tableId)
+const { wsObject, tableDetails, isConnected } = useFlipSevenLiveGameComposable(tableId)
 wsObject.open()
 
 /**
  * Utils
  */
 
-useStyleTag('body { background-color: var(--color-flip-seven-100); }')
+useStyleTag('body { background-color: var(--color-flip-seven-200); }')
 </script>
