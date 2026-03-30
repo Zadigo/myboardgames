@@ -6,8 +6,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Zadigo/flipseven/internal"
 	"github.com/Zadigo/flipseven/internal/backend"
+	"github.com/Zadigo/flipseven/internal/handlers"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -43,12 +43,12 @@ func main() {
 	redisClient := beforeStart()
 	defer redisClient.Close()
 
-	http.HandleFunc("/ws/flip-seven", internal.Cors(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		internal.LiveGameHandler(w, r, ctx, redisClient)
+	http.HandleFunc("/ws/flip-seven", handlers.Cors(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handlers.LiveGameHandler(w, r, ctx, redisClient)
 	})))
 
-	http.HandleFunc("/v1/flip-seven/create", internal.Cors(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		internal.CreateTableHandler(w, r, redisClient)
+	http.HandleFunc("/v1/flip-seven/create", handlers.Cors(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handlers.CreateTableHandler(w, r, redisClient)
 	})))
 
 	err := http.ListenAndServe(":9000", nil)

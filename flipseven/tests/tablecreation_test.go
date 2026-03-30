@@ -8,7 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Zadigo/flipseven/internal"
+	"github.com/Zadigo/flipseven/internal/handlers"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -33,7 +33,7 @@ func TestCreateTableHandler(t *testing.T) {
 
 	w := httptest.NewRecorder()
 
-	internal.CreateTableHandler(w, req, redisConnection())
+	handlers.CreateTableHandler(w, req, redisConnection())
 	resp := w.Result()
 	defer resp.Body.Close()
 

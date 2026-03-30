@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Zadigo/flipseven/internal"
+	"github.com/Zadigo/flipseven/internal/handlers"
 	"github.com/Zadigo/flipseven/internal/logic"
 	"github.com/gorilla/websocket"
 	"github.com/redis/go-redis/v9"
@@ -17,12 +17,12 @@ import (
 
 func init() {
 	// Allow all origins in tests since ports are dynamic
-	internal.RequestUpgrader.CheckOrigin = func(r *http.Request) bool {
+	handlers.RequestUpgrader.CheckOrigin = func(r *http.Request) bool {
 		return true
 	}
 
-	internal.Tables = make(map[string]*logic.PlayersTable)
-	internal.Tables["test-table-id"] = &logic.PlayersTable{}
+	handlers.Tables = make(map[string]*logic.PlayersTable)
+	handlers.Tables["test-table-id"] = &logic.PlayersTable{}
 }
 
 func redisConn() *redis.Client {
@@ -31,7 +31,7 @@ func redisConn() *redis.Client {
 	})
 }
 
-func newWebsocketConnection(t *testing.T, handler internal.ContextHandlerFunc) (*websocket.Conn, *httptest.Server, context.CancelFunc) {
+func newWebsocketConnection(t *testing.T, handler handlers.ContextHandlerFunc) (*websocket.Conn, *httptest.Server, context.CancelFunc) {
 	t.Helper()
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -56,14 +56,14 @@ func newWebsocketConnection(t *testing.T, handler internal.ContextHandlerFunc) (
 
 func TestInitialConnection(t *testing.T) {
 	conn, server, cancel := newWebsocketConnection(t, func(w http.ResponseWriter, r *http.Request, ctx context.Context) {
-		internal.LiveGameHandler(w, r, context.Background(), redisConn())
+		handlers.LiveGameHandler(w, r, context.Background(), redisConn())
 	})
 
 	defer cancel()
 	defer server.Close()
 	defer conn.Close()
 
-	message := internal.ReadWsMessage(conn)
+	message := handlers.ReadWsMessage(conn)
 
 	if message.Action != "initial_connection" {
 		t.Error("Action should be initial connection")
@@ -72,29 +72,29 @@ func TestInitialConnection(t *testing.T) {
 
 func TestWaitingLobby(t *testing.T) {
 	conn, server, cancel := newWebsocketConnection(t, func(w http.ResponseWriter, r *http.Request, ctx context.Context) {
-		internal.LiveGameHandler(w, r, context.Background(), redisConn())
+		handlers.LiveGameHandler(w, r, context.Background(), redisConn())
 	})
 
 	defer cancel()
 	defer server.Close()
 	defer conn.Close()
 
-	internal.ReadWsMessage(conn)
+	handlers.ReadWsMessage(conn)
 
-	internal.WriteWsMessage(conn, internal.WebsocketMessage{
+	handlers.WriteWsMessage(conn, handlers.WebsocketMessage{
 		Action:  "waiting_lobby",
 		TableId: "test-table-id",
 	})
 
-	message := internal.ReadWsMessage(conn)
+	message := handlers.ReadWsMessage(conn)
 	fmt.Print(message)
 
-	_, ok := internal.Tables["test-table-id"]
+	_, ok := handlers.Tables["test-table-id"]
 	if !ok {
 		t.Error("Table should exist in the server's table map")
 	}
 
-	table := internal.Tables["test-table-id"]
+	table := handlers.Tables["test-table-id"]
 	if table.NumberOfPlayers != 1 {
 		t.Error("Table should have 1 player after joining")
 	}
@@ -103,7 +103,7 @@ func TestWaitingLobby(t *testing.T) {
 		t.Error("Table should have 1 client connection after joining")
 	}
 
-	message = internal.ReadWsMessage(conn)
+	message = handlers.ReadWsMessage(conn)
 	fmt.Print(message)
 
 	if message.Action != "waiting_lobby" {
@@ -115,28 +115,28 @@ func TestWaitingLobby(t *testing.T) {
 
 func TestGetDeck(t *testing.T) {
 	conn, server, cancel := newWebsocketConnection(t, func(w http.ResponseWriter, r *http.Request, ctx context.Context) {
-		internal.LiveGameHandler(w, r, context.Background(), redisConn())
+		handlers.LiveGameHandler(w, r, context.Background(), redisConn())
 	})
 
 	defer cancel()
 	defer server.Close()
 	defer conn.Close()
 
-	internal.ReadWsMessage(conn)
+	handlers.ReadWsMessage(conn)
 
-	internal.WriteWsMessage(conn, internal.WebsocketMessage{
+	handlers.WriteWsMessage(conn, handlers.WebsocketMessage{
 		Action:  "waiting_lobby",
 		TableId: "test-table-id",
 	})
 
-	internal.ReadWsMessage(conn)
+	handlers.ReadWsMessage(conn)
 
-	internal.WriteWsMessage(conn, internal.WebsocketMessage{
+	handlers.WriteWsMessage(conn, handlers.WebsocketMessage{
 		Action:  "get_deck",
 		TableId: "test-table-id",
 	})
 
-	message := internal.ReadWsMessage(conn)
+	message := handlers.ReadWsMessage(conn)
 	fmt.Print(message)
 
 	if message.Action != "deck_created" {

@@ -1,13 +1,11 @@
-package internal
+package handlers
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"sync"
-	"time"
 
 	"github.com/Zadigo/flipseven/internal/cards"
 	"github.com/Zadigo/flipseven/internal/logic"
@@ -28,117 +26,6 @@ var Tables = make(map[string]*logic.PlayersTable)
 var clients = make(map[*websocket.Conn]bool)
 
 const maxNumberOfPlayers int = 12
-
-var allowedOrigins = map[string]bool{
-	"http://localhost:3000": true,
-}
-
-var RequestUpgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-	CheckOrigin: func(request *http.Request) bool {
-		origin := request.Header.Get("Origin")
-
-		_, ok := allowedOrigins[origin]
-		if !ok {
-			return false
-		}
-
-		return allowedOrigins[origin]
-	},
-}
-
-// CORS middleware to handle cross-origin requests
-func Cors(next http.HandlerFunc) http.HandlerFunc {
-	return func(response http.ResponseWriter, request *http.Request) {
-		response.Header().Set("Access-Control-Allow-Origin", "*")
-		response.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-		response.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-		if request.Method == "OPTIONS" {
-			response.WriteHeader(http.StatusOK)
-			return
-		}
-
-		next(response, request)
-	}
-}
-
-// Helper function to get a game table by its ID. This is used in various handlers
-// to retrieve the game table associated with a specific table ID.
-func getTable(tableId string) (*logic.PlayersTable, error) {
-	if tableId == "" {
-		return nil, fmt.Errorf("Table ID is required")
-	}
-
-	mutex.RLock()
-	table, exists := Tables[tableId]
-	mutex.RUnlock()
-
-	if !exists {
-		return nil, fmt.Errorf("Table with ID %s not found", tableId)
-	}
-
-	return table, nil
-}
-
-func checkTableId(tableId string) error {
-	if tableId == "" {
-		return fmt.Errorf("Table ID is required")
-	}
-	return nil
-}
-
-// Handler for creating a new game table. This is used when the user creates
-// a new game and needs a unique table ID that needs to be shared with other players.
-func CreateTableHandler(response http.ResponseWriter, request *http.Request, redisClient *redis.Client) {
-	if request.Method != http.MethodPost {
-		http.Error(response, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	if request.Header.Get("Content-Type") != "application/json" {
-		http.Error(response, "Unsupported media type", http.StatusUnsupportedMediaType)
-		return
-	}
-
-	tableId := uuid.NewString()
-
-	var message struct{ Username string }
-	err := json.NewDecoder(request.Body).Decode(&message)
-
-	if message.Username == "" {
-		http.Error(response, "Username is required", http.StatusBadRequest)
-		return
-	}
-
-	if err != nil {
-		http.Error(response, fmt.Sprintf("Failed to parse data: %v", err.Error()), http.StatusInternalServerError)
-		return
-	}
-
-	response.Header().Set("Content-Type", "application/json")
-	response.WriteHeader(http.StatusOK)
-
-	if message.Username == "" {
-		http.Error(response, "Username is required", http.StatusBadRequest)
-		return
-	}
-
-	ctx := context.Background()
-	redisClient.HSet(ctx, tableId, []string{"initiator", message.Username, "createdAt", time.Now().Format(time.RFC3339), "openForJoin", "true"})
-
-	err = json.NewEncoder(response).Encode(PostDataMessage{
-		TableId: tableId,
-	})
-
-	if err != nil {
-		http.Error(response, fmt.Sprintf("Failed to encode response: %v", err.Error()), http.StatusInternalServerError)
-		return
-	}
-
-	log.Printf("✅ Created new table with ID: %s", tableId)
-}
 
 // Handler for the live game websocket connection. This is used for real-time
 // communication between the server and the clients during the game.
@@ -202,7 +89,7 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 
 		switch message.Action {
 		case "waiting_lobby":
-			if err := checkTableId(tableId); err != nil {
+			if err := CheckTableId(tableId); err != nil {
 				WriteWsMessage(connection, WebsocketMessage{
 					Action:  "error",
 					Message: err.Error(),
@@ -224,7 +111,7 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 			// a table... we need to recreate it locally on the Tables
 			result := redisConn.HExists(ctx, tableId, "openForJoin").Val()
 			if !result {
-				connection.WriteJSON(WebsocketMessage{
+				WriteWsMessage(connection, WebsocketMessage{
 					Action:  "error",
 					Message: "Table not found or not open for join",
 				})
@@ -245,7 +132,7 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 			}
 
 			if table.GameStarted {
-				connection.WriteJSON(WebsocketMessage{
+				WriteWsMessage(connection, WebsocketMessage{
 					Action:  "error",
 					Message: "Game has already started",
 				})
@@ -258,24 +145,20 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 			mutex.Unlock()
 
 			if table.NumberOfPlayers == maxNumberOfPlayers {
-				err := connection.WriteJSON(WebsocketMessage{
+				WriteWsMessage(connection, WebsocketMessage{
 					Action: "start_game",
 				})
-
-				if err != nil {
-					log.Fatalf("❌ Failed to send JSON message: start game")
-				}
 
 				return
 			}
 
-			connection.WriteJSON(WebsocketMessage{
+			WriteWsMessage(connection, WebsocketMessage{
 				Action:       "update_waiting_lobby",
 				TableDetails: *table,
 			})
 
 		case "get_deck":
-			if err := checkTableId(tableId); err != nil {
+			if err := CheckTableId(tableId); err != nil {
 				WriteWsMessage(connection, WebsocketMessage{
 					Action:  "error",
 					Message: err.Error(),
@@ -288,7 +171,7 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 
 			// table := Tables[message.TableId]
 			// table.CurrentDeck = baseDeck
-			table, err := getTable(tableId)
+			table, err := GetTable(tableId)
 			if err != nil {
 				WriteWsMessage(connection, WebsocketMessage{
 					Action:  "error",
@@ -305,7 +188,7 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 			})
 
 		case "flip_card":
-			if err := checkTableId(tableId); err != nil {
+			if err := CheckTableId(tableId); err != nil {
 				WriteWsMessage(connection, WebsocketMessage{
 					Action:  "error",
 					Message: err.Error(),
@@ -313,7 +196,7 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 				return
 			}
 
-			table, err := getTable(tableId)
+			table, err := GetTable(tableId)
 			if err != nil {
 				WriteWsMessage(connection, WebsocketMessage{
 					Action:  "error",
@@ -362,14 +245,9 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 					logic.CalcualtePlayerScores(player)
 				}
 
-				err := connection.WriteJSON(WebsocketMessage{
+				WriteWsMessage(connection, WebsocketMessage{
 					Action: "new_round",
 				})
-
-				if err != nil {
-					log.Fatalf("❌ Failed to send JSON message: go to next round")
-					return
-				}
 
 				currentRound += 1
 			}
