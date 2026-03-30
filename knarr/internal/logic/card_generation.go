@@ -13,7 +13,7 @@ type Player struct {
 	Connection *websocket.Conn
 }
 
-func (player *Player) New(connection *websocket.Conn, username string) *Player {
+func NewPlayer(connection *websocket.Conn, username string) *Player {
 	return &Player{
 		Username:   username,
 		Connection: connection,
@@ -29,38 +29,43 @@ type Table struct {
 	Clients map[string]*Player
 }
 
-func (table Table) StartGame() {
+func (table *Table) StartGame() {
 	// Do something
 }
 
-func (table Table) EndGame() {
+func (table *Table) EndGame() {
 	// Do something
 }
 
-func (table Table) FlipCard() {
+func (table *Table) FlipCard() {
 	// Do something
 }
 
-func (table Table) FreezePlayer(player string) {
+func (table *Table) FreezePlayer(player string) {
 	// Do something
 }
 
-func (table Table) NextRound() {
+func (table *Table) NextRound() {
 	// Do something
 }
 
-func (table Table) GetTableId() string {
+func (table *Table) GetTableId() string {
 	// Do something
 	return table.TableId
 }
 
-func (table Table) GetPlayer(playerId string) *Player {
+func (table *Table) GetPlayer(playerId string) *Player {
 	return table.Clients[playerId]
 }
 
-func (table Table) HasPlayer(playerId string) bool {
+func (table *Table) HasPlayer(playerId string) bool {
 	_, ok := table.Clients[playerId]
 	return ok
+}
+
+func (table *Table) TableExists(tableId string) bool {
+	// Do something
+	return false
 }
 
 type TableInterface interface {
@@ -70,6 +75,9 @@ type TableInterface interface {
 	FreezePlayer(player string)
 	NextRound()
 	GetTableId() string
+	GetPlayer(playerId string) *Player
+	HasPlayer(PlayerId string) bool
+	TableExists(tableId string) bool
 }
 
 type TableLayer struct {
@@ -78,7 +86,7 @@ type TableLayer struct {
 
 func NewTableLayer(tableId string) *TableLayer {
 	return &TableLayer{
-		Layer: Table{
+		Layer: &Table{
 			TableId: tableId,
 		},
 	}
