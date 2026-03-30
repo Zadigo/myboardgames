@@ -1,10 +1,11 @@
 package tests
 
 import (
+	"fmt"
 	"net/http"
+	"testing"
 
 	"github.com/Zadigo/flipseven/internal/handlers"
-	"github.com/Zadigo/flipseven/internal/logic"
 )
 
 func init() {
@@ -13,37 +14,45 @@ func init() {
 		return true
 	}
 
-	handlers.Tables = make(map[string]*logic.TableLayer)
-	handlers.Tables["test-table-id"] = &logic.TableLayer{}
+	// handlers.Tables = make(map[string]*logic.TableLayer)
+	// handlers.Tables["test-table-id"] = &logic.TableLayer{
+	// 	Layer: &logic.PlayersTable{},
+	// }
 }
 
-// func redisConn() *redis.Client {
-// 	return redis.NewClient(&redis.Options{
-// 		Addr: "localhost:6379",
-// 	})
-// }
+func TestInitialConnection(t *testing.T) {
+	// pubSub := backend.NewSubscription(redisConn(), t.Context())
+	// registry := backend.NewRegistry(pubSub, t.Context())
 
-// func TestInitialConnection(t *testing.T) {
-// 	pubSub := backend.NewSubscription(redisConn(), t.Context())
-// 	registry := backend.NewRegistry(pubSub, t.Context())
+	conn, server, cancel := LiveGameWebsocketConnection(t)
 
-// 	conn, server, cancel := newWebsocketConnection(t, func(w http.ResponseWriter, r *http.Request, ctx context.Context) {
-// 		handlers.LiveGameHandler(w, r, context.Background(), redisConn(), registry)
-// 	})
+	defer cancel()
+	defer conn.Close()
+	defer server.Close()
 
-// 	defer cancel()
-// 	defer server.Close()
-// 	defer conn.Close()
+	message, _ := handlers.ReadWsMessage(conn)
 
-// 	message := handlers.ReadWsMessage(conn)
+	if message.Action != "initial_connection" {
+		t.Error("Action should be initial connection")
+	}
 
-// 	if message.Action != "initial_connection" {
-// 		t.Error("Action should be initial connection")
-// 	}
+	handlers.WriteWsMessage(conn, handlers.WebsocketMessage{
+		Action: "initiate_table",
+	})
 
-// 	message = handlers.ReadWsMessage(conn)
-// 	fmt.Print(message)
-// }
+	message, _ = handlers.ReadWsMessage(conn)
+	fmt.Print(message)
+
+	handlers.WriteWsMessage(conn, handlers.WebsocketMessage{
+		Action:   "waiting_lobby",
+		PlayerId: "test-player",
+	})
+
+	message, _ = handlers.ReadWsMessage(conn)
+	fmt.Print(message)
+
+	cancel()
+}
 
 // func TestWaitingLobby(t *testing.T) {
 // 	pubSub := backend.NewSubscription(redisConn(), t.Context())
@@ -86,10 +95,7 @@ func init() {
 
 // 	if message.Action != "waiting_lobby" {
 // 		t.Error("Action should be waiting_lobby")
-// 	}
-
-// 	cancel()
-// }
+// 	}}
 
 // func TestGetDeck(t *testing.T) {
 // 	pubSub := backend.NewSubscription(redisConn(), t.Context())

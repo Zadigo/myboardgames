@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/Zadigo/flipseven/internal/backend"
 	"github.com/Zadigo/flipseven/internal/logic"
@@ -26,7 +27,7 @@ var clients = make(map[*websocket.Conn]bool)
 
 // Handler for the live game websocket connection. This is used for real-time
 // communication between the server and the clients during the game.
-func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx context.Context, redisConn *redis.Client, broadcaster *backend.BroadcasterRegistry) {
+func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx context.Context, redisConn *redis.Client, broadcaster *backend.BroadcasterRegistry, baseRegistry *BaseRegistry) {
 	connection, err := RequestUpgrader.Upgrade(response, request, nil)
 
 	if err != nil {
@@ -65,57 +66,49 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 	var currentRound int = 1
 
 	for {
-		var message WebsocketMessage
-		err := connection.ReadJSON(&message)
+		message, err := ReadWsMessage(connection)
 		if err != nil {
-			WriteWsMessage(connection, WebsocketMessage{
-				Action:  "error",
-				Message: fmt.Sprintf("❌ Failed to send JSON message: %v", err.Error()),
-			})
 			return
 		}
 
 		tableId := request.URL.Query().Get("table")
 
-		// select {
-		// case <-ctx.Done():
-		// 	log.Println("⚠️ Context cancelled, closing handler")
-		// 	return
-		// default:
-		// }
-
 		switch message.Action {
-		case "waiting_lobby":
-			if err := CheckTableId(tableId); err != nil {
-				WriteWsMessage(connection, WebsocketMessage{
-					Action:  "error",
-					Message: err.Error(),
-				})
+		case "initiate_table":
+			tableLayer := baseRegistry.GetOrCreate(tableId, func() *logic.TableLayer {
+				layer := logic.CreateNewTableLayer()
+				// TODO: Username
+				tableId = layer.Layer.GetTable().TableId
+				
+				result := redisConn.HSet(ctx, tableId, []string{"initiator", "Alice Test", "createdAt", time.Now().Format(time.RFC3339), "openForJoin", "true"})
+				if result.Err() != nil {
+					log.Printf("❌ Failed to set table details in Redis for table ID: %s, error: %s", tableId, result.Err().Error())
+					return nil
+				} else {
+					log.Printf("✅ Created new table with ID: %s", tableId)
+				}
+				
+				return layer
+			})
+
+			if tableLayer.Layer == nil {
+				log.Printf("❌ Could not initialize PlayersTable for table ID: %s", tableId)
 				return
 			}
 
-			tableLayer := Tables[tableId]
-
-			if tableLayer == nil {
-				WriteWsMessage(connection, WebsocketMessage{
-					Action:  "error",
-					Message: "Table does not exist",
-				})
-				return
-			}
-
-			tableLayer = logic.CreateNewTableLayer()
-			tableLayer.Layer.AddPlayer(message.Username, connection)
-
-			// If we have an initiator (aka a table on Redis), we have
-			// a table... we need to recreate it locally on the Tables
-			// result := redisConn.HExists(ctx, tableId, "openForJoin").Val()
 			result := tableLayer.Layer.TableExists(redisConn, ctx)
 			if !result {
 				WriteWsMessage(connection, WebsocketMessage{
 					Action:  "error",
 					Message: "Table not found or not open for join",
 				})
+				return
+			}
+
+		case "waiting_lobby":
+			tableLayer, state := baseRegistry.Get(tableId)
+			if !state {
+				fmt.Printf("❌ Table with ID %s not found in registry\n", tableId)
 				return
 			}
 
@@ -131,7 +124,6 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 			}
 
 			tableLayer.Layer.AddPlayer("Test Player", connection)
-			Tables[tableId] = tableLayer
 
 			if tableLayer.Layer.IsStarted() {
 				WriteWsMessage(connection, WebsocketMessage{
@@ -247,6 +239,13 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 				Action:  "error",
 				Message: "Unknown action",
 			})
+		}
+
+		select {
+		case <-ctx.Done():
+			log.Print("⚠️ Context cancelled, closing handler")
+			return
+		default:
 		}
 	}
 }

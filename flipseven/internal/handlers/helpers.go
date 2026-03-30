@@ -70,28 +70,29 @@ func CheckTableId(tableId string) error {
 }
 
 // Read an incomming websocket message
-func ReadWsMessage(connection *websocket.Conn) WebsocketMessage {
+func ReadWsMessage(connection *websocket.Conn) (WebsocketMessage, error) {
 	var message WebsocketMessage
 	err := connection.ReadJSON(&message)
 
 	if err != nil {
 		WriteWsError(connection, err)
-		return WebsocketMessage{}
+		return WebsocketMessage{}, err
 	}
 
-	return message
+	return message, nil
 }
 
 // Return a message to the client. Returns true if the message was
 // sent successfully, false otherwise
-func WriteWsMessage(connection *websocket.Conn, message WebsocketMessage) bool {
+func WriteWsMessage(connection *websocket.Conn, message WebsocketMessage) error {
 	err := connection.WriteJSON(message)
 
 	if err != nil {
 		log.Fatalf("❌ Could not send message: %v", err.Error())
-		return false
+		connection.Close()
+		return err
 	}
-	return true
+	return nil
 }
 
 // Return an error message to the client
