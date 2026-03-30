@@ -131,4 +131,4 @@ func (r *BroadcasterRegistry) Remove(tableId string) {
 
 // Ensure internal.ConnectedPlayer is importable — this avoids a circular import
 // by keeping pubsub free of handler-layer types.
-var _ = logic.ConnectedPlayer{}
+var _ = logic.PlayerLayer{}

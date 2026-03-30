@@ -46,7 +46,7 @@ func Cors(next http.HandlerFunc) http.HandlerFunc {
 
 // Helper function to get a game table by its ID. This is used in various handlers
 // to retrieve the game table associated with a specific table ID.
-func GetTable(tableId string) (*logic.PlayersTable, error) {
+func GetTableLayer(tableId string) (*logic.TableLayer, error) {
 	if tableId == "" {
 		return nil, fmt.Errorf("Table ID is required")
 	}

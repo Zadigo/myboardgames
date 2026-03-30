@@ -1,7 +1,10 @@
 package logic
 
 import (
+	"context"
+
 	"github.com/gorilla/websocket"
+	"github.com/redis/go-redis/v9"
 )
 
 type Card struct {
@@ -53,19 +56,48 @@ type Player struct {
 	// The cards that the player has hands
 	Cards []Card `json:"cards"`
 	// The player's current score
-	Score int `json:"score"`
+	Score       int  `json:"score"`
+	IsInitiator bool `json:"isInitiator"`
 }
 
 // Stores the connection and the detailed
 // information of player
-type ConnectedPlayer struct {
+type PlayerLayer struct {
 	Conn    *websocket.Conn `json:"-"`
 	Details Player          `json:"details"`
 }
 
+type TableLayerInterface interface {
+	StartGame(connection *websocket.Conn)
+	EndGame(connection *websocket.Conn)
+	FlipCard(playerId string, k int) *Card
+	FreezePlayer(player string)
+	NextRound()
+	GetTableId() string
+	AddPlayer(username string, connection *websocket.Conn)
+	GetPlayer(playerId string) *PlayerLayer
+	HasPlayer(PlayerId string) bool
+	TableExists(redisConn *redis.Client, ctx context.Context) bool
+	CalculateAllPoints() int
+	GetNumberOfCards() int
+	GetNumberOfPlayers() int
+	GetShuffledDeck() []Card
+	GetDeck() []Card
+	GetTable() PlayersTable
+	CanAcceptNewPlayers() bool
+	IsStarted() bool
+}
+
 type PlayersTable struct {
-	Clients         []*ConnectedPlayer `json:"clients"`
-	CurrentDeck     []Card             `json:"currentDeck"`
-	NumberOfPlayers int                `json:"numberOfPlayers"`
-	GameStarted     bool               `json:"gameStarted"`
+	TableId         string
+	Clients         map[string]*PlayerLayer `json:"clients"`
+	CurrentDeck     []Card                  `json:"currentDeck"`
+	DiscardPile     []Card                  `json:"discardPile"`
+	NumberOfPlayers int                     `json:"numberOfPlayers"`
+	CurrentRound    int                     `json:"currentRound"`
+	GameStarted     bool                    `json:"gameStarted"`
+}
+
+type TableLayer struct {
+	Layer TableLayerInterface
 }

@@ -61,7 +61,7 @@ func getSpecialCards() []Card {
 // Create a new deck of X cards that
 // will serve as the main deck for
 // flipping cards for each player
-func GetDeck() []Card {
+func (table *PlayersTable) GetDeck() []Card {
 	cards := []Card{}
 
 	numberCards := getNumberCards()
@@ -73,14 +73,10 @@ func GetDeck() []Card {
 	specialCards := getSpecialCards()
 	cards = append(cards, specialCards...)
 
+	table.CurrentDeck = cards
 	return cards
 }
 
-func GetShuffledDeck() []Card {
-	deck := GetDeck()
-
-	copiedDeck := make([]Card, len(deck))
-	copy(copiedDeck, deck)
-
-	return copiedDeck
+func (table *PlayersTable) GetShuffledDeck() []Card {
+	return table.CurrentDeck
 }
