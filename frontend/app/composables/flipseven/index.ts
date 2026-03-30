@@ -22,23 +22,44 @@ export const useFlipSevenGameComposable = createGlobalState(() => {
   }
 })
 
-enum WsActions {
-  InitialConnection = 'initial_connection',
-  InitialConnectionResponse = 'idle_connect'
+type Deck = {
+  value: number
+  owner: number
+  category: string
+  isMultiplier: boolean
+  isNumber: boolean
+  isBonus: boolean
+  isSpecial: boolean
 }
 
-type SendMessage = { action: WsActions.InitialConnection, tableId: string | null }
+enum WsActions {
+  InitialConnection = 'initial_connection',
+  WaitingLobby = 'waiting_lobby',
+  GetDeck = 'get_deck',
+  DeckCreated = 'deck_created'
+}
 
-type ReceiveMessage = { action: WsActions.InitialConnectionResponse, something: string }
+type SendMessage = { action: WsActions.WaitingLobby, tableId: string | null, username: string }
+  | { action: WsActions.GetDeck }
+
+type ReceiveMessage = { action: WsActions.WaitingLobby, something: string }
+  | { action: WsActions.DeckCreated, deck: Deck[] }
+  | { action: WsActions.InitialConnection }
 
 export const useFlipSevenLiveGameComposable = createGlobalState((tableId: MaybeRef<string | null>) => {
   const _tableId = toValue(tableId)
   const { decode, encode } = useWebsocketMessage()
 
+  const initialDeck = ref<Deck[]>([])
+
   const wsObject = useWebSocket('ws://127.0.0.1:9000/ws/flip-seven', {
     immediate: false,
     onConnected(ws) {
-      ws.send(encode<SendMessage>({ action: WsActions.InitialConnection, tableId: _tableId }))
+      ws.send(encode<SendMessage>({
+        action: WsActions.WaitingLobby,
+        tableId: _tableId,
+        username: 'Player1'
+      }))
     },
     onDisconnected(ws, event) {
       console.log('WebSocket disconnected:', event)
@@ -48,13 +69,22 @@ export const useFlipSevenLiveGameComposable = createGlobalState((tableId: MaybeR
     },
     onMessage(ws, event) {
       const message = decode<ReceiveMessage>(event.data)
+      console.log('Received WebSocket message:', message)
+
       if (message) {
         switch (message.action) {
-          case WsActions.InitialConnectionResponse:
+          case WsActions.InitialConnection:
             console.log('Received initial connection response:', message)
             break
+          case WsActions.WaitingLobby:
+            console.log('Received initial connection response:', message)
+            break
+          case WsActions.DeckCreated:
+            console.log('Received deck created message:', message)
+            initialDeck.value = message.deck
+            break
           default:
-            console.warn('Unknown WebSocket message action:', message.action)
+            console.warn('Unknown WebSocket message action:', message)
         }
       } else {
         console.warn('Received invalid WebSocket message:', event.data)
@@ -63,6 +93,7 @@ export const useFlipSevenLiveGameComposable = createGlobalState((tableId: MaybeR
   })
 
   return {
-    wsObject
+    wsObject,
+    initialDeck
   }
 })

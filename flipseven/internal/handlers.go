@@ -129,7 +129,7 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 	// or not
 	mutex.Lock()
 	clients[connection] = true
-	log.Printf("⚡️ New connection from client: %v", connection.LocalAddr().String())
+	log.Printf("⚡️ New connection from client")
 	mutex.Unlock()
 
 	defer func() {
@@ -143,6 +143,7 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 			websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""),
 		)
 
+		log.Printf("⚡️ Connection closed from client")
 		connection.Close()
 	}()
 
@@ -152,8 +153,6 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 	})
 
 	var currentRound int = 1
-
-	log.Printf("⚡️ Client connected %v", connection.LocalAddr().String())
 
 	for {
 		var message WebsocketMessage
@@ -189,8 +188,8 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 			connectedPlayer := logic.ConnectedPlayer{
 				Conn: connection,
 				Details: logic.Player{
-					Username:      "Some username",
-					Uuid:          "Some UUID",
+					Username:      message.Username,
+					Uuid:          uuid.NewString(),
 					TableUuid:     tableId,
 					NumberOfCards: 0,
 				},
@@ -203,10 +202,18 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 			table := Tables[tableId]
 
 			if table == nil {
+				connection.WriteJSON(WebsocketMessage{
+					Action: "error",
+					Message: "Table not found",
+				})
 				return
 			}
 
 			if table.GameStarted {
+				connection.WriteJSON(WebsocketMessage{
+					Action: "error",
+					Message: "Game has already started",
+				})
 				mutex.Unlock()
 				return
 			}
