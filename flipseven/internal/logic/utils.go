@@ -16,7 +16,7 @@ func SumValues(numbers ...int) int {
 // of the cards in their hand
 func CalculatePlayerScores(player *internal.ConnectedPlayer) {
 	var normalPoints int = 0
-	var multipluerValue int = 0
+	var multiplierValue int = 0
 
 	for _, card := range player.Details.Cards {
 		if card.IsNumber || card.IsBonus {
@@ -25,13 +25,13 @@ func CalculatePlayerScores(player *internal.ConnectedPlayer) {
 		}
 
 		if card.IsMultiplier {
-			multipluerValue += card.Value
+			multiplierValue += card.Value
 		}
 	}
 
 	// Calculate final score
-	if multipluerValue > 0 {
-		player.Details.Score = normalPoints * multipluerValue
+	if multiplierValue > 0 {
+		player.Details.Score = normalPoints * multiplierValue
 	} else {
 		player.Details.Score = normalPoints
 	}
