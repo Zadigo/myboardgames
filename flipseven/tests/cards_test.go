@@ -4,11 +4,10 @@ import (
 	"testing"
 
 	"github.com/Zadigo/flipseven/internal/logic"
-	"github.com/Zadigo/flipseven/internal/logic/cards"
 )
 
 func TestDeck(t *testing.T) {
-	cards := cards.GetDeck()
+	cards := logic.GetDeck()
 
 	totalCards := []int{79, 6, 9}
 

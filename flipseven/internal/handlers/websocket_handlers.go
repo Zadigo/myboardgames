@@ -7,10 +7,8 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/Zadigo/flipseven/internal"
 	"github.com/Zadigo/flipseven/internal/backend"
 	"github.com/Zadigo/flipseven/internal/logic"
-	"github.com/Zadigo/flipseven/internal/logic/cards"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"github.com/redis/go-redis/v9"
@@ -21,7 +19,7 @@ var mutex = sync.RWMutex{}
 // In-memory storage for game tables and connected clients.
 // This is used for managing the state of the game and
 // the connected clients.
-var Tables = make(map[string]*internal.PlayersTable)
+var Tables = make(map[string]*logic.PlayersTable)
 
 // In-memory storage for connected clients. This is used for
 // broadcasting messages to all connected clients.
@@ -99,9 +97,9 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 				return
 			}
 
-			connectedPlayer := internal.ConnectedPlayer{
+			connectedPlayer := logic.ConnectedPlayer{
 				Conn: connection,
-				Details: internal.Player{
+				Details: logic.Player{
 					Username:      message.Username,
 					Uuid:          uuid.NewString(),
 					TableUuid:     tableId,
@@ -125,10 +123,10 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 			table := Tables[tableId]
 
 			if table == nil {
-				table = &internal.PlayersTable{
+				table = &logic.PlayersTable{
 					NumberOfPlayers: 0,
 					GameStarted:     false,
-					Clients:         []*internal.ConnectedPlayer{},
+					Clients:         []*logic.ConnectedPlayer{},
 				}
 				Tables[tableId] = table
 			}
@@ -173,7 +171,7 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 			}
 
 			// 1. Return the deck of cards
-			baseDeck := cards.GetDeck()
+			baseDeck := logic.GetDeck()
 
 			// table := Tables[message.TableId]
 			// table.CurrentDeck = baseDeck
@@ -217,8 +215,8 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 				}
 
 				if player.Conn == connection {
-					card := cards.FlipCard(table.CurrentDeck, 1)
-					cards.AttributeCardToPlayer(card, player)
+					card := logic.FlipCard(table.CurrentDeck, 1)
+					logic.AttributeCardToPlayer(card, player)
 				}
 			}
 

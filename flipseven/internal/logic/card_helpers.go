@@ -1,12 +1,8 @@
-package cards
-
-import (
-	"github.com/Zadigo/flipseven/internal"
-)
+package logic
 
 // Checks the cards for the given player. A player cannot have
 // two cards with the same number (except for special and bonus cards)
-func CheckPlayerCards(player *internal.Player) {
+func CheckPlayerCards(player *Player) {
 	seen := make(map[int]bool)
 
 	for _, card := range player.Cards {
@@ -28,13 +24,13 @@ func CheckPlayerCards(player *internal.Player) {
 }
 
 // Once a card is flipped from the deck, attributes it to a given player
-func AttributeCardToPlayer(card internal.Card, player *internal.ConnectedPlayer) {
+func AttributeCardToPlayer(card Card, player *ConnectedPlayer) {
 	player.Details.Cards = append(player.Details.Cards, card)
 	player.Details.NumberOfCards += 1
 	CheckPlayerCards(&player.Details)
 }
 
 // Pops x number of cards from the deck
-func FlipCard(deck []internal.Card, k int) internal.Card {
+func FlipCard(deck []Card, k int) Card {
 	return deck[k]
 }

@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	"github.com/Zadigo/flipseven/internal"
+	"github.com/Zadigo/flipseven/internal/logic"
 	"github.com/gorilla/websocket"
 )
 
@@ -44,7 +44,7 @@ func (b *Broadcaster) RemoveClient(conn *websocket.Conn) {
 	defer b.mu.Unlock()
 
 	delete(b.clients, conn)
-	
+
 	log.Printf("➖ Client removed from broadcaster for table %s (total: %d)", b.tableId, len(b.clients))
 
 	if len(b.clients) == 0 {
@@ -87,7 +87,7 @@ func toWsMessage(msg Message) map[string]any {
 	if msg.Payload != nil {
 		out["payload"] = msg.Payload
 	}
-	
+
 	return out
 }
 
@@ -131,4 +131,4 @@ func (r *BroadcasterRegistry) Remove(tableId string) {
 
 // Ensure internal.ConnectedPlayer is importable — this avoids a circular import
 // by keeping pubsub free of handler-layer types.
-var _ = internal.ConnectedPlayer{}
+var _ = logic.ConnectedPlayer{}

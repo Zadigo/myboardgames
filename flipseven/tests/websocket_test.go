@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Zadigo/flipseven/internal"
 	"github.com/Zadigo/flipseven/internal/backend"
 	"github.com/Zadigo/flipseven/internal/handlers"
+	"github.com/Zadigo/flipseven/internal/logic"
 	"github.com/gorilla/websocket"
 	"github.com/redis/go-redis/v9"
 )
@@ -22,8 +22,8 @@ func init() {
 		return true
 	}
 
-	handlers.Tables = make(map[string]*internal.PlayersTable)
-	handlers.Tables["test-table-id"] = &internal.PlayersTable{}
+	handlers.Tables = make(map[string]*logic.PlayersTable)
+	handlers.Tables["test-table-id"] = &logic.PlayersTable{}
 }
 
 func redisConn() *redis.Client {

@@ -4,13 +4,12 @@ import (
 	"log"
 	"testing"
 
-	"github.com/Zadigo/flipseven/internal"
-	"github.com/Zadigo/flipseven/internal/logic/cards"
+	"github.com/Zadigo/flipseven/internal/logic"
 )
 
 func TestCheckPlayerCardsNoDuplicates(*testing.T) {
-	noDuplicateNumbers := []internal.Card{}
-	noDuplicateNumbers = append(noDuplicateNumbers, internal.Card{
+	noDuplicateNumbers := []logic.Card{}
+	noDuplicateNumbers = append(noDuplicateNumbers, logic.Card{
 		Value:        10,
 		Owner:        0,
 		Category:     "",
@@ -20,7 +19,7 @@ func TestCheckPlayerCardsNoDuplicates(*testing.T) {
 		IsSpecial:    false,
 	})
 
-	player := internal.Player{
+	player := logic.Player{
 		Username:      "test",
 		Uuid:          "test-uuid",
 		TableUuid:     "test-table-uuid",
@@ -29,7 +28,7 @@ func TestCheckPlayerCardsNoDuplicates(*testing.T) {
 		Cards:         noDuplicateNumbers,
 	}
 
-	cards.CheckPlayerCards(&player)
+	logic.CheckPlayerCards(&player)
 
 	if player.IsFreezed {
 		log.Panic("Player should not be freezed")
@@ -37,9 +36,9 @@ func TestCheckPlayerCardsNoDuplicates(*testing.T) {
 }
 
 func TestCheckPlayerCardsWithDuplicates(*testing.T) {
-	withDuplicateNubers := []internal.Card{}
+	withDuplicateNubers := []logic.Card{}
 
-	withDuplicateNubers = append(withDuplicateNubers, internal.Card{
+	withDuplicateNubers = append(withDuplicateNubers, logic.Card{
 		Value:        10,
 		Owner:        0,
 		Category:     "",
@@ -49,7 +48,7 @@ func TestCheckPlayerCardsWithDuplicates(*testing.T) {
 		IsSpecial:    false,
 	})
 
-	withDuplicateNubers = append(withDuplicateNubers, internal.Card{
+	withDuplicateNubers = append(withDuplicateNubers, logic.Card{
 		Value:        10,
 		Owner:        0,
 		Category:     "",
@@ -59,7 +58,7 @@ func TestCheckPlayerCardsWithDuplicates(*testing.T) {
 		IsSpecial:    false,
 	})
 
-	player := internal.Player{
+	player := logic.Player{
 		Username:      "test",
 		Uuid:          "test-uuid",
 		TableUuid:     "test-table-uuid",
@@ -68,7 +67,7 @@ func TestCheckPlayerCardsWithDuplicates(*testing.T) {
 		Cards:         withDuplicateNubers,
 	}
 
-	cards.CheckPlayerCards(&player)
+	logic.CheckPlayerCards(&player)
 
 	if !player.IsFreezed {
 		log.Panic("Player should be freezed")

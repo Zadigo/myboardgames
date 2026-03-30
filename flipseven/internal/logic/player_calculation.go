@@ -1,9 +1,5 @@
 package logic
 
-import (
-	"github.com/Zadigo/flipseven/internal"
-)
-
 func SumValues(numbers ...int) int {
 	sum := 0
 	for _, num := range numbers {
@@ -14,7 +10,7 @@ func SumValues(numbers ...int) int {
 
 // Calculate the player's score by summing the values
 // of the cards in their hand
-func CalculatePlayerScores(player *internal.ConnectedPlayer) {
+func CalculatePlayerScores(player *ConnectedPlayer) {
 	var normalPoints int = 0
 	var multiplierValue int = 0
 
@@ -38,10 +34,10 @@ func CalculatePlayerScores(player *internal.ConnectedPlayer) {
 }
 
 // Reset the player's state for a new round
-func RestPlayerState(player *internal.ConnectedPlayer) {
+func ResetPlayerState(player *ConnectedPlayer) {
 	player.Details.NumberOfCards = 0
 	player.Details.IsFreezed = false
 	player.Details.HasSevenCards = false
 	player.Details.HasSecondChance = false
-	player.Details.Cards = []internal.Card{}
+	player.Details.Cards = []Card{}
 }
