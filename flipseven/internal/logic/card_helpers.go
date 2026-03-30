@@ -2,24 +2,24 @@ package logic
 
 // Checks the cards for the given player. A player cannot have
 // two cards with the same number (except for special and bonus cards)
-func CheckPlayerCards(player *Player) {
+func CheckPlayerCards(player *ConnectedPlayer) {
 	seen := make(map[int]bool)
 
-	for _, card := range player.Cards {
+	for _, card := range player.Details.Cards {
 		if card.IsBonus || card.IsMultiplier {
 			continue
 		}
 
 		if seen[card.Value] {
-			player.IsFreezed = true
+			player.Details.IsFreezed = true
 			return
 		}
 		seen[card.Value] = true
 	}
 
-	if len(player.Cards) == 7 {
-		player.HasSevenCards = true
-		player.IsFreezed = true
+	if len(player.Details.Cards) == 7 {
+		player.Details.HasSevenCards = true
+		player.Details.IsFreezed = true
 	}
 }
 
@@ -27,7 +27,7 @@ func CheckPlayerCards(player *Player) {
 func AttributeCardToPlayer(card Card, player *ConnectedPlayer) {
 	player.Details.Cards = append(player.Details.Cards, card)
 	player.Details.NumberOfCards += 1
-	CheckPlayerCards(&player.Details)
+	CheckPlayerCards(player)
 }
 
 // Pops x number of cards from the deck
