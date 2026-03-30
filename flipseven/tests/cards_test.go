@@ -3,8 +3,8 @@ package tests
 import (
 	"testing"
 
-	"github.com/Zadigo/flipseven/internal/cards"
 	"github.com/Zadigo/flipseven/internal/logic"
+	"github.com/Zadigo/flipseven/internal/logic/cards"
 )
 
 func TestDeck(t *testing.T) {

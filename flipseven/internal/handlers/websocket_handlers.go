@@ -9,8 +9,8 @@ import (
 
 	"github.com/Zadigo/flipseven/internal"
 	"github.com/Zadigo/flipseven/internal/backend"
-	"github.com/Zadigo/flipseven/internal/cards"
 	"github.com/Zadigo/flipseven/internal/logic"
+	"github.com/Zadigo/flipseven/internal/logic/cards"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"github.com/redis/go-redis/v9"
