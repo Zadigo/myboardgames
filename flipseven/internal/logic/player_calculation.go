@@ -10,7 +10,7 @@ func SumValues(numbers ...int) int {
 
 // Calculate the player's score by summing the values
 // of the cards in their hand
-func CalculatePlayerScores(player *ConnectedPlayer) {
+func (player *ConnectedPlayer) CalculatePlayerScores() {
 	var normalPoints int = 0
 	var multiplierValue int = 0
 
@@ -34,7 +34,7 @@ func CalculatePlayerScores(player *ConnectedPlayer) {
 }
 
 // Reset the player's state for a new round
-func ResetPlayerState(player *ConnectedPlayer) {
+func (player *ConnectedPlayer) ResetPlayerState() {
 	player.Details.NumberOfCards = 0
 	player.Details.IsFreezed = false
 	player.Details.HasSevenCards = false

@@ -246,7 +246,7 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 
 			if goToNextRound {
 				for _, player := range table.Clients {
-					logic.CalculatePlayerScores(player)
+					player.CalculatePlayerScores()
 				}
 
 				WriteWsMessage(connection, WebsocketMessage{
