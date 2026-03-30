@@ -12,6 +12,7 @@ import (
 	"github.com/Zadigo/flipseven/internal"
 	"github.com/Zadigo/flipseven/internal/logic"
 	"github.com/gorilla/websocket"
+	"github.com/redis/go-redis/v9"
 )
 
 func init() {
@@ -22,6 +23,12 @@ func init() {
 
 	internal.Tables = make(map[string]*logic.PlayersTable)
 	internal.Tables["test-table-id"] = &logic.PlayersTable{}
+}
+
+func redisConn() *redis.Client {
+	return redis.NewClient(&redis.Options{
+		Addr: "localhost:6379",
+	})
 }
 
 func newWebsocketConnection(t *testing.T, handler internal.ContextHandlerFunc) (*websocket.Conn, *httptest.Server, context.CancelFunc) {
@@ -48,7 +55,9 @@ func newWebsocketConnection(t *testing.T, handler internal.ContextHandlerFunc) (
 }
 
 func TestInitialConnection(t *testing.T) {
-	conn, server, cancel := newWebsocketConnection(t, internal.LiveGameHandler)
+	conn, server, cancel := newWebsocketConnection(t, func(w http.ResponseWriter, r *http.Request, ctx context.Context) {
+		internal.LiveGameHandler(w, r, context.Background(), redisConn())
+	})
 
 	defer cancel()
 	defer server.Close()
@@ -62,7 +71,9 @@ func TestInitialConnection(t *testing.T) {
 }
 
 func TestWaitingLobby(t *testing.T) {
-	conn, server, cancel := newWebsocketConnection(t, internal.LiveGameHandler)
+	conn, server, cancel := newWebsocketConnection(t, func(w http.ResponseWriter, r *http.Request, ctx context.Context) {
+		internal.LiveGameHandler(w, r, context.Background(), redisConn())
+	})
 
 	defer cancel()
 	defer server.Close()
@@ -103,7 +114,9 @@ func TestWaitingLobby(t *testing.T) {
 }
 
 func TestGetDeck(t *testing.T) {
-	conn, server, cancel := newWebsocketConnection(t, internal.LiveGameHandler)
+	conn, server, cancel := newWebsocketConnection(t, func(w http.ResponseWriter, r *http.Request, ctx context.Context) {
+		internal.LiveGameHandler(w, r, context.Background(), redisConn())
+	})
 
 	defer cancel()
 	defer server.Close()

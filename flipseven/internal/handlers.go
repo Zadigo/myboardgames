@@ -63,6 +63,12 @@ func Cors(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+type RedisData struct {
+	initiator   string
+	createdAt   string
+	openForJoin bool
+}
+
 // Handler for creating a new game table. This is used when the user creates
 // a new game and needs a unique table ID that needs to be shared with other players.
 func CreateTableHandler(response http.ResponseWriter, request *http.Request, redisClient *redis.Client) {
@@ -100,7 +106,7 @@ func CreateTableHandler(response http.ResponseWriter, request *http.Request, red
 	}
 
 	ctx := context.Background()
-	redisClient.HSet(ctx, tableId.String(), "initiator", message.Username)
+	redisClient.HSet(ctx, tableId.String(), RedisData{initiator: message.Username, createdAt: fmt.Sprintf("%v", ctx.Value("requestTime")), openForJoin: true})
 
 	err = json.NewEncoder(response).Encode(PostDataMessage{
 		TableId: tableId.String(),
@@ -116,7 +122,7 @@ func CreateTableHandler(response http.ResponseWriter, request *http.Request, red
 
 // Handler for the live game websocket connection. This is used for real-time
 // communication between the server and the clients during the game.
-func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx context.Context) {
+func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx context.Context, redisConn *redis.Client) {
 	connection, err := RequestUpgrader.Upgrade(response, request, nil)
 
 	if err != nil {
@@ -195,7 +201,18 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 				},
 			}
 
-			// TODO: Store the ID in Redis
+			// If we have an initiator (aka a table on Redis), we have
+			// a table... we need to recreate it locally on the Tables
+			// result := redisConn.HExists(ctx, tableId, "initiator").Val()
+			// if !result {
+			// 	mutex.Lock()
+			// 	Tables[tableId] = &logic.PlayersTable{
+			// 		NumberOfPlayers: 0,
+			// 		Clients:       []*logic.ConnectedPlayer{},
+			// 		GameStarted:   false,
+			// 	}
+			// 	mutex.Unlock()
+			// }
 
 			// Connect any new players to the table
 			mutex.Lock()
@@ -203,7 +220,7 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 
 			if table == nil {
 				connection.WriteJSON(WebsocketMessage{
-					Action: "error",
+					Action:  "error",
 					Message: "Table not found",
 				})
 				return
@@ -211,7 +228,7 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 
 			if table.GameStarted {
 				connection.WriteJSON(WebsocketMessage{
-					Action: "error",
+					Action:  "error",
 					Message: "Game has already started",
 				})
 				mutex.Unlock()

@@ -1,31 +1,30 @@
 package backend
 
-// import (
-// 	"context"
-// 	"fmt"
-// 	"log"
+import (
+	"context"
+	"fmt"
+	"log"
 
-// 	"github.com/Zadigo/zanalytics/utils"
-// 	postGres "github.com/jackc/pgx/v5"
-// )
+	postGres "github.com/jackc/pgx/v5"
+)
 
-// // Obtains a new connection to the Postgres database
-// func NewPostgresDatabase(config *ServerBackendsConfig) (*postGres.Conn, error) {
-// 	if config.Database.Client == "postgres" && config.Postgres.Url == "" {
-// 		log.Panic("Postgres was selected as the database client but no URL was provided.")
-// 	}
+// Obtains a new connection to the Postgres database
+func CreatePostgresDatabase(config *ServerBackendsConfig) (*postGres.Conn, error) {
+	if config.Database.Client == "postgres" && config.Postgres.Url == "" {
+		log.Panic("Postgres was selected as the database client but no URL was provided.")
+	}
 
-// 	// Create a new connection to the Postgres database
-// 	var finalConnectionUrl string = config.Postgres.Url + "/zanalytics"
-// 	conn, err := postGres.Connect(context.Background(), finalConnectionUrl)
+	// Create a new connection to the Postgres database
+	var finalConnectionUrl string = config.Postgres.Url + "/flipseven"
+	conn, err := postGres.Connect(context.Background(), finalConnectionUrl)
 
-// 	if err != nil {
-// 		return nil, fmt.Errorf("Unable to connect to database: %v\n", err)
-// 	}
+	if err != nil {
+		return nil, fmt.Errorf("Unable to connect to database: %v\n", err)
+	}
 
-// 	log.Println("✔ Connected to Postgres database successfully.")
-// 	return conn, nil
-// }
+	log.Println("🚛 Connected to Postgres database successfully.")
+	return conn, nil
+}
 
 // // Creates necessary tables in the Postgres database
 // func CreateTables(conn *postGres.Conn, config *ServerConfig) {
