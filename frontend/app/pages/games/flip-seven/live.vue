@@ -17,23 +17,8 @@
     </nuxt-button>
 
     <!-- Tables -->
-    <div class="grid grid-cols-2 grid-flow-row-dense gap-2">
-      <div v-for="i in 12" :key="i" :class="{ 'bg-flip-seven-300/70': i === 2, 'bg-flip-seven-200/70': i !== 2 }" class="w-auto gap-2 shadow-sm backdrop-blur-xl rounded-lg p-5 relative flex flex-col">
-        <div id="infos" class="flex gap-1 place-self-end">
-          <div id="score" class="p-2 rounded-lg bg-[#fffceb] font-semibold text-center flex items-center">
-            15
-          </div>
-
-          <div id="score" class="p-2 rounded-lg bg-[#fffceb] font-bold text-center flex items-center gap-2">
-            <nuxt-avatar />
-            <span>My username</span>
-          </div>
-        </div>
-
-        <div class="flex gap-2">
-          <flip-card v-for="j in 7" :key="j" class="h-40 w-30 bg-flip-seven-900 rounded-lg" />
-        </div>
-      </div>
+    <div v-if="isDefined(tableDetails)" class="grid grid-cols-2 grid-flow-row-dense gap-2">
+      <flip-player v-for="(tableClient, index) in tableDetails.clients" :key="index" :index="index" :table-client="tableClient" />
     </div>
 
     <!-- Actions -->
@@ -56,11 +41,19 @@ definePageMeta({
   layout: 'game'
 })
 
-useStyleTag('body { background-color: var(--color-flip-seven-100); }')
-
 const { encode } = useWebsocketMessage()
 
+/**
+ * Websocket
+ */
+
 const { tableId } = useFlipSevenGameComposable()
-const { wsObject } = useFlipSevenLiveGameComposable(tableId)
+const { wsObject, tableDetails } = useFlipSevenLiveGameComposable(tableId)
 wsObject.open()
+
+/**
+ * Utils
+ */
+
+useStyleTag('body { background-color: var(--color-flip-seven-100); }')
 </script>

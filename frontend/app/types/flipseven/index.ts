@@ -1,0 +1,50 @@
+export type Deck = {
+  value: number
+  owner: number
+  category: string
+  isMultiplier: boolean
+  isNumber: boolean
+  isBonus: boolean
+  isSpecial: boolean
+}
+
+export interface TableClientDetail {
+  username: string
+  uuid: string
+  tableUuid: string
+  numberOfCards: number
+  isFreezed: boolean
+  hasFreezeCard: boolean
+  hasSecondChanceCard: boolean
+  hasSevenCards: boolean
+  hasSecondChance: boolean
+  cards?: Deck[]
+  score: number
+}
+
+export interface TableClient {
+  details: TableClientDetail
+}
+
+export type TableDetails = {
+  clients: TableClient[]
+  currentDeck?: Deck[]
+  numberOfPlayers: number
+  gameStarted: boolean
+}
+
+export enum WsActions {
+  InitialConnection = 'initial_connection',
+  WaitingLobby = 'waiting_lobby',
+  GetDeck = 'get_deck',
+  DeckCreated = 'deck_created',
+  UpdateWaitingLobby = 'update_waiting_lobby'
+}
+
+export type SendMessage = { action: WsActions.WaitingLobby, tableId: string | null, username: string }
+  | { action: WsActions.GetDeck }
+
+export type ReceiveMessage = { action: WsActions.WaitingLobby, something: string }
+  | { action: WsActions.DeckCreated, deck: Deck[] }
+  | { action: WsActions.InitialConnection }
+  | { action: WsActions.UpdateWaitingLobby, tableDetails: TableDetails }

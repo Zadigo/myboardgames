@@ -269,6 +269,11 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 				return
 			}
 
+			connection.WriteJSON(WebsocketMessage{
+				Action:       "update_waiting_lobby",
+				TableDetails: *table,
+			})
+
 		case "get_deck":
 			if err := checkTableId(tableId); err != nil {
 				WriteWsMessage(connection, WebsocketMessage{

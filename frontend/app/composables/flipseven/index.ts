@@ -1,3 +1,5 @@
+import { WsActions, type Deck, type ReceiveMessage, type SendMessage, type TableDetails } from '~/types'
+
 export const useFlipSevenGameComposable = createGlobalState(() => {
   const _tableId = useSessionStorage<string | null>('tableId', null)
   const params = useUrlSearchParams('history') as { table: string }
@@ -24,34 +26,11 @@ export const useFlipSevenGameComposable = createGlobalState(() => {
   }
 })
 
-type Deck = {
-  value: number
-  owner: number
-  category: string
-  isMultiplier: boolean
-  isNumber: boolean
-  isBonus: boolean
-  isSpecial: boolean
-}
-
-enum WsActions {
-  InitialConnection = 'initial_connection',
-  WaitingLobby = 'waiting_lobby',
-  GetDeck = 'get_deck',
-  DeckCreated = 'deck_created'
-}
-
-type SendMessage = { action: WsActions.WaitingLobby, tableId: string | null, username: string }
-  | { action: WsActions.GetDeck }
-
-type ReceiveMessage = { action: WsActions.WaitingLobby, something: string }
-  | { action: WsActions.DeckCreated, deck: Deck[] }
-  | { action: WsActions.InitialConnection }
-
 export const useFlipSevenLiveGameComposable = createGlobalState((tableId: MaybeRef<string | null>) => {
   const _tableId = toValue(tableId)
 
   const initialDeck = ref<Deck[]>([])
+  const tableDetails = ref<TableDetails>()
 
   const { decode, encode } = useWebsocketMessage()
   const wsObject = useWebSocket(`ws://127.0.0.1:9000/ws/flip-seven?table=${_tableId}`, {
@@ -78,13 +57,20 @@ export const useFlipSevenLiveGameComposable = createGlobalState((tableId: MaybeR
           case WsActions.InitialConnection:
             console.log('Received initial connection response:', message)
             break
+
           case WsActions.WaitingLobby:
             console.log('Received initial connection response:', message)
             break
+
           case WsActions.DeckCreated:
             console.log('Received deck created message:', message)
             initialDeck.value = message.deck
             break
+
+          case WsActions.UpdateWaitingLobby:
+            tableDetails.value = message.tableDetails
+            break
+
           default:
             console.warn('Unknown WebSocket message action:', message)
         }
@@ -96,6 +82,7 @@ export const useFlipSevenLiveGameComposable = createGlobalState((tableId: MaybeR
 
   return {
     wsObject,
-    initialDeck
+    initialDeck,
+    tableDetails
   }
 })
