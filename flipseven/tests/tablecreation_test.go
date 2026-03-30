@@ -9,8 +9,14 @@ import (
 	"testing"
 
 	"github.com/Zadigo/flipseven/internal"
-	"github.com/Zadigo/flipseven/internal/backend"
+	"github.com/redis/go-redis/v9"
 )
+
+func redisConnection() *redis.Client {
+	options, _ := redis.ParseURL("redis://:@localhost:6379/0")
+	client := redis.NewClient(options)
+	return client
+}
 
 func TestCreateTableHandler(t *testing.T) {
 	body := map[string]any{
@@ -27,18 +33,18 @@ func TestCreateTableHandler(t *testing.T) {
 
 	w := httptest.NewRecorder()
 
-	baseConfig := backend.ServerConfig{
-		Config: backend.ServerBaseConfig{
-			Backends: &backend.ServerBackendsConfig{
-				Redis: &backend.ServerBackendConfig{
-					Url: "redis://:@localhost:6379/0",
-				},
-			},
-		},
-	}
-	redisConn, _ := backend.CreateRedisClient(baseConfig.Config.Backends.Redis)
+	// baseConfig := backend.ServerConfig{
+	// 	Config: backend.ServerBaseConfig{
+	// 		Backends: &backend.ServerBackendsConfig{
+	// 			Redis: &backend.ServerBackendConfig{
+	// 				Url: "redis://:@localhost:6379/0",
+	// 			},
+	// 		},
+	// 	},
+	// }
+	// redisConn, _ := backend.CreateRedisClient(baseConfig.Config.Backends.Redis)
 
-	internal.CreateTableHandler(w, req, redisConn)
+	internal.CreateTableHandler(w, req, redisConnection())
 	resp := w.Result()
 	defer resp.Body.Close()
 
@@ -55,8 +61,8 @@ func TestCreateTableHandler(t *testing.T) {
 		t.Fatalf("Failed to decode response: %v", err.Error())
 	}
 
-	if _, ok := result["table_id"]; !ok {
-		t.Error("Expected 'table_id' in response")
+	if _, ok := result["tableId"]; !ok {
+		t.Error("Expected 'tableId' in response")
 	}
 
 	fmt.Printf("Response is %v", result)

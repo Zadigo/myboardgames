@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/Zadigo/flipseven/internal/cards"
 	"github.com/Zadigo/flipseven/internal/logic"
@@ -82,7 +83,7 @@ func CreateTableHandler(response http.ResponseWriter, request *http.Request, red
 		return
 	}
 
-	tableId := uuid.New()
+	tableId := uuid.NewString()
 
 	var message struct{ Username string }
 	err := json.NewDecoder(request.Body).Decode(&message)
@@ -106,10 +107,10 @@ func CreateTableHandler(response http.ResponseWriter, request *http.Request, red
 	}
 
 	ctx := context.Background()
-	redisClient.HSet(ctx, tableId.String(), RedisData{initiator: message.Username, createdAt: fmt.Sprintf("%v", ctx.Value("requestTime")), openForJoin: true})
+	redisClient.HSet(ctx, tableId, []string{"initiator", message.Username, "createdAt", time.Now().Format(time.RFC3339), "openForJoin", "true"})
 
 	err = json.NewEncoder(response).Encode(PostDataMessage{
-		TableId: tableId.String(),
+		TableId: tableId,
 	})
 
 	if err != nil {
@@ -117,7 +118,7 @@ func CreateTableHandler(response http.ResponseWriter, request *http.Request, red
 		return
 	}
 
-	log.Printf("✅ Created new table with ID: %s", tableId.String())
+	log.Printf("✅ Created new table with ID: %s", tableId)
 }
 
 // Handler for the live game websocket connection. This is used for real-time
