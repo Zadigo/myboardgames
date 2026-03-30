@@ -64,10 +64,29 @@ func Cors(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-type RedisData struct {
-	initiator   string
-	createdAt   string
-	openForJoin bool
+// Helper function to get a game table by its ID. This is used in various handlers
+// to retrieve the game table associated with a specific table ID.
+func getTable(tableId string) (*logic.PlayersTable, error) {
+	if tableId == "" {
+		return nil, fmt.Errorf("Table ID is required")
+	}
+
+	mutex.RLock()
+	table, exists := Tables[tableId]
+	mutex.RUnlock()
+
+	if !exists {
+		return nil, fmt.Errorf("Table with ID %s not found", tableId)
+	}
+
+	return table, nil
+}
+
+func checkTableId(tableId string) error {
+	if tableId == "" {
+		return fmt.Errorf("Table ID is required")
+	}
+	return nil
 }
 
 // Handler for creating a new game table. This is used when the user creates
@@ -150,7 +169,7 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 			websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""),
 		)
 
-		log.Printf("⚡️ Connection closed from client")
+		log.Printf("⚡️ Connection closed")
 		connection.Close()
 	}()
 
@@ -164,7 +183,6 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 	for {
 		var message WebsocketMessage
 		err := connection.ReadJSON(&message)
-
 		if err != nil {
 			WriteWsMessage(connection, WebsocketMessage{
 				Action:  "error",
@@ -172,6 +190,8 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 			})
 			return
 		}
+
+		tableId := request.URL.Query().Get("table")
 
 		// select {
 		// case <-ctx.Done():
@@ -182,12 +202,10 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 
 		switch message.Action {
 		case "waiting_lobby":
-			tableId := message.TableId
-
-			if tableId == "" {
+			if err := checkTableId(tableId); err != nil {
 				WriteWsMessage(connection, WebsocketMessage{
 					Action:  "error",
-					Message: "Table ID is required",
+					Message: err.Error(),
 				})
 				return
 			}
@@ -204,27 +222,26 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 
 			// If we have an initiator (aka a table on Redis), we have
 			// a table... we need to recreate it locally on the Tables
-			// result := redisConn.HExists(ctx, tableId, "initiator").Val()
-			// if !result {
-			// 	mutex.Lock()
-			// 	Tables[tableId] = &logic.PlayersTable{
-			// 		NumberOfPlayers: 0,
-			// 		Clients:       []*logic.ConnectedPlayer{},
-			// 		GameStarted:   false,
-			// 	}
-			// 	mutex.Unlock()
-			// }
+			result := redisConn.HExists(ctx, tableId, "openForJoin").Val()
+			if !result {
+				connection.WriteJSON(WebsocketMessage{
+					Action:  "error",
+					Message: "Table not found or not open for join",
+				})
+				return
+			}
 
 			// Connect any new players to the table
 			mutex.Lock()
 			table := Tables[tableId]
 
 			if table == nil {
-				connection.WriteJSON(WebsocketMessage{
-					Action:  "error",
-					Message: "Table not found",
-				})
-				return
+				table = &logic.PlayersTable{
+					NumberOfPlayers: 0,
+					GameStarted:     false,
+					Clients:         []*logic.ConnectedPlayer{},
+				}
+				Tables[tableId] = table
 			}
 
 			if table.GameStarted {
@@ -253,12 +270,28 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 			}
 
 		case "get_deck":
-			message := ReadWsMessage(connection)
+			if err := checkTableId(tableId); err != nil {
+				WriteWsMessage(connection, WebsocketMessage{
+					Action:  "error",
+					Message: err.Error(),
+				})
+				return
+			}
 
 			// 1. Return the deck of cards
 			baseDeck := cards.GetDeck()
 
-			table := Tables[message.TableId]
+			// table := Tables[message.TableId]
+			// table.CurrentDeck = baseDeck
+			table, err := getTable(tableId)
+			if err != nil {
+				WriteWsMessage(connection, WebsocketMessage{
+					Action:  "error",
+					Message: err.Error(),
+				})
+				return
+			}
+
 			table.CurrentDeck = baseDeck
 
 			WriteWsMessage(connection, WebsocketMessage{
@@ -267,8 +300,22 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 			})
 
 		case "flip_card":
-			message = ReadWsMessage(connection)
-			table := Tables[message.TableId]
+			if err := checkTableId(tableId); err != nil {
+				WriteWsMessage(connection, WebsocketMessage{
+					Action:  "error",
+					Message: err.Error(),
+				})
+				return
+			}
+
+			table, err := getTable(tableId)
+			if err != nil {
+				WriteWsMessage(connection, WebsocketMessage{
+					Action:  "error",
+					Message: err.Error(),
+				})
+				return
+			}
 
 			for _, player := range table.Clients {
 				if player.Details.IsFreezed {

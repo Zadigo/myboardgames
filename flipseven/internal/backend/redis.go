@@ -1,7 +1,6 @@
 package backend
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/redis/go-redis/v9"
@@ -17,6 +16,6 @@ func CreateRedisClient(config *ServerBackendConfig) (*redis.Client, error) {
 	}
 
 	client := redis.NewClient(options)
-	fmt.Println("🟢 Connected to Redis successfully")
+	log.Println("🟢 Connected to Redis successfully")
 	return client, nil
 }

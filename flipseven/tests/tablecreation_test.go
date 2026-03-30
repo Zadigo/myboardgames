@@ -33,17 +33,6 @@ func TestCreateTableHandler(t *testing.T) {
 
 	w := httptest.NewRecorder()
 
-	// baseConfig := backend.ServerConfig{
-	// 	Config: backend.ServerBaseConfig{
-	// 		Backends: &backend.ServerBackendsConfig{
-	// 			Redis: &backend.ServerBackendConfig{
-	// 				Url: "redis://:@localhost:6379/0",
-	// 			},
-	// 		},
-	// 	},
-	// }
-	// redisConn, _ := backend.CreateRedisClient(baseConfig.Config.Backends.Redis)
-
 	internal.CreateTableHandler(w, req, redisConnection())
 	resp := w.Result()
 	defer resp.Body.Close()

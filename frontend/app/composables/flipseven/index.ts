@@ -1,5 +1,5 @@
 export const useFlipSevenGameComposable = createGlobalState(() => {
-  const tableId = useSessionStorage<string | null>('tableId', null)
+  const _tableId = useSessionStorage<string | null>('tableId', null)
   const params = useUrlSearchParams('history') as { table: string }
 
   async function create() {
@@ -12,9 +12,11 @@ export const useFlipSevenGameComposable = createGlobalState(() => {
       }
     })
 
-    tableId.value = data.tableId
+    _tableId.value = data.tableId
     params.table = data.tableId
   }
+
+  const tableId = computed(() => _tableId.value || params.table || null)
 
   return {
     tableId,
@@ -48,11 +50,11 @@ type ReceiveMessage = { action: WsActions.WaitingLobby, something: string }
 
 export const useFlipSevenLiveGameComposable = createGlobalState((tableId: MaybeRef<string | null>) => {
   const _tableId = toValue(tableId)
-  const { decode, encode } = useWebsocketMessage()
 
   const initialDeck = ref<Deck[]>([])
 
-  const wsObject = useWebSocket('ws://127.0.0.1:9000/ws/flip-seven', {
+  const { decode, encode } = useWebsocketMessage()
+  const wsObject = useWebSocket(`ws://127.0.0.1:9000/ws/flip-seven?table=${_tableId}`, {
     immediate: false,
     onConnected(ws) {
       ws.send(encode<SendMessage>({

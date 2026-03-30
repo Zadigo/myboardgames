@@ -4,7 +4,7 @@
       Create Flip 7 Game
     </nuxt-button>
 
-    <nuxt-button :to="`/games/flip-seven/${tableId}`" :disabled="!tableId">
+    <nuxt-button :to="`/games/flip-seven/live?table=${tableId}`" :disabled="!tableId">
       Join Flip 7 Game
     </nuxt-button>
   </section>
