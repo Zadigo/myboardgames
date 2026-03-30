@@ -46,6 +46,8 @@
 </template>
 
 <script lang="ts" setup>
+import { useFlipSevenGameComposable, useFlipSevenLiveGameComposable } from '~/composables/flipseven'
+
 definePageMeta({
   layout: 'game'
 })
@@ -56,6 +58,10 @@ useStyleTag('body { background-color: var(--color-flip-seven-100); }')
 
 // Test Websocket
 
-const ws = useWebSocket('ws://127.0.0.1:9000/ws/flip-seven')
-ws.open()
+// const ws = useWebSocket('ws://127.0.0.1:9000/ws/flip-seven')
+// ws.open()
+
+const { tableId } = useFlipSevenGameComposable()
+const { wsObject } = useFlipSevenLiveGameComposable(tableId)
+wsObject.open()
 </script>

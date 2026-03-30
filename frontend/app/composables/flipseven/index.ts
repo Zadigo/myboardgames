@@ -31,13 +31,14 @@ type SendMessage = { action: WsActions.InitialConnection, tableId: string | null
 
 type ReceiveMessage = { action: WsActions.InitialConnectionResponse, something: string }
 
-export const useFlipLiveGameComposable = createGlobalState((tableId: string | null) => {
+export const useFlipSevenLiveGameComposable = createGlobalState((tableId: MaybeRef<string | null>) => {
+  const _tableId = toValue(tableId)
   const { decode, encode } = useWebsocketMessage()
 
-  const wsObject = useWebSocket('ws://127.0.0.1:9000/flip-sevenn', {
+  const wsObject = useWebSocket('ws://127.0.0.1:9000/ws/flip-seven', {
     immediate: false,
     onConnected(ws) {
-      ws.send(encode<SendMessage>({ action: WsActions.InitialConnection, tableId }))
+      ws.send(encode<SendMessage>({ action: WsActions.InitialConnection, tableId: _tableId }))
     },
     onDisconnected(ws, event) {
       console.log('WebSocket disconnected:', event)

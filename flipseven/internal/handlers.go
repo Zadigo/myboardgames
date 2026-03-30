@@ -153,6 +153,8 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 
 	var currentRound int = 1
 
+	log.Printf("⚡️ Client connected %v", connection.LocalAddr().String())
+
 	for {
 		var message WebsocketMessage
 		err := connection.ReadJSON(&message)
