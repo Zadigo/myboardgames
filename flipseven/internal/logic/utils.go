@@ -14,7 +14,7 @@ func SumValues(numbers ...int) int {
 
 // Calculate the player's score by summing the values
 // of the cards in their hand
-func CalcualtePlayerScores(player *internal.ConnectedPlayer) {
+func CalculatePlayerScores(player *internal.ConnectedPlayer) {
 	var normalPoints int = 0
 	var multipluerValue int = 0
 

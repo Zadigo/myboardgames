@@ -18,7 +18,7 @@ func TestCalcualtePlayerScores(t *testing.T) {
 		},
 	}
 
-	logic.CalcualtePlayerScores(player)
+	logic.CalculatePlayerScores(player)
 
 	if player.Details.Score != 6 {
 		t.Errorf("Expected score to be 6, but got %d", player.Details.Score)
@@ -35,7 +35,7 @@ func TestCalcualtePlayerScoresWithMultiplier(t *testing.T) {
 		},
 	}
 
-	logic.CalcualtePlayerScores(player)
+	logic.CalculatePlayerScores(player)
 
 	if player.Details.Score != 4 {
 		t.Errorf("Expected score to be 4, but got %d", player.Details.Score)
@@ -52,7 +52,7 @@ func TestCalcualtePlayerScoresWithBonus(t *testing.T) {
 		},
 	}
 
-	logic.CalcualtePlayerScores(player)
+	logic.CalculatePlayerScores(player)
 
 	if player.Details.Score != 4 {
 		t.Errorf("Expected score to be 4, but got %d", player.Details.Score)
