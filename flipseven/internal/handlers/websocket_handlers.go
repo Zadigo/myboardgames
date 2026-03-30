@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"github.com/Zadigo/flipseven/internal"
+	"github.com/Zadigo/flipseven/internal/backend"
 	"github.com/Zadigo/flipseven/internal/cards"
 	"github.com/Zadigo/flipseven/internal/logic"
 	"github.com/google/uuid"
@@ -30,7 +31,7 @@ const maxNumberOfPlayers int = 12
 
 // Handler for the live game websocket connection. This is used for real-time
 // communication between the server and the clients during the game.
-func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx context.Context, redisConn *redis.Client) {
+func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx context.Context, redisConn *redis.Client, broadcaster *backend.BroadcasterRegistry) {
 	connection, err := RequestUpgrader.Upgrade(response, request, nil)
 
 	if err != nil {
@@ -144,6 +145,10 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 			table.NumberOfPlayers += 1
 			table.Clients = append(table.Clients, &connectedPlayer)
 			mutex.Unlock()
+
+			// Register with the broadcaster so Redis messages reach this client
+			broadcaster := broadcaster.GetOrCreate(tableId)
+			broadcaster.AddClient(connection)
 
 			if table.NumberOfPlayers == maxNumberOfPlayers {
 				WriteWsMessage(connection, WebsocketMessage{

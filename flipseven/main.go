@@ -43,8 +43,12 @@ func main() {
 	redisClient := beforeStart()
 	defer redisClient.Close()
 
+	// Initialise the pub/sub layer and broadcaster registry
+	subscription := backend.NewSubscription(redisClient, ctx)
+	broadcasterRegistry := backend.NewRegistry(subscription, ctx)
+
 	http.HandleFunc("/ws/flip-seven", handlers.Cors(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		handlers.LiveGameHandler(w, r, ctx, redisClient)
+		handlers.LiveGameHandler(w, r, ctx, redisClient, broadcasterRegistry)
 	})))
 
 	http.HandleFunc("/v1/flip-seven/create", handlers.Cors(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
