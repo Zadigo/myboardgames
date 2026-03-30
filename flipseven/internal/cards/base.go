@@ -1,16 +1,18 @@
 package cards
 
-func getNumberCards() []Card {
+import "github.com/Zadigo/flipseven/internal"
+
+func getNumberCards() []internal.Card {
 	numbers := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
-	cards := []Card{}
+	cards := []internal.Card{}
 
 	for _, n := range numbers {
 		if n <= 1 {
 			// 0 and 1 appear once
-			cards = append(cards, Card{Value: n, IsNumber: true})
+			cards = append(cards, internal.Card{Value: n, IsNumber: true})
 		} else {
 			for j := range n {
-				cards = append(cards, Card{
+				cards = append(cards, internal.Card{
 					Value:    j,
 					IsNumber: true,
 				})
@@ -21,18 +23,18 @@ func getNumberCards() []Card {
 	return cards
 }
 
-func getBonusCards() []Card {
-	cards := []Card{}
+func getBonusCards() []internal.Card {
+	cards := []internal.Card{}
 	numbers := []int{2, 4, 6, 8, 10}
 
-	cards = append(cards, Card{
+	cards = append(cards, internal.Card{
 		Value:        2,
 		IsMultiplier: true,
 		IsSpecial:    true,
 	})
 
 	for i := range numbers {
-		cards = append(cards, Card{
+		cards = append(cards, internal.Card{
 			Value:        i,
 			IsBonus:      true,
 			IsMultiplier: false,
@@ -42,13 +44,13 @@ func getBonusCards() []Card {
 	return cards
 }
 
-func getSpecialCards() []Card {
-	cards := []Card{}
+func getSpecialCards() []internal.Card {
+	cards := []internal.Card{}
 	names := []string{"Freeze", "Flip 3", "Second Chance"}
 
 	for i := range names {
 		for range 3 {
-			cards = append(cards, Card{
+			cards = append(cards, internal.Card{
 				Value:    0,
 				Category: names[i],
 			})
@@ -61,8 +63,8 @@ func getSpecialCards() []Card {
 // Create a new deck of X cards that
 // will serve as the main deck for
 // flipping cards for each player
-func GetDeck() []Card {
-	cards := []Card{}
+func GetDeck() []internal.Card {
+	cards := []internal.Card{}
 
 	numberCards := getNumberCards()
 	cards = append(cards, numberCards...)
@@ -76,10 +78,10 @@ func GetDeck() []Card {
 	return cards
 }
 
-func GetShuffledDeck() []Card {
+func GetShuffledDeck() []internal.Card {
 	deck := GetDeck()
 
-	copiedDeck := make([]Card, len(deck))
+	copiedDeck := make([]internal.Card, len(deck))
 	copy(copiedDeck, deck)
 
 	return copiedDeck

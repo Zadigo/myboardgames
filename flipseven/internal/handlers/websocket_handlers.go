@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/Zadigo/flipseven/internal"
 	"github.com/Zadigo/flipseven/internal/cards"
 	"github.com/Zadigo/flipseven/internal/logic"
 	"github.com/google/uuid"
@@ -19,7 +20,7 @@ var mutex = sync.RWMutex{}
 // In-memory storage for game tables and connected clients.
 // This is used for managing the state of the game and
 // the connected clients.
-var Tables = make(map[string]*logic.PlayersTable)
+var Tables = make(map[string]*internal.PlayersTable)
 
 // In-memory storage for connected clients. This is used for
 // broadcasting messages to all connected clients.
@@ -97,9 +98,9 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 				return
 			}
 
-			connectedPlayer := logic.ConnectedPlayer{
+			connectedPlayer := internal.ConnectedPlayer{
 				Conn: connection,
-				Details: logic.Player{
+				Details: internal.Player{
 					Username:      message.Username,
 					Uuid:          uuid.NewString(),
 					TableUuid:     tableId,
@@ -123,10 +124,10 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 			table := Tables[tableId]
 
 			if table == nil {
-				table = &logic.PlayersTable{
+				table = &internal.PlayersTable{
 					NumberOfPlayers: 0,
 					GameStarted:     false,
-					Clients:         []*logic.ConnectedPlayer{},
+					Clients:         []*internal.ConnectedPlayer{},
 				}
 				Tables[tableId] = table
 			}
@@ -211,8 +212,8 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 				}
 
 				if player.Conn == connection {
-					card := logic.FlipCard(table.CurrentDeck, 1)
-					logic.AttributeCardToPlayer(card, player)
+					card := cards.FlipCard(table.CurrentDeck, 1)
+					cards.AttributeCardToPlayer(card, player)
 				}
 			}
 

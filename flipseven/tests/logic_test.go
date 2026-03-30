@@ -3,14 +3,14 @@ package tests
 import (
 	"testing"
 
-	"github.com/Zadigo/flipseven/internal/cards"
+	"github.com/Zadigo/flipseven/internal"
 	"github.com/Zadigo/flipseven/internal/logic"
 )
 
 func TestCalcualtePlayerScores(t *testing.T) {
-	player := &logic.ConnectedPlayer{
-		Details: logic.Player{
-			Cards: []cards.Card{
+	player := &internal.ConnectedPlayer{
+		Details: internal.Player{
+			Cards: []internal.Card{
 				{Value: 1, IsNumber: true},
 				{Value: 2, IsNumber: true},
 				{Value: 3, IsNumber: true},
@@ -26,9 +26,9 @@ func TestCalcualtePlayerScores(t *testing.T) {
 }
 
 func TestCalcualtePlayerScoresWithMultiplier(t *testing.T) {
-	player := &logic.ConnectedPlayer{
-		Details: logic.Player{
-			Cards: []cards.Card{
+	player := &internal.ConnectedPlayer{
+		Details: internal.Player{
+			Cards: []internal.Card{
 				{Value: 2, IsNumber: true},
 				{Value: 2, IsMultiplier: true},
 			},
@@ -43,9 +43,9 @@ func TestCalcualtePlayerScoresWithMultiplier(t *testing.T) {
 }
 
 func TestCalcualtePlayerScoresWithBonus(t *testing.T) {
-	player := &logic.ConnectedPlayer{
-		Details: logic.Player{
-			Cards: []cards.Card{
+	player := &internal.ConnectedPlayer{
+		Details: internal.Player{
+			Cards: []internal.Card{
 				{Value: 2, IsNumber: true},
 				{Value: 2, IsBonus: true},
 			},
