@@ -1,30 +1,6 @@
 import { WsActions, type Deck, type ReceiveMessage, type SendMessage, type TableDetails } from '~/types'
 
-export const useFlipSevenGameComposable = createGlobalState(() => {
-  const _tableId = useSessionStorage<string | null>('tableId', null)
-  const params = useUrlSearchParams('history') as { table: string }
-
-  async function create() {
-    const data = await $fetch<{ tableId: string }>('/v1/flip-seven/create', {
-      method: 'POST',
-      baseURL: 'http://127.0.0.1:9000',
-      headers: { 'Content-Type': 'application/json' },
-      body: {
-        username: 'Player1'
-      }
-    })
-
-    _tableId.value = data.tableId
-    params.table = data.tableId
-  }
-
-  const tableId = computed(() => _tableId.value || params.table || null)
-
-  return {
-    tableId,
-    create
-  }
-})
+export const TEST_USERNAME = 'Player 1'
 
 export const useFlipSevenLiveGameComposable = createGlobalState(() => {
   const params = useUrlSearchParams('history') as { table: string }
@@ -113,7 +89,7 @@ export const useFlipSevenLiveGameComposable = createGlobalState(() => {
       wsObject.open()
       wsObject.send(encode<SendMessage>({
         action: WsActions.InitiateTable,
-        username: 'Player 1'
+        username: TEST_USERNAME
       }))
     }
   }
@@ -123,7 +99,7 @@ export const useFlipSevenLiveGameComposable = createGlobalState(() => {
       wsObject.send(encode<SendMessage>({
         action: WsActions.WaitingLobby,
         tableId: toValue(tableId),
-        username: 'Player 1'
+        username: TEST_USERNAME
       }))
     }
   }
@@ -141,7 +117,7 @@ export const useFlipSevenLiveGameComposable = createGlobalState(() => {
       wsObject.send(encode<SendMessage>({
         action: WsActions.Reconnect,
         tableId: toValue(tableId),
-        username: 'Player 1'
+        username: TEST_USERNAME
       }))
     }
   }
@@ -150,7 +126,7 @@ export const useFlipSevenLiveGameComposable = createGlobalState(() => {
     wsObject.send(encode<SendMessage>({
       action: WsActions.FlipCard,
       tableId: tableId.value,
-      playerId: 'Player 1'
+      playerId: TEST_USERNAME
     }))
   }
 

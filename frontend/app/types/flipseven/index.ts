@@ -1,6 +1,6 @@
 export type Deck = {
   value: number
-  owner: number
+  owner: string
   category: string
   isMultiplier: boolean
   isNumber: boolean
