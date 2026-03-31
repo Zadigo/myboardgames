@@ -10,12 +10,12 @@ type Player struct {
 	Username string
 	Conn     *websocket.Conn
 	mu       sync.Mutex
-	tokens   int
+	Tokens   int
 }
 
 func (player *Player) Prepare(message string) {
 	// Each player starts with 1 influence token
-	player.tokens = 1
+	player.Tokens = 1
 }
 
 func (player *Player) PlaceCard(cardId string) {
@@ -30,12 +30,17 @@ func (player *Player) PlaceToken() {
 
 // Increase the player's influence tokens by k. This can be used when a player wins tokens from a card.
 func (player *Player) IncreaseTokens(k int) {
-	player.tokens += k
+	player.Tokens += k
 }
 
 // Decrease the player's influence tokens by k. This can be used when a player loses tokens from a card.
 func (player *Player) DecreaseTokens(k int) {
-	player.tokens -= k
+	if player.Tokens == 0 {
+		return
+	} else {
+		player.Tokens -= k
+	}
+
 }
 
 func (player *Player) SendJsonMessage(message string) {}

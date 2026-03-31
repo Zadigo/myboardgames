@@ -194,7 +194,7 @@ func (card *Card) ApplyArcher(queue *InfluenceQueue, firstCard bool) bool {
 // Eliminates a card adjacent to the soldier in the queue.
 // The player can choose to eliminate either the card immediately before
 // or immediately after the soldier.
-func (card *Card) ApplySoldier(queue *InfluenceQueue) bool {
+func (card *Card) ApplySoldier(queue *InfluenceQueue, direction string) bool {
 	if !card.preActionCheck(queue, "Soldier") {
 		return false
 	}
@@ -234,7 +234,15 @@ func (card *Card) ApplySoldier(queue *InfluenceQueue) bool {
 	// The soldier is in the middle of the queue,
 	// so the player can choose to eliminate either
 	// the card immediately before or immediately after it.
-	wasCard = queue.RemoveCardAtPosition(queue.ResolutionIndex - 1)
+	switch direction {
+	case "before":
+		wasCard = queue.RemoveCardAtPosition(queue.ResolutionIndex - 1)
+	case "after":
+		wasCard = queue.RemoveCardAtPosition(queue.ResolutionIndex + 1)
+	default:
+		return false
+	}
+
 	card.Owner.IncreaseTokens(1)
 	finalize()
 	return true
@@ -287,22 +295,22 @@ func (card *Card) ApplySpy(queue *InfluenceQueue, cardBefore bool) bool {
 	// so the player can choose to steal from either
 	// the card immediately before or immediately after it.
 	if cardBefore {
-		card.Owner.IncreaseTokens(1)
 		prevCard := queue.Queue[queue.ResolutionIndex-1]
 
 		if card.IsSameOwnerAs(prevCard) {
 			return false
 		}
 
+		card.Owner.IncreaseTokens(1)
 		prevCard.Owner.DecreaseTokens(1)
 	} else {
-		card.Owner.IncreaseTokens(1)
 		nextCard := queue.Queue[queue.ResolutionIndex+1]
 
 		if card.IsSameOwnerAs(nextCard) {
 			return false
 		}
 
+		card.Owner.IncreaseTokens(1)
 		nextCard.Owner.DecreaseTokens(1)
 	}
 	return true
@@ -331,7 +339,7 @@ func (card *Card) ApplyConspiracy(queue *InfluenceQueue) bool {
 
 	card.Owner.IncreaseTokens(card.Tokens * 2)
 	card.Discard()
-	return false
+	return true
 }
 
 // The shapeshifter can copy the effect of any adjacent character card in the queue

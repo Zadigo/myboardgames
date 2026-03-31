@@ -6,7 +6,8 @@ type InfluenceQueue struct {
 	// The influence queue is a list of cards that have been played but have not yet resolved.
 	Queue []*Card
 	// Each card is resolved one by one in an ascending order of their position in the queue.
-	// This index tracks which card is currently being resolved.
+	// This index tracks which card is currently being resolved. The inde is initialized to
+	// -1, meaning that no card has been resolved yet.
 	ResolutionIndex int
 }
 
@@ -42,28 +43,26 @@ func (queue *InfluenceQueue) NumberOfCards() int {
 	return len(queue.Queue)
 }
 
-func (queue *InfluenceQueue) Resolve(card *Card) {
+func (queue *InfluenceQueue) Resolve() {
 	if queue.NumberOfCards() == 0 {
 		return
 	}
 
-	if card == nil {
+	if queue.ResolutionIndex >= queue.NumberOfCards() {
 		return
 	}
 
-	index := IndexOfCard(queue.Queue, card.Uuid)
-
-	if index == -1 {
-		return
-	}
-
-	if index < queue.NumberOfCards() {
-		queue.ResolutionIndex = index
-	}
+	queue.ResolutionIndex++
 }
 
+// Get the current card being resolved. If the resolution index
+// is out of bounds, return nil.
 func (queue *InfluenceQueue) GetCurrentCard() *Card {
 	if queue.NumberOfCards() == 0 {
+		return nil
+	}
+
+	if queue.ResolutionIndex == -1 {
 		return nil
 	}
 
@@ -74,6 +73,21 @@ func (queue *InfluenceQueue) GetCurrentCard() *Card {
 	return nil
 }
 
+// Apply the effect of the current card being resolved. This function should be called
+// after calling Resolve() to apply the effect of the current card. It returns true if 
+// the effect was successfully applied, and false otherwise.
+// Deprecated: use the card effect directly
+func (queue *InfluenceQueue) ApplyEffect(card *Card) bool {
+	if card.IsRevealed {
+		if card.Name == "Archer" {
+			return card.ApplyArcher(queue, false)
+		}
+	}
+	return false
+}
+
+// Helper function to find the index of a card in
+// the queue by its UUID.
 func IndexOfCard(slice []*Card, value string) int {
 	for i, v := range slice {
 		if v.Uuid == value {
