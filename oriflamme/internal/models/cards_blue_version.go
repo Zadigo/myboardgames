@@ -128,7 +128,7 @@ func (card *Card) RemoveToken(k int) {
 
 // Check if two cards are owned by the same player. This can be used to determine
 // if a card's special ability can be applied to another card in the queue.
-func (card *Card) IsSameOwnerAs(b Card) bool {
+func (card *Card) IsSameOwnerAs(b *Card) bool {
 	return card.Owner.Username == b.Owner.Username
 }
 
@@ -347,7 +347,7 @@ func (card *Card) ApplyShapeshifter(queue *InfluenceQueue, otherIndex int) bool 
 		return false
 	}
 
-	var cardToCopy Card
+	var cardToCopy *Card
 
 	// The shapeshifter is at the front of the queue,
 	// so only the card immediately after it

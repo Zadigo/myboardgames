@@ -1,19 +1,29 @@
 package models
 
+import "slices"
+
 type InfluenceQueue struct {
 	// The influence queue is a list of cards that have been played but have not yet resolved.
-	Queue []Card
+	Queue []*Card
 	// Each card is resolved one by one in an ascending order of their position in the queue.
 	// This index tracks which card is currently being resolved.
 	ResolutionIndex int
 }
 
-func (queue *InfluenceQueue) AddCardLeft(card Card) {
+func (queue *InfluenceQueue) AddCardLeft(card *Card) {
+	queue.Queue = slices.Insert(queue.Queue, 0, card)
 
+	for i := range queue.Queue {
+		queue.Queue[i].Position = i
+	}
 }
 
-func (queue *InfluenceQueue) AddCardRight(card Card) {
+func (queue *InfluenceQueue) AddCardRight(card *Card) {
+	queue.Queue = append(queue.Queue, card)
 
+	for i := range queue.Queue {
+		queue.Queue[i].Position = i
+	}
 }
 
 // Remove a card at a specific position in the queue. The card is simply
@@ -21,7 +31,7 @@ func (queue *InfluenceQueue) AddCardRight(card Card) {
 func (queue *InfluenceQueue) RemoveCardAtPosition(index int) *Card {
 	card := queue.Queue[index]
 	card.IsRemoved = true
-	return &card
+	return card
 }
 
 func (queue *InfluenceQueue) StackCard(index int) *Card {
@@ -58,13 +68,13 @@ func (queue *InfluenceQueue) GetCurrentCard() *Card {
 	}
 
 	if queue.ResolutionIndex < queue.NumberOfCards() {
-		return &queue.Queue[queue.ResolutionIndex]
+		return queue.Queue[queue.ResolutionIndex]
 	}
 
 	return nil
 }
 
-func IndexOfCard(slice []Card, value string) int {
+func IndexOfCard(slice []*Card, value string) int {
 	for i, v := range slice {
 		if v.Uuid == value {
 			return i

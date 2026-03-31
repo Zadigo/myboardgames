@@ -5,8 +5,8 @@ type PlayingTable struct {
 }
 
 type LayerInterface interface {
-	AddCardLeft(card Card)
-	AddCardRight(card Card)
+	AddCardLeft(card *Card)
+	AddCardRight(card *Card)
 	RemoveCardAtPosition(index int) *Card
 	StackCard(index int) *Card
 }
@@ -38,7 +38,7 @@ func CreateTableLayer() *TableLayer {
 		TotalCardsPerPlayer: 10,
 		MaxCardsPerPlayer:   7,
 		Layer: &InfluenceQueue{
-			Queue: []Card{},
+			Queue: []*Card{},
 		},
 	}
 }
