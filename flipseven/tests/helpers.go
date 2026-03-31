@@ -9,9 +9,12 @@ import (
 	"time"
 
 	"github.com/Zadigo/flipseven/internal/handlers"
+	"github.com/Zadigo/flipseven/internal/logic"
 	"github.com/gorilla/websocket"
 	"github.com/redis/go-redis/v9"
 )
+
+const testTableId string = "ffc11d2a-cb17-4ceb-b01b-8c23c1cf47a8"
 
 func NewWebsocketConnection(t *testing.T, handler handlers.ContextHandlerFunc) (*websocket.Conn, *httptest.Server, context.CancelFunc) {
 	t.Helper()
@@ -25,7 +28,7 @@ func NewWebsocketConnection(t *testing.T, handler handlers.ContextHandlerFunc) (
 
 	server := httptest.NewServer(wrappedHanlder)
 	wsURL := "ws" + strings.TrimPrefix(server.URL, "http")
-	conn, _, err := websocket.DefaultDialer.Dial(wsURL+"?table=test-table-id", nil)
+	conn, _, err := websocket.DefaultDialer.Dial(wsURL+"?table="+testTableId, nil)
 
 	if err != nil {
 		t.Fatalf("Failed to connect to test server: %v", err)
@@ -38,6 +41,12 @@ func NewWebsocketConnection(t *testing.T, handler handlers.ContextHandlerFunc) (
 
 func LiveGameWebsocketConnection(t *testing.T) (*websocket.Conn, *httptest.Server, context.CancelFunc) {
 	baseRegistry := handlers.NewBaseRegistry()
+	baseRegistry.Set(testTableId, &logic.TableLayer{
+		Layer: &logic.PlayersTable{
+			TableId: testTableId,
+		},
+	})
+
 	return NewWebsocketConnection(t, func(w http.ResponseWriter, r *http.Request, ctx context.Context) {
 		handlers.LiveGameHandler(w, r, ctx, NewredisConn(t), nil, baseRegistry)
 	})

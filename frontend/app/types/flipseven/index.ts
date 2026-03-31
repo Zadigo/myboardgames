@@ -38,13 +38,17 @@ export enum WsActions {
   WaitingLobby = 'waiting_lobby',
   GetDeck = 'get_deck',
   DeckCreated = 'deck_created',
-  UpdateWaitingLobby = 'update_waiting_lobby'
+  UpdateWaitingLobby = 'update_waiting_lobby',
+  InitiateTable = 'initiate_table',
+  TableInitiated = 'table_initiated'
 }
 
-export type SendMessage = { action: WsActions.WaitingLobby, tableId: string | null, username: string }
+export type SendMessage = { action: WsActions.WaitingLobby, tableId: string | undefined | null, username: string }
   | { action: WsActions.GetDeck }
+  | { action: WsActions.InitiateTable, username: string }
 
 export type ReceiveMessage = { action: WsActions.WaitingLobby, something: string }
   | { action: WsActions.DeckCreated, deck: Deck[] }
   | { action: WsActions.InitialConnection }
   | { action: WsActions.UpdateWaitingLobby, tableDetails: TableDetails }
+  | { action: WsActions.TableInitiated, tableId: string }

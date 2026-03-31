@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"sync"
@@ -79,15 +78,15 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 				layer := logic.CreateNewTableLayer()
 				// TODO: Username
 				tableId = layer.Layer.GetTable().TableId
-				
-				result := redisConn.HSet(ctx, tableId, []string{"initiator", "Alice Test", "createdAt", time.Now().Format(time.RFC3339), "openForJoin", "true"})
+
+				result := redisConn.HSet(context.Background(), tableId, []string{"initiator", "Alice Test", "createdAt", time.Now().Format(time.RFC3339), "openForJoin", "true"})
 				if result.Err() != nil {
 					log.Printf("❌ Failed to set table details in Redis for table ID: %s, error: %s", tableId, result.Err().Error())
 					return nil
 				} else {
 					log.Printf("✅ Created new table with ID: %s", tableId)
 				}
-				
+
 				return layer
 			})
 
@@ -96,19 +95,21 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 				return
 			}
 
-			result := tableLayer.Layer.TableExists(redisConn, ctx)
-			if !result {
-				WriteWsMessage(connection, WebsocketMessage{
-					Action:  "error",
-					Message: "Table not found or not open for join",
-				})
+			WriteWsMessage(connection, WebsocketMessage{
+				Action:  "table_initiated",
+				TableId: tableId,
+			})
+
+		case "waiting_lobby":
+			message, err := ReadWsMessage(connection)
+			if err != nil {
+				log.Printf("❌ Failed to read WebSocket message: %s", err.Error())
 				return
 			}
 
-		case "waiting_lobby":
-			tableLayer, state := baseRegistry.Get(tableId)
+			tableLayer, state := baseRegistry.Get(message.TableId)
 			if !state {
-				fmt.Printf("❌ Table with ID %s not found in registry\n", tableId)
+				log.Printf("❌ Table with ID %s not found in registry", message.TableId)
 				return
 			}
 
@@ -152,11 +153,6 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 				return
 			}
 
-			// 1. Return the deck of cards
-			// baseDeck := logic.GetDeck()
-
-			// table := Tables[message.TableId]
-			// table.CurrentDeck = baseDeck
 			tableLayer, err := GetTableLayer(tableId)
 			if err != nil {
 				WriteWsMessage(connection, WebsocketMessage{

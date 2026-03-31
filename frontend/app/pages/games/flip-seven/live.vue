@@ -33,7 +33,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useFlipSevenGameComposable, useFlipSevenLiveGameComposable } from '~/composables/flipseven'
+import { useFlipSevenLiveGameComposable } from '~/composables/flipseven'
 
 definePageMeta({
   layout: 'game'
@@ -43,9 +43,11 @@ definePageMeta({
  * Websocket
  */
 
-const { tableId } = useFlipSevenGameComposable()
-const { wsObject, tableDetails, isConnected } = useFlipSevenLiveGameComposable(tableId)
-wsObject.open()
+const { wsObject, joinTable, tableDetails, isConnected } = useFlipSevenLiveGameComposable()
+
+onMounted(() => {
+  joinTable()
+})
 
 /**
  * Utils

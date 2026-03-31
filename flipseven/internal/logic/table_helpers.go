@@ -70,7 +70,7 @@ func (table *PlayersTable) HasPlayer(PlayerId string) bool {
 // Checks if the table exists in Redis by checking the existence of a specific
 // key (e.g., "openForJoin") associated with the table ID.
 func (table *PlayersTable) TableExists(redisConn *redis.Client, ctx context.Context) bool {
-	result := redisConn.HExists(ctx, table.TableId, "openForJoin").Val()
+	result := redisConn.HExists(context.Background(), table.TableId, "openForJoin").Val()
 	return result
 }
 

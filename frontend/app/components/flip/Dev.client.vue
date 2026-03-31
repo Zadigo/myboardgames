@@ -1,7 +1,7 @@
 <template>
   <dev-only>
     <div ref="devEl" class="fixed top-0 left-0 rounded-lg bg-primary-200/20 backdrop-blur-2xl shadow-md p-10 cursor-grab" :style="style">
-      <nuxt-button @click="wsObject.send(encode({ action: 'get_deck' }))">
+      <nuxt-button @click="getDeck">
         Get deck
       </nuxt-button>
 
@@ -19,14 +19,11 @@
 </template>
 
 <script lang="ts" setup>
-import { useFlipSevenGameComposable, useFlipSevenLiveGameComposable } from '~/composables/flipseven'
+import { useFlipSevenLiveGameComposable } from '~/composables/flipseven'
 
-const { encode } = useWebsocketMessage()
-const { tableId } = useFlipSevenGameComposable()
-const { wsObject, tableDetails } = useFlipSevenLiveGameComposable(tableId)
+const { tableDetails, getDeck } = useFlipSevenLiveGameComposable()
 
 const devEl = useTemplateRef('devEl')
-
 const { style } = useDraggable(devEl, {
   initialValue: { x: 0, y: 0 }
 })
