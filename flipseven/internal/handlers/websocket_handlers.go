@@ -153,11 +153,11 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 				return
 			}
 
-			tableLayer, err := GetTableLayer(tableId)
-			if err != nil {
+			tableLayer, state := baseRegistry.Get(tableId)
+			if !state {
 				WriteWsMessage(connection, WebsocketMessage{
 					Action:  "error",
-					Message: err.Error(),
+					Message: "Table not found",
 				})
 				return
 			}

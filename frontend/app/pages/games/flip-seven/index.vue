@@ -15,8 +15,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useFlipSevenGameComposable, useFlipSevenLiveGameComposable } from '~/composables/flipseven'
+import { useFlipSevenLiveGameComposable } from '~/composables/flipseven'
 
-const { create, tableId } = useFlipSevenGameComposable()
-const { createTable } = useFlipSevenLiveGameComposable()
+const { createTable, tableId } = useFlipSevenLiveGameComposable()
 </script>

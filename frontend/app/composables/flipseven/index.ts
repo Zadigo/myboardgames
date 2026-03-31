@@ -84,6 +84,10 @@ export const useFlipSevenLiveGameComposable = createGlobalState(() => {
             tableDetails.value = message.tableDetails
             break
 
+          case WsActions.Error:
+            console.error('Received error message from WebSocket:', message.message)
+            break
+
           default:
             console.warn('Unknown WebSocket message action:', message)
         }
@@ -116,7 +120,9 @@ export const useFlipSevenLiveGameComposable = createGlobalState(() => {
   }
 
   function getDeck() {
-    wsObject.send(encode({ action: 'get_deck' }))
+    wsObject.send(encode({
+      action: 'get_deck'
+    }))
   }
 
   return {
