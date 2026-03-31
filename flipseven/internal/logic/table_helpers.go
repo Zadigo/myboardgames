@@ -9,16 +9,6 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-const maxNumberOfPlayers int = 12
-
-func (table *PlayersTable) StartGame(connection *websocket.Conn) {
-	// Do something
-}
-
-func (table *PlayersTable) EndGame(connection *websocket.Conn) {
-	// Do something
-}
-
 // Pops x number of cards from the deck
 func (table *PlayersTable) FlipCard(playerId string, k int) (*Card, string) {
 	if k <= 0 {
@@ -147,23 +137,26 @@ func (table *PlayersTable) AddPlayer(username string, connection *websocket.Conn
 }
 
 func (table *PlayersTable) CanAcceptNewPlayers() bool {
-	return !table.GameStarted && table.NumberOfPlayers < maxNumberOfPlayers
+	return !table.GameStarted && table.NumberOfPlayers <= table.maxNumberOfPlayers
 }
 
 func (table *PlayersTable) IsStarted() bool {
 	return table.GameStarted
 }
 
-func (table *PlayersTable) GetTable() PlayersTable {
-	return *table
+// Returns a copy of the PlayersTable struct to prevent 
+// external modification of the original struct
+func (table *PlayersTable) GetTable() *PlayersTable {
+	return table
 }
 
 // Create a new table layer interface
 func CreateNewTableLayer() *TableLayer {
 	return &TableLayer{
 		Layer: &PlayersTable{
-			TableId: uuid.NewString(),
-			Clients: make(map[string]*PlayerLayer),
+			TableId:            uuid.NewString(),
+			Clients:            make(map[string]*PlayerLayer),
+			maxNumberOfPlayers: 12,
 		},
 	}
 }

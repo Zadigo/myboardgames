@@ -15,7 +15,7 @@ type WebsocketMessage struct {
 	PlayerId     string              `json:"playerId,omitempty"`
 	Username     string              `json:"username,omitempty"`
 	Players      []logic.PlayerLayer `json:"players,omitempty"`
-	TableDetails logic.PlayersTable  `json:"tableDetails,omitempty"`
+	TableDetails *logic.PlayersTable `json:"tableDetails,omitempty"`
 }
 
 type ContextHandlerFunc func(w http.ResponseWriter, r *http.Request, ctx context.Context)

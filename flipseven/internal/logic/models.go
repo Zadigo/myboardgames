@@ -68,8 +68,6 @@ type PlayerLayer struct {
 }
 
 type TableLayerInterface interface {
-	StartGame(connection *websocket.Conn)
-	EndGame(connection *websocket.Conn)
 	FlipCard(playerId string, k int) (*Card, string)
 	FreezePlayer(player string)
 	NextRound()
@@ -83,19 +81,20 @@ type TableLayerInterface interface {
 	GetNumberOfPlayers() int
 	GetShuffledDeck() []Card
 	GetDeck() []Card
-	GetTable() PlayersTable
+	GetTable() *PlayersTable
 	CanAcceptNewPlayers() bool
 	IsStarted() bool
 }
 
 type PlayersTable struct {
-	TableId         string
-	Clients         map[string]*PlayerLayer `json:"clients"`
-	CurrentDeck     []Card                  `json:"currentDeck"`
-	DiscardPile     []Card                  `json:"discardPile"`
-	NumberOfPlayers int                     `json:"numberOfPlayers"`
-	CurrentRound    int                     `json:"currentRound"`
-	GameStarted     bool                    `json:"gameStarted"`
+	TableId            string
+	Clients            map[string]*PlayerLayer `json:"clients"`
+	CurrentDeck        []Card                  `json:"currentDeck"`
+	DiscardPile        []Card                  `json:"discardPile"`
+	NumberOfPlayers    int                     `json:"numberOfPlayers"`
+	CurrentRound       int                     `json:"currentRound"`
+	GameStarted        bool                    `json:"gameStarted"`
+	maxNumberOfPlayers int
 }
 
 type TableLayer struct {
