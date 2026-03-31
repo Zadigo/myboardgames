@@ -10,7 +10,7 @@
     </div>
 
     <div v-if="!isConnected" class="rounded-lg bg-primary-200 w-full p-10 text-center space-y-4">
-      <nuxt-button @click="wsObject.open()">
+      <nuxt-button @click="reconnect">
         <icon name="lucide:refresh-cw" />
         Reconnect
       </nuxt-button>
@@ -43,7 +43,7 @@ definePageMeta({
  * Websocket
  */
 
-const { wsObject, joinTable, tableDetails, isConnected } = useFlipSevenLiveGameComposable()
+const { joinTable, reconnect, tableDetails, isConnected } = useFlipSevenLiveGameComposable()
 
 onMounted(() => {
   joinTable()

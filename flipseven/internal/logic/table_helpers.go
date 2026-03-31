@@ -20,9 +20,9 @@ func (table *PlayersTable) EndGame(connection *websocket.Conn) {
 }
 
 // Pops x number of cards from the deck
-func (table *PlayersTable) FlipCard(playerId string, k int) *Card {
+func (table *PlayersTable) FlipCard(playerId string, k int) (*Card, string) {
 	if k <= 0 {
-		return nil
+		return nil, ""
 	}
 
 	if k > 3 {
@@ -30,27 +30,54 @@ func (table *PlayersTable) FlipCard(playerId string, k int) *Card {
 	}
 
 	if table.GetNumberOfCards() == 0 {
-		return nil
+		return nil, ""
+	}
+
+	player := table.GetPlayer(playerId)
+	if player.Details.HasSevenCards {
+		return nil, ""
+	}
+
+	if player.Details.IsFreezed {
+		return nil, ""
 	}
 
 	card := &table.CurrentDeck[k]
-	player := table.GetPlayer(playerId)
+	card.Owner = playerId
 
 	if len(player.Details.Cards) == 7 {
 		player.Details.HasSevenCards = true
-		return nil
+		return nil, ""
 	}
 
 	player.Details.Cards = append(player.Details.Cards, *card)
-	return card
+
+	// continue or next_round
+	var action string = "continue"
+
+	// Once the player has flipped a card, we need to
+	// check again if they reached seven cards and if so,
+	// we need to freeze them and all the other players
+	if player.Details.HasSevenCards {
+		for _, player := range table.Clients {
+			player.Details.IsFreezed = true
+		}
+		action = "next_round"
+	}
+
+	return card, action
 }
 
-func (table *PlayersTable) FreezePlayer(player string) {
-	// Do something
+// Prevents a player from flipping cards for the rest of the round
+func (table *PlayersTable) FreezePlayer(playerId string) {
+	player := table.GetPlayer(playerId)
+	if player != nil {
+		player.Details.IsFreezed = true
+	}
 }
 
 func (table *PlayersTable) NextRound() {
-	// Do something
+	table.CurrentRound++
 }
 
 func (table *PlayersTable) GetTableId() string {

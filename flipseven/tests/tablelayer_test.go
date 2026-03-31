@@ -23,7 +23,7 @@ func TestFlipCard(t *testing.T) {
 
 	connection, _, _ := LiveGameWebsocketConnection(t)
 	tableLayer.Layer.AddPlayer("Alice", connection)
-	card := tableLayer.Layer.FlipCard("Alice", 1)
+	card, _ := tableLayer.Layer.FlipCard("Alice", 1)
 
 	if card == nil {
 		t.Errorf("Expected a card to be flipped, got nil")

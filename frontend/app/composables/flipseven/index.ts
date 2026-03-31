@@ -44,10 +44,9 @@ export const useFlipSevenLiveGameComposable = createGlobalState(() => {
 
   const initialDeck = ref<Deck[]>([])
   const tableDetails = ref<TableDetails>()
-  const url = computed(() => `ws://127.0.0.1:9000/ws/flip-seven?table=${toValue(tableId)}`)
 
   const { decode, encode } = useWebsocketMessage()
-  const wsObject = useWebSocket(url.value, {
+  const wsObject = useWebSocket(`ws://127.0.0.1:9000/ws/flip-seven`, {
     immediate: false,
     onConnected(_ws) {},
     onDisconnected(_ws, _event) {},
@@ -81,6 +80,10 @@ export const useFlipSevenLiveGameComposable = createGlobalState(() => {
             break
 
           case WsActions.UpdateWaitingLobby:
+            tableDetails.value = message.tableDetails
+            break
+
+          case WsActions.Reconnected:
             tableDetails.value = message.tableDetails
             break
 
@@ -121,8 +124,20 @@ export const useFlipSevenLiveGameComposable = createGlobalState(() => {
 
   function getDeck() {
     wsObject.send(encode({
-      action: 'get_deck'
+      action: 'get_deck',
+      tableId: toValue(tableId)
     }))
+  }
+
+  function reconnect() {
+    if (wsObject.status.value === 'CLOSED') {
+      wsObject.open()
+      wsObject.send(encode<SendMessage>({
+        action: WsActions.Reconnect,
+        tableId: toValue(tableId),
+        username: 'Player 1'
+      }))
+    }
   }
 
   return {
@@ -139,6 +154,7 @@ export const useFlipSevenLiveGameComposable = createGlobalState(() => {
      */
     createTable,
     getDeck,
-    joinTable
+    joinTable,
+    reconnect
   }
 })

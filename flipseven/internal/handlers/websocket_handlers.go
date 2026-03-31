@@ -62,8 +62,6 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 		Message: "Connection successful",
 	})
 
-	var currentRound int = 1
-
 	for {
 		message, err := ReadWsMessage(connection)
 		if err != nil {
@@ -74,6 +72,7 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 
 		switch message.Action {
 		case "initiate_table":
+			// TODO:
 			tableLayer := baseRegistry.GetOrCreate(tableId, func() *logic.TableLayer {
 				layer := logic.CreateNewTableLayer()
 				// TODO: Username
@@ -100,13 +99,20 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 				TableId: tableId,
 			})
 
-		case "waiting_lobby":
-			message, err := ReadWsMessage(connection)
-			if err != nil {
-				log.Printf("❌ Failed to read WebSocket message: %s", err.Error())
-				return
+		case "reconnect":
+			tableLayer, state := baseRegistry.Get(message.TableId)
+			if !state {
+				log.Printf("❌ Table with ID %s not found in registry for reconnection", message.TableId)
 			}
 
+			log.Printf("🔄 Reconnecting player %s to table %s", message.Username, message.TableId)
+
+			WriteWsMessage(connection, WebsocketMessage{
+				Action:       "reconnected",
+				TableDetails: tableLayer.Layer.GetTable(),
+			})
+
+		case "waiting_lobby":
 			tableLayer, state := baseRegistry.Get(message.TableId)
 			if !state {
 				log.Printf("❌ Table with ID %s not found in registry", message.TableId)
@@ -145,15 +151,7 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 			})
 
 		case "get_deck":
-			if err := CheckTableId(tableId); err != nil {
-				WriteWsMessage(connection, WebsocketMessage{
-					Action:  "error",
-					Message: err.Error(),
-				})
-				return
-			}
-
-			tableLayer, state := baseRegistry.Get(tableId)
+			tableLayer, state := baseRegistry.Get(message.TableId)
 			if !state {
 				WriteWsMessage(connection, WebsocketMessage{
 					Action:  "error",
@@ -170,64 +168,30 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 			})
 
 		case "flip_card":
-			if err := CheckTableId(tableId); err != nil {
+			tableLayer, state := baseRegistry.Get(message.TableId)
+			if !state {
 				WriteWsMessage(connection, WebsocketMessage{
 					Action:  "error",
-					Message: err.Error(),
+					Message: "Table not found",
 				})
 				return
 			}
 
-			tableLayer, err := GetTableLayer(tableId)
-			if err != nil {
-				WriteWsMessage(connection, WebsocketMessage{
-					Action:  "error",
-					Message: err.Error(),
-				})
-				return
-			}
+			_, action := tableLayer.Layer.FlipCard(message.PlayerId, 1)
 
-			tableLayer.Layer.FlipCard(message.PlayerId, 1)
-
-			goToNextRound := false
-
-			player := tableLayer.Layer.GetPlayer(message.PlayerId)
-			if player.Details.HasSevenCards {
-				for _, player := range tableLayer.Layer.GetTable().Clients {
-					player.Details.IsFreezed = true
-					WriteWsMessage(player.Conn, WebsocketMessage{
-						Action:  "player_frozen",
-						Message: "Players are frozen and cannot flip more cards because one of the players has flipped seven cards",
-					})
-				}
-			}
-
-			// If all the players are frozen, calculate the
-			// scores and move to a next round
-			// var frozenPlayers int = 0
-			// for _, player := range tableLayer.Layer.GetTable().Clients {
-			// 	if player.Details.IsFreezed {
-			// 		frozenPlayers += 1
-			// 	}
-			// }
-
-			// if frozenPlayers == 12 {
-			// 	goToNextRound = true
-			// }
-
-			if goToNextRound {
+			if action == "next_round" {
 				tableLayer.Layer.CalculateAllPoints()
 
 				for _, player := range tableLayer.Layer.GetTable().Clients {
 					player.ResetPlayerState()
 				}
 
+				tableLayer.Layer.NextRound()
+
 				WriteWsMessage(connection, WebsocketMessage{
 					Action:       "new_round",
 					TableDetails: tableLayer.Layer.GetTable(),
 				})
-
-				currentRound += 1
 			}
 
 		default:
@@ -237,11 +201,11 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 			})
 		}
 
-		select {
-		case <-ctx.Done():
-			log.Print("⚠️ Context cancelled, closing handler")
-			return
-		default:
-		}
+		// select {
+		// case <-ctx.Done():
+		// 	log.Print("⚠️ Context cancelled, closing handler")
+		// 	return
+		// default:
+		// }
 	}
 }

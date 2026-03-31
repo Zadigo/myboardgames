@@ -13,7 +13,7 @@ type Card struct {
 	// for special cards this is the special effect
 	Value int `json:"value"`
 	// The player who owns the card, 0 for unowned
-	Owner int `json:"owner"`
+	Owner string `json:"owner"`
 	// nil, Freeze, Flip 3 or Second Chance
 	Category string `json:"category"`
 	// Is x2 instead of +2
@@ -70,7 +70,7 @@ type PlayerLayer struct {
 type TableLayerInterface interface {
 	StartGame(connection *websocket.Conn)
 	EndGame(connection *websocket.Conn)
-	FlipCard(playerId string, k int) *Card
+	FlipCard(playerId string, k int) (*Card, string)
 	FreezePlayer(player string)
 	NextRound()
 	GetTableId() string

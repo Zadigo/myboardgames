@@ -41,12 +41,15 @@ export enum WsActions {
   UpdateWaitingLobby = 'update_waiting_lobby',
   InitiateTable = 'initiate_table',
   TableInitiated = 'table_initiated',
-  Error = 'error'
+  Error = 'error',
+  Reconnect = 'reconnect',
+  Reconnected = 'reconnected'
 }
 
 export type SendMessage = { action: WsActions.WaitingLobby, tableId: string | undefined | null, username: string }
-  | { action: WsActions.GetDeck }
+  | { action: WsActions.GetDeck, tableId: string | undefined | null }
   | { action: WsActions.InitiateTable, username: string }
+  | { action: WsActions.Reconnect, tableId: string | undefined | null, username: string }
 
 export type ReceiveMessage = { action: WsActions.WaitingLobby, something: string }
   | { action: WsActions.DeckCreated, deck: Deck[] }
@@ -54,3 +57,4 @@ export type ReceiveMessage = { action: WsActions.WaitingLobby, something: string
   | { action: WsActions.UpdateWaitingLobby, tableDetails: TableDetails }
   | { action: WsActions.TableInitiated, tableId: string }
   | { action: WsActions.Error, message: string }
+  | { action: WsActions.Reconnected, tableDetails: TableDetails }
