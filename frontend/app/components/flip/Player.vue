@@ -18,8 +18,8 @@
 </template>
 
 <script lang="ts" setup>
-import { TransitionPresets } from '@vueuse/core';
-import { TEST_USERNAME, useFlipSevenLiveGameComposable } from '~/composables/flipseven';
+import { TransitionPresets } from '@vueuse/core'
+import { TEST_USERNAME, useFlipSevenLiveGameComposable } from '~/composables/flipseven'
 import type { TableClient } from '~/types'
 
 defineProps<{
