@@ -79,6 +79,12 @@ export const useFlipSevenLiveGameComposable = createGlobalState(() => {
             }
             break
 
+          case WsActions.CardFlipped:
+            console.log('Received card flipped message:', message)
+
+            tableDetails.value = message.tableDetails
+            break
+
           case WsActions.UpdateWaitingLobby:
             tableDetails.value = message.tableDetails
             break
@@ -123,8 +129,8 @@ export const useFlipSevenLiveGameComposable = createGlobalState(() => {
   }
 
   function getDeck() {
-    wsObject.send(encode({
-      action: 'get_deck',
+    wsObject.send(encode<SendMessage>({
+      action: WsActions.GetDeck,
       tableId: toValue(tableId)
     }))
   }
@@ -138,6 +144,14 @@ export const useFlipSevenLiveGameComposable = createGlobalState(() => {
         username: 'Player 1'
       }))
     }
+  }
+
+  function flipCard() {
+    wsObject.send(encode<SendMessage>({
+      action: WsActions.FlipCard,
+      tableId: tableId.value,
+      playerId: 'Player 1'
+    }))
   }
 
   return {
@@ -155,6 +169,7 @@ export const useFlipSevenLiveGameComposable = createGlobalState(() => {
     createTable,
     getDeck,
     joinTable,
-    reconnect
+    reconnect,
+    flipCard
   }
 })

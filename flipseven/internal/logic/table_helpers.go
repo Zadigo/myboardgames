@@ -20,7 +20,7 @@ func (table *PlayersTable) FlipCard(playerId string, k int) (*Card, string) {
 	}
 
 	if table.GetNumberOfCards() == 0 {
-		return nil, ""
+		return nil, "no_deck"
 	}
 
 	player := table.GetPlayer(playerId)
@@ -144,7 +144,7 @@ func (table *PlayersTable) IsStarted() bool {
 	return table.GameStarted
 }
 
-// Returns a copy of the PlayersTable struct to prevent 
+// Returns a copy of the PlayersTable struct to prevent
 // external modification of the original struct
 func (table *PlayersTable) GetTable() *PlayersTable {
 	return table
@@ -157,6 +157,7 @@ func CreateNewTableLayer() *TableLayer {
 			TableId:            uuid.NewString(),
 			Clients:            make(map[string]*PlayerLayer),
 			maxNumberOfPlayers: 12,
+			GameStarted: false,
 		},
 	}
 }

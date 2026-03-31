@@ -43,13 +43,16 @@ export enum WsActions {
   TableInitiated = 'table_initiated',
   Error = 'error',
   Reconnect = 'reconnect',
-  Reconnected = 'reconnected'
+  Reconnected = 'reconnected',
+  FlipCard = 'flip_card',
+  CardFlipped = 'card_flipped'
 }
 
 export type SendMessage = { action: WsActions.WaitingLobby, tableId: string | undefined | null, username: string }
   | { action: WsActions.GetDeck, tableId: string | undefined | null }
   | { action: WsActions.InitiateTable, username: string }
   | { action: WsActions.Reconnect, tableId: string | undefined | null, username: string }
+  | { action: WsActions.FlipCard, tableId: string | undefined | null, playerId: string }
 
 export type ReceiveMessage = { action: WsActions.WaitingLobby, something: string }
   | { action: WsActions.DeckCreated, deck: Deck[] }
@@ -58,3 +61,4 @@ export type ReceiveMessage = { action: WsActions.WaitingLobby, something: string
   | { action: WsActions.TableInitiated, tableId: string }
   | { action: WsActions.Error, message: string }
   | { action: WsActions.Reconnected, tableDetails: TableDetails }
+  | { action: WsActions.CardFlipped, tableDetails: TableDetails, cardDetails: Deck }

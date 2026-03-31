@@ -24,11 +24,11 @@ func (r *BaseRegistry) Get(tableId string) (*logic.TableLayer, bool) {
 }
 
 // Set adds or updates a table in the registry with the given ID.
-func (r *BaseRegistry) Set(tableID string, table *logic.TableLayer) {
+func (r *BaseRegistry) Set(table *logic.TableLayer) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	r.tables[tableID] = table
+	r.tables[table.Layer.GetTableId()] = table
 }
 
 // GetOrCreate retrieves a table by its ID. If the table does not exist, it uses the provided
@@ -40,7 +40,7 @@ func (r *BaseRegistry) GetOrCreate(tableID string, factory func() *logic.TableLa
 	tableLayer, exists := r.tables[tableID]
 	if !exists {
 		tableLayer = factory()
-		r.tables[tableLayer.Layer.GetTable().TableId] = tableLayer
+		r.tables[tableLayer.Layer.GetTableId()] = tableLayer
 	}
 
 	return tableLayer

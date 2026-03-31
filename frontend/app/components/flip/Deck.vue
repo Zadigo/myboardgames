@@ -1,6 +1,6 @@
 <template>
   <div class="bg-flip-seven-300/70 backdrop-blur-xl col-span-3 flex justify-center p-5 rounded-lg gap-2">
-    <div id="hidden-card" class="h-50 w-30 bg-flip-seven-900 rounded-lg cursor-pointer hover:scale-105 transition-all ease-in-out duration-200" @click="newCard">
+    <div id="hidden-card" class="h-50 w-30 bg-flip-seven-900 rounded-lg cursor-pointer hover:scale-105 transition-all ease-in-out duration-200" @click="flipCard">
       Another 1
     </div>
 
@@ -11,18 +11,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useFlipSevenGameComposable, useFlipSevenLiveGameComposable } from '~/composables/flipseven'
+import { useFlipSevenLiveGameComposable } from '~/composables/flipseven'
 
-const { tableId } = useFlipSevenGameComposable()
-const { wsObject } = useFlipSevenLiveGameComposable(tableId)
-
-const { encode } = useWebsocketMessage()
-
-/**
- * Flip New Card
- */
-
-function newCard() {
-  wsObject.send(encode({ action: 'flip_card', playerId: "Player 1" }))
-}
+const { flipCard } = useFlipSevenLiveGameComposable()
 </script>

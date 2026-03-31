@@ -68,35 +68,52 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 			return
 		}
 
-		tableId := request.URL.Query().Get("table")
+		// tableId := request.URL.Query().Get("table")
 
 		switch message.Action {
 		case "initiate_table":
-			// TODO:
-			tableLayer := baseRegistry.GetOrCreate(tableId, func() *logic.TableLayer {
-				layer := logic.CreateNewTableLayer()
-				// TODO: Username
-				tableId = layer.Layer.GetTable().TableId
+			tableId := ""
+			
+			if message.TableId != "" || message.Username == "" {
+				WriteWsMessage(connection, WebsocketMessage{
+					Action:  "error",
+					Message: "Table ID and username are required to initiate a table",
+				})
+				return
+			}
 
-				result := redisConn.HSet(context.Background(), tableId, []string{"initiator", "Alice Test", "createdAt", time.Now().Format(time.RFC3339), "openForJoin", "true"})
+			tableLayer, state := baseRegistry.Get(message.TableId)
+
+			if !state {
+				tableLayer = logic.CreateNewTableLayer()
+				baseRegistry.Set(tableLayer)
+				
+				tableId = tableLayer.Layer.GetTableId()
+				log.Printf("✅ Created new table with ID: %s", tableId)
+
+				result := redisConn.HSet(context.Background(), tableId, []string{"owner", message.Username, "createdAt", time.Now().Format(time.RFC3339), "openForJoin", "true"})
 				if result.Err() != nil {
 					log.Printf("❌ Failed to set table details in Redis for table ID: %s, error: %s", tableId, result.Err().Error())
-					return nil
-				} else {
-					log.Printf("✅ Created new table with ID: %s", tableId)
+					return
 				}
-
-				return layer
-			})
+			}
 
 			if tableLayer.Layer == nil {
 				log.Printf("❌ Could not initialize PlayersTable for table ID: %s", tableId)
 				return
 			}
 
+			mutex.Lock()
+			tableLayer.Layer.AddPlayer(message.Username, connection)
+			mutex.Unlock()
+
+			// Register with the broadcaster so Redis messages reach this client
+			// broadcaster := broadcaster.GetOrCreate(tableId)
+			// broadcaster.AddClient(connection)
+
 			WriteWsMessage(connection, WebsocketMessage{
 				Action:  "table_initiated",
-				TableId: tableId,
+				TableId: tableLayer.Layer.GetTableId(),
 			})
 
 		case "reconnect":
@@ -130,7 +147,9 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 				return
 			}
 
-			tableLayer.Layer.AddPlayer("Test Player", connection)
+			if !tableLayer.Layer.HasPlayer(message.PlayerId) {
+				tableLayer.Layer.AddPlayer(message.Username, connection)
+			}
 
 			if tableLayer.Layer.IsStarted() {
 				WriteWsMessage(connection, WebsocketMessage{
@@ -177,7 +196,24 @@ func LiveGameHandler(response http.ResponseWriter, request *http.Request, ctx co
 				return
 			}
 
-			_, action := tableLayer.Layer.FlipCard(message.PlayerId, 1)
+			card, action := tableLayer.Layer.FlipCard(message.PlayerId, 1)
+
+			if action == "no_deck" {
+				WriteWsMessage(connection, WebsocketMessage{
+					Action:  "error",
+					Message: "No deck found for the table",
+				})
+				return
+			}
+
+			if action == "continue" {
+				WriteWsMessage(connection, WebsocketMessage{
+					Action:       "card_flipped",
+					TableDetails: tableLayer.Layer.GetTable(),
+					CardDetails:  card,
+				})
+				return
+			}
 
 			if action == "next_round" {
 				tableLayer.Layer.CalculateAllPoints()
