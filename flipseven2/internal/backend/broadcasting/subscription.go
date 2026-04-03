@@ -14,15 +14,6 @@ const (
 	GlobalChannel      = "global"
 )
 
-func NewSubscription(client *redis.Client, ctx context.Context) *RedisPubSub {
-	return &RedisPubSub{client: client, ctx: ctx}
-}
-
-// TableChannel returns the Redis channel name for a specific table
-func TableChannel(tableId string) string {
-	return fmt.Sprintf("%s%s", TableChannelPrefix, tableId)
-}
-
 // Publish sends a message to a table-specific Redis channel
 func (r *RedisPubSub) Publish(tableId string, msg Message) error {
 	channel := TableChannel(tableId)
@@ -87,4 +78,13 @@ func (redisPubSub *RedisPubSub) Subscribe(tableId string, handler func(Message))
 			handler(msg)
 		}
 	}
+}
+
+func NewSubscription(client *redis.Client, ctx context.Context) *RedisPubSub {
+	return &RedisPubSub{client: client, ctx: ctx}
+}
+
+// TableChannel returns the Redis channel name for a specific table
+func TableChannel(tableId string) string {
+	return fmt.Sprintf("%s%s", TableChannelPrefix, tableId)
 }

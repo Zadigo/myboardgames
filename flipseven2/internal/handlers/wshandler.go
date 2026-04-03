@@ -2,16 +2,40 @@ package handlers
 
 import (
 	"context"
+	"log"
 	"net/http"
 
 	"github.com/Zadigo/flipseven2/internal/backend/broadcasting"
 	"github.com/Zadigo/flipseven2/internal/models"
+	"github.com/gorilla/websocket"
 	"github.com/redis/go-redis/v9"
 )
 
 func GameEngine(response http.ResponseWriter, request *http.Request, ctx context.Context, redisConn *redis.Client, broadcastRegistry *broadcasting.BroadcasterRegistry, baseRegistry *models.BaseRegistry) {
+	log.Print("🚀 Starting Flip 7 engine...")
+
 	connection, _ := RequestUpgrader.Upgrade(response, request, nil)
 	defaultContext := context.Background()
+
+	defer func() {
+		baseRegistry.Mu.Lock()
+		defer baseRegistry.Mu.Unlock()
+
+		delete(baseRegistry.Clients, connection)
+
+		// Send proper closing handshake before closing
+		err := connection.WriteMessage(
+			websocket.CloseMessage,
+			websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""),
+		)
+
+		if err != nil {
+			log.Printf("⚠️ Error sending close message: %v", err)
+		}
+
+		log.Printf("⚡️ Connection closed")
+		connection.Close()
+	}()
 
 	for {
 		message := ""
@@ -78,7 +102,7 @@ func GameEngine(response http.ResponseWriter, request *http.Request, ctx context
 
 			if action == "next_round" {
 				tableLayer.ResetPlayers()
-				
+
 				b, state := broadcastRegistry.Get(tableId)
 				if !state {
 					// TODO:
@@ -90,7 +114,7 @@ func GameEngine(response http.ResponseWriter, request *http.Request, ctx context
 					Payload: map[string]string{},
 				})
 
-				return 
+				return
 			}
 
 			if action == "continue" {
@@ -134,6 +158,13 @@ func GameEngine(response http.ResponseWriter, request *http.Request, ctx context
 					}
 				}
 			}
+		}
+
+		select {
+		case <-ctx.Done():
+			log.Print("⚠️ Context cancelled, closing handler")
+			return
+		default:
 		}
 	}
 }

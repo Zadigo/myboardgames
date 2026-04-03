@@ -90,15 +90,6 @@ func toWsMessage(msg Message) map[string]any {
 	return out
 }
 
-// Create a new broadcaster registry
-func NewRegistry(ps *RedisPubSub, ctx context.Context) *BroadcasterRegistry {
-	return &BroadcasterRegistry{
-		broadcasters: make(map[string]*Broadcaster),
-		pubsub:       ps,
-		ctx:          ctx,
-	}
-}
-
 // GetOrCreate returns an existing broadcaster or creates one for the given tableId
 func (r *BroadcasterRegistry) GetOrCreate(tableId string) *Broadcaster {
 	r.mu.Lock()
@@ -132,3 +123,12 @@ func (r *BroadcasterRegistry) Remove(tableId string) {
 // Ensure internal.ConnectedPlayer is importable — this avoids a circular import
 // by keeping pubsub free of handler-layer types.
 // var _ = logic.PlayerLayer{}
+
+// Create a new broadcaster registry
+func NewBroadcastingRegistry(ps *RedisPubSub, ctx context.Context) *BroadcasterRegistry {
+	return &BroadcasterRegistry{
+		broadcasters: make(map[string]*Broadcaster),
+		pubsub:       ps,
+		ctx:          ctx,
+	}
+}

@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/Zadigo/flipseven2/internal/backend"
+	"github.com/Zadigo/flipseven2/internal/backend/broadcasting"
 )
 
 func main() {
@@ -24,5 +26,10 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	backend.CreateRedisSubcription(redisClient, ctx)
+	defaultContext := context.Background()
+	s := broadcasting.NewSubscription(redisClient, defaultContext)
+	b := broadcasting.NewBroadcastingRegistry(s, defaultContext)
+
+	fmt.Print(ctx, b)
+
 }
