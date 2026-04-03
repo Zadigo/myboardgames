@@ -3,7 +3,7 @@ package models
 import (
 	"errors"
 
-	"github.com/Zadigo/flipseven2/internal/backend"
+	"github.com/Zadigo/flipseven2/internal/backend/broadcasting"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
@@ -15,7 +15,13 @@ type TableLayerInterface interface {
 	FreezePlayer(player *Player)
 	AddPlayer(connection *websocket.Conn, username string, isInitiator bool) *Player
 	ResetPlayers()
-	NextPlayer(broadcaster *backend.BroadcasterRegistry)
+	NextPlayer(broadcastingRegistry *broadcasting.BroadcasterRegistry)
+	GetUuid() string
+	GetCurrentCard() (*Card, error)
+	GetDeck() []*Card
+	NumberOfCards() int
+	HasPlayer(connection *websocket.Conn) bool
+	GetPlayer(connection *websocket.Conn) *Player
 }
 
 type TableLayer struct {
@@ -35,6 +41,10 @@ type TableLayer struct {
 
 type PlayersTable struct {
 	Layer TableLayerInterface `json:"-"`
+}
+
+func (t *TableLayer) GetUuid() string {
+	return t.Uuid
 }
 
 // Returns the current card based on the DeckIndex. If the DeckIndex is not
@@ -138,7 +148,7 @@ func (t *TableLayer) GetPlayer(connection *websocket.Conn) *Player {
 	return nil
 }
 
-func (t *TableLayer) NextPlayer(broadcaster *backend.BroadcasterRegistry) {
+func (t *TableLayer) NextPlayer(broadcaster *broadcasting.BroadcasterRegistry) {
 
 }
 

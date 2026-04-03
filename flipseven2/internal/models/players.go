@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"slices"
 	"sync"
 
@@ -80,6 +81,45 @@ func (p *Player) SetPlayerCards(t *TableLayer) {
 				p.Cards = append(p.Cards, card)
 			}
 		}
+	}
+}
+
+// Read an incomming websocket message
+func (p *Player) ReadJson() (WebsocketMessage, error) {
+	var message WebsocketMessage
+	err := p.conn.ReadJSON(&message)
+
+	if err != nil {
+		p.WriteJsonError(err, true)
+		return WebsocketMessage{}, err
+	}
+
+	return message, nil
+}
+
+// Return a message to the client. Returns true if the message was
+// sent successfully, false otherwise
+func (p *Player) WriteJson(message WebsocketMessage) error {
+	err := p.conn.WriteJSON(message)
+
+	if err != nil {
+		p.WriteJsonError(err, false)
+		p.conn.Close()
+		return err
+	}
+
+	return nil
+}
+
+// Return an error message to the client
+func (p *Player) WriteJsonError(err error, sendToClient bool) {
+	formattedError := fmt.Sprintf("❌ An error occurred for %s: %v", p.Username, err.Error())
+
+	if sendToClient {
+		p.WriteJson(WebsocketMessage{
+			Action:  "error",
+			Message: formattedError,
+		})
 	}
 }
 

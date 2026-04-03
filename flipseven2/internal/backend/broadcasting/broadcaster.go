@@ -1,4 +1,4 @@
-package backend
+package broadcasting
 
 import (
 	"context"
@@ -34,7 +34,7 @@ func (b *Broadcaster) AddClient(conn *websocket.Conn) {
 	defer b.mu.Unlock()
 
 	b.clients[conn] = true
-	log.Printf("➕ Client added to broadcaster for table %s (total: %d)", b.tableId, len(b.clients))
+	log.Printf(" Client added to broadcaster for table %s (total: %d)", b.tableId, len(b.clients))
 }
 
 // RemoveClient unregisters a websocket connection
@@ -44,10 +44,10 @@ func (b *Broadcaster) RemoveClient(conn *websocket.Conn) {
 
 	delete(b.clients, conn)
 
-	log.Printf("➖ Client removed from broadcaster for table %s (total: %d)", b.tableId, len(b.clients))
+	log.Printf(" Client removed from broadcaster for table %s (total: %d)", b.tableId, len(b.clients))
 
 	if len(b.clients) == 0 {
-		log.Printf("🗑️ No clients left for table %s, stopping broadcaster", b.tableId)
+		log.Printf(" No clients left for table %s, stopping broadcaster", b.tableId)
 		b.cancel()
 	}
 }
@@ -90,6 +90,7 @@ func toWsMessage(msg Message) map[string]any {
 	return out
 }
 
+// Create a new broadcaster registry
 func NewRegistry(ps *RedisPubSub, ctx context.Context) *BroadcasterRegistry {
 	return &BroadcasterRegistry{
 		broadcasters: make(map[string]*Broadcaster),
@@ -109,7 +110,7 @@ func (r *BroadcasterRegistry) GetOrCreate(tableId string) *Broadcaster {
 
 	b := NewBroadcaster(tableId, r.pubsub, r.ctx)
 	r.broadcasters[tableId] = b
-	log.Printf("🆕 Created broadcaster for table %s", tableId)
+	log.Printf("🆕 Created broadcast registry entry for table %s", tableId)
 	return b
 }
 

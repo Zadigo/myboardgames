@@ -4,13 +4,14 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/Zadigo/flipseven2/internal/backend"
+	"github.com/Zadigo/flipseven2/internal/backend/broadcasting"
 	"github.com/Zadigo/flipseven2/internal/models"
 	"github.com/redis/go-redis/v9"
 )
 
-func GameEngine(response http.ResponseWriter, request *http.Request, ctx context.Context, redisConn *redis.Client, broadcaster *backend.BroadcasterRegistry, baseRegistry *models.BaseRegistry) {
+func GameEngine(response http.ResponseWriter, request *http.Request, ctx context.Context, redisConn *redis.Client, broadcastRegistry *broadcasting.BroadcasterRegistry, baseRegistry *models.BaseRegistry) {
 	connection, _ := RequestUpgrader.Upgrade(response, request, nil)
+	defaultContext := context.Background()
 
 	for {
 		message := ""
@@ -18,8 +19,20 @@ func GameEngine(response http.ResponseWriter, request *http.Request, ctx context
 		switch message {
 		case "initiate_table":
 			tableLayer := models.CreatePlayersTable()
-			tableLayer.Layer.AddPlayer(connection, "Some Username", true)
-			redisConn.HSet(tableLayer.Layer)
+			player := tableLayer.Layer.AddPlayer(connection, "Some Username", true)
+
+			cmd := redisConn.HSet(defaultContext, tableLayer.Layer.GetUuid(), []string{"tableLayer"}, tableLayer.Layer)
+			if cmd.Err() != nil {
+				// cmd.Err().Error()
+			}
+
+			b := broadcastRegistry.GetOrCreate(tableLayer.Layer.GetUuid())
+			b.AddClient(connection)
+
+			player.WriteJson(models.WebsocketMessage{
+				Action:       "table_initiated",
+				TableDetails: tableLayer,
+			})
 
 		case "accept_player":
 			tableId := ""
@@ -32,6 +45,15 @@ func GameEngine(response http.ResponseWriter, request *http.Request, ctx context
 			}
 
 			tableLayer.AddPlayer(connection, "Another Username", false)
+			b := broadcastRegistry.GetOrCreate(tableId)
+			b.AddClient(connection)
+			b.Publish("accept_player", broadcasting.Message{
+				Action:  "accept_player",
+				TableId: tableId,
+				// Payload: map[string]any{
+				// 	"Something": "a",
+				// },
+			})
 
 		case "flip_card":
 			tableId := ""
@@ -56,11 +78,35 @@ func GameEngine(response http.ResponseWriter, request *http.Request, ctx context
 
 			if action == "next_round" {
 				tableLayer.ResetPlayers()
+				
+				b, state := broadcastRegistry.Get(tableId)
+				if !state {
+					// TODO:
+				}
+
+				b.Publish("flip_card", broadcasting.Message{
+					Action:  "flip_card",
+					TableId: tableId,
+					Payload: map[string]string{},
+				})
+
+				return 
 			}
 
 			if action == "continue" {
 				// TODO:
 			}
+
+			b, state := broadcastRegistry.Get(tableId)
+			if !state {
+				// TODO:
+			}
+
+			b.Publish("flip_card", broadcasting.Message{
+				Action:  "flip_card",
+				TableId: tableId,
+				Payload: map[string]string{},
+			})
 
 		case "give_card":
 			tableId := ""
@@ -79,7 +125,7 @@ func GameEngine(response http.ResponseWriter, request *http.Request, ctx context
 				if card.IsSpecial {
 					if card.Category == "Freeze" {
 						tableLayer.FreezePlayer(tableLayer.CurrentPlayer)
-						tableLayer.NextPlayer(broadcaster)
+						tableLayer.NextPlayer(broadcastRegistry)
 						return
 					}
 

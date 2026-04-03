@@ -21,6 +21,8 @@ func main() {
 		panic(err)
 	}
 
-	ctx := context.Background()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	backend.CreateRedisSubcription(redisClient, ctx)
 }
