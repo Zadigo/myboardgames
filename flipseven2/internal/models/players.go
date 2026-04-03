@@ -43,9 +43,9 @@ type Player struct {
 	// Indicates that the player is the initiator of the game
 	IsInitiator bool `json:"isInitiator"`
 	// The player's websocket connection, not serialized to JSON
-	conn *websocket.Conn `json:"-"`
+	Conn *websocket.Conn `json:"-"`
 	// Mutex to protect access to the player's data, not serialized to JSON
-	mu sync.Mutex `json:"-"`
+	Mu sync.Mutex `json:"-"`
 }
 
 // Calculates the player's score based on the cards they have in their hand. It
@@ -87,7 +87,7 @@ func (p *Player) SetPlayerCards(t *TableLayer) {
 // Read an incomming websocket message
 func (p *Player) ReadJson() (WebsocketMessage, error) {
 	var message WebsocketMessage
-	err := p.conn.ReadJSON(&message)
+	err := p.Conn.ReadJSON(&message)
 
 	if err != nil {
 		p.WriteJsonError(err, true)
@@ -100,11 +100,11 @@ func (p *Player) ReadJson() (WebsocketMessage, error) {
 // Return a message to the client. Returns true if the message was
 // sent successfully, false otherwise
 func (p *Player) WriteJson(message WebsocketMessage) error {
-	err := p.conn.WriteJSON(message)
+	err := p.Conn.WriteJSON(message)
 
 	if err != nil {
 		p.WriteJsonError(err, false)
-		p.conn.Close()
+		p.Conn.Close()
 		return err
 	}
 
@@ -125,7 +125,7 @@ func (p *Player) WriteJsonError(err error, sendToClient bool) {
 
 // Returns a new player with the given username and table UUID, and initializes
 // the player's attributes to their default values.
-func CreatePlayer(username string, tableUuid string, isInitiator bool) *Player {
+func CreatePlayer(connection *websocket.Conn, username string, tableUuid string, isInitiator bool) *Player {
 	return &Player{
 		Username:            username,
 		Uuid:                uuid.NewString(),
@@ -137,5 +137,7 @@ func CreatePlayer(username string, tableUuid string, isInitiator bool) *Player {
 		Cards:               []*Card{},
 		Score:               0,
 		IsInitiator:         isInitiator,
+		Conn:                connection,
+		Mu:                  sync.Mutex{},
 	}
 }

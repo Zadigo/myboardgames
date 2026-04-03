@@ -1,170 +1,192 @@
 package handlers
 
 import (
-	"context"
+	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/Zadigo/flipseven2/internal/backend/broadcasting"
 	"github.com/Zadigo/flipseven2/internal/models"
-	"github.com/gorilla/websocket"
 	"github.com/redis/go-redis/v9"
 )
 
-func GameEngine(response http.ResponseWriter, request *http.Request, ctx context.Context, redisConn *redis.Client, broadcastRegistry *broadcasting.BroadcasterRegistry, baseRegistry *models.BaseRegistry) {
+func GameEngine(response http.ResponseWriter, request *http.Request, redisClient *redis.Client, broadcastRegistry *broadcasting.BroadcasterRegistry, baseRegistry *models.BaseRegistry) {
 	log.Print("🚀 Starting Flip 7 engine...")
 
 	connection, _ := RequestUpgrader.Upgrade(response, request, nil)
-	defaultContext := context.Background()
+	defaultContext := request.Context()
+	// defaultContext := context.Background()
 
-	defer func() {
-		baseRegistry.Mu.Lock()
-		defer baseRegistry.Mu.Unlock()
+	err := connection.WriteJSON(models.WebsocketMessage{
+		Action:  "initial_connection",
+		Message: "Connection successful!",
+	})
 
-		delete(baseRegistry.Clients, connection)
+	if err != nil {
+		log.Printf("⚠️ Error sending initial connection message: %v", err)
+		return
+	}
 
-		// Send proper closing handshake before closing
-		err := connection.WriteMessage(
-			websocket.CloseMessage,
-			websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""),
-		)
+	// var once sync.Once
+	// closeConnection := func() {
+	// 	once.Do(func() {
+	// 		connection.Close()
+	// 	})
+	// }
 
-		if err != nil {
-			log.Printf("⚠️ Error sending close message: %v", err)
-		}
+	// go func() {
+	// 	<-defaultContext.Done()
+	// 	log.Print("⚠️ Context cancelled → closing websocket")
+	// 	closeConnection()
+	// }()
 
-		log.Printf("⚡️ Connection closed")
-		connection.Close()
-	}()
+	// defer func() {
+	// 	baseRegistry.Mu.Lock()
+	// 	delete(baseRegistry.Clients, connection)
+	// 	baseRegistry.Mu.Unlock()
+
+	// 	// Send proper closing handshake before closing
+	// 	err := connection.WriteMessage(
+	// 		websocket.CloseMessage,
+	// 		websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""),
+	// 	)
+
+	// 	if err != nil {
+	// 		log.Printf("⚠️ Error sending close message: %v", err)
+	// 	}
+
+	// 	log.Printf("⚡️ Connection closed")
+	// 	closeConnection()
+	// }()
 
 	for {
-		message := ""
+		message := &models.WebsocketMessage{}
+		err := connection.ReadJSON(message)
 
-		switch message {
+		if err != nil {
+			log.Printf("⚠️ Error reading JSON message: %v", err)
+			return
+		}
+
+		switch message.Action {
 		case "initiate_table":
 			tableLayer := models.CreatePlayersTable()
 			player := tableLayer.Layer.AddPlayer(connection, "Some Username", true)
 
-			cmd := redisConn.HSet(defaultContext, tableLayer.Layer.GetUuid(), []string{"tableLayer"}, tableLayer.Layer)
-			if cmd.Err() != nil {
-				// cmd.Err().Error()
-			}
+			redisClient.HSet(defaultContext, tableLayer.Layer.GetUuid(), []string{"some", "value"})
+			fmt.Print(player)
 
-			b := broadcastRegistry.GetOrCreate(tableLayer.Layer.GetUuid())
-			b.AddClient(connection)
+			// b := broadcastRegistry.GetOrCreate(tableLayer.Layer.GetUuid())
+			// b.AddClient(connection)
 
 			player.WriteJson(models.WebsocketMessage{
 				Action:       "table_initiated",
 				TableDetails: tableLayer,
 			})
 
-		case "accept_player":
-			tableId := ""
-			tableLayer, state := baseRegistry.Get(tableId)
-			if !state {
-				// TODO:
-			}
-			if tableLayer.HasPlayer(connection) {
-				// TODO:
-			}
+		// case "accept_player":
+		// 	tableId := ""
+		// 	tableLayer, state := baseRegistry.Get(tableId)
+		// 	if !state {
+		// 		// TODO:
+		// 	}
+		// 	if tableLayer.HasPlayer(connection) {
+		// 		// TODO:
+		// 	}
 
-			tableLayer.AddPlayer(connection, "Another Username", false)
-			b := broadcastRegistry.GetOrCreate(tableId)
-			b.AddClient(connection)
-			b.Publish("accept_player", broadcasting.Message{
-				Action:  "accept_player",
-				TableId: tableId,
-				// Payload: map[string]any{
-				// 	"Something": "a",
-				// },
-			})
+		// 	tableLayer.AddPlayer(connection, "Another Username", false)
+		// 	b := broadcastRegistry.GetOrCreate(tableId)
+		// 	b.AddClient(connection)
+		// 	b.Publish("accept_player", broadcasting.Message{
+		// 		Action:  "accept_player",
+		// 		TableId: tableId,
+		// 		// Payload: map[string]any{
+		// 		// 	"Something": "a",
+		// 		// },
+		// 	})
 
-		case "flip_card":
-			tableId := ""
-			tableLayer, state := baseRegistry.Get(tableId)
+		// case "flip_card":
+		// 	tableId := ""
+		// 	tableLayer, state := baseRegistry.Get(tableId)
 
-			if !state {
-				// TODO:
-			}
+		// 	if !state {
+		// 		// TODO:
+		// 	}
 
-			player := tableLayer.GetPlayer(connection)
-			if player == nil {
-				// TODO:
-			}
+		// 	player := tableLayer.GetPlayer(connection)
+		// 	if player == nil {
+		// 		// TODO:
+		// 	}
 
-			action, card, err := tableLayer.FlipCard(player)
-			if err != nil {
-				// TODO:
-			}
+		// 	action, card, err := tableLayer.FlipCard(player)
+		// 	if err != nil {
+		// 		// TODO:
+		// 	}
 
-			player.SetPlayerCards(tableLayer)
-			player.CalculatePoints(card)
+		// 	player.SetPlayerCards(tableLayer)
+		// 	player.CalculatePoints(card)
 
-			if action == "next_round" {
-				tableLayer.ResetPlayers()
+		// 	if action == "next_round" {
+		// 		tableLayer.ResetPlayers()
 
-				b, state := broadcastRegistry.Get(tableId)
-				if !state {
-					// TODO:
-				}
+		// 		b, state := broadcastRegistry.Get(tableId)
+		// 		if !state {
+		// 			// TODO:
+		// 		}
 
-				b.Publish("flip_card", broadcasting.Message{
-					Action:  "flip_card",
-					TableId: tableId,
-					Payload: map[string]string{},
-				})
+		// 		b.Publish("flip_card", broadcasting.Message{
+		// 			Action:  "flip_card",
+		// 			TableId: tableId,
+		// 			Payload: map[string]string{},
+		// 		})
 
-				return
-			}
+		// 		return
+		// 	}
 
-			if action == "continue" {
-				// TODO:
-			}
+		// 	if action == "continue" {
+		// 		// TODO:
+		// 	}
 
-			b, state := broadcastRegistry.Get(tableId)
-			if !state {
-				// TODO:
-			}
+		// 	b, state := broadcastRegistry.Get(tableId)
+		// 	if !state {
+		// 		// TODO:
+		// 	}
 
-			b.Publish("flip_card", broadcasting.Message{
-				Action:  "flip_card",
-				TableId: tableId,
-				Payload: map[string]string{},
-			})
+		// 	b.Publish("flip_card", broadcasting.Message{
+		// 		Action:  "flip_card",
+		// 		TableId: tableId,
+		// 		Payload: map[string]string{},
+		// 	})
 
-		case "give_card":
-			tableId := ""
-			tableLayer, state := baseRegistry.Get(tableId)
+		// case "give_card":
+		// 	tableId := ""
+		// 	tableLayer, state := baseRegistry.Get(tableId)
 
-			if !state {
-			}
+		// 	if !state {
+		// 	}
 
-			card, err := tableLayer.GetCurrentCard()
-			if err != nil {
-			}
+		// 	card, err := tableLayer.GetCurrentCard()
+		// 	if err != nil {
+		// 	}
 
-			if tableLayer.CurrentPlayer != nil {
-				card.SetOwner(tableLayer.CurrentPlayer)
+		// 	if tableLayer.CurrentPlayer != nil {
+		// 		card.SetOwner(tableLayer.CurrentPlayer)
 
-				if card.IsSpecial {
-					if card.Category == "Freeze" {
-						tableLayer.FreezePlayer(tableLayer.CurrentPlayer)
-						tableLayer.NextPlayer(broadcastRegistry)
-						return
-					}
+		// 		if card.IsSpecial {
+		// 			if card.Category == "Freeze" {
+		// 				tableLayer.FreezePlayer(tableLayer.CurrentPlayer)
+		// 				tableLayer.NextPlayer(broadcastRegistry)
+		// 				return
+		// 			}
 
-					if card.Category == "Flip 3" {
-						return
-					}
-				}
-			}
-		}
+		// 			if card.Category == "Flip 3" {
+		// 				return
+		// 			}
+		// 		}
+		// 	}
 
-		select {
-		case <-ctx.Done():
-			log.Print("⚠️ Context cancelled, closing handler")
-			return
 		default:
+			log.Printf("⚠️ Unrecognized action: %s", message.Action)
 		}
 	}
 }

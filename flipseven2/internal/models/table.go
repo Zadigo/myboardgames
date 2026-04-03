@@ -124,15 +124,14 @@ func (t *TableLayer) NumberOfCards() int {
 
 // Adds a player to the table with the given websocket connection, username and initiator status. It creates a new player using the CreatePlayer function, sets the player's websocket connection, and adds the player to the Players map of the table layer. Finally, it returns the newly created player.
 func (t *TableLayer) AddPlayer(connection *websocket.Conn, username string, isInitiator bool) *Player {
-	player := CreatePlayer(username, t.Uuid, isInitiator)
-	player.conn = connection
+	player := CreatePlayer(connection, username, t.Uuid, isInitiator)
 	t.Players[player.Uuid] = player
 	return player
 }
 
 func (t *TableLayer) HasPlayer(connection *websocket.Conn) bool {
 	for _, player := range t.Players {
-		if player.conn == connection {
+		if player.Conn == connection {
 			return true
 		}
 	}
@@ -141,7 +140,7 @@ func (t *TableLayer) HasPlayer(connection *websocket.Conn) bool {
 
 func (t *TableLayer) GetPlayer(connection *websocket.Conn) *Player {
 	for _, player := range t.Players {
-		if player.conn == connection {
+		if player.Conn == connection {
 			return player
 		}
 	}

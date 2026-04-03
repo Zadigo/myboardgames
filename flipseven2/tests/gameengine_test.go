@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/Zadigo/flipseven2/internal/handlers"
 	"github.com/Zadigo/flipseven2/internal/models"
@@ -22,25 +23,44 @@ func init() {
 }
 
 func TestGameEngine(t *testing.T) {
-	conn, server, cancel := NewWebsocketConnection(t)
+	conn, server := NewWebsocketConnection(t)
 
 	defer server.Close()
-	defer cancel()
 
-	msg := conn.ReadJSON(models.WebsocketMessage{})
-	fmt.Print(msg)
+	message := &models.WebsocketMessage{}
+	err := conn.ReadJSON(message)
 
-	conn.WriteJSON(models.WebsocketMessage{
+	if err != nil {
+		t.Fatalf("Failed to read initial connection message: %v", err)
+	}
+
+	time.Sleep(2 * time.Second)
+
+	fmt.Print(message)
+
+	err = conn.WriteJSON(models.WebsocketMessage{
 		Action:  "initiate_table",
 		TableId: "test-table-id",
 	})
 
-	msg = conn.ReadJSON(models.WebsocketMessage{})
-	fmt.Print(msg)
+	if err != nil {
+		t.Fatalf("Failed to send initiate_table message: %v", err)
+	}
 
-	conn.WriteJSON(models.WebsocketMessage{
-		Action:  "initiate_table",
-		TableId: "test-table-id",
-	})
+	err = conn.ReadJSON(message)
+
+	if err != nil {
+		t.Fatalf("Failed to read response message: %v", err)
+	}
+
+	fmt.Print(message)
+
+	// msg = conn.ReadJSON(models.WebsocketMessage{})
+	// fmt.Print(msg)
+
+	// conn.WriteJSON(models.WebsocketMessage{
+	// 	Action:  "initiate_table",
+	// 	TableId: "test-table-id",
+	// })
 
 }
