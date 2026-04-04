@@ -75,6 +75,7 @@ func GameEngine(response http.ResponseWriter, request *http.Request, redisClient
 			tableLayer := models.CreatePlayersTable()
 			player := tableLayer.Layer.AddPlayer(connection, message.Username, true)
 
+			baseRegistry.Set(tableLayer)
 			redisClient.HSet(defaultContext, tableLayer.Layer.GetUuid(), []string{"Owner", message.Username, "CreatedAt", time.Now().String()})
 
 			b := broadcastRegistry.GetOrCreate(tableLayer.Layer.GetUuid())
@@ -83,29 +84,32 @@ func GameEngine(response http.ResponseWriter, request *http.Request, redisClient
 			log.Printf("🟢 Table created: %s", tableLayer.Layer.GetUuid())
 			player.WriteJson(models.WebsocketMessage{
 				Action:       "table_initiated",
-				TableDetails: tableLayer,
+				TableDetails: tableLayer.Layer.PrintDetails(),
 			})
 
-		// case "accept_player":
-		// 	tableId := ""
-		// 	tableLayer, state := baseRegistry.Get(tableId)
-		// 	if !state {
-		// 		// TODO:
-		// 	}
-		// 	if tableLayer.HasPlayer(connection) {
-		// 		// TODO:
-		// 	}
+		case "accept_player":
+			tableLayer, state := baseRegistry.Get(message.TableId)
+			if !state {
+				log.Printf("⚠️ Cannot accept player. Table not found: %s", message.TableId)
+				return
+			}
 
-		// 	tableLayer.AddPlayer(connection, "Another Username", false)
-		// 	b := broadcastRegistry.GetOrCreate(tableId)
-		// 	b.AddClient(connection)
-		// 	b.Publish("accept_player", broadcasting.Message{
-		// 		Action:  "accept_player",
-		// 		TableId: tableId,
-		// 		// Payload: map[string]any{
-		// 		// 	"Something": "a",
-		// 		// },
-		// 	})
+			if tableLayer.Layer.HasPlayer(connection) {
+				log.Printf("⚠️ Player already present on the table")
+				return
+			}
+
+			tableLayer.Layer.AddPlayer(connection, message.Username, false)
+
+			b := broadcastRegistry.GetOrCreate(message.TableId)
+			b.AddClient(connection)
+			b.Publish("accept_player", broadcasting.Message{
+				Action:  "accept_player",
+				TableId: message.TableId,
+				// Payload: map[string]any{
+				// 	"Something": "a",
+				// },
+			})
 
 		// case "flip_card":
 		// 	tableId := ""
@@ -115,7 +119,7 @@ func GameEngine(response http.ResponseWriter, request *http.Request, redisClient
 		// 		// TODO:
 		// 	}
 
-		// 	player := tableLayer.GetPlayer(connection)
+		// 	player := tableLayer.Layer.GetPlayer(connection)
 		// 	if player == nil {
 		// 		// TODO:
 		// 	}

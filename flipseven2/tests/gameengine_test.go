@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"fmt"
 	"net/http"
 	"testing"
 	"time"
@@ -22,7 +21,7 @@ func init() {
 	// }
 }
 
-func TestGameEngine(t *testing.T) {
+func TestInitialConnection(t *testing.T) {
 	conn, server := NewWebsocketConnection(t)
 
 	defer server.Close()
@@ -34,12 +33,14 @@ func TestGameEngine(t *testing.T) {
 		t.Fatalf("Failed to read initial connection message: %v", err)
 	}
 
+	if message.Action != "initial_connection" {
+		t.Fatalf("Expected initial_connection action, got %s", message.Action)
+	}
+
 	time.Sleep(2 * time.Second)
 
-	fmt.Print(message)
-
 	err = conn.WriteJSON(models.WebsocketMessage{
-		Action:  "initiate_table",
+		Action:   "initiate_table",
 		Username: "julie95",
 	})
 
@@ -53,14 +54,46 @@ func TestGameEngine(t *testing.T) {
 		t.Fatalf("Failed to read response message: %v", err)
 	}
 
-	fmt.Print(message)
+	if message.Action != "table_initiated" {
+		t.Fatalf("Expected table_initiated action, got %s", message.Action)
+	}
+}
 
-	// msg = conn.ReadJSON(models.WebsocketMessage{})
-	// fmt.Print(msg)
+func TestAcceptPlayer(t *testing.T) {
+	conn, server := NewWebsocketConnection(t)
 
-	// conn.WriteJSON(models.WebsocketMessage{
-	// 	Action:  "initiate_table",
-	// 	TableId: "test-table-id",
-	// })
+	defer server.Close()
 
+	message := &models.WebsocketMessage{}
+	err := conn.ReadJSON(message)
+
+	if err != nil {
+		t.Fatalf("Failed to read initial connection message: %v", err)
+	}
+
+	if message.Action != "initial_connection" {
+		t.Fatalf("Expected initial_connection action, got %s", message.Action)
+	}
+
+	time.Sleep(2 * time.Second)
+
+	err = conn.WriteJSON(models.WebsocketMessage{
+		Action: "initiate_table",
+	})
+
+	message2 := &models.WebsocketMessage{}
+	err = conn.ReadJSON(message2)
+	if err != nil {
+		t.Fatalf("Failed to read response message: %v", err)
+	}
+
+	if message2.Action != "table_initiated" {
+		t.Fatalf("Expected table_initiated action, got %s", message2.Action)
+	}
+
+	err = conn.WriteJSON(models.WebsocketMessage{
+		Action:   "accept_player",
+		TableId:  message2.TableId,
+		Username: "pauline88",
+	})
 }

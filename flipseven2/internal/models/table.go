@@ -22,6 +22,7 @@ type TableLayerInterface interface {
 	NumberOfCards() int
 	HasPlayer(connection *websocket.Conn) bool
 	GetPlayer(connection *websocket.Conn) *Player
+	PrintDetails() TableLayer
 }
 
 type TableLayer struct {
@@ -43,6 +44,21 @@ type PlayersTable struct {
 	Layer TableLayerInterface `json:"-"`
 }
 
+// Return the details of the table layer
+func (t *TableLayer) PrintDetails() TableLayer {
+	return TableLayer{
+		Uuid:          t.Uuid,
+		Deck:          []*Card{},
+		DeckIndex:     t.DeckIndex,
+		Players:       make(map[string]*Player),
+		CurrentPlayer: t.CurrentPlayer,
+		IsStarted:     t.IsStarted,
+	}
+}
+
+// Returns the UUID of the table layer. It is a simple
+// getter method that allows other parts of the code
+// to access the unique identifier of the table layer.
 func (t *TableLayer) GetUuid() string {
 	return t.Uuid
 }
@@ -84,11 +100,16 @@ func (t *TableLayer) FlipCard(player *Player) (string, *Card, error) {
 	return "continue", card, nil
 }
 
+// Starts the game by setting the IsStarted flag
+// to true and initializing the DeckIndex to -1,
+// indicating that no cards have been flipped yet.
 func (t *TableLayer) StartGame() {
 	t.IsStarted = true
 	t.DeckIndex = -1
 }
 
+// Ends the game by setting the IsStarted flag to false,
+// indicating that the game is no longer active.
 func (t *TableLayer) EndGame() {
 	t.IsStarted = false
 }
@@ -96,6 +117,10 @@ func (t *TableLayer) EndGame() {
 func (t *TableLayer) FreezePlayer(player *Player) {
 }
 
+// Reset the players for the next round by setting their
+// number of cards to 0, unfreezing them, removing any
+// second chance or seven cards, and clearing their
+// hand of cards.
 func (t *TableLayer) ResetPlayers() {
 	for _, player := range t.Players {
 		player.NumberOfCards = 0
@@ -129,6 +154,12 @@ func (t *TableLayer) AddPlayer(connection *websocket.Conn, username string, isIn
 	return player
 }
 
+// Checks if a player with the given websocket connection is present
+// at the table. It iterates through the Players map and compares the
+// websocket connection of each player with the provided connection.
+// If a match is found, it returns true, indicating that the player is present
+// at the table. If no match is found after iterating through all
+// players, it returns false.
 func (t *TableLayer) HasPlayer(connection *websocket.Conn) bool {
 	for _, player := range t.Players {
 		if player.Conn == connection {
@@ -138,6 +169,11 @@ func (t *TableLayer) HasPlayer(connection *websocket.Conn) bool {
 	return false
 }
 
+// Retrieves the player associated with the given websocket connection.
+// It iterates through the Players map and compares the websocket connection of
+// each player with the provided connection. If a match is found, it returns a pointer
+// to the corresponding Player struct. If no match is found after iterating through all players,
+// it returns nil, indicating that there is no player associated with the given websocket connection.
 func (t *TableLayer) GetPlayer(connection *websocket.Conn) *Player {
 	for _, player := range t.Players {
 		if player.Conn == connection {
@@ -156,10 +192,12 @@ func (t *TableLayer) NextPlayer(broadcaster *broadcasting.BroadcasterRegistry) {
 func CreatePlayersTable() *PlayersTable {
 	return &PlayersTable{
 		Layer: &TableLayer{
-			Uuid:      uuid.NewString(),
-			Players:   make(map[string]*Player),
-			Deck:      []*Card{},
-			DeckIndex: -1,
+			Uuid:          uuid.NewString(),
+			Deck:          []*Card{},
+			DeckIndex:     -1,
+			Players:       make(map[string]*Player),
+			CurrentPlayer: nil,
+			IsStarted:     false,
 		},
 	}
 }
