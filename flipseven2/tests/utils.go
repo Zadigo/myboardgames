@@ -6,7 +6,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Zadigo/flipseven2/internal/backend/broadcasting"
 	"github.com/Zadigo/flipseven2/internal/handlers"
+	"github.com/Zadigo/flipseven2/internal/models"
 	"github.com/gorilla/websocket"
 	"github.com/redis/go-redis/v9"
 )
@@ -21,13 +23,13 @@ func NewWebsocketConnection(t *testing.T) (*websocket.Conn, *httptest.Server) {
 
 	redisClient := NewredisConn(t)
 
-	// s := broadcasting.NewSubscription(redisClient, t.Context())
-	// b := broadcasting.NewBroadcastingRegistry(s, t.Context())
+	s := broadcasting.NewSubscription(redisClient, t.Context())
+	br := broadcasting.NewBroadcastingRegistry(s, t.Context())
 
-	// br := models.CreateNewBaseRegistry()
+	b := models.CreateNewBaseRegistry()
 
 	wrappedHanlder := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		handlers.GameEngine(w, r, redisClient, nil, nil)
+		handlers.GameEngine(w, r, redisClient, br, b)
 	})
 
 	server := httptest.NewServer(wrappedHanlder)

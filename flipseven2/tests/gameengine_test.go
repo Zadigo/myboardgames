@@ -40,7 +40,7 @@ func TestGameEngine(t *testing.T) {
 
 	err = conn.WriteJSON(models.WebsocketMessage{
 		Action:  "initiate_table",
-		TableId: "test-table-id",
+		Username: "julie95",
 	})
 
 	if err != nil {

@@ -71,14 +71,15 @@ func GameEngine(response http.ResponseWriter, request *http.Request, redisClient
 		switch message.Action {
 		case "initiate_table":
 			tableLayer := models.CreatePlayersTable()
-			player := tableLayer.Layer.AddPlayer(connection, "Some Username", true)
+			player := tableLayer.Layer.AddPlayer(connection, message.Username, true)
 
-			redisClient.HSet(defaultContext, tableLayer.Layer.GetUuid(), []string{"some", "value"})
+			redisClient.HSet(defaultContext, tableLayer.Layer.GetUuid(), []string{"Owner", message.Username})
 			fmt.Print(player)
 
-			// b := broadcastRegistry.GetOrCreate(tableLayer.Layer.GetUuid())
-			// b.AddClient(connection)
+			b := broadcastRegistry.GetOrCreate(tableLayer.Layer.GetUuid())
+			b.AddClient(connection)
 
+			log.Printf("🟢 Table created: %s", tableLayer.Layer.GetUuid())
 			player.WriteJson(models.WebsocketMessage{
 				Action:       "table_initiated",
 				TableDetails: tableLayer,
