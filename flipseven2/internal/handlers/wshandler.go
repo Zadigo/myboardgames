@@ -1,12 +1,14 @@
 package handlers
 
 import (
-	"fmt"
 	"log"
 	"net/http"
+	"sync"
+	"time"
 
 	"github.com/Zadigo/flipseven2/internal/backend/broadcasting"
 	"github.com/Zadigo/flipseven2/internal/models"
+	"github.com/gorilla/websocket"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -27,37 +29,37 @@ func GameEngine(response http.ResponseWriter, request *http.Request, redisClient
 		return
 	}
 
-	// var once sync.Once
-	// closeConnection := func() {
-	// 	once.Do(func() {
-	// 		connection.Close()
-	// 	})
-	// }
+	var once sync.Once
+	closeConnection := func() {
+		once.Do(func() {
+			connection.Close()
+		})
+	}
 
-	// go func() {
-	// 	<-defaultContext.Done()
-	// 	log.Print("⚠️ Context cancelled → closing websocket")
-	// 	closeConnection()
-	// }()
+	go func() {
+		<-defaultContext.Done()
+		log.Print("⚠️ Context cancelled → closing websocket")
+		closeConnection()
+	}()
 
-	// defer func() {
-	// 	baseRegistry.Mu.Lock()
-	// 	delete(baseRegistry.Clients, connection)
-	// 	baseRegistry.Mu.Unlock()
+	defer func() {
+		baseRegistry.Mu.Lock()
+		delete(baseRegistry.Clients, connection)
+		baseRegistry.Mu.Unlock()
 
-	// 	// Send proper closing handshake before closing
-	// 	err := connection.WriteMessage(
-	// 		websocket.CloseMessage,
-	// 		websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""),
-	// 	)
+		// Send proper closing handshake before closing
+		err := connection.WriteMessage(
+			websocket.CloseMessage,
+			websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""),
+		)
 
-	// 	if err != nil {
-	// 		log.Printf("⚠️ Error sending close message: %v", err)
-	// 	}
+		if err != nil {
+			log.Printf("⚠️ Error sending close message: %v", err)
+		}
 
-	// 	log.Printf("⚡️ Connection closed")
-	// 	closeConnection()
-	// }()
+		log.Printf("⚡️ Connection closed")
+		closeConnection()
+	}()
 
 	for {
 		message := &models.WebsocketMessage{}
@@ -73,8 +75,7 @@ func GameEngine(response http.ResponseWriter, request *http.Request, redisClient
 			tableLayer := models.CreatePlayersTable()
 			player := tableLayer.Layer.AddPlayer(connection, message.Username, true)
 
-			redisClient.HSet(defaultContext, tableLayer.Layer.GetUuid(), []string{"Owner", message.Username})
-			fmt.Print(player)
+			redisClient.HSet(defaultContext, tableLayer.Layer.GetUuid(), []string{"Owner", message.Username, "CreatedAt", time.Now().String()})
 
 			b := broadcastRegistry.GetOrCreate(tableLayer.Layer.GetUuid())
 			b.AddClient(connection)
