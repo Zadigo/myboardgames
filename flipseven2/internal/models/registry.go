@@ -62,8 +62,9 @@ func (r *BaseRegistry) Delete(tableID string) {
 }
 
 // Create a new global registry
-func CreateNewBaseRegistry() *BaseRegistry {
+func CreateBaseRegistry() *BaseRegistry {
 	return &BaseRegistry{
 		tableLayers: make(map[string]*PlayersTable),
+		Mu:          sync.RWMutex{},
 	}
 }

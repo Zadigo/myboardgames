@@ -46,14 +46,15 @@ type PlayersTable struct {
 
 // Return the details of the table layer
 func (t *TableLayer) PrintDetails() TableLayer {
-	return TableLayer{
+	details := TableLayer{
 		Uuid:          t.Uuid,
 		Deck:          []*Card{},
 		DeckIndex:     t.DeckIndex,
-		Players:       make(map[string]*Player),
+		Players:       t.Players,
 		CurrentPlayer: t.CurrentPlayer,
 		IsStarted:     t.IsStarted,
 	}
+	return details
 }
 
 // Returns the UUID of the table layer. It is a simple

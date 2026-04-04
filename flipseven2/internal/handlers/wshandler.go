@@ -17,7 +17,6 @@ func GameEngine(response http.ResponseWriter, request *http.Request, redisClient
 
 	connection, _ := RequestUpgrader.Upgrade(response, request, nil)
 	defaultContext := request.Context()
-	// defaultContext := context.Background()
 
 	err := connection.WriteJSON(models.WebsocketMessage{
 		Action:  "initial_connection",
@@ -84,6 +83,7 @@ func GameEngine(response http.ResponseWriter, request *http.Request, redisClient
 			log.Printf("🟢 Table created: %s", tableLayer.Layer.GetUuid())
 			player.WriteJson(models.WebsocketMessage{
 				Action:       "table_initiated",
+				TableId:      tableLayer.Layer.GetUuid(),
 				TableDetails: tableLayer.Layer.PrintDetails(),
 			})
 
@@ -94,7 +94,8 @@ func GameEngine(response http.ResponseWriter, request *http.Request, redisClient
 				return
 			}
 
-			if tableLayer.Layer.HasPlayer(connection) {
+			hasPlayer := tableLayer.Layer.HasPlayer(connection)
+			if hasPlayer {
 				log.Printf("⚠️ Player already present on the table")
 				return
 			}

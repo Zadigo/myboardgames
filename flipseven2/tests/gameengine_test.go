@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Zadigo/flipseven2/internal/backend/broadcasting"
 	"github.com/Zadigo/flipseven2/internal/handlers"
 	"github.com/Zadigo/flipseven2/internal/models"
 )
@@ -15,14 +16,18 @@ func init() {
 		return true
 	}
 
-	// handlers.Tables = make(map[string]*logic.TableLayer)
-	// handlers.Tables["test-table-id"] = &logic.TableLayer{
-	// 	Layer: &logic.PlayersTable{},
-	// }
+	// handlers.BaseRegistry = models.CreateBaseRegistry()
 }
 
 func TestInitialConnection(t *testing.T) {
-	conn, server := NewWebsocketConnection(t)
+	redisClient := NewredisConn(t)
+
+	s := broadcasting.NewSubscription(redisClient, t.Context())
+	br := broadcasting.NewBroadcastingRegistry(s, t.Context())
+
+	baseRegistry := models.CreateBaseRegistry()
+
+	conn, server := NewWebsocketConnection(t, redisClient, br, baseRegistry)
 
 	defer server.Close()
 
@@ -60,7 +65,16 @@ func TestInitialConnection(t *testing.T) {
 }
 
 func TestAcceptPlayer(t *testing.T) {
-	conn, server := NewWebsocketConnection(t)
+	redisClient := NewredisConn(t)
+
+	s := broadcasting.NewSubscription(redisClient, t.Context())
+	br := broadcasting.NewBroadcastingRegistry(s, t.Context())
+
+	baseRegistry := models.CreateBaseRegistry()
+
+	// Conn 1: Host
+
+	conn, server := NewWebsocketConnection(t, redisClient, br, baseRegistry)
 
 	defer server.Close()
 
@@ -78,22 +92,40 @@ func TestAcceptPlayer(t *testing.T) {
 	time.Sleep(2 * time.Second)
 
 	err = conn.WriteJSON(models.WebsocketMessage{
-		Action: "initiate_table",
+		Action:   "initiate_table",
+		Username: "pauline95",
 	})
 
-	message2 := &models.WebsocketMessage{}
-	err = conn.ReadJSON(message2)
+	if err != nil {
+		t.Fatalf("Failed to send initiate_table message: %v", err)
+	}
+
+	err = conn.ReadJSON(message)
+
 	if err != nil {
 		t.Fatalf("Failed to read response message: %v", err)
 	}
 
-	if message2.Action != "table_initiated" {
-		t.Fatalf("Expected table_initiated action, got %s", message2.Action)
+	if message.Action != "table_initiated" {
+		t.Fatalf("Expected table_initiated action, got %s", message.Action)
 	}
 
-	err = conn.WriteJSON(models.WebsocketMessage{
+	// Conn 2: Player joining the table
+
+	conn2, server2 := NewWebsocketConnection(t, redisClient, br, baseRegistry)
+
+	defer server2.Close()
+
+	message2 := &models.WebsocketMessage{}
+	err = conn2.ReadJSON(message2)
+
+	if err != nil {
+		t.Fatalf("Failed to read response message: %v", err)
+	}
+
+	err = conn2.WriteJSON(models.WebsocketMessage{
 		Action:   "accept_player",
-		TableId:  message2.TableId,
+		TableId:  message.TableId,
 		Username: "pauline88",
 	})
 }

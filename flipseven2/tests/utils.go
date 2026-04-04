@@ -18,18 +18,11 @@ func NewredisConn(t *testing.T) *redis.Client {
 	return redis.NewClient(options)
 }
 
-func NewWebsocketConnection(t *testing.T) (*websocket.Conn, *httptest.Server) {
+func NewWebsocketConnection(t *testing.T, redisClient *redis.Client, broadcastingRegistry *broadcasting.BroadcasterRegistry, baseRegistry *models.BaseRegistry) (*websocket.Conn, *httptest.Server) {
 	t.Helper()
 
-	redisClient := NewredisConn(t)
-
-	s := broadcasting.NewSubscription(redisClient, t.Context())
-	br := broadcasting.NewBroadcastingRegistry(s, t.Context())
-
-	b := models.CreateNewBaseRegistry()
-
 	wrappedHanlder := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		handlers.GameEngine(w, r, redisClient, br, b)
+		handlers.GameEngine(w, r, redisClient, broadcastingRegistry, baseRegistry)
 	})
 
 	server := httptest.NewServer(wrappedHanlder)
