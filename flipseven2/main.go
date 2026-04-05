@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/Zadigo/flipseven2/internal/backend"
@@ -12,6 +12,8 @@ import (
 )
 
 func main() {
+	log.Print("🚀 Starting Flip 7 server...")
+
 	serverBaseConfig := &backend.ServerBaseConfig{
 		Backends: &backend.ServerBackendsConfig{
 			Redis: &backend.ServerBackendConfig{
@@ -33,15 +35,14 @@ func main() {
 	b := broadcasting.NewBroadcastingRegistry(s, ctx)
 
 	baseRegistry := models.CreateBaseRegistry()
+	log.Print("🟢 Backends initialized successfully")
 
-	fmt.Print(ctx, b, baseRegistry)
-
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	handler := http.HandlerFunc(handlers.Cors(func(w http.ResponseWriter, r *http.Request) {
 		handlers.GameEngine(w, r, redisClient, b, baseRegistry)
-	})
+	}))
 
 	http.HandleFunc("/ws/live/game", handler)
-	err = http.ListenAndServe(":8080", nil)
+	err = http.ListenAndServe(":9000", nil)
 
 	if err != nil {
 		panic(err)

@@ -13,7 +13,7 @@ import (
 )
 
 func GameEngine(response http.ResponseWriter, request *http.Request, redisClient *redis.Client, broadcastRegistry *broadcasting.BroadcasterRegistry, baseRegistry *models.BaseRegistry) {
-	log.Print("🚀 Starting Flip 7 engine...")
+	log.Print("⚡️ Processing new connection...")
 
 	connection, _ := RequestUpgrader.Upgrade(response, request, nil)
 	defaultContext := request.Context()
@@ -104,12 +104,49 @@ func GameEngine(response http.ResponseWriter, request *http.Request, redisClient
 
 			b := broadcastRegistry.GetOrCreate(message.TableId)
 			b.AddClient(connection)
-			b.Publish("accept_player", broadcasting.Message{
+			err := b.Publish("accept_player", broadcasting.Message{
 				Action:  "accept_player",
 				TableId: message.TableId,
 				// Payload: map[string]any{
 				// 	"Something": "a",
 				// },
+			})
+
+			if err != nil {
+				log.Printf("⚠️ Error publishing accept_player message: %v", err)
+			}
+
+			player := tableLayer.Layer.GetPlayer(connection)
+
+			log.Printf("🟢 Player accepted: %s (%s) [%d players]", player.Username, player.Uuid, tableLayer.Layer.GetNumberOfPlayers())
+			player.WriteJson(models.WebsocketMessage{
+				Action:       "player_accepted",
+				TableId:      message.TableId,
+				TableDetails: tableLayer.Layer.PrintDetails(),
+			})
+
+		case "start_game":
+			tableLayer, state := baseRegistry.Get(message.TableId)
+
+			if !state {
+				log.Printf("⚠️ Cannot start game. Table not found: %s", message.TableId)
+				return
+			}
+
+			tableLayer.Layer.GetDeck()
+
+			b, state := broadcastRegistry.Get(message.TableId)
+			if !state {
+				log.Printf("⚠️ Cannot start game. Broadcaster not found for table: %s", message.TableId)
+				return
+			}
+
+			b.Publish("deck_loaded", broadcasting.Message{
+				Action:  "deck_loaded",
+				TableId: message.TableId,
+				Payload: map[string]any{
+					"TableDetails": tableLayer.Layer.PrintDetails(),
+				},
 			})
 
 		// case "flip_card":
@@ -165,32 +202,60 @@ func GameEngine(response http.ResponseWriter, request *http.Request, redisClient
 		// 		Payload: map[string]string{},
 		// 	})
 
-		// case "give_card":
-		// 	tableId := ""
-		// 	tableLayer, state := baseRegistry.Get(tableId)
+		case "give_card":
+			tableLayer, state := baseRegistry.Get(message.TableId)
 
-		// 	if !state {
-		// 	}
+			if !state {
+				log.Printf("⚠️ Cannot give card. Table not found: %s", message.TableId)
+				return
+			}
 
-		// 	card, err := tableLayer.GetCurrentCard()
-		// 	if err != nil {
-		// 	}
+			card, err := tableLayer.Layer.GetCurrentCard()
+			if err != nil {
+				log.Printf("⚠️ Cannot give card. Error getting current card: %v", err)
+				return
+			}
 
-		// 	if tableLayer.CurrentPlayer != nil {
-		// 		card.SetOwner(tableLayer.CurrentPlayer)
+			var receivingPlayer *models.Player
+			currentPlayer := tableLayer.Layer.GetCurrentPlayer()
 
-		// 		if card.IsSpecial {
-		// 			if card.Category == "Freeze" {
-		// 				tableLayer.FreezePlayer(tableLayer.CurrentPlayer)
-		// 				tableLayer.NextPlayer(broadcastRegistry)
-		// 				return
-		// 			}
+			if message.GivesCardTo != "" {
+				receivingPlayer = tableLayer.Layer.GetPlayerByUuid(message.GivesCardTo)
+			}
 
-		// 			if card.Category == "Flip 3" {
-		// 				return
-		// 			}
-		// 		}
-		// 	}
+			// Function to apply the freeze effect to a player
+			// and move to the next player
+			applyFreeze := func(applyOn *models.Player) {
+				tableLayer.Layer.FreezePlayer(applyOn)
+				tableLayer.Layer.NextPlayer(broadcastRegistry)
+			}
+
+			if receivingPlayer != nil {
+				card.SetOwner(receivingPlayer)
+
+				if card.IsSpecial {
+					if card.Category == "Freeze" {
+						applyFreeze(receivingPlayer)
+					}
+
+					if card.Category == "Flip 3" {
+						return
+					}
+				}
+			} else {
+				card.SetOwner(currentPlayer)
+
+				if card.IsSpecial {
+					if card.Category == "Freeze" {
+						applyFreeze(currentPlayer)
+						return
+					}
+
+					if card.Category == "Flip 3" {
+						return
+					}
+				}
+			}
 
 		default:
 			log.Printf("⚠️ Unrecognized action: %s", message.Action)

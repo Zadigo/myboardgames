@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 	"time"
@@ -128,4 +129,11 @@ func TestAcceptPlayer(t *testing.T) {
 		TableId:  message.TableId,
 		Username: "pauline88",
 	})
+
+	err = conn2.ReadJSON(message2)
+	if err != nil {
+		t.Fatalf("Failed to read response message: %v", err)
+	}
+
+	fmt.Print(message2)
 }

@@ -17,12 +17,15 @@ type TableLayerInterface interface {
 	ResetPlayers()
 	NextPlayer(broadcastingRegistry *broadcasting.BroadcasterRegistry)
 	GetUuid() string
+	GetPlayerByUuid(uuid string) *Player
 	GetCurrentCard() (*Card, error)
 	GetDeck() []*Card
 	NumberOfCards() int
 	HasPlayer(connection *websocket.Conn) bool
 	GetPlayer(connection *websocket.Conn) *Player
 	PrintDetails() TableLayer
+	GetCurrentPlayer() *Player
+	GetNumberOfPlayers() int
 }
 
 type TableLayer struct {
@@ -62,6 +65,10 @@ func (t *TableLayer) PrintDetails() TableLayer {
 // to access the unique identifier of the table layer.
 func (t *TableLayer) GetUuid() string {
 	return t.Uuid
+}
+
+func (t *TableLayer) GetCurrentPlayer() *Player {
+	return t.CurrentPlayer
 }
 
 // Returns the current card based on the DeckIndex. If the DeckIndex is not
@@ -184,8 +191,16 @@ func (t *TableLayer) GetPlayer(connection *websocket.Conn) *Player {
 	return nil
 }
 
+func (t *TableLayer) GetPlayerByUuid(uuid string) *Player {
+	return t.Players[uuid]
+}
+
 func (t *TableLayer) NextPlayer(broadcaster *broadcasting.BroadcasterRegistry) {
 
+}
+
+func (t *TableLayer) GetNumberOfPlayers() int {
+	return len(t.Players)
 }
 
 // Returns a new table layer with a unique UUID, an empty deck,

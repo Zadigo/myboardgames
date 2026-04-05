@@ -10,4 +10,5 @@ type WebsocketMessage struct {
 	Players      []*Player  `json:"players,omitempty"`
 	TableDetails TableLayer `json:"tableDetails"`
 	CardDetails  *Card      `json:"cardDetails,omitempty"`
+	GivesCardTo  string     `json:"givesCardTo,omitempty"`
 }
