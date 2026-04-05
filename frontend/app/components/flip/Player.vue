@@ -7,12 +7,12 @@
 
       <div id="score" class="p-2 rounded-lg bg-[#fffceb] font-bold text-center flex items-center gap-2">
         <nuxt-avatar />
-        <span>{{ tableClient.details.username }}</span>
+        <span>{{ tableClient.username }}</span>
       </div>
     </div>
 
     <div class="flex gap-2">
-      <flip-card v-for="card in tableClient.details.cards" :key="card.value" :card="card" class="h-40 w-30 bg-flip-seven-900 rounded-lg" />
+      <flip-card v-for="card in tableClient.cards" :key="card.value" :card="card" class="h-40 w-30 bg-flip-seven-900 rounded-lg" />
     </div>
   </div>
 </template>
@@ -20,11 +20,11 @@
 <script lang="ts" setup>
 import { TransitionPresets } from '@vueuse/core'
 import { TEST_USERNAME, useFlipSevenLiveGameComposable } from '~/composables/flipseven'
-import type { TableClient } from '~/types'
+import type { TableClientDetail } from '~/types'
 
 defineProps<{
   index: number
-  tableClient: TableClient
+  tableClient: TableClientDetail
 }>()
 
 /**
@@ -33,7 +33,7 @@ defineProps<{
 
 const { tableDetails } = useFlipSevenLiveGameComposable()
 
-const _liveScore = computed(() => tableDetails.value?.currentDeck?.filter((card) => {
+const _liveScore = computed(() => tableDetails.value?.deck?.filter((card) => {
   return card.owner === TEST_USERNAME
 }).reduce((acc, card) => {
   return acc + card.value

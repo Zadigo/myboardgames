@@ -6,7 +6,7 @@
 
     <!-- Tables -->
     <div v-if="isDefined(tableDetails)" class="grid grid-cols-2 grid-flow-row-dense gap-2">
-      <flip-player v-for="(tableClient, index) in tableDetails.clients" :key="index" :index="index" :table-client="tableClient" />
+      <flip-player v-for="(tableClient, index) in players" :key="index" :index="index" :table-client="tableClient" />
     </div>
 
     <div v-if="!isConnected" class="rounded-lg bg-primary-200 w-full p-10 text-center space-y-4">
@@ -43,7 +43,7 @@ definePageMeta({
  * Websocket
  */
 
-const { joinTable, reconnect, tableDetails, isConnected } = useFlipSevenLiveGameComposable()
+const { joinTable, reconnect, tableDetails, isConnected, players } = useFlipSevenLiveGameComposable()
 
 onMounted(() => {
   joinTable()

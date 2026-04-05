@@ -41,7 +41,7 @@ func main() {
 		handlers.GameEngine(w, r, redisClient, b, baseRegistry)
 	}))
 
-	http.HandleFunc("/ws/live/game", handler)
+	http.HandleFunc("/ws/flip-seven", handler)
 	err = http.ListenAndServe(":9000", nil)
 
 	if err != nil {

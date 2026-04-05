@@ -96,8 +96,8 @@ func GameEngine(response http.ResponseWriter, request *http.Request, redisClient
 
 			hasPlayer := tableLayer.Layer.HasPlayer(connection)
 			if hasPlayer {
-				log.Printf("⚠️ Player already present on the table")
-				return
+				log.Print("⚠️ Player already present on the table")
+				continue
 			}
 
 			tableLayer.Layer.AddPlayer(connection, message.Username, false)
@@ -147,6 +147,22 @@ func GameEngine(response http.ResponseWriter, request *http.Request, redisClient
 				Payload: map[string]any{
 					"TableDetails": tableLayer.Layer.PrintDetails(),
 				},
+			})
+
+		case "reconnect":
+			tableLayer, state := baseRegistry.Get(message.TableId)
+
+			if !state {
+				log.Printf("❌ Table with ID %s not found in registry for reconnection", message.TableId)
+				return
+			}
+
+			player := tableLayer.Layer.GetPlayer(connection)
+			log.Printf("🔄 Reconnecting player %s to table %s", message.Username, message.TableId)
+
+			player.WriteJson(models.WebsocketMessage{
+				Action:       "reconnected",
+				TableDetails: tableLayer.Layer.PrintDetails(),
 			})
 
 		// case "flip_card":
