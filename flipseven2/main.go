@@ -42,8 +42,14 @@ func main() {
 	}))
 
 	http.HandleFunc("/ws/flip-seven", handler)
-	err = http.ListenAndServe(":9000", nil)
 
+	// handlerCandidate := http.HandlerFunc(handlers.Cors(func(w http.ResponseWriter, r *http.Request) {
+	// 	handlers.GameCandidate(w, r, redisClient, b, baseRegistry)
+	// }))
+
+	// http.HandleFunc("/ws/flip-seven/candidate", handlerCandidate)
+
+	err = http.ListenAndServe(":9000", nil)
 	if err != nil {
 		panic(err)
 	}

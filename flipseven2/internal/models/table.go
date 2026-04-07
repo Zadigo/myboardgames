@@ -2,6 +2,8 @@ package models
 
 import (
 	"errors"
+	"math/rand"
+	"time"
 
 	"github.com/Zadigo/flipseven2/internal/backend/broadcasting"
 	"github.com/google/uuid"
@@ -20,6 +22,7 @@ type TableLayerInterface interface {
 	GetPlayerByUuid(uuid string) *Player
 	GetCurrentCard() (*Card, error)
 	GetDeck() []*Card
+	ResetDeck()
 	NumberOfCards() int
 	HasPlayer(connection *websocket.Conn) bool
 	GetPlayer(connection *websocket.Conn) *Player
@@ -38,9 +41,12 @@ type TableLayer struct {
 	// A map of player UUIDs to Player structs, representing the players currently at the table
 	Players map[string]*Player `json:"players"`
 	// The current player who is flipping the card, nil if no player is flipping a card
-	CurrentPlayer *Player `json:"currentPlayer"`
+	// CurrentPlayer *Player `json:"currentPlayer"`
 	// Indicates whether the game has started or not
 	IsStarted bool `json:"isStarted"`
+
+	PlayerUuids        []string `json:"playerUuids"`
+	CurrentPlayerIndex int      `json:"currentPlayerIndex"`
 }
 
 type PlayersTable struct {
@@ -50,12 +56,12 @@ type PlayersTable struct {
 // Return the details of the table layer
 func (t *TableLayer) PrintDetails() TableLayer {
 	details := TableLayer{
-		Uuid:          t.Uuid,
-		Deck:          []*Card{},
-		DeckIndex:     t.DeckIndex,
-		Players:       t.Players,
-		CurrentPlayer: t.CurrentPlayer,
-		IsStarted:     t.IsStarted,
+		Uuid:               t.Uuid,
+		Deck:               t.Deck,
+		DeckIndex:          t.DeckIndex,
+		Players:            t.Players,
+		CurrentPlayerIndex: t.CurrentPlayerIndex,
+		IsStarted:          t.IsStarted,
 	}
 	return details
 }
@@ -68,7 +74,10 @@ func (t *TableLayer) GetUuid() string {
 }
 
 func (t *TableLayer) GetCurrentPlayer() *Player {
-	return t.CurrentPlayer
+	if t.CurrentPlayerIndex >= 0 && t.CurrentPlayerIndex < len(t.PlayerUuids) {
+		return t.Players[t.PlayerUuids[t.CurrentPlayerIndex]]
+	}
+	return nil
 }
 
 // Returns the current card based on the DeckIndex. If the DeckIndex is not
@@ -86,6 +95,10 @@ func (t *TableLayer) GetCurrentCard() (*Card, error) {
 // it has reached the end of the deck. If it has, it resets the DeckIndex and
 // returns "next_round". Otherwise, it returns "continue".
 func (t *TableLayer) FlipCard(player *Player) (string, *Card, error) {
+	if !t.IsStarted {
+		return "", nil, errors.New("Game has not started yet")
+	}
+
 	t.DeckIndex++
 
 	if t.DeckIndex >= len(t.Deck) {
@@ -101,10 +114,12 @@ func (t *TableLayer) FlipCard(player *Player) (string, *Card, error) {
 
 		return "next_round", nil, nil
 	}
+
 	card, err := t.GetCurrentCard()
 	if err != nil {
 		return "", nil, err
 	}
+
 	return "continue", card, nil
 }
 
@@ -114,6 +129,20 @@ func (t *TableLayer) FlipCard(player *Player) (string, *Card, error) {
 func (t *TableLayer) StartGame() {
 	t.IsStarted = true
 	t.DeckIndex = -1
+	t.CurrentPlayerIndex = -1
+	t.Deck = t.GetDeck()
+	t.PlayerUuids = []string{}
+
+	// Populate the PlayerUuids slice with the UUIDs
+	//  of the players in the Players map
+	for _, player := range t.Players {
+		t.PlayerUuids = append(t.PlayerUuids, player.Uuid)
+	}
+
+	// Select a random number between 0 and the
+	// number of players to determine the starting player
+	source := rand.New(rand.NewSource(time.Now().UnixNano()))
+	t.CurrentPlayerIndex = source.Intn(len(t.PlayerUuids))
 }
 
 // Ends the game by setting the IsStarted flag to false,
@@ -144,10 +173,26 @@ func (t *TableLayer) GetDeck() []*Card {
 	numberCards := GetNumberCards()
 	specialCards := GetSpecialCards()
 
-	deck := append(t.Deck, numberCards...)
-	deck = append(deck, specialCards...)
+	if t.NumberOfCards() > 0 {
+		t.ResetDeck()
+	} else {
+		t.Deck = append(t.Deck, numberCards...)
+		t.Deck = append(t.Deck, specialCards...)
+	}
 
-	return deck
+	return t.Deck
+}
+
+// Resets the deck by setting the owner of each
+// card to nil, effectively making all cards unowned
+// and ready for a new game or round. This method is called
+// when the deck needs to be refreshed, ensuring that all
+// cards are available for players to draw from without any
+// previous ownership.
+func (t *TableLayer) ResetDeck() {
+	for i := range t.Deck {
+		t.Deck[i].Owner = nil
+	}
 }
 
 // Returns the number of cards in the current deck
@@ -195,8 +240,22 @@ func (t *TableLayer) GetPlayerByUuid(uuid string) *Player {
 	return t.Players[uuid]
 }
 
+// NextPlayer advances the turn to the next player in the Players map.
+// It updates the CurrentPlayer field of the table layer to point to the next
+// player and uses the broadcasting registry to notify all players about
+// the change in turn. The implementation of this function is currently empty and
+// needs to be completed based on the specific requirements of how players are ordered
+// and how the broadcasting should work.
 func (t *TableLayer) NextPlayer(broadcaster *broadcasting.BroadcasterRegistry) {
+	nextIndex := t.CurrentPlayerIndex + 1
+	if nextIndex >= len(t.PlayerUuids) {
+		nextIndex = 0
+	}
 
+	t.CurrentPlayerIndex = nextIndex
+
+	// Notify all players about the change in turn using the broadcasting registry
+	// broadcaster.BroadcastToAll("next_player", t.GetCurrentPlayer())
 }
 
 func (t *TableLayer) GetNumberOfPlayers() int {
@@ -208,12 +267,12 @@ func (t *TableLayer) GetNumberOfPlayers() int {
 func CreatePlayersTable() *PlayersTable {
 	return &PlayersTable{
 		Layer: &TableLayer{
-			Uuid:          uuid.NewString(),
-			Deck:          []*Card{},
-			DeckIndex:     -1,
-			Players:       make(map[string]*Player),
-			CurrentPlayer: nil,
-			IsStarted:     false,
+			Uuid:               uuid.NewString(),
+			Deck:               []*Card{},
+			DeckIndex:          -1,
+			Players:            make(map[string]*Player),
+			CurrentPlayerIndex: -1,
+			IsStarted:          false,
 		},
 	}
 }

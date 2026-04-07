@@ -61,6 +61,12 @@ func (r *BaseRegistry) Delete(tableID string) {
 	delete(r.tableLayers, tableID)
 }
 
+func (r *BaseRegistry) NumberOfTables() int {
+	r.Mu.RLock()
+	defer r.Mu.RUnlock()
+	return len(r.tableLayers)
+}
+
 // Create a new global registry
 func CreateBaseRegistry() *BaseRegistry {
 	return &BaseRegistry{

@@ -1,6 +1,10 @@
 package models
 
+import "github.com/google/uuid"
+
 type Card struct {
+	// Unique identifier for the card
+	Uuid string `json:"uuid"`
 	// The card's value, for number cards this is the number, for multiplier
 	// cards this is the multiplier, for bonus cards this is the bonus points,
 	// for special cards this is the special effect
@@ -30,10 +34,22 @@ func GetNumberCards() []*Card {
 	cards := []*Card{}
 
 	for _, value := range numbers {
-		cards = append(cards, &Card{
-			Value:    value,
-			IsNumber: true,
-		})
+		if value == 0 {
+			cards = append(cards, &Card{
+				Uuid:     uuid.NewString(),
+				Value:    value,
+				IsNumber: true,
+			})
+			continue
+		}
+
+		for range value {
+			cards = append(cards, &Card{
+				Uuid:     uuid.NewString(),
+				Value:    value,
+				IsNumber: true,
+			})
+		}
 	}
 
 	return cards
@@ -48,6 +64,7 @@ func GetSpecialCards() []*Card {
 	for i := range names {
 		for range 3 {
 			cards = append(cards, &Card{
+				Uuid:     uuid.NewString(),
 				Value:    0,
 				Category: names[i],
 			})

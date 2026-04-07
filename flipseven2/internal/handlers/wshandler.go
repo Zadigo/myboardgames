@@ -278,3 +278,106 @@ func GameEngine(response http.ResponseWriter, request *http.Request, redisClient
 		}
 	}
 }
+
+// func GameCandidate(response http.ResponseWriter, request *http.Request, redisClient *redis.Client, broadcastRegistry *broadcasting.BroadcasterRegistry, baseRegistry *models.BaseRegistry) {
+// 	log.Print("⚡️ Processing candidate connection...")
+
+// 	connection, _ := RequestUpgrader.Upgrade(response, request, nil)
+// 	defaultContext := request.Context()
+
+// 	err := connection.WriteJSON(models.WebsocketMessage{
+// 		Action:  "initial_connection",
+// 		Message: "Connection successful!",
+// 	})
+
+// 	if err != nil {
+// 		log.Printf("⚠️ Error sending initial connection message: %v", err)
+// 		return
+// 	}
+
+// 	var once sync.Once
+// 	closeConnection := func() {
+// 		once.Do(func() {
+// 			connection.Close()
+// 		})
+// 	}
+
+// 	go func() {
+// 		<-defaultContext.Done()
+// 		log.Print("⚠️ Context cancelled → closing websocket")
+// 		closeConnection()
+// 	}()
+
+// 	defer func() {
+// 		baseRegistry.Mu.Lock()
+// 		delete(baseRegistry.Clients, connection)
+// 		baseRegistry.Mu.Unlock()
+
+// 		// Send proper closing handshake before closing
+// 		err := connection.WriteMessage(
+// 			websocket.CloseMessage,
+// 			websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""),
+// 		)
+
+// 		if err != nil {
+// 			log.Printf("⚠️ Error sending close message: %v", err)
+// 		}
+
+// 		log.Printf("⚡️ Connection closed")
+// 		closeConnection()
+// 	}()
+
+// 	tableId := request.URL.Query().Get("table")
+
+// 	for {
+// 		message := &models.WebsocketMessage{}
+// 		err := connection.ReadJSON(message)
+
+// 		if err != nil {
+// 			log.Printf("⚠️ Error reading JSON message: %v", err)
+// 			return
+// 		}
+
+// 		switch message.Action {
+// 		case "accept_player":
+// 			tableLayer, state := baseRegistry.Get(tableId)
+// 			if !state {
+// 				log.Printf("⚠️ Cannot accept player. Table not found: %s", tableId)
+// 				return
+// 			}
+
+// 			hasPlayer := tableLayer.Layer.HasPlayer(connection)
+// 			if hasPlayer {
+// 				log.Print("⚠️ Player already present on the table")
+// 				continue
+// 			}
+
+// 			tableLayer.Layer.AddPlayer(connection, message.Username, false)
+
+// 			b := broadcastRegistry.GetOrCreate(tableId)
+// 			b.AddClient(connection)
+// 			err := b.Publish("accept_player", broadcasting.Message{
+// 				Action:  "accept_player",
+// 				TableId: tableId,
+// 				// Payload: map[string]any{
+// 				// 	"Something": "a",
+// 				// },
+// 			})
+
+// 			if err != nil {
+// 				log.Printf("⚠️ Error publishing accept_player message: %v", err)
+// 			}
+
+// 			player := tableLayer.Layer.GetPlayer(connection)
+
+// 			log.Printf("🟢 Player accepted: %s (%s) [%d players]", player.Username, player.Uuid, tableLayer.Layer.GetNumberOfPlayers())
+// 			player.WriteJson(models.WebsocketMessage{
+// 				Action:       "player_accepted",
+// 				TableId:      tableId,
+// 				TableDetails: tableLayer.Layer.PrintDetails(),
+// 			})
+// 		default:
+// 			log.Printf("⚠️ Unrecognized action: %s", message.Action)
+// 		}
+// 	}
+// }
