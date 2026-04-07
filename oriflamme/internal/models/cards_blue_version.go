@@ -208,6 +208,8 @@ func (card *Card) ApplySoldier(queue *InfluenceQueue, direction string) bool {
 	var wasCard *Card
 
 	finalize := func() {
+		card.Owner.IncreaseTokens(1)
+
 		if wasCard.Name == "Ambush" {
 			card.ApplyAmbushAttackedl(queue, card)
 		}
@@ -243,7 +245,6 @@ func (card *Card) ApplySoldier(queue *InfluenceQueue, direction string) bool {
 		return false
 	}
 
-	card.Owner.IncreaseTokens(1)
 	finalize()
 	return true
 }

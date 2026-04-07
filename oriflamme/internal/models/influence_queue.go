@@ -3,10 +3,11 @@ package models
 import "slices"
 
 type InfluenceQueue struct {
-	// The influence queue is a list of cards that have been played but have not yet resolved.
+	// The influence queue is a list of cards
+	// that have been played but have not yet resolved.
 	Queue []*Card
 	// Each card is resolved one by one in an ascending order of their position in the queue.
-	// This index tracks which card is currently being resolved. The inde is initialized to
+	// This index tracks which card is currently being resolved. The index is initialized to
 	// -1, meaning that no card has been resolved yet.
 	ResolutionIndex int
 }
@@ -74,7 +75,7 @@ func (queue *InfluenceQueue) GetCurrentCard() *Card {
 }
 
 // Apply the effect of the current card being resolved. This function should be called
-// after calling Resolve() to apply the effect of the current card. It returns true if 
+// after calling Resolve() to apply the effect of the current card. It returns true if
 // the effect was successfully applied, and false otherwise.
 // Deprecated: use the card effect directly
 func (queue *InfluenceQueue) ApplyEffect(card *Card) bool {
@@ -95,4 +96,13 @@ func IndexOfCard(slice []*Card, value string) int {
 		}
 	}
 	return -1
+}
+
+// Create a new influence queue with the given cards.
+// The resolution index is initialized to -1.
+func CreateInfluenceQueue() *InfluenceQueue {
+	return &InfluenceQueue{
+		Queue:           []*Card{},
+		ResolutionIndex: -1,
+	}
 }
