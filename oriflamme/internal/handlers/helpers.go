@@ -10,7 +10,7 @@ var allowedOrigins = map[string]bool{
 	"http://localhost:3000": true,
 }
 
-var RequestUpgrader = websocket.Upgrader{
+var CustomRequestUpgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 	CheckOrigin: func(request *http.Request) bool {
