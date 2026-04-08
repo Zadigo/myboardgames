@@ -1,6 +1,9 @@
 package models
 
-import "slices"
+import (
+	"errors"
+	"slices"
+)
 
 type InfluenceQueue struct {
 	// The influence queue is a list of cards
@@ -58,20 +61,20 @@ func (queue *InfluenceQueue) Resolve() {
 
 // Get the current card being resolved. If the resolution index
 // is out of bounds, return nil.
-func (queue *InfluenceQueue) GetCurrentCard() *Card {
+func (queue *InfluenceQueue) GetCurrentCard() (*Card, error) {
 	if queue.NumberOfCards() == 0 {
-		return nil
+		return nil, errors.New("No cards in the queue")
 	}
 
 	if queue.ResolutionIndex == -1 {
-		return nil
+		return nil, errors.New("No card is being resolved yet")
 	}
 
 	if queue.ResolutionIndex < queue.NumberOfCards() {
-		return queue.Queue[queue.ResolutionIndex]
+		return queue.Queue[queue.ResolutionIndex], nil
 	}
 
-	return nil
+	return nil, errors.New("Resolution index out of range")
 }
 
 // Apply the effect of the current card being resolved. This function should be called

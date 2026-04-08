@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 )
@@ -36,6 +37,8 @@ type Card struct {
 	Tokens int
 	// Indicates whether the card has been revealed during the resolution phase.
 	IsRevealed bool
+	// Image is the URL of the card's image, used for displaying the card in the frontend.
+	Image string
 }
 
 func createBaseCards() []Card {
@@ -61,6 +64,7 @@ func createColorCards(owner *Player, color string) []Card {
 		cards[i].Color = color
 		cards[i].Owner = owner
 		cards[i].Tokens = 0
+		cards[i].Image = fmt.Sprintf("/oriflamme/%s/%s.png", color, cards[i].Name)
 	}
 	return cards
 }
@@ -143,6 +147,14 @@ func (card *Card) IsSameOwnerAs(b *Card) (bool, error) {
 // Check if the card's name matches the specified name and if it is revealed and
 // also if the queue has cards to resolve. This is a common check for the card's special abilities.
 func (card *Card) preActionCheck(queue *InfluenceQueue, checkName string) (bool, error) {
+	// The Ambush card must not be revealed to apply its effect when
+	// it is attacked, so we check for that separately. For this card,
+	// and some others, the number of cards in the queue is not relevant
+	// for applying their effect, so we skip that check as well.
+	if card.Name == "Ambush" && !card.IsRevealed {
+		return true, nil
+	}
+
 	if card.Name != checkName || !card.IsRevealed {
 		return false, errors.New("Card is not revealed or does not have the correct name")
 	}
@@ -168,7 +180,7 @@ func (card *Card) ApplyAssassination(queue *InfluenceQueue, index int) bool {
 	wasCard := queue.RemoveCardAtPosition(index)
 
 	if wasCard.Name == "Ambush" {
-		card.ApplyAmbushAttackedl(queue, card)
+		card.ApplyAmbushAttacked(queue, card)
 		return true
 	}
 
@@ -193,7 +205,7 @@ func (card *Card) ApplyArcher(queue *InfluenceQueue, firstCard bool) bool {
 	card.Owner.IncreaseTokens(1)
 
 	if wasCard.Name == "Ambush" {
-		card.ApplyAmbushAttackedl(queue, card)
+		card.ApplyAmbushAttacked(queue, card)
 	}
 
 	return true
@@ -202,15 +214,15 @@ func (card *Card) ApplyArcher(queue *InfluenceQueue, firstCard bool) bool {
 // Eliminates a card adjacent to the soldier in the queue.
 // The player can choose to eliminate either the card immediately before
 // or immediately after the soldier.
-func (card *Card) ApplySoldier(queue *InfluenceQueue, direction string) bool {
-	if ok, _ := card.preActionCheck(queue, "Soldier"); !ok {
-		return false
+func (card *Card) ApplySoldier(queue *InfluenceQueue, direction string) (bool, error) {
+	if ok, err := card.preActionCheck(queue, "Soldier"); !ok {
+		return false, errors.Join(err, errors.New("Pre-action check failed"))
 	}
 
 	// The soldier is the only card in the queue,
 	// so there are no adjacent cards to eliminate.
 	if queue.NumberOfCards() == 1 {
-		return false
+		return false, errors.New("No adjacent cards to eliminate")
 	}
 
 	var wasCard *Card
@@ -219,7 +231,7 @@ func (card *Card) ApplySoldier(queue *InfluenceQueue, direction string) bool {
 		card.Owner.IncreaseTokens(1)
 
 		if wasCard.Name == "Ambush" {
-			card.ApplyAmbushAttackedl(queue, card)
+			card.ApplyAmbushAttacked(queue, wasCard)
 		}
 	}
 
@@ -229,7 +241,7 @@ func (card *Card) ApplySoldier(queue *InfluenceQueue, direction string) bool {
 	if queue.ResolutionIndex == 0 {
 		wasCard = queue.RemoveCardAtPosition(1)
 		finalize()
-		return true
+		return true, nil
 	}
 
 	// The soldier is at the end of the queue,
@@ -238,7 +250,7 @@ func (card *Card) ApplySoldier(queue *InfluenceQueue, direction string) bool {
 	if queue.ResolutionIndex == queue.NumberOfCards()-1 {
 		wasCard = queue.RemoveCardAtPosition(queue.ResolutionIndex - 1)
 		finalize()
-		return true
+		return true, nil
 	}
 
 	// The soldier is in the middle of the queue,
@@ -250,18 +262,18 @@ func (card *Card) ApplySoldier(queue *InfluenceQueue, direction string) bool {
 	case "after":
 		wasCard = queue.RemoveCardAtPosition(queue.ResolutionIndex + 1)
 	default:
-		return false
+		return false, errors.New("Invalid direction. Must be 'before' or 'after'")
 	}
 
 	finalize()
-	return true
+	return true, nil
 }
 
 // Steal a token from the player's card immediately before or
 // after the spy in the queue and add it to the spy.
 func (card *Card) ApplySpy(queue *InfluenceQueue, cardBefore bool) (bool, error) {
 	if ok, err := card.preActionCheck(queue, "Spy"); !ok {
-		return false, err
+		return false, errors.Join(err, errors.New("Pre-action check failed"))
 	}
 
 	// The spy is the only card in the queue,
@@ -292,9 +304,9 @@ func (card *Card) ApplySpy(queue *InfluenceQueue, cardBefore bool) (bool, error)
 	if queue.ResolutionIndex == queue.NumberOfCards()-1 {
 		prevCard := queue.Queue[queue.ResolutionIndex-1]
 		if sameOwner, err := card.IsSameOwnerAs(prevCard); sameOwner || err != nil {
-			return false, errors.New("Cannot steal from your own card")
+			return false, errors.Join(err, errors.New("Cannot steal from your own card"))
 		}
-		
+
 		card.Owner.IncreaseTokens(1)
 		prevCard.Owner.DecreaseTokens(1)
 		return true, nil
@@ -307,7 +319,7 @@ func (card *Card) ApplySpy(queue *InfluenceQueue, cardBefore bool) (bool, error)
 		prevCard := queue.Queue[queue.ResolutionIndex-1]
 
 		if sameOwner, err := card.IsSameOwnerAs(prevCard); sameOwner || err != nil {
-			return false, errors.New("Cannot steal from your own card")
+			return false, errors.Join(err, errors.New("Cannot steal from your own card"))
 		}
 
 		card.Owner.IncreaseTokens(1)
@@ -316,7 +328,7 @@ func (card *Card) ApplySpy(queue *InfluenceQueue, cardBefore bool) (bool, error)
 		nextCard := queue.Queue[queue.ResolutionIndex+1]
 
 		if sameOwner, err := card.IsSameOwnerAs(nextCard); sameOwner || err != nil {
-			return false, errors.New("Cannot steal from your own card")
+			return false, errors.Join(err, errors.New("Cannot steal from your own card"))
 		}
 
 		card.Owner.IncreaseTokens(1)
@@ -476,12 +488,16 @@ func (card *Card) ApplyAmbushReveal(queue *InfluenceQueue) bool {
 	return true
 }
 
-func (card *Card) ApplyAmbushAttackedl(queue *InfluenceQueue, attackingCard *Card) bool {
-	if ok, _ := card.preActionCheck(queue, "Ambush"); !ok {
-		return false
+func (card *Card) ApplyAmbushAttacked(queue *InfluenceQueue, ambushCard *Card) (bool, error) {
+	if card.Name == "Ambush" {
+		// The Ambush card cannot attack its own self, so the ApplyAmbushAttacked is necessarily
+		// called from another card's effect when the Ambush card is attacked. "card" is therefore
+		// the attacking card on which the Ambush card's effect is being applied.
+		return false, errors.New("Card is not an attacking card")
+	} else {
+		ambushCard.Owner.IncreaseTokens(4)
+		ambushCard.Discard()
+		card.Discard()
+		return true, nil
 	}
-
-	card.Owner.IncreaseTokens(4)
-	attackingCard.Discard()
-	return true
 }

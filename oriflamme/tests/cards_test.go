@@ -68,7 +68,7 @@ func TestCard(t *testing.T) {
 			case "archer":
 				result = card.ApplyArcher(&models.InfluenceQueue{}, true)
 			case "soldier":
-				result = card.ApplySoldier(&models.InfluenceQueue{}, "after")
+				result, _ = card.ApplySoldier(&models.InfluenceQueue{}, "after")
 			case "spy":
 				result, tc.error = card.ApplySpy(&models.InfluenceQueue{}, true)
 			}
@@ -129,7 +129,7 @@ func TestArcherCard(t *testing.T) {
 			simpleQueue.Queue = tc.queue
 			simpleQueue.ResolutionIndex = i
 
-			currentCard := simpleQueue.GetCurrentCard()
+			currentCard, _ := simpleQueue.GetCurrentCard()
 			assert.Equal(t, "Archer", currentCard.Name)
 			currentCard.Reveal()
 
@@ -158,6 +158,7 @@ func TestArcherCard(t *testing.T) {
 func TestSoldierCard(t *testing.T) {
 	alice := &models.Player{Username: "Alice"}
 	blueCards := models.CreateBlueCards(alice)
+
 	simpleQueue := models.CreateInfluenceQueue()
 
 	type testCase struct {
@@ -178,8 +179,8 @@ func TestSoldierCard(t *testing.T) {
 			errorText:       "Expected card on the right of the soldier to be eliminated when the soldier is in the first position",
 			queue: []*models.Card{
 				&blueCards[1],
-				{Uuid: "1", Name: "Test Card 1", IsRevealed: false},
-				{Uuid: "2", Name: "Test Card 2", IsRevealed: false},
+				{Uuid: "1", Name: "Test Card 1"},
+				{Uuid: "2", Name: "Test Card 2"},
 			},
 		},
 		{
@@ -189,9 +190,9 @@ func TestSoldierCard(t *testing.T) {
 			firstCard:       true,
 			errorText:       "Expected the card on the left of the soldier to be eliminated when the soldier is in the middle position",
 			queue: []*models.Card{
-				{Uuid: "1", Name: "Test Card 1", IsRevealed: false},
+				{Uuid: "1", Name: "Test Card 1"},
 				&blueCards[1],
-				{Uuid: "2", Name: "Test Card 2", IsRevealed: false},
+				{Uuid: "2", Name: "Test Card 2"},
 			},
 		},
 		{
@@ -201,9 +202,9 @@ func TestSoldierCard(t *testing.T) {
 			firstCard:       true,
 			errorText:       "Expected the card on the right of the soldier to be eliminated when the soldier is in the middle position",
 			queue: []*models.Card{
-				{Uuid: "1", Name: "Test Card 1", IsRevealed: false},
+				{Uuid: "1", Name: "Test Card 1"},
 				&blueCards[1],
-				{Uuid: "2", Name: "Test Card 2", IsRevealed: false},
+				{Uuid: "2", Name: "Test Card 2"},
 			},
 		},
 		{
@@ -213,8 +214,8 @@ func TestSoldierCard(t *testing.T) {
 			firstCard:       true,
 			errorText:       "Expected card on the left of the soldier to be eliminated when the soldier is in the last position",
 			queue: []*models.Card{
-				{Uuid: "1", Name: "Test Card 1", IsRevealed: false},
-				{Uuid: "2", Name: "Test Card 2", IsRevealed: false},
+				{Uuid: "1", Name: "Test Card 1"},
+				{Uuid: "2", Name: "Test Card 2"},
 				&blueCards[1],
 			},
 		},
@@ -225,11 +226,12 @@ func TestSoldierCard(t *testing.T) {
 			simpleQueue.Queue = tc.queue
 			simpleQueue.ResolutionIndex = tc.resolutionIndex
 
-			currentCard := simpleQueue.GetCurrentCard()
+			currentCard, _ := simpleQueue.GetCurrentCard()
 			assert.Equal(t, "Soldier", currentCard.Name)
 			currentCard.Reveal()
 
-			result := currentCard.ApplySoldier(simpleQueue, tc.direction)
+			result, err := currentCard.ApplySoldier(simpleQueue, tc.direction)
+			assert.NoError(t, err, err)
 			assert.True(t, result, tc.errorText)
 
 			if tc.direction != "" {
@@ -352,7 +354,7 @@ func TestSpyCard(t *testing.T) {
 			simpleQueue.Queue = tc.queue
 			simpleQueue.ResolutionIndex = tc.resolutionIndex
 
-			currentCard := simpleQueue.GetCurrentCard()
+			currentCard, _ := simpleQueue.GetCurrentCard()
 			assert.Equal(t, "Spy", currentCard.Name)
 			currentCard.Reveal()
 
@@ -398,7 +400,7 @@ func TestConspiracyCard(t *testing.T) {
 	}
 
 	simpleQueue.ResolutionIndex = 0
-	currentCard := simpleQueue.GetCurrentCard()
+	currentCard, _ := simpleQueue.GetCurrentCard()
 	currentCard.Tokens = 2
 
 	currentCard.Reveal()
@@ -410,5 +412,71 @@ func TestConspiracyCard(t *testing.T) {
 
 	if currentCard.Owner.Tokens != 5 {
 		t.Errorf("Expected player to gain 4 tokens for a total of 5, got %d", currentCard.Owner.Tokens)
+	}
+}
+
+func TestAmbush(t *testing.T) {
+	blueCards := models.CreateBlueCards(&models.Player{Username: "Alice", Tokens: 1})
+	redCards := models.CreateRedCards(&models.Player{Username: "Pauline", Tokens: 1})
+
+	type testCase struct {
+		name                string
+		resolutionIndex     int
+		revealed            bool
+		expectedOwnerTokens int
+		expectedAdjacentTokens int
+		errorText           string
+		queue               []*models.Card
+	}
+
+	testCases := []testCase{
+		{
+			name:                "Soldier eliminates Ambush card",
+			resolutionIndex:     0,
+			revealed:            false,
+			expectedOwnerTokens: 2,
+			expectedAdjacentTokens: 5,
+			errorText:           "Expected owner of the ambush card to gain 4 tokens when the soldier eliminates it",
+			queue: []*models.Card{
+				&redCards[1],  // Solider card
+				&blueCards[9], // Ambush card
+			},
+		},
+		// {
+		// 	name:                "Player reveals Ambush card and it is not eliminated",
+		// 	resolutionIndex:     0,
+		// 	revealed:            true,
+		// 	expectedOwnerTokens: 2,
+		// 	errorText:           "Expected owner of the ambush card to gain 4 tokens when the soldier eliminates it",
+		// 	queue: []*models.Card{
+		// 		&redCards[1],
+		// 	},
+		// },
+	}
+
+	simpleQueue := models.CreateInfluenceQueue()
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			simpleQueue.Queue = tc.queue
+			simpleQueue.ResolutionIndex = tc.resolutionIndex
+
+			currentCard, err := simpleQueue.GetCurrentCard()
+			currentCard.Reveal()
+
+			assert.NoError(t, err, err)
+			assert.Equal(t, "Soldier", currentCard.Name)
+
+			if tc.revealed {
+				// Do something
+			} else {
+				// Simulate the soldier card effect by attacking the
+				// card on the right (or the Ambush card)
+				_, err := currentCard.ApplySoldier(simpleQueue, "before")
+				assert.NoError(t, err, err)
+				assert.Equal(t, tc.expectedOwnerTokens, currentCard.Owner.Tokens)
+				assert.Equal(t, tc.expectedAdjacentTokens, simpleQueue.Queue[1].Owner.Tokens, tc.errorText)
+			}
+		})
 	}
 }

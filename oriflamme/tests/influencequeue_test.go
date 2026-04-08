@@ -54,7 +54,7 @@ func TestInfluenceQueueResolution(t *testing.T) {
 		t.Errorf("Expected resolution index to be 0, got %d", simpleQueue.ResolutionIndex)
 	}
 
-	card := simpleQueue.GetCurrentCard()
+	card, _ := simpleQueue.GetCurrentCard()
 	if card == nil {
 		t.Error("Expected current card to be non-nil")
 	} else if card.Name != "Archer" {
