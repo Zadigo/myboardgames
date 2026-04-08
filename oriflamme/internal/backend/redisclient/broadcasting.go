@@ -17,7 +17,7 @@ func (br *BroadcastingRegistry) GetOrCreate(tableUuid string) *Broadcaster {
 	b, exists := br.broadcasters[tableUuid]
 	if !exists {
 		// If not, create a new one
-		b = NewBroadcaster(tableUuid, br.subscription, br.ctx)
+		b = NewBroadcaster(tableUuid, br.Subscription, br.ctx)
 		br.broadcasters[tableUuid] = b
 	}
 

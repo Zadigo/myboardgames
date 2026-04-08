@@ -37,7 +37,7 @@ type Broadcaster struct {
 type BroadcastingRegistry struct {
 	mu           sync.RWMutex
 	broadcasters map[string]*Broadcaster
-	subscription *RedisSubscription
+	Subscription *RedisSubscription
 	cancel       context.CancelFunc
 	ctx          context.Context
 }
@@ -45,7 +45,7 @@ type BroadcastingRegistry struct {
 func NewBroadcastingRegistry(tableUuid string, subscription *RedisSubscription, parentCtx context.Context) *BroadcastingRegistry {
 	return &BroadcastingRegistry{
 		broadcasters: make(map[string]*Broadcaster),
-		subscription: subscription,
+		Subscription: subscription,
 		ctx:          parentCtx,
 	}
 }
