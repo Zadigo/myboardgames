@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
+	"time"
 
 	"github.com/Zadigo/oriflamme/internal/backend"
 )
@@ -13,6 +15,15 @@ func LiveGameHandler(w http.ResponseWriter, r *http.Request, serverRegistry *bac
 		return
 	}
 
+	// Setup connection safety measures (e.g., origin check, authentication) here if needed
+	conn.SetReadLimit(1024)
+	conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+
+	conn.SetPongHandler(func(string) error {
+		conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+		return nil
+	})
+
 	defer func() {
 		conn.Close()
 
@@ -22,19 +33,20 @@ func LiveGameHandler(w http.ResponseWriter, r *http.Request, serverRegistry *bac
 		// )
 	}()
 
+	// Add the new client to the server registry
+	clientUuid, client := serverRegistry.AddClient(conn)
+
 	for {
 		var message backend.WebsocketMessage
 		err = conn.ReadJSON(&message)
 
 		if err != nil {
-			// conn.WriteJSON(backend.WebsocketMessage{})
-			continue
+			log.Println("❌ Read error:", err)
+			break
 		}
 
-		// Add the new client to the server registry
-		clientUuid, client := serverRegistry.AddClient(message.Username, conn)
-
 		switch message.Action {
+		case "identify":
 		case "create_game":
 			gameRegistry, state := serverRegistry.CreateGame(clientUuid)
 			if !state {

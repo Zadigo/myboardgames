@@ -36,10 +36,10 @@ func (client *WebsocketClient) ReceiveJsonMessage() (WebsocketMessage, error) {
 	return message, err
 }
 
-func NewWebsocketClient(username string, conn *websocket.Conn) *WebsocketClient {
+func NewWebsocketClient(conn *websocket.Conn) *WebsocketClient {
 	return &WebsocketClient{
 		Uuid:     uuid.NewString(),
-		Username: username,
+		Username: "",
 		conn:     conn,
 	}
 }

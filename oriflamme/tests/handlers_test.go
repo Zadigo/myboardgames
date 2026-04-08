@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -45,8 +44,6 @@ func TestLiveGameHandler(t *testing.T) {
 	defer server.Close()
 
 	t.Run("Initial connection", func(t *testing.T) {
-		
-	})
 
-	fmt.Printf("%v", conn)
+	})
 }

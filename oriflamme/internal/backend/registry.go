@@ -60,11 +60,11 @@ type ServerRegistry struct {
 }
 
 // Add a new client to the server registry and return its unique identifier.
-func (s *ServerRegistry) AddClient(username string, conn *websocket.Conn) (uuid string, client *WebsocketClient) {
+func (s *ServerRegistry) AddClient(conn *websocket.Conn) (uuid string, client *WebsocketClient) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	newClient := NewWebsocketClient(username, conn)
+	newClient := NewWebsocketClient(conn)
 	s.clients[newClient.Uuid] = newClient
 
 	return newClient.Uuid, newClient
