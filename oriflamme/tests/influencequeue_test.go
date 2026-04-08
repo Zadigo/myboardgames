@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func constructQueuee() (models.InfluenceQueue, *models.Player, *models.Player) {
+func constructQueue() (*models.InfluenceQueue, *models.Player, *models.Player) {
 	ownerOne := &models.Player{Username: "Player1"}
 	ownerTwo := &models.Player{Username: "Player2"}
 
@@ -20,11 +20,11 @@ func constructQueuee() (models.InfluenceQueue, *models.Player, *models.Player) {
 			{Uuid: uuid.NewString(), Name: "Soldier", Color: "Blue", Position: 3, Owner: ownerTwo},
 		},
 	}
-	return simpleQueue, ownerOne, ownerTwo
+	return &simpleQueue, ownerOne, ownerTwo
 }
 
 func TestInfluenceQueue(t *testing.T) {
-	simpleQueue, ownerOne, ownerTwo := constructQueuee()
+	simpleQueue, ownerOne, ownerTwo := constructQueue()
 
 	otherCard := &models.Card{Uuid: uuid.NewString(), Name: "Archer", Color: "Red", Position: 0, Owner: ownerOne}
 	simpleQueue.AddCardLeft(otherCard)
@@ -47,7 +47,7 @@ func TestInfluenceQueue(t *testing.T) {
 }
 
 func TestInfluenceQueueResolution(t *testing.T) {
-	simpleQueue, _, _ := constructQueuee()
+	simpleQueue, _, _ := constructQueue()
 	simpleQueue.Resolve()
 
 	if simpleQueue.ResolutionIndex != 0 {
@@ -66,7 +66,7 @@ func TestInfluenceQueueResolution(t *testing.T) {
 		t.Error("Expected effect to be applied successfully")
 	}
 
-	card.Reveal()
+	card.Reveal(simpleQueue)
 	result = simpleQueue.ApplyEffect(card)
 	if !result {
 		t.Error("Expected effect to be applied successfully")

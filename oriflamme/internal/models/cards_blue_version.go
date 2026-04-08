@@ -100,11 +100,17 @@ func (card *Card) IsIntrigue() bool {
 // Reveal a card during the resolution phase.
 // The card's effect will be applied if it is not
 // removed or discarded.
-func (card *Card) Reveal() {
-	if card.IsRemoved || card.IsDiscarded {
-		return
-	} else {
-		card.IsRevealed = true
+func (card *Card) Reveal(queue *InfluenceQueue) (state bool, err error) {
+	switch card.Name {
+	case "Ambush":
+		return card.ApplyAmbushReveal(queue)
+	default:
+		if card.IsRemoved || card.IsDiscarded {
+			return false, errors.New("Card is removed or discarded and cannot be revealed")
+		} else {
+			card.IsRevealed = true
+			return true, nil
+		}
 	}
 }
 
@@ -147,13 +153,13 @@ func (card *Card) IsSameOwnerAs(b *Card) (bool, error) {
 // Check if the card's name matches the specified name and if it is revealed and
 // also if the queue has cards to resolve. This is a common check for the card's special abilities.
 func (card *Card) preActionCheck(queue *InfluenceQueue, checkName string) (bool, error) {
-	// The Ambush card must not be revealed to apply its effect when
-	// it is attacked, so we check for that separately. For this card,
-	// and some others, the number of cards in the queue is not relevant
-	// for applying their effect, so we skip that check as well.
-	if card.Name == "Ambush" && !card.IsRevealed {
-		return true, nil
-	}
+	// // The Ambush card must not be revealed to apply its effect when
+	// // it is attacked, so we check for that separately. For this card,
+	// // and some others, the number of cards in the queue is not relevant
+	// // for applying their effect, so we skip that check as well.
+	// if card.Name == "Ambush" && !card.IsRevealed {
+	// 	return true, nil
+	// }
 
 	if card.Name != checkName || !card.IsRevealed {
 		return false, errors.New("Card is not revealed or does not have the correct name")
@@ -479,16 +485,23 @@ func (card *Card) ApplyHeir(queue *InfluenceQueue) bool {
 	return false
 }
 
-func (card *Card) ApplyAmbushReveal(queue *InfluenceQueue) bool {
-	if ok, _ := card.preActionCheck(queue, "Ambush"); !ok {
-		return false
-	}
+// When the Ambush card is revealed during the resolution phase, the owner of the
+// Ambush card wins 1 token and the card is discarded. If the Ambush card is attacked by
+// another card, the owner of the Ambush card wins 4 tokens and the Ambush card is discarded.
+// The attacking card is also discarded.
+func (card *Card) ApplyAmbushReveal(queue *InfluenceQueue) (state bool, err error) {
+	// if ok, err := card.preActionCheck(queue, "Ambush"); !ok {
+	// 	return false, errors.Join(err, errors.New("Pre-action check failed"))
+	// }
+
 	card.Owner.IncreaseTokens(1)
 	card.Discard()
-	return true
+	return true, nil
 }
 
-func (card *Card) ApplyAmbushAttacked(queue *InfluenceQueue, ambushCard *Card) (bool, error) {
+// When the Ambush card is attacked by another card, the owner of the Ambush card wins 4 tokens and
+// the Ambush card is discarded. The attacking card is also discarded.
+func (card *Card) ApplyAmbushAttacked(queue *InfluenceQueue, ambushCard *Card) (state bool, err error) {
 	if card.Name == "Ambush" {
 		// The Ambush card cannot attack its own self, so the ApplyAmbushAttacked is necessarily
 		// called from another card's effect when the Ambush card is attacked. "card" is therefore

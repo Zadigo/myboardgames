@@ -24,7 +24,7 @@ func TestCard(t *testing.T) {
 	t.Run("Card revealed", func(t *testing.T) {
 		assert.False(t, card.IsRevealed)
 
-		card.Reveal()
+		card.Reveal(&models.InfluenceQueue{})
 		assert.True(t, card.IsRevealed)
 	})
 
@@ -131,7 +131,7 @@ func TestArcherCard(t *testing.T) {
 
 			currentCard, _ := simpleQueue.GetCurrentCard()
 			assert.Equal(t, "Archer", currentCard.Name)
-			currentCard.Reveal()
+			currentCard.Reveal(simpleQueue)
 
 			result := currentCard.ApplyArcher(simpleQueue, tc.firstCard)
 			assert.True(t, result, tc.errorText)
@@ -228,7 +228,7 @@ func TestSoldierCard(t *testing.T) {
 
 			currentCard, _ := simpleQueue.GetCurrentCard()
 			assert.Equal(t, "Soldier", currentCard.Name)
-			currentCard.Reveal()
+			currentCard.Reveal(simpleQueue)
 
 			result, err := currentCard.ApplySoldier(simpleQueue, tc.direction)
 			assert.NoError(t, err, err)
@@ -356,7 +356,7 @@ func TestSpyCard(t *testing.T) {
 
 			currentCard, _ := simpleQueue.GetCurrentCard()
 			assert.Equal(t, "Spy", currentCard.Name)
-			currentCard.Reveal()
+			currentCard.Reveal(simpleQueue)
 
 			result, err := currentCard.ApplySpy(simpleQueue, tc.cardBefore)
 			if tc.expectedResult {
@@ -403,7 +403,7 @@ func TestConspiracyCard(t *testing.T) {
 	currentCard, _ := simpleQueue.GetCurrentCard()
 	currentCard.Tokens = 2
 
-	currentCard.Reveal()
+	currentCard.Reveal(&simpleQueue)
 	result := currentCard.ApplyConspiracy(&simpleQueue)
 
 	if !result {
@@ -420,38 +420,38 @@ func TestAmbush(t *testing.T) {
 	redCards := models.CreateRedCards(&models.Player{Username: "Pauline", Tokens: 1})
 
 	type testCase struct {
-		name                string
-		resolutionIndex     int
-		revealed            bool
-		expectedOwnerTokens int
+		name                   string
+		resolutionIndex        int
+		revealed               bool
+		expectedOwnerTokens    int
 		expectedAdjacentTokens int
-		errorText           string
-		queue               []*models.Card
+		errorText              string
+		queue                  []*models.Card
 	}
 
 	testCases := []testCase{
 		{
-			name:                "Soldier eliminates Ambush card",
-			resolutionIndex:     0,
-			revealed:            false,
-			expectedOwnerTokens: 2,
+			name:                   "Soldier eliminates Ambush card",
+			resolutionIndex:        0,
+			revealed:               false,
+			expectedOwnerTokens:    2,
 			expectedAdjacentTokens: 5,
-			errorText:           "Expected owner of the ambush card to gain 4 tokens when the soldier eliminates it",
+			errorText:              "Expected owner of the ambush card to gain 4 tokens when the soldier eliminates it",
 			queue: []*models.Card{
 				&redCards[1],  // Solider card
 				&blueCards[9], // Ambush card
 			},
 		},
-		// {
-		// 	name:                "Player reveals Ambush card and it is not eliminated",
-		// 	resolutionIndex:     0,
-		// 	revealed:            true,
-		// 	expectedOwnerTokens: 2,
-		// 	errorText:           "Expected owner of the ambush card to gain 4 tokens when the soldier eliminates it",
-		// 	queue: []*models.Card{
-		// 		&redCards[1],
-		// 	},
-		// },
+		{
+			name:                "Player reveals Ambush card and it is not eliminated",
+			resolutionIndex:     0,
+			revealed:            true,
+			expectedOwnerTokens: 2,
+			errorText:           "Expected owner of the ambush card to gain 1 token",
+			queue: []*models.Card{
+				&redCards[9],
+			},
+		},
 	}
 
 	simpleQueue := models.CreateInfluenceQueue()
@@ -462,14 +462,15 @@ func TestAmbush(t *testing.T) {
 			simpleQueue.ResolutionIndex = tc.resolutionIndex
 
 			currentCard, err := simpleQueue.GetCurrentCard()
-			currentCard.Reveal()
+			currentCard.Reveal(simpleQueue)
 
 			assert.NoError(t, err, err)
-			assert.Equal(t, "Soldier", currentCard.Name)
 
 			if tc.revealed {
-				// Do something
+				assert.Equal(t, "Ambush", currentCard.Name)
+				assert.Equal(t, tc.expectedOwnerTokens, currentCard.Owner.Tokens, tc.errorText)
 			} else {
+				assert.Equal(t, "Soldier", currentCard.Name)
 				// Simulate the soldier card effect by attacking the
 				// card on the right (or the Ambush card)
 				_, err := currentCard.ApplySoldier(simpleQueue, "before")
@@ -477,6 +478,14 @@ func TestAmbush(t *testing.T) {
 				assert.Equal(t, tc.expectedOwnerTokens, currentCard.Owner.Tokens)
 				assert.Equal(t, tc.expectedAdjacentTokens, simpleQueue.Queue[1].Owner.Tokens, tc.errorText)
 			}
+			
+			t.Cleanup(func() {
+				currentCard.Owner.Tokens = 1
+
+				for _, card := range simpleQueue.Queue {
+					card.IsRemoved = false
+				}
+			})
 		})
 	}
 }
