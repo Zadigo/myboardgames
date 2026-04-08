@@ -56,6 +56,10 @@ func LiveGameHandler(w http.ResponseWriter, r *http.Request, serverRegistry *bac
 
 			if exists {
 				client.Username = message.Username
+				client.SendJsonMessage(backend.WebsocketMessage{
+					Action:  "identify",
+					Message: "Identification successful",
+				})
 			} else {
 				log.Printf("❌ Client with UUID %s not found for identification", message.PlayerUuid)
 				client.SendJsonMessage(backend.WebsocketMessage{Action: "error", Message: "Client was not found"})
