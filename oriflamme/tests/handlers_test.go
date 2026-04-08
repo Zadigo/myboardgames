@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/Zadigo/oriflamme/internal/backend"
+	"github.com/Zadigo/oriflamme/internal/backend/redisclient"
 	"github.com/Zadigo/oriflamme/internal/handlers"
 	"github.com/gorilla/websocket"
 	"github.com/stretchr/testify/assert"
@@ -16,7 +17,7 @@ import (
 func createLiveGameConn(t *testing.T) (*websocket.Conn, *httptest.Server) {
 	t.Helper()
 
-	redisClient := backend.NewRedisClient("redis://@localhost:6379/0")
+	redisClient := redisclient.NewRedisClient("redis://@localhost:6379/0")
 	sr := backend.NewServerRegistry(redisClient)
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -72,6 +73,8 @@ func TestLiveGameHandler(t *testing.T) {
 	t.Run("Resolve queue", func(t *testing.T) {})
 
 	t.Run("Player A performs play card action stack card", func(t *testing.T) {})
+
+	t.Run("Player B performs unrecognized card action", func(t *testing.T) {})
 
 	t.Run("Player B performs unrecognized action", func(t *testing.T) {})
 

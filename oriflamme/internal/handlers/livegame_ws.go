@@ -72,7 +72,7 @@ func LiveGameHandler(w http.ResponseWriter, r *http.Request, serverRegistry *bac
 			// 1. Join the player to the game table using the provided table UUID
 			// 1. Create all the redis dependencies for the game
 			// 2. Send a message to all players that the game has started
-			client.SendJsonMessage(backend.WebsocketMessage{})
+			// client.SendJsonMessage(backend.WebsocketMessage{})
 		case "play_card":
 			// Do something to play a card
 			switch message.CardAction {
@@ -93,7 +93,7 @@ func LiveGameHandler(w http.ResponseWriter, r *http.Request, serverRegistry *bac
 		case "end_game":
 			// Do something to end the game
 		default:
-			client.SendJsonMessage(backend.WebsocketMessage{})
+			// Handle unrecognized actions
 		}
 	}
 }
