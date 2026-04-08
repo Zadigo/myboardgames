@@ -10,9 +10,10 @@ import (
 
 func TestRedisBroadcasting(t *testing.T) {
 	t.Run("Register new table", func(t *testing.T) {
+		conns, server := CreateMultipleGameConn(t, "pauline", "julie", "aurelie")
+		defer server.Close()
+
 		t.Run("Register new clients", func(t *testing.T) {
-			conns, server := CreateMultipleGameConn(t, "pauline", "julie", "aurelie")
-			defer server.Close()
 
 			for name, conn := range conns {
 				defer conn.Close()
