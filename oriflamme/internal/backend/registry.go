@@ -1,7 +1,6 @@
 package backend
 
 import (
-	"errors"
 	"sync"
 	"time"
 
@@ -18,12 +17,13 @@ type GameHistory struct {
 // It maintains a mapping of game IDs to their corresponding game states, which are
 // stored in Redis. The registry provides methods for creating new games, retrieving existing
 // games, and updating game states as players take actions.
+// TODO: Rename to GameRoom
 type GameRegistry struct {
 	Uuid      string                      `json:"uuid"`
 	Clients   map[string]*WebsocketClient `json:"clients"`
 	IsStarted bool                        `json:"is_started"`
 	StartedAt time.Time                   `json:"started_at"`
-	mu        sync.Mutex                  `json:"-"`
+	mu        sync.RWMutex                `json:"-"`
 
 	// TEST: for broadcasting
 	broadcast  chan WebsocketMessage `json:"-"`
@@ -42,8 +42,12 @@ func (registry *GameRegistry) JoinTable(client *WebsocketClient) {
 	}
 
 	registry.Clients[client.Uuid] = client
+	registry.register <- client
 }
 
+// Run starts the main loop for the game registry, which
+// listens for incoming messages and client
+// registration/unregistration events.
 // TEST: for broadcasting
 func (r *GameRegistry) StartRoom() {
 	for {
@@ -63,6 +67,13 @@ func (r *GameRegistry) StartRoom() {
 				}
 			}
 		}
+	}
+}
+
+// Indicates that the game with the given UUID has started.
+func (r *GameRegistry) StartGame(gameUuid string) {
+	r.broadcast <- WebsocketMessage{
+		Action: "start_game",
 	}
 }
 
@@ -107,33 +118,27 @@ func (s *ServerRegistry) GetClient(clientUuid string) (conn *WebsocketClient, ex
 
 // Create a new game and add it to the registry. The playerUuid is used to identify the player who initiated the game.
 // The function returns the newly created game registry and a boolean indicating whether the game was successfully created.
-func (s *ServerRegistry) CreateGame(playerUuid string) (*GameRegistry, bool) {
-	client, exists := s.GetClient(playerUuid)
+func (s *ServerRegistry) CreateGame(client *WebsocketClient) (*GameRegistry, bool) {
+	client, exists := s.GetClient(client.Uuid)
 
 	if !exists {
 		return nil, false
 	}
 
 	newGame := NewGameRegistry()
-	s.Tables[newGame.Uuid] = newGame
-	newGame.JoinTable(client)
-	client.Initiator = true
-	return newGame, true
-}
 
-// Indicates that the game with the given UUID has started.
-func (s *ServerRegistry) StartGame(gameUuid string) (state bool, err error) {
 	s.mu.Lock()
-	defer s.mu.Unlock()
+	s.Tables[newGame.Uuid] = newGame
+	s.mu.Unlock()
 
-	game, exists := s.Tables[gameUuid]
-	if exists {
-		game.StartedAt = time.Now()
-		game.IsStarted = true
-		return true, nil
-	} else {
-		return false, errors.New("Cannot start non-existent game")
-	}
+	// Start the game room in a new goroutine 
+	// to handle client registration and broadcasting
+	go newGame.StartRoom()
+	
+	client.Initiator = true
+	newGame.JoinTable(client)
+
+	return newGame, true
 }
 
 func NewServerRegistry(redisClient *redis.Client) *ServerRegistry {
@@ -146,8 +151,11 @@ func NewServerRegistry(redisClient *redis.Client) *ServerRegistry {
 
 func NewGameRegistry() *GameRegistry {
 	return &GameRegistry{
-		Uuid:      uuid.NewString(),
-		IsStarted: false,
-		StartedAt: time.Now(),
+		Uuid:       uuid.NewString(),
+		broadcast:  make(chan WebsocketMessage),
+		register:   make(chan *WebsocketClient),
+		unregister: make(chan *WebsocketClient),
+		IsStarted:  false,
+		StartedAt:  time.Now(),
 	}
 }

@@ -46,6 +46,9 @@ func (client *WebsocketClient) ReceiveJsonMessage() (WebsocketMessage, error) {
 	return message, err
 }
 
+// TEST: for broadcasting
+// Broadcast messages from the client's send channel
+// to the websocket connection.
 func (c *WebsocketClient) Broadcast() {
 	for msg := range c.send {
 		c.mu.Lock()
@@ -64,6 +67,6 @@ func NewWebsocketClient(conn *websocket.Conn) *WebsocketClient {
 		Username: "",
 		conn:     conn,
 		// TEST: for broadcasting
-		send:     make(chan WebsocketMessage),
+		send: make(chan WebsocketMessage),
 	}
 }
