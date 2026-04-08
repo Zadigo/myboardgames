@@ -1,0 +1,45 @@
+package backend
+
+import (
+	"github.com/google/uuid"
+	"github.com/gorilla/websocket"
+)
+
+type WebsocketMessage struct {
+	Action     string `json:"action"`
+	Username   string `json:"username,omitempty"`
+	Message    string `json:"message,omitempty"`
+	CardAction string `json:"card_action,omitempty"`
+	// The unique identifier for the game table that the player is trying to join or create.
+	// This can be used to associate players with specific games and manage game state accordingly.
+	TableUuid string `json:"table_uuid,omitempty"`
+	// Indicates the player/client is the one that initiated the new game
+	Initiator bool `json:"initiator,omitempty"`
+}
+
+// The WebsocketClient struct represents a client that is connected to
+// the server via a websocket connection.
+type WebsocketClient struct {
+	Uuid      string          `json:"uuid"`
+	Username  string          `json:"username"`
+	Initiator bool            `json:"initiator"`
+	conn      *websocket.Conn `json:"-"`
+}
+
+func (client *WebsocketClient) SendJsonMessage(message WebsocketMessage) error {
+	return client.conn.WriteJSON(message)
+}
+
+func (client *WebsocketClient) ReceiveJsonMessage() (WebsocketMessage, error) {
+	var message WebsocketMessage
+	err := client.conn.ReadJSON(&message)
+	return message, err
+}
+
+func NewWebsocketClient(username string, conn *websocket.Conn) *WebsocketClient {
+	return &WebsocketClient{
+		Uuid:     uuid.NewString(),
+		Username: username,
+		conn:     conn,
+	}
+}
