@@ -24,8 +24,9 @@ type GameRegistry struct {
 	IsStarted bool                        `json:"is_started"`
 	StartedAt time.Time                   `json:"started_at"`
 	mu        sync.RWMutex                `json:"-"`
-
-	// TEST: for broadcasting
+	// The broadcast channel is used to send messages to all clients in the game.
+	// When a message is sent to the broadcast channel, it will be received by all clients
+	// in the game and can be used to update their game state accordingly.
 	broadcast  chan WebsocketMessage `json:"-"`
 	register   chan *WebsocketClient `json:"-"`
 	unregister chan *WebsocketClient `json:"-"`
@@ -33,22 +34,20 @@ type GameRegistry struct {
 
 // Have a player join the game. This function adds the player to the game's client list and
 // initializes any necessary game state for the new player.
-func (registry *GameRegistry) JoinTable(client *WebsocketClient) {
-	registry.mu.Lock()
-	defer registry.mu.Unlock()
+func (r *GameRegistry) JoinTable(client *WebsocketClient) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
 
-	if registry.Clients == nil {
-		registry.Clients = make(map[string]*WebsocketClient)
+	if r.Clients == nil {
+		r.Clients = make(map[string]*WebsocketClient)
 	}
 
-	registry.Clients[client.Uuid] = client
-	registry.register <- client
+	r.Clients[client.Uuid] = client
+	r.register <- client
 }
 
-// Run starts the main loop for the game registry, which
-// listens for incoming messages and client
-// registration/unregistration events.
-// TEST: for broadcasting
+// Starts the main loop for the game room, which listens
+// for client registration, unregistration, and broadcast messages.
 func (r *GameRegistry) StartRoom() {
 	for {
 		select {
@@ -62,6 +61,7 @@ func (r *GameRegistry) StartRoom() {
 		case msg := <-r.broadcast:
 			for _, client := range r.Clients {
 				err := client.SendJsonMessage(msg)
+
 				if err != nil {
 					delete(r.Clients, client.Uuid)
 				}
@@ -77,6 +77,12 @@ func (r *GameRegistry) StartGame(gameUuid string) {
 	}
 }
 
+func (r *GameRegistry) EndGame(gameUuid string) {
+	r.broadcast <- WebsocketMessage{
+		Action: "end_game",
+	}
+}
+
 // The ServerRegistry is responsible for managing the state of the server,
 // including the Redis client and any other global resources that need to be
 // shared across games. It provides a centralized place to access these resources
@@ -87,7 +93,7 @@ type ServerRegistry struct {
 	// This allows the server to manage multiple games simultaneously and route player
 	// actions to the correct game state.
 	Tables map[string]*GameRegistry `json:"tables"`
-	// A mapping all connected clients to their corresponding websocket connections.
+	// A mapping of all connected clients to their corresponding websocket connections.
 	// This can be used to send messages to specific clients or broadcast messages to all clients.
 	clients map[string]*WebsocketClient
 	// The Redis client used to store game states and other shared data. This allows the
@@ -118,6 +124,7 @@ func (s *ServerRegistry) GetClient(clientUuid string) (conn *WebsocketClient, ex
 
 // Create a new game and add it to the registry. The playerUuid is used to identify the player who initiated the game.
 // The function returns the newly created game registry and a boolean indicating whether the game was successfully created.
+// The broadcast channel of the game registry is used to send messages to all players in the game.
 func (s *ServerRegistry) CreateGame(client *WebsocketClient) (*GameRegistry, bool) {
 	client, exists := s.GetClient(client.Uuid)
 
@@ -131,10 +138,10 @@ func (s *ServerRegistry) CreateGame(client *WebsocketClient) (*GameRegistry, boo
 	s.Tables[newGame.Uuid] = newGame
 	s.mu.Unlock()
 
-	// Start the game room in a new goroutine 
+	// Start the game room in a new goroutine
 	// to handle client registration and broadcasting
 	go newGame.StartRoom()
-	
+
 	client.Initiator = true
 	newGame.JoinTable(client)
 

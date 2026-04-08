@@ -31,7 +31,10 @@ func GameLogic(message WebsocketMessage, client *WebsocketClient, serverRegistry
 			// Handle the error case where the game could not be created (e.g., invalid player UUID)
 		}
 		gameRegistry.JoinTable(client)
-		gameRegistry.broadcast <- WebsocketMessage{Action: "create_game", Message: "Game created successfully"}
+		gameRegistry.broadcast <- WebsocketMessage{
+			Action:  "create_game",
+			Message: "Game created successfully",
+		}
 	case "start_game":
 		// 1. Join the player to the game table using the provided table UUID
 		// 1. Create all the redis dependencies for the game
