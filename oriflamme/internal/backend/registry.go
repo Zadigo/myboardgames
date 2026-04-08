@@ -24,6 +24,11 @@ type GameRegistry struct {
 	IsStarted bool                        `json:"is_started"`
 	StartedAt time.Time                   `json:"started_at"`
 	mu        sync.Mutex                  `json:"-"`
+
+	// TEST: for broadcasting
+	broadcast  chan WebsocketMessage `json:"-"`
+	register   chan *WebsocketClient `json:"-"`
+	unregister chan *WebsocketClient `json:"-"`
 }
 
 // Have a player join the game. This function adds the player to the game's client list and
@@ -37,6 +42,28 @@ func (registry *GameRegistry) JoinTable(client *WebsocketClient) {
 	}
 
 	registry.Clients[client.Uuid] = client
+}
+
+// TEST: for broadcasting
+func (r *GameRegistry) StartRoom() {
+	for {
+		select {
+
+		case client := <-r.register:
+			r.Clients[client.Uuid] = client
+
+		case client := <-r.unregister:
+			delete(r.Clients, client.Uuid)
+
+		case msg := <-r.broadcast:
+			for _, client := range r.Clients {
+				err := client.SendJsonMessage(msg)
+				if err != nil {
+					delete(r.Clients, client.Uuid)
+				}
+			}
+		}
+	}
 }
 
 // The ServerRegistry is responsible for managing the state of the server,

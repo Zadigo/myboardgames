@@ -1,6 +1,8 @@
 package backend
 
 import (
+	"sync"
+
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
@@ -28,6 +30,10 @@ type WebsocketClient struct {
 	Username  string          `json:"username"`
 	Initiator bool            `json:"initiator"`
 	conn      *websocket.Conn `json:"-"`
+
+	// TEST: for broadcasting
+	send chan WebsocketMessage
+	mu   sync.Mutex
 }
 
 func (client *WebsocketClient) SendJsonMessage(message WebsocketMessage) error {
@@ -40,10 +46,24 @@ func (client *WebsocketClient) ReceiveJsonMessage() (WebsocketMessage, error) {
 	return message, err
 }
 
+func (c *WebsocketClient) Broadcast() {
+	for msg := range c.send {
+		c.mu.Lock()
+		err := c.conn.WriteJSON(msg)
+		c.mu.Unlock()
+
+		if err != nil {
+			return
+		}
+	}
+}
+
 func NewWebsocketClient(conn *websocket.Conn) *WebsocketClient {
 	return &WebsocketClient{
 		Uuid:     uuid.NewString(),
 		Username: "",
 		conn:     conn,
+		// TEST: for broadcasting
+		send:     make(chan WebsocketMessage),
 	}
 }
