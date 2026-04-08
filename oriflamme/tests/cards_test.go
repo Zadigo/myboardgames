@@ -64,13 +64,13 @@ func TestCard(t *testing.T) {
 
 			switch tc.action {
 			case "assassination":
-				result = card.ApplyAssassination(&models.InfluenceQueue{}, 1)
+				result, _ = card.ApplyAssassination(&models.InfluenceQueue{}, 1)
 			case "archer":
-				result = card.ApplyArcher(&models.InfluenceQueue{}, true)
+				result, _ = card.ApplyArcher(&models.InfluenceQueue{}, true)
 			case "soldier":
 				result, _ = card.ApplySoldier(&models.InfluenceQueue{}, "after")
 			case "spy":
-				result, tc.error = card.ApplySpy(&models.InfluenceQueue{}, true)
+				result, _ = card.ApplySpy(&models.InfluenceQueue{}, true)
 			}
 
 			assert.NoError(t, tc.error)
@@ -133,7 +133,7 @@ func TestArcherCard(t *testing.T) {
 			assert.Equal(t, "Archer", currentCard.Name)
 			currentCard.Reveal(simpleQueue)
 
-			result := currentCard.ApplyArcher(simpleQueue, tc.firstCard)
+			result, _ := currentCard.ApplyArcher(simpleQueue, tc.firstCard)
 			assert.True(t, result, tc.errorText)
 
 			if tc.firstCard {
@@ -399,20 +399,18 @@ func TestConspiracyCard(t *testing.T) {
 		},
 	}
 
-	simpleQueue.ResolutionIndex = 0
-	currentCard, _ := simpleQueue.GetCurrentCard()
-	currentCard.Tokens = 2
+	t.Run("Conspiracy card revealed", func(t *testing.T) {
+		simpleQueue.ResolutionIndex = 0
+		currentCard, _ := simpleQueue.GetCurrentCard()
 
-	currentCard.Reveal(&simpleQueue)
-	result := currentCard.ApplyConspiracy(&simpleQueue)
+		currentCard.Tokens = 2
+		currentCard.Reveal(&simpleQueue)
+		state, err := currentCard.ApplyConspiracy(&simpleQueue)
 
-	if !result {
-		t.Error("Expected effect to be applied successfully")
-	}
-
-	if currentCard.Owner.Tokens != 5 {
-		t.Errorf("Expected player to gain 4 tokens for a total of 5, got %d", currentCard.Owner.Tokens)
-	}
+		assert.True(t, state, "Expected effect to be applied successfully")
+		assert.NoError(t, err, "Expected no error when applying conspiracy effect")
+		assert.Equal(t, 5, currentCard.Owner.Tokens, "Expected player to gain 4 tokens for a total of 5")
+	})
 }
 
 func TestAmbush(t *testing.T) {

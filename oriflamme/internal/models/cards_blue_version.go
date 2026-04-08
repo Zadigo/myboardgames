@@ -173,13 +173,13 @@ func (card *Card) preActionCheck(queue *InfluenceQueue, checkName string) (bool,
 }
 
 // Eliminate a card anywhere in the queue
-func (card *Card) ApplyAssassination(queue *InfluenceQueue, index int) bool {
+func (card *Card) ApplyAssassination(queue *InfluenceQueue, index int) (state bool, err error) {
 	if ok, _ := card.preActionCheck(queue, "Assassination"); !ok {
-		return false
+		return false, errors.New("Pre-action check failed")
 	}
 
 	if index < 0 || index >= queue.NumberOfCards() {
-		return false
+		return false, errors.New("Invalid index for assassination")
 	}
 
 	// Eliminate the card at the specified index
@@ -187,17 +187,17 @@ func (card *Card) ApplyAssassination(queue *InfluenceQueue, index int) bool {
 
 	if wasCard.Name == "Ambush" {
 		card.ApplyAmbushAttacked(queue, card)
-		return true
+		return true, nil
 	}
 
 	card.Owner.IncreaseTokens(1)
-	return true
+	return true, nil
 }
 
 // Elimate the first or last card in the queue
-func (card *Card) ApplyArcher(queue *InfluenceQueue, firstCard bool) bool {
+func (card *Card) ApplyArcher(queue *InfluenceQueue, firstCard bool) (state bool, err error) {
 	if ok, _ := card.preActionCheck(queue, "Archer"); !ok {
-		return false
+		return false, errors.New("Pre-action check failed")
 	}
 
 	wasCard := &Card{}
@@ -214,7 +214,7 @@ func (card *Card) ApplyArcher(queue *InfluenceQueue, firstCard bool) bool {
 		card.ApplyAmbushAttacked(queue, card)
 	}
 
-	return true
+	return true, nil
 }
 
 // Eliminates a card adjacent to the soldier in the queue.
@@ -277,7 +277,7 @@ func (card *Card) ApplySoldier(queue *InfluenceQueue, direction string) (bool, e
 
 // Steal a token from the player's card immediately before or
 // after the spy in the queue and add it to the spy.
-func (card *Card) ApplySpy(queue *InfluenceQueue, cardBefore bool) (bool, error) {
+func (card *Card) ApplySpy(queue *InfluenceQueue, cardBefore bool) (state bool, err error) {
 	if ok, err := card.preActionCheck(queue, "Spy"); !ok {
 		return false, errors.Join(err, errors.New("Pre-action check failed"))
 	}
@@ -355,31 +355,27 @@ func (card *Card) ApplyRoyalDecree(queue *InfluenceQueue, otherCard ...*Card) bo
 
 // If the card has tokens on it, when the card is revealed, the
 // player wins double the number of tokens on the card.
-func (card *Card) ApplyConspiracy(queue *InfluenceQueue) bool {
-	if ok, _ := card.preActionCheck(queue, "Conspiracy"); !ok {
-		return false
-	}
-
-	if card.Tokens == 0 {
-		return false
+func (card *Card) ApplyConspiracy(queue *InfluenceQueue) (state bool, err error) {
+	if ok, err := card.preActionCheck(queue, "Conspiracy"); !ok {
+		return false, errors.Join(err, errors.New("Pre-action check failed"))
 	}
 
 	card.Owner.IncreaseTokens(card.Tokens * 2)
 	card.Discard()
-	return true
+	return true, nil
 }
 
 // The shapeshifter can copy the effect of any adjacent character card in the queue
 // when it is revealed.
-func (card *Card) ApplyShapeshifter(queue *InfluenceQueue, otherIndex int) bool {
+func (card *Card) ApplyShapeshifter(queue *InfluenceQueue, direction string) (state bool, err error) {
 	if ok, _ := card.preActionCheck(queue, "Shapeshifter"); !ok {
-		return false
+		return false, errors.New("Pre-action check failed")
 	}
 
 	// The shapeshifter is the only card in the queue,
 	// so there are no adjacent cards to copy.
 	if queue.NumberOfCards() == 1 {
-		return false
+		return false, errors.New("No adjacent cards to copy")
 	}
 
 	var cardToCopy *Card
@@ -395,38 +391,53 @@ func (card *Card) ApplyShapeshifter(queue *InfluenceQueue, otherIndex int) bool 
 	// so only the card immediately before it
 	// can be copied.
 	if queue.ResolutionIndex == queue.NumberOfCards()-1 {
-		cardToCopy = queue.Queue[queue.ResolutionIndex-1]
+		cardToCopy = queue.Queue[queue.NumberOfCards()-2]
 	}
 
 	// The shapeshifter is in the middle of the queue,
 	// so the player can choose to copy either
 	// the card immediately before or immediately after it.
 	if queue.ResolutionIndex > 0 && queue.ResolutionIndex < queue.NumberOfCards()-1 {
-		cardToCopy = queue.Queue[otherIndex]
+		switch direction {
+		case "before":
+			cardToCopy = queue.Queue[queue.ResolutionIndex-1]
+		case "after":
+			cardToCopy = queue.Queue[queue.ResolutionIndex+1]
+		default:
+			return false, errors.New("Invalid direction. Must be 'before' or 'after'")
+		}
 	}
 
 	if cardToCopy.IsCharacter() && cardToCopy.IsRevealed {
 		switch cardToCopy.Name {
 		case "Archer":
+			// TODO:
 			return cardToCopy.ApplyArcher(queue, true)
 		case "Spy":
-			ok, _ := cardToCopy.ApplySpy(queue, true)
-			return ok
+			return cardToCopy.ApplySpy(queue, true)
 		case "Shapeshifter":
 			// Copying another shapeshifter brings no
 			// additional effect.
-			return false
+			return false, errors.New("Cannot copy another shapeshifter")
+		case "Soldier":
+			return cardToCopy.ApplySoldier(queue, "before")
+		case "Heir":
+			return cardToCopy.ApplyHeir(queue)
+		case "Lord":
+			return cardToCopy.ApplyLord(queue)
+		default:
+			return false, errors.New("Invalid card to copy")
 		}
 	}
 
-	return false
+	return false, nil
 }
 
-// Gain one token and one token for each card that is adjacent
-// to the lord in the queue (revelaled or not).
-func (card *Card) ApplyLord(queue *InfluenceQueue) bool {
+// Gain one token and one token for each card of the player's family
+// that are adjacent to the lord in the queue (revelaled or not).
+func (card *Card) ApplyLord(queue *InfluenceQueue) (state bool, err error) {
 	if ok, _ := card.preActionCheck(queue, "Lord"); !ok {
-		return false
+		return false, errors.New("Pre-action check failed")
 	}
 
 	card.Owner.IncreaseTokens(1)
@@ -460,13 +471,13 @@ func (card *Card) ApplyLord(queue *InfluenceQueue) bool {
 		}
 	}
 
-	return false
+	return false, nil
 }
 
 // If there is exactly one heir in the queue, the player wins 2 tokens.
-func (card *Card) ApplyHeir(queue *InfluenceQueue) bool {
+func (card *Card) ApplyHeir(queue *InfluenceQueue) (state bool, err error) {
 	if ok, _ := card.preActionCheck(queue, "Heir"); !ok {
-		return false
+		return false, errors.New("Pre-action check failed")
 	}
 
 	heirs := 0
@@ -479,10 +490,10 @@ func (card *Card) ApplyHeir(queue *InfluenceQueue) bool {
 
 	if heirs == 1 {
 		card.Owner.IncreaseTokens(2)
-		return true
+		return true, nil
 	}
 
-	return false
+	return false, nil
 }
 
 // When the Ambush card is revealed during the resolution phase, the owner of the

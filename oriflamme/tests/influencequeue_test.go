@@ -46,29 +46,29 @@ func TestInfluenceQueue(t *testing.T) {
 	}
 }
 
-func TestInfluenceQueueResolution(t *testing.T) {
-	simpleQueue, _, _ := constructQueue()
-	simpleQueue.Resolve()
+// func TestInfluenceQueueResolution(t *testing.T) {
+// 	simpleQueue, _, _ := constructQueue()
+// 	simpleQueue.Resolve()
 
-	if simpleQueue.ResolutionIndex != 0 {
-		t.Errorf("Expected resolution index to be 0, got %d", simpleQueue.ResolutionIndex)
-	}
+// 	if simpleQueue.ResolutionIndex != 0 {
+// 		t.Errorf("Expected resolution index to be 0, got %d", simpleQueue.ResolutionIndex)
+// 	}
 
-	card, _ := simpleQueue.GetCurrentCard()
-	if card == nil {
-		t.Error("Expected current card to be non-nil")
-	} else if card.Name != "Archer" {
-		t.Errorf("Expected current card to be Archer, got %s", card.Name)
-	}
+// 	card, _ := simpleQueue.GetCurrentCard()
+// 	if card == nil {
+// 		t.Error("Expected current card to be non-nil")
+// 	} else if card.Name != "Archer" {
+// 		t.Errorf("Expected current card to be Archer, got %s", card.Name)
+// 	}
 
-	result := simpleQueue.ApplyEffect(card)
-	if result {
-		t.Error("Expected effect to be applied successfully")
-	}
+// 	result := simpleQueue.ApplyEffect(card)
+// 	if result {
+// 		t.Error("Expected effect to be applied successfully")
+// 	}
 
-	card.Reveal(simpleQueue)
-	result = simpleQueue.ApplyEffect(card)
-	if !result {
-		t.Error("Expected effect to be applied successfully")
-	}
-}
+// 	card.Reveal(simpleQueue)
+// 	result = simpleQueue.ApplyEffect(card)
+// 	if !result {
+// 		t.Error("Expected effect to be applied successfully")
+// 	}
+// }

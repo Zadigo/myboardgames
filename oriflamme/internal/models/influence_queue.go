@@ -81,13 +81,19 @@ func (queue *InfluenceQueue) GetCurrentCard() (*Card, error) {
 // after calling Resolve() to apply the effect of the current card. It returns true if
 // the effect was successfully applied, and false otherwise.
 // Deprecated: use the card effect directly
-func (queue *InfluenceQueue) ApplyEffect(card *Card) bool {
-	if card.IsRevealed {
-		if card.Name == "Archer" {
-			return card.ApplyArcher(queue, false)
-		}
+func (queue *InfluenceQueue) ApplyEffect(card *Card) (state bool, err error) {
+	switch card.Name {
+	case "Assassination":
+		return card.ApplyAssassination(queue, 1)
+	case "Archer":
+		return card.ApplyArcher(queue, true)
+	case "Soldier":
+		return card.ApplySoldier(queue, "after")
+	case "Spy":
+		return card.ApplySpy(queue, true)
+	default:
+		return false, errors.New("Card effect could not be applied")
 	}
-	return false
 }
 
 // Helper function to find the index of a card in
