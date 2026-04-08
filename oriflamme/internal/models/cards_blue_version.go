@@ -1,6 +1,8 @@
 package models
 
 import (
+	"errors"
+
 	"github.com/google/uuid"
 )
 
@@ -54,9 +56,11 @@ func createBaseCards() []Card {
 
 func createColorCards(owner *Player, color string) []Card {
 	cards := createBaseCards()
+
 	for i := range cards {
 		cards[i].Color = color
 		cards[i].Owner = owner
+		cards[i].Tokens = 0
 	}
 	return cards
 }
@@ -128,27 +132,31 @@ func (card *Card) RemoveToken(k int) {
 
 // Check if two cards are owned by the same player. This can be used to determine
 // if a card's special ability can be applied to another card in the queue.
-func (card *Card) IsSameOwnerAs(b *Card) bool {
-	return card.Owner.Username == b.Owner.Username
+func (card *Card) IsSameOwnerAs(b *Card) (bool, error) {
+	if b.Owner == nil || card.Owner == nil {
+		return false, errors.New("One of the cards does not have an owner")
+	} else {
+		return card.Owner.Username == b.Owner.Username, nil
+	}
 }
 
 // Check if the card's name matches the specified name and if it is revealed and
 // also if the queue has cards to resolve. This is a common check for the card's special abilities.
-func (card *Card) preActionCheck(queue *InfluenceQueue, checkName string) bool {
+func (card *Card) preActionCheck(queue *InfluenceQueue, checkName string) (bool, error) {
 	if card.Name != checkName || !card.IsRevealed {
-		return false
+		return false, errors.New("Card is not revealed or does not have the correct name")
 	}
 
 	if queue.NumberOfCards() == 0 {
-		return false
+		return false, errors.New("Queue has no cards to resolve")
 	}
 
-	return true
+	return true, nil
 }
 
 // Eliminate a card anywhere in the queue
 func (card *Card) ApplyAssassination(queue *InfluenceQueue, index int) bool {
-	if !card.preActionCheck(queue, "Assassination") {
+	if ok, _ := card.preActionCheck(queue, "Assassination"); !ok {
 		return false
 	}
 
@@ -170,7 +178,7 @@ func (card *Card) ApplyAssassination(queue *InfluenceQueue, index int) bool {
 
 // Elimate the first or last card in the queue
 func (card *Card) ApplyArcher(queue *InfluenceQueue, firstCard bool) bool {
-	if !card.preActionCheck(queue, "Archer") {
+	if ok, _ := card.preActionCheck(queue, "Archer"); !ok {
 		return false
 	}
 
@@ -195,7 +203,7 @@ func (card *Card) ApplyArcher(queue *InfluenceQueue, firstCard bool) bool {
 // The player can choose to eliminate either the card immediately before
 // or immediately after the soldier.
 func (card *Card) ApplySoldier(queue *InfluenceQueue, direction string) bool {
-	if !card.preActionCheck(queue, "Soldier") {
+	if ok, _ := card.preActionCheck(queue, "Soldier"); !ok {
 		return false
 	}
 
@@ -251,15 +259,15 @@ func (card *Card) ApplySoldier(queue *InfluenceQueue, direction string) bool {
 
 // Steal a token from the player's card immediately before or
 // after the spy in the queue and add it to the spy.
-func (card *Card) ApplySpy(queue *InfluenceQueue, cardBefore bool) bool {
-	if !card.preActionCheck(queue, "Spy") {
-		return false
+func (card *Card) ApplySpy(queue *InfluenceQueue, cardBefore bool) (bool, error) {
+	if ok, err := card.preActionCheck(queue, "Spy"); !ok {
+		return false, err
 	}
 
 	// The spy is the only card in the queue,
 	// so there are no adjacent cards to steal tokens from.
 	if queue.NumberOfCards() == 1 {
-		return false
+		return false, errors.New("No adjacent cards to steal tokens from")
 	}
 
 	// The spy is at the front of the queue,
@@ -271,25 +279,25 @@ func (card *Card) ApplySpy(queue *InfluenceQueue, cardBefore bool) bool {
 		nextCard := queue.Queue[1]
 		// If the next card is owned by the same player as the spy,
 		// the spy cannot steal from his own self.
-		if card.IsSameOwnerAs(nextCard) {
-			return false
+		if sameOwner, err := card.IsSameOwnerAs(nextCard); sameOwner || err != nil {
+			return false, errors.Join(err, errors.New("Cannot steal from your own card"))
 		}
 		nextCard.Owner.DecreaseTokens(1)
-		return true
+		return true, nil
 	}
 
 	// The spy is at the end of the queue,
 	// so only the card immediately before it
 	// can be stolen from.
 	if queue.ResolutionIndex == queue.NumberOfCards()-1 {
-		card.Owner.IncreaseTokens(1)
 		prevCard := queue.Queue[queue.ResolutionIndex-1]
-
-		if card.IsSameOwnerAs(prevCard) {
-			return false
+		if sameOwner, err := card.IsSameOwnerAs(prevCard); sameOwner || err != nil {
+			return false, errors.New("Cannot steal from your own card")
 		}
+		
+		card.Owner.IncreaseTokens(1)
 		prevCard.Owner.DecreaseTokens(1)
-		return true
+		return true, nil
 	}
 
 	// The spy is in the middle of the queue,
@@ -298,8 +306,8 @@ func (card *Card) ApplySpy(queue *InfluenceQueue, cardBefore bool) bool {
 	if cardBefore {
 		prevCard := queue.Queue[queue.ResolutionIndex-1]
 
-		if card.IsSameOwnerAs(prevCard) {
-			return false
+		if sameOwner, err := card.IsSameOwnerAs(prevCard); sameOwner || err != nil {
+			return false, errors.New("Cannot steal from your own card")
 		}
 
 		card.Owner.IncreaseTokens(1)
@@ -307,19 +315,19 @@ func (card *Card) ApplySpy(queue *InfluenceQueue, cardBefore bool) bool {
 	} else {
 		nextCard := queue.Queue[queue.ResolutionIndex+1]
 
-		if card.IsSameOwnerAs(nextCard) {
-			return false
+		if sameOwner, err := card.IsSameOwnerAs(nextCard); sameOwner || err != nil {
+			return false, errors.New("Cannot steal from your own card")
 		}
 
 		card.Owner.IncreaseTokens(1)
 		nextCard.Owner.DecreaseTokens(1)
 	}
-	return true
+	return true, nil
 }
 
 // Move a card from its current position in the queue to another position.
 func (card *Card) ApplyRoyalDecree(queue *InfluenceQueue, otherCard ...*Card) bool {
-	if !card.preActionCheck(queue, "Royal Decree") {
+	if ok, _ := card.preActionCheck(queue, "Royal Decree"); !ok {
 		return false
 	}
 
@@ -330,7 +338,7 @@ func (card *Card) ApplyRoyalDecree(queue *InfluenceQueue, otherCard ...*Card) bo
 // If the card has tokens on it, when the card is revealed, the
 // player wins double the number of tokens on the card.
 func (card *Card) ApplyConspiracy(queue *InfluenceQueue) bool {
-	if !card.preActionCheck(queue, "Conspiracy") {
+	if ok, _ := card.preActionCheck(queue, "Conspiracy"); !ok {
 		return false
 	}
 
@@ -346,7 +354,7 @@ func (card *Card) ApplyConspiracy(queue *InfluenceQueue) bool {
 // The shapeshifter can copy the effect of any adjacent character card in the queue
 // when it is revealed.
 func (card *Card) ApplyShapeshifter(queue *InfluenceQueue, otherIndex int) bool {
-	if !card.preActionCheck(queue, "Shapeshifter") {
+	if ok, _ := card.preActionCheck(queue, "Shapeshifter"); !ok {
 		return false
 	}
 
@@ -384,7 +392,8 @@ func (card *Card) ApplyShapeshifter(queue *InfluenceQueue, otherIndex int) bool 
 		case "Archer":
 			return cardToCopy.ApplyArcher(queue, true)
 		case "Spy":
-			return cardToCopy.ApplySpy(queue, true)
+			ok, _ := cardToCopy.ApplySpy(queue, true)
+			return ok
 		case "Shapeshifter":
 			// Copying another shapeshifter brings no
 			// additional effect.
@@ -398,7 +407,7 @@ func (card *Card) ApplyShapeshifter(queue *InfluenceQueue, otherIndex int) bool 
 // Gain one token and one token for each card that is adjacent
 // to the lord in the queue (revelaled or not).
 func (card *Card) ApplyLord(queue *InfluenceQueue) bool {
-	if !card.preActionCheck(queue, "Lord") {
+	if ok, _ := card.preActionCheck(queue, "Lord"); !ok {
 		return false
 	}
 
@@ -438,7 +447,7 @@ func (card *Card) ApplyLord(queue *InfluenceQueue) bool {
 
 // If there is exactly one heir in the queue, the player wins 2 tokens.
 func (card *Card) ApplyHeir(queue *InfluenceQueue) bool {
-	if !card.preActionCheck(queue, "Heir") {
+	if ok, _ := card.preActionCheck(queue, "Heir"); !ok {
 		return false
 	}
 
@@ -459,7 +468,7 @@ func (card *Card) ApplyHeir(queue *InfluenceQueue) bool {
 }
 
 func (card *Card) ApplyAmbushReveal(queue *InfluenceQueue) bool {
-	if !card.preActionCheck(queue, "Ambush") {
+	if ok, _ := card.preActionCheck(queue, "Ambush"); !ok {
 		return false
 	}
 	card.Owner.IncreaseTokens(1)
@@ -468,7 +477,7 @@ func (card *Card) ApplyAmbushReveal(queue *InfluenceQueue) bool {
 }
 
 func (card *Card) ApplyAmbushAttackedl(queue *InfluenceQueue, attackingCard *Card) bool {
-	if !card.preActionCheck(queue, "Ambush") {
+	if ok, _ := card.preActionCheck(queue, "Ambush"); !ok {
 		return false
 	}
 

@@ -48,13 +48,14 @@ func TestCard(t *testing.T) {
 	type testCase struct {
 		action   string
 		expected bool
+		error    error
 	}
 
 	testCases := []testCase{
-		{"assassination", false},
-		{"archer", false},
-		{"soldier", false},
-		{"spy", false},
+		{"assassination", false, nil},
+		{"archer", false, nil},
+		{"soldier", false, nil},
+		{"spy", false, nil},
 	}
 
 	for _, tc := range testCases {
@@ -69,9 +70,10 @@ func TestCard(t *testing.T) {
 			case "soldier":
 				result = card.ApplySoldier(&models.InfluenceQueue{}, "after")
 			case "spy":
-				result = card.ApplySpy(&models.InfluenceQueue{}, true)
+				result, tc.error = card.ApplySpy(&models.InfluenceQueue{}, true)
 			}
 
+			assert.NoError(t, tc.error)
 			assert.Equal(t, tc.expected, result, "Expected %s to return %v", tc.action, tc.expected)
 		})
 	}
@@ -253,32 +255,135 @@ func TestSoldierCard(t *testing.T) {
 }
 
 func TestSpyCard(t *testing.T) {
-	_, blueCards := cardConstructor()
+	alice := &models.Player{Username: "Alice", Tokens: 1}
+	martin := &models.Player{Username: "Martin", Tokens: 1}
+	pauline := &models.Player{Username: "Pauline", Tokens: 1}
 
-	simpleQueue := models.InfluenceQueue{
-		ResolutionIndex: -1,
-		Queue: []*models.Card{
-			{Uuid: "1", Name: "Test Card", Tokens: 1, Owner: &models.Player{Username: "Pierre"}},
-			&blueCards[2], // Spy
-			{Uuid: "1", Name: "Test Card", Tokens: 1, Owner: &models.Player{Username: "Pauline"}},
+	blueCards := models.CreateBlueCards(alice)
+
+	simpleQueue := models.CreateInfluenceQueue()
+
+	type testCase struct {
+		name                   string
+		resolutionIndex        int
+		expectedResult         bool
+		expectedOwnerTokens    int
+		expectedAdjacentTokens int
+		errorText              string
+		cardBefore             bool
+		queue                  []*models.Card
+	}
+
+	testCases := []testCase{
+		{
+			name:                   "Spy in first position",
+			resolutionIndex:        0,
+			cardBefore:             false,
+			expectedResult:         true,
+			expectedOwnerTokens:    2,
+			expectedAdjacentTokens: 0,
+			errorText:              "Expected the owner of the next adjacent card to lose 1 token when the spy is in the first position",
+			queue: []*models.Card{
+				&blueCards[2],
+				{Uuid: "1", Name: "Test Card 1", Owner: martin},
+				{Uuid: "2", Name: "Test Card 2", Owner: pauline},
+			},
+		},
+		{
+			name:                   "Spy in middle position",
+			resolutionIndex:        1,
+			cardBefore:             true,
+			expectedResult:         true,
+			expectedOwnerTokens:    2,
+			expectedAdjacentTokens: 0,
+			errorText:              "Expected the owner of the next adjacent card to lose 1 token when the spy is in the middle position",
+			queue: []*models.Card{
+				{Uuid: "1", Name: "Test Card 1", Owner: martin},
+				&blueCards[2],
+				{Uuid: "2", Name: "Test Card 2", Owner: pauline},
+			},
+		},
+		{
+			name:                   "Spy in last position",
+			resolutionIndex:        2,
+			cardBefore:             true,
+			expectedResult:         true,
+			expectedOwnerTokens:    2,
+			expectedAdjacentTokens: 0,
+			errorText:              "Expected the owner of the next adjacent card to lose 1 token when the spy is in the last position",
+			queue: []*models.Card{
+				{Uuid: "1", Name: "Test Card 1", Owner: martin},
+				{Uuid: "2", Name: "Test Card 2", Owner: pauline},
+				&blueCards[2],
+			},
+		},
+		{
+			name:                   "Spy in last position and no card after",
+			resolutionIndex:        2,
+			cardBefore:             true, // This should have no effect since there is no card after the spy to steal from
+			expectedResult:         true,
+			expectedOwnerTokens:    2,
+			expectedAdjacentTokens: 0,
+			errorText:              "Cannot steal from the next adjacent card when the spy is in the last position and there is no card after it",
+			queue: []*models.Card{
+				{Uuid: "1", Name: "Test Card 1", Owner: martin},
+				{Uuid: "2", Name: "Test Card 2", Owner: pauline},
+				&blueCards[2],
+			},
+		},
+		{
+			name:                   "Spy on my own card",
+			resolutionIndex:        2,
+			cardBefore:             true,
+			expectedResult:         false,
+			expectedOwnerTokens:    1,
+			expectedAdjacentTokens: 1,
+			errorText:              "Expected the same owner of the next adjacent card to not lose 1 token",
+			queue: []*models.Card{
+				{Uuid: "1", Name: "Test Card 1", Owner: martin},
+				{Uuid: "2", Name: "Test Card 2", Owner: alice},
+				&blueCards[2],
+			},
 		},
 	}
 
-	simpleQueue.ResolutionIndex = 1
-	currentCard := simpleQueue.GetCurrentCard()
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			simpleQueue.Queue = tc.queue
+			simpleQueue.ResolutionIndex = tc.resolutionIndex
 
-	currentCard.Reveal()
+			currentCard := simpleQueue.GetCurrentCard()
+			assert.Equal(t, "Spy", currentCard.Name)
+			currentCard.Reveal()
 
-	result := currentCard.ApplySpy(&simpleQueue, true)
+			result, err := currentCard.ApplySpy(simpleQueue, tc.cardBefore)
+			if tc.expectedResult {
+				assert.True(t, result)
+				assert.NoError(t, err, err)
+			} else {
+				assert.False(t, result)
+				assert.Error(t, err)
+			}
 
-	if !result {
-		t.Error("Expected effect to be applied successfully")
-	}
+			resultingAdjacentTokens := 0
 
-	prevCard := simpleQueue.Queue[0]
+			if tc.cardBefore {
+				resultingAdjacentTokens = simpleQueue.Queue[tc.resolutionIndex-1].Owner.Tokens
+			} else {
+				resultingAdjacentTokens = simpleQueue.Queue[tc.resolutionIndex+1].Owner.Tokens
+			}
 
-	if prevCard.Owner.Tokens != 0 {
-		t.Errorf("Expected previous card to lose 1 token, got %d", prevCard.Tokens)
+			assert.Equal(t, resultingAdjacentTokens, tc.expectedAdjacentTokens, tc.errorText)
+			assert.Equal(t, currentCard.Owner.Tokens, tc.expectedOwnerTokens, "Expected player to gain tokens stealing from the adjacent card")
+
+			t.Cleanup(func() {
+				currentCard.Owner.Tokens = 1
+
+				for _, card := range simpleQueue.Queue {
+					card.IsRemoved = false
+				}
+			})
+		})
 	}
 }
 
