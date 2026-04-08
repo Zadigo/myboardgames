@@ -35,6 +35,10 @@ func LiveGameHandler(w http.ResponseWriter, r *http.Request, serverRegistry *bac
 
 	// Add the new client to the server registry
 	clientUuid, client := serverRegistry.AddClient(conn)
+	client.SendJsonMessage(backend.WebsocketMessage{
+		Action:     "must_identify",
+		PlayerUuid: clientUuid,
+	})
 
 	for {
 		var message backend.WebsocketMessage
@@ -47,6 +51,15 @@ func LiveGameHandler(w http.ResponseWriter, r *http.Request, serverRegistry *bac
 
 		switch message.Action {
 		case "identify":
+			// Update the client's username in the server registry
+			client, exists := serverRegistry.GetClient(message.PlayerUuid)
+
+			if exists {
+				client.Username = message.Username
+			} else {
+				log.Printf("❌ Client with UUID %s not found for identification", message.PlayerUuid)
+				client.SendJsonMessage(backend.WebsocketMessage{Action: "error", Message: "Client was not found"})
+			}
 		case "create_game":
 			gameRegistry, state := serverRegistry.CreateGame(clientUuid)
 			if !state {
@@ -63,6 +76,9 @@ func LiveGameHandler(w http.ResponseWriter, r *http.Request, serverRegistry *bac
 		case "play_card":
 			// Do something to play a card
 			switch message.CardAction {
+			case "place_card":
+				// Do something to place a card on the board
+				// This could involve updating the game state in Redis and sending a message to all players about the new card placement
 			case "reveal":
 				// Do something to reveal a card
 			case "place_token":
@@ -72,6 +88,8 @@ func LiveGameHandler(w http.ResponseWriter, r *http.Request, serverRegistry *bac
 			default:
 				client.SendJsonMessage(backend.WebsocketMessage{})
 			}
+		case "resolve_queue":
+			// Do something to resolve the influence queue
 		case "end_game":
 			// Do something to end the game
 		default:

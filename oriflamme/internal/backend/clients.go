@@ -6,9 +6,13 @@ import (
 )
 
 type WebsocketMessage struct {
-	Action     string `json:"action"`
-	Username   string `json:"username,omitempty"`
-	Message    string `json:"message,omitempty"`
+	Action   string `json:"action"`
+	Username string `json:"username,omitempty"`
+	Message  string `json:"message,omitempty"`
+	// The unique identifier for the player/client sending
+	// the message. This can be used to associate messages with
+	// specific players and manage game state accordingly.
+	PlayerUuid string `json:"player_uuid,omitempty"`
 	CardAction string `json:"card_action,omitempty"`
 	// The unique identifier for the game table that the player is trying to join or create.
 	// This can be used to associate players with specific games and manage game state accordingly.
