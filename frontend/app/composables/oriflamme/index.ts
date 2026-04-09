@@ -14,9 +14,9 @@ export enum OriflammeCardAction {
 
 type ActionOptions = {
   idle_connection: []
-  start_game: [{ gameId: string }]
-  select_cards: [{ playerId: string, cardIds: string[] }]
-  must_identify: [{ playerId: string }]
+  start_game: [{ game_uuid: string }]
+  select_cards: [{ player_uuid: string, cardIds: string[] }]
+  identify: [{ player_uuid: string, username: string }]
 }
 
 type DefaultResponseOptions = {
@@ -26,8 +26,7 @@ type DefaultResponseOptions = {
 }
 
 type ResponseOptions = {
-  must_identify: { playerId: string }
-  another_response: [{ someData: string }]
+  must_identify: { player_uuid: string }
 }
 
 export function encode<T extends keyof ActionOptions>(action: T, ...args: ActionOptions[T]) {
@@ -38,12 +37,23 @@ type DecodeResponse<T> = DefaultResponseOptions & {
   [K in keyof T]: T[K]
 }
 
-export function decode(message: string) {
-  return function<T extends keyof ResponseOptions>(action: T, callback: (data: DecodeResponse<T> | undefined) => void) {
+/**
+ * Return a new decoder function that can be used to decode messages from the websocket.
+ */
+export function newDecoder(message: string) {
+  /**
+   * A decoder function that listens to messages from the websocket that matches the specified
+   * action. The callback function wil be called with the decoded data if the action matches, or undefined if it doesn't match.
+   * @param action - The action we want to decode from the message
+   * @param callback - A callback function that will be called with the decoded data if the action matches, or undefined if it doesn't match
+   */
+  return function<T>(action: keyof T, callback: (data: DecodeResponse<T> | undefined) => void) {
     try {
       const wsData = JSON.parse(message) as DecodeResponse<T>
       if (action === wsData.action) {
         callback(wsData)
+      } else {
+        callback(undefined)
       }
     } catch (error) {
       console.error('Failed to decode message:', error)
@@ -54,7 +64,7 @@ export function decode(message: string) {
 
 export const useOriflammeComposable = createGlobalState(() => {
   const tableId = ref<string>('')
-  const playerId = ref<string>('')
+  const playerUuid = ref<string>('')
 
   const { ws, open, close } = useWebSocket('ws://127.0.0.1:9000/oriflamme/live', {
     immediate: false,
@@ -62,11 +72,11 @@ export const useOriflammeComposable = createGlobalState(() => {
       ws.send(encode('idle_connection'))
     },
     onMessage(_ws, event) {
-      const decoder = decode(event.data)
+      const decoder = newDecoder(event.data)
 
-      decoder('another_response', (data) => {
+      decoder<ResponseOptions>('must_identify', (data) => {
         if (data) {
-          console.log('Received another_response:', data.someData)
+          console.log('Received must_identify:', data)
         }
       })
     }
@@ -76,7 +86,11 @@ export const useOriflammeComposable = createGlobalState(() => {
 
   function createTable() {
     open()
-    ws.value?.send(encode('start_game', { gameId: '1234' }))
+    ws.value?.send(encode('start_game', { game_uuid: playerUuid.value }))
+  }
+
+  function identify(username: string) {
+    ws.value?.send(encode('identify', { player_uuid: playerUuid.value, username }))
   }
 
   function quitTable() {
@@ -87,6 +101,7 @@ export const useOriflammeComposable = createGlobalState(() => {
     ws,
     tableId,
     isOpen,
+    identify,
     createTable,
     quitTable
   }
