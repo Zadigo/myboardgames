@@ -1,3 +1,5 @@
+export * from './actions'
+
 export enum OriflammeCardAction {
   StartGame = 'start_game',
   SelectCards = 'select_cards',
