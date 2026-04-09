@@ -13,6 +13,31 @@ type PlayerChoices struct {
 	CardBefore bool
 	// Whether to apply an effect on the first or last card in the queue.
 	FirstCard bool
+	// The index of the card in the queue on which to apply an effect.
+	// This is used for the Assassination card, which can eliminate any card in the queue.
+	AtIndex int
+	// The choice to apply to the card that the shapeshifter is copying. This is used when
+	// the shapeshifter copies the effect of a soldier, which can eliminate either
+	// the card immediately before or immediately after the soldier.
+	ShapeShifterCardBefore bool
+	// The choice to apply to the card that the shapeshifter is copying. This is used when
+	// the shapeshifter copies the effect of an archer, which can eliminate either
+	// the first or last card in the queue.
+	ShapeShifterFirstCard bool
+	// The index of the card in the queue on which to apply an effect. This is used when
+	// the shapeshifter copies the effect of the assassination card, which can eliminate any card in the queue.
+	ShapeShifterAtIndex int
+	// When the Shapesifter copies the effect of a card, we need to resolve the effect based
+	// on the position of the card being copied in the queue, not the position of the shapeshifter itself.
+	// This field is used to temporarily store the index of the card being copied during the resolution of
+	// the shapeshifter's effect.
+	TemporaryResolutionIndex int
+	// Indicates whether the card is being temporarily controlled by the
+	// Shapeshifter's effect.
+	IsRemote bool
+	// The card that is remotely controlling the effect of
+	// another card (e.g. the shapeshifter copying the effect of another card).
+	RemoteCard *Card
 }
 
 type Card struct {
@@ -161,14 +186,6 @@ func (card *Card) IsSameOwnerAs(b *Card) (bool, error) {
 // Check if the card's name matches the specified name and if it is revealed and
 // also if the queue has cards to resolve. This is a common check for the card's special abilities.
 func (card *Card) preActionCheck(queue *InfluenceQueue, checkName string) (bool, error) {
-	// // The Ambush card must not be revealed to apply its effect when
-	// // it is attacked, so we check for that separately. For this card,
-	// // and some others, the number of cards in the queue is not relevant
-	// // for applying their effect, so we skip that check as well.
-	// if card.Name == "Ambush" && !card.IsRevealed {
-	// 	return true, nil
-	// }
-
 	if card.Name != checkName || !card.IsRevealed {
 		return false, errors.New("Card is not revealed or does not have the correct name")
 	}
@@ -181,17 +198,17 @@ func (card *Card) preActionCheck(queue *InfluenceQueue, checkName string) (bool,
 }
 
 // Eliminate a card anywhere in the queue
-func (card *Card) ApplyAssassination(queue *InfluenceQueue, index int) (state bool, err error) {
+func (card *Card) ApplyAssassination(queue *InfluenceQueue, choice PlayerChoices) (state bool, err error) {
 	if ok, _ := card.preActionCheck(queue, "Assassination"); !ok {
 		return false, errors.New("Pre-action check failed")
 	}
 
-	if index < 0 || index >= queue.NumberOfCards() {
+	if choice.AtIndex < 0 || choice.AtIndex >= queue.NumberOfCards() {
 		return false, errors.New("Invalid index for assassination")
 	}
 
 	// Eliminate the card at the specified index
-	wasCard := queue.RemoveCardAtPosition(index)
+	wasCard := queue.RemoveCardAtPosition(choice.AtIndex)
 
 	if wasCard.Name == "Ambush" {
 		card.ApplyAmbushAttacked(queue, card)
@@ -203,14 +220,14 @@ func (card *Card) ApplyAssassination(queue *InfluenceQueue, index int) (state bo
 }
 
 // Elimate the first or last card in the queue
-func (card *Card) ApplyArcher(queue *InfluenceQueue, firstCard bool) (state bool, err error) {
+func (card *Card) ApplyArcher(queue *InfluenceQueue, choice PlayerChoices) (state bool, err error) {
 	if ok, _ := card.preActionCheck(queue, "Archer"); !ok {
 		return false, errors.New("Pre-action check failed")
 	}
 
 	wasCard := &Card{}
 
-	if firstCard {
+	if choice.FirstCard {
 		wasCard = queue.RemoveCardAtPosition(0)
 	} else {
 		wasCard = queue.RemoveCardAtPosition(queue.NumberOfCards() - 1)
@@ -228,7 +245,7 @@ func (card *Card) ApplyArcher(queue *InfluenceQueue, firstCard bool) (state bool
 // Eliminates a card adjacent to the soldier in the queue.
 // The player can choose to eliminate either the card immediately before
 // or immediately after the soldier.
-func (card *Card) ApplySoldier(queue *InfluenceQueue, cardBefore bool) (bool, error) {
+func (card *Card) ApplySoldier(queue *InfluenceQueue, choice PlayerChoices) (bool, error) {
 	if ok, err := card.preActionCheck(queue, "Soldier"); !ok {
 		return false, errors.Join(err, errors.New("Pre-action check failed"))
 	}
@@ -240,13 +257,27 @@ func (card *Card) ApplySoldier(queue *InfluenceQueue, cardBefore bool) (bool, er
 	}
 
 	var wasCard *Card
-
+	
 	finalize := func() {
-		card.Owner.IncreaseTokens(1)
-
-		if wasCard.Name == "Ambush" {
-			card.ApplyAmbushAttacked(queue, wasCard)
+		if choice.IsRemote {
+			choice.RemoteCard.Owner.IncreaseTokens(1)
+		} else {
+			card.Owner.IncreaseTokens(1)
+	
+			if wasCard.Name == "Ambush" {
+				card.ApplyAmbushAttacked(queue, wasCard)
+			}
 		}
+	}
+
+	if choice.IsRemote {
+		if choice.ShapeShifterCardBefore {
+			wasCard = queue.RemoveCardAtPosition(choice.TemporaryResolutionIndex - 1)
+		} else {
+			wasCard = queue.RemoveCardAtPosition(choice.TemporaryResolutionIndex + 1)
+		}
+		finalize()
+		return true, nil
 	}
 
 	// The soldier is at the front of the queue,
@@ -270,7 +301,7 @@ func (card *Card) ApplySoldier(queue *InfluenceQueue, cardBefore bool) (bool, er
 	// The soldier is in the middle of the queue,
 	// so the player can choose to eliminate either
 	// the card immediately before or immediately after it.
-	if cardBefore {
+	if choice.CardBefore {
 		wasCard = queue.RemoveCardAtPosition(queue.ResolutionIndex - 1)
 	} else {
 		wasCard = queue.RemoveCardAtPosition(queue.ResolutionIndex + 1)
@@ -282,7 +313,7 @@ func (card *Card) ApplySoldier(queue *InfluenceQueue, cardBefore bool) (bool, er
 
 // Steal a token from the player's card immediately before or
 // after the spy in the queue and add it to the spy.
-func (card *Card) ApplySpy(queue *InfluenceQueue, cardBefore bool) (state bool, err error) {
+func (card *Card) ApplySpy(queue *InfluenceQueue, choice PlayerChoices) (state bool, err error) {
 	if ok, err := card.preActionCheck(queue, "Spy"); !ok {
 		return false, errors.Join(err, errors.New("Pre-action check failed"))
 	}
@@ -291,6 +322,24 @@ func (card *Card) ApplySpy(queue *InfluenceQueue, cardBefore bool) (state bool, 
 	// so there are no adjacent cards to steal tokens from.
 	if queue.NumberOfCards() == 1 {
 		return false, errors.New("No adjacent cards to steal tokens from")
+	}
+
+	if choice.IsRemote {
+		var cardToStealFrom *Card
+
+		if choice.ShapeShifterCardBefore {
+			cardToStealFrom = queue.Queue[choice.TemporaryResolutionIndex-1]
+		} else {
+			cardToStealFrom = queue.Queue[choice.TemporaryResolutionIndex+1]
+		}
+
+		if sameOwner, err := card.IsSameOwnerAs(cardToStealFrom); sameOwner || err != nil {
+			return false, errors.Join(err, errors.New("Cannot steal from your own card"))
+		}
+
+		card.Owner.IncreaseTokens(1)
+		cardToStealFrom.Owner.DecreaseTokens(1)
+		return true, nil
 	}
 
 	// The spy is at the front of the queue,
@@ -326,7 +375,7 @@ func (card *Card) ApplySpy(queue *InfluenceQueue, cardBefore bool) (state bool, 
 	// The spy is in the middle of the queue,
 	// so the player can choose to steal from either
 	// the card immediately before or immediately after it.
-	if cardBefore {
+	if choice.CardBefore {
 		prevCard := queue.Queue[queue.ResolutionIndex-1]
 
 		if sameOwner, err := card.IsSameOwnerAs(prevCard); sameOwner || err != nil {
@@ -372,7 +421,7 @@ func (card *Card) ApplyConspiracy(queue *InfluenceQueue) (state bool, err error)
 
 // The shapeshifter can copy the effect of any adjacent character card in the queue
 // when it is revealed.
-func (card *Card) ApplyShapeshifter(queue *InfluenceQueue, cardBefore bool) (state bool, err error) {
+func (card *Card) ApplyShapeshifter(queue *InfluenceQueue, choice PlayerChoices) (state bool, err error) {
 	if ok, _ := card.preActionCheck(queue, "Shapeshifter"); !ok {
 		return false, errors.New("Pre-action check failed")
 	}
@@ -403,7 +452,7 @@ func (card *Card) ApplyShapeshifter(queue *InfluenceQueue, cardBefore bool) (sta
 	// so the player can choose to copy either
 	// the card immediately before or immediately after it.
 	if queue.ResolutionIndex > 0 && queue.ResolutionIndex < queue.NumberOfCards()-1 {
-		if cardBefore {
+		if choice.CardBefore {
 			cardToCopy = queue.Queue[queue.ResolutionIndex-1]
 		} else {
 			cardToCopy = queue.Queue[queue.ResolutionIndex+1]
@@ -411,17 +460,42 @@ func (card *Card) ApplyShapeshifter(queue *InfluenceQueue, cardBefore bool) (sta
 	}
 
 	if cardToCopy.IsCharacter() && cardToCopy.IsRevealed {
+		// Temporarily store the index of the card being copied
+		choice.TemporaryResolutionIndex = -1
+
+		for i, card := range queue.Queue {
+			if card.Uuid == cardToCopy.Uuid {
+				choice.TemporaryResolutionIndex = i
+				break
+			}
+		}
+
 		switch cardToCopy.Name {
 		case "Archer":
-			return cardToCopy.ApplyArcher(queue, true)
+			return cardToCopy.ApplyArcher(queue, PlayerChoices{
+				FirstCard:                choice.ShapeShifterFirstCard,
+				TemporaryResolutionIndex: choice.TemporaryResolutionIndex,
+				IsRemote:                 true,
+				RemoteCard:               card,
+			})
 		case "Spy":
-			return cardToCopy.ApplySpy(queue, true)
+			return cardToCopy.ApplySpy(queue, PlayerChoices{
+				CardBefore:               choice.ShapeShifterCardBefore,
+				TemporaryResolutionIndex: choice.TemporaryResolutionIndex,
+				IsRemote:                 true,
+				RemoteCard:               card,
+			})
 		case "Shapeshifter":
 			// Copying another shapeshifter brings no
 			// additional effect.
 			return false, errors.New("Cannot copy another shapeshifter")
 		case "Soldier":
-			return cardToCopy.ApplySoldier(queue, false)
+			return cardToCopy.ApplySoldier(queue, PlayerChoices{
+				CardBefore:               choice.ShapeShifterCardBefore,
+				TemporaryResolutionIndex: choice.TemporaryResolutionIndex,
+				IsRemote:                 true,
+				RemoteCard:               card,
+			})
 		case "Heir":
 			return cardToCopy.ApplyHeir(queue)
 		case "Lord":

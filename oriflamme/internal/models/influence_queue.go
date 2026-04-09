@@ -84,13 +84,13 @@ func (queue *InfluenceQueue) GetCurrentCard() (*Card, error) {
 func (queue *InfluenceQueue) ApplyEffect(card *Card) (state bool, err error) {
 	switch card.Name {
 	case "Assassination":
-		return card.ApplyAssassination(queue, 1)
+		return card.ApplyAssassination(queue, PlayerChoices{AtIndex: 1})
 	case "Archer":
-		return card.ApplyArcher(queue, true)
+		return card.ApplyArcher(queue, PlayerChoices{FirstCard: true})
 	case "Soldier":
-		return card.ApplySoldier(queue, "after")
+		return card.ApplySoldier(queue, PlayerChoices{CardBefore: true})
 	case "Spy":
-		return card.ApplySpy(queue, true)
+		return card.ApplySpy(queue, PlayerChoices{CardBefore: true})
 	default:
 		return false, errors.New("Card effect could not be applied")
 	}
