@@ -1,6 +1,6 @@
 <template>
-  <div class="rounded-xl bg-primary-100 w-full h-auto p-5">
-    <h1 class="font-bold bg-secondary-800/20 backdrop-blur-3xl shadow-sm p-3 rounded-lg mb-3 w-auto max-w-100">
+  <div class="rounded-xl bg-primary-100 dark:bg-primary-800 w-full h-auto p-5">
+    <h1 class="font-bold bg-secondary-800/20 dark:bg-secondary-900/20 backdrop-blur-3xl shadow-sm p-3 rounded-lg mb-3 w-auto max-w-100">
       {{ title }}
     </h1>
 

@@ -14,7 +14,7 @@
       Close Oriflamme Game
     </nuxt-button>
 
-    <nuxt-button :to="`/games/oriflamme/live?table=${tableUuid}`" :disabled="!tableUuid">
+    <nuxt-button :to="`/games/oriflamme/live?table=${tableUuid}`" :disabled="!tableUuid" @click="startGame">
       Join Oriflamme Game
     </nuxt-button>
   </section>
@@ -23,5 +23,5 @@
 <script lang="ts" setup>
 import { useOriflammeComposable } from '~/composables/oriflamme'
 
-const { createGame, openConnection, quitTable, tableUuid, isOpen, playerUuid } = useOriflammeComposable()
+const { createGame, openConnection, quitTable, startGame, tableUuid, isOpen, playerUuid } = useOriflammeComposable()
 </script>

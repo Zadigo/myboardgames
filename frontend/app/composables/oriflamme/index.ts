@@ -1,3 +1,5 @@
+import type { OriflammeCard } from '~/types'
+
 export * from './actions'
 
 export enum OriflammeCardAction {
@@ -13,21 +15,22 @@ export enum OriflammeCardAction {
   EndGame = 'end_game'
 }
 
-type ActionOptions = {
-  create_game: [{ player_uuid: string }]
-  start_game: [{ game_uuid: string }]
-  select_cards: [{ player_uuid: string, cardIds: string[] }]
-  identify: [{ player_uuid: string, username: string }]
+export type ActionOptions = {
+  create_game: [{ playerUuid: string }]
+  start_game: [{ playerUuid: string, tableUuid: string }]
+  select_cards: [{ playerUuid: string, selectedCards: string[] }]
+  identify: [{ playerUuid: string, username: string }]
 }
 
-type ResponseOptions = {
-  must_identify: { player_uuid: string }
-  create_game: { table_uuid: string }
+export type ResponseOptions = {
+  must_identify: { playerUuid: string }
+  create_game: { tableUuid: string }
 }
 
 export const useOriflammeComposable = createGlobalState(() => {
   const tableUuid = ref<string>('')
   const playerUuid = ref<string>('')
+  const influenceQueue = ref<OriflammeCard[]>([])
 
   const { encode, decode } = useWWebsocketMessages2()
 
@@ -38,14 +41,14 @@ export const useOriflammeComposable = createGlobalState(() => {
     onMessage(_ws, event) {
       decode<ResponseOptions>(event.data)('must_identify', (data) => {
         if (data) {
-          playerUuid.value = data.player_uuid
-          send(encode<ActionOptions>('identify', { player_uuid: playerUuid.value, username: 'pauline' }))
+          playerUuid.value = data.playerUuid
+          send(encode<ActionOptions>('identify', { playerUuid: playerUuid.value, username: 'pauline' }))
         }
       })
 
       decode<ResponseOptions>(event.data)('create_game', (data) => {
         if (data) {
-          tableUuid.value = data.table_uuid
+          tableUuid.value = data.tableUuid
         }
       })
     }
@@ -58,11 +61,11 @@ export const useOriflammeComposable = createGlobalState(() => {
   }
 
   async function createGame() {
-    send(encode<ActionOptions>('create_game', { player_uuid: playerUuid.value }))
+    send(encode<ActionOptions>('create_game', { playerUuid: playerUuid.value }))
   }
 
   function startGame() {
-    send(encode<ActionOptions>('start_game', { game_uuid: playerUuid.value }))
+    send(encode<ActionOptions>('start_game', { playerUuid: playerUuid.value, tableUuid: tableUuid.value }))
   }
 
   function quitTable() {
@@ -74,6 +77,7 @@ export const useOriflammeComposable = createGlobalState(() => {
     playerUuid,
     tableUuid,
     isOpen,
+    influenceQueue,
     openConnection,
     createGame,
     startGame,

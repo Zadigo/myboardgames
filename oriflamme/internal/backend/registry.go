@@ -23,12 +23,12 @@ import (
 type GameRegistry struct {
 	Uuid      string                      `json:"uuid"`
 	Clients   map[string]*WebsocketClient `json:"clients"`
-	IsRunning bool                        `json:"is_running"`
-	IsStarted bool                        `json:"is_started"`
-	StartedAt time.Time                   `json:"started_at"`
+	IsRunning bool                        `json:"isRunning"`
+	IsStarted bool                        `json:"isStarted"`
+	StartedAt time.Time                   `json:"startedAt"`
 	// CardsInPlay represents all the cards that were selected by the players
 	// to be played in the current game
-	CardsInPlay []*Card      `json:"cards_in_play"`
+	CardsInPlay []*Card      `json:"cardsInPlay"`
 	mu          sync.RWMutex `json:"-"`
 	// The broadcast channel is used to send messages to all clients in the game.
 	// When a message is sent to the broadcast channel, it will be received by all clients
@@ -226,6 +226,18 @@ func (s *ServerRegistry) CreateGame(client *WebsocketClient) (*GameRegistry, boo
 	newGame.JoinTable(client)
 
 	return newGame, true
+}
+
+func (s *ServerRegistry) GetGame(tableUuid string) (*GameRegistry, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	game, exists := s.Tables[tableUuid]
+	if !exists {
+		return nil, errors.New("Game/Room not found")
+	}
+
+	return game, nil
 }
 
 func NewServerRegistry(redisClient *redis.Client) *ServerRegistry {

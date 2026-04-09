@@ -11,7 +11,7 @@ import (
 
 type GameHistoryEntry struct {
 	Action     string `json:"action"`
-	PlayerUuid string `json:"player_uuid"`
+	PlayerUuid string `json:"playerUuid"`
 }
 
 type GameHistory struct {

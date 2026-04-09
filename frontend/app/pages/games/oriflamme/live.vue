@@ -2,11 +2,11 @@
   <section id="oriflamme" class="h-screen px-20 space-y-2 mx-auto my-10">
     {{ selectedCards }}
     <oriflamme-base-card-scroll title="Influence queue">
-      <oriflamme-card v-for="card in cards" :key="card.Uuid" :card="card" :in-queue="true" />
+      <oriflamme-card v-for="card in influenceQueue" :key="card.uuid" :card="card" :in-queue="true" />
     </oriflamme-base-card-scroll>
 
     <oriflamme-base-card-scroll title="Your hand">
-      <oriflamme-card v-for="card in cards" :key="card.Uuid" :card="card" />
+      <oriflamme-card v-for="card in cards" :key="card.uuid" :card="card" />
     </oriflamme-base-card-scroll>
   </section>
 </template>
@@ -19,30 +19,12 @@ definePageMeta({
   layout: 'game'
 })
 
-const cards = ref<OriflammeCard[]>([
-  {
-    Uuid: '1',
-    Name: 'Archer',
-    Color: 'red',
-    Image: '/images/oriflamme/card1.png',
-    IsDiscarded: false,
-    IsRemoved: false,
-    IsRevealed: false,
-    IsSelected: false,
-    Owner: {
-      Uuid: 'player 1'
-    },
-    PositionInQueue: 1,
-    Stack: [],
-    Tokens: 1,
-    Type: 'Character'
-  }
-])
+const cards = ref<OriflammeCard[]>(oriflammeCardFixtures)
 
-const { ws } = useOriflammeComposable()
+const { ws, influenceQueue } = useOriflammeComposable()
 const { selectedCards } = useOriflammeActionsComposable(ws)
 
-const theme = ['bg-primary-50']
+const theme = ['bg-primary-50', 'dark:bg-primary-900', 'dark:text-primary-50']
 
 onMounted(() => {
   document.body.classList.add(...theme)

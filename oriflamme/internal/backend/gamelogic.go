@@ -1,6 +1,9 @@
 package backend
 
-import "log"
+import (
+	"log"
+	"slices"
+)
 
 func AuthenticationLogic(message WebsocketMessage, client *WebsocketClient, serverRegistry *ServerRegistry) {
 	switch message.Action {
@@ -57,12 +60,42 @@ func GameLogic(message WebsocketMessage, client *WebsocketClient, serverRegistry
 		// 	log.Println("❌ Failed to publish message to Redis channel:", err)
 		// }
 	case "start_game":
-		// 1. Join the player to the game table using the provided table UUID
-		// 1. Create all the redis dependencies for the game
-		// 2. Send a message to all players that the game has started
-		// client.SendJsonMessage(backend.WebsocketMessage{})
+		gameRegistry, err := serverRegistry.GetGame(message.TableUuid)
+		if err != nil {
+			client.SendJsonMessage(WebsocketMessage{Action: "error", Message: "Game not found"})
+			log.Print("🔴 Game registry does not exist")
+			return
+		}
+
+		// 1. Start the game
+		err = gameRegistry.StartGame(message.TableUuid)
+		if err != nil {
+			client.SendJsonMessage(WebsocketMessage{Action: "error", Message: err.Error()})
+			log.Print("🔴 Could not start non-existent game")
+			return
+		}
+
+		log.Printf("⚡️ Game started: %s", gameRegistry.Uuid)
+
+		// 2. Create all the redis dependencies for the game
+
+		// 3. Send a message to all players that the game has started
 	case "select_cards":
-		// Do something to select cards for the game
+		gameRegistry, err := serverRegistry.GetGame(message.TableUuid)
+		if err != nil {
+			client.SendJsonMessage(WebsocketMessage{Action: "error", Message: "Game not found"})
+			log.Print("🔴 Game registry does not exist")
+			return
+		}
+
+		for _, card := range gameRegistry.CardsInPlay {
+			if slices.Contains(message.SelectedCards, card.Uuid) {
+				card.IsSelected = true
+			} else {
+				card.IsSelected = false
+			}
+		}
+
 	case "play_card":
 		// Do something to play a card
 		switch message.CardAction {

@@ -1,5 +1,5 @@
 <template>
-  <div class="relative top-0 w-auto space-y-2">
+  <div class="absolute top-0 w-auto space-y-2">
     <template v-if="inQueue">
       <oriflamme-actions-button icon="lucide:badge-dollar-sign" @click="placeToken" />
       <oriflamme-actions-button icon="lucide:flip-horizontal-2" @click="reveal" />

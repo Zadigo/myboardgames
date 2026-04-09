@@ -14,14 +14,15 @@ type WebsocketMessage struct {
 	// The unique identifier for the player/client sending
 	// the message. This can be used to associate messages with
 	// specific players and manage game state accordingly.
-	PlayerUuid  string  `json:"player_uuid,omitempty"`
-	CardAction  string  `json:"card_action,omitempty"`
-	CardsInPlay []*Card `json:"cards_in_play,omitempty"`
+	PlayerUuid  string  `json:"playerUuid,omitempty"`
+	CardAction  string  `json:"cardAction,omitempty"`
+	CardsInPlay []*Card `json:"cardsInPlay,omitempty"`
 	// The unique identifier for the game table that the player is trying to join or create.
 	// This can be used to associate players with specific games and manage game state accordingly.
-	TableUuid string `json:"table_uuid,omitempty"`
+	TableUuid string `json:"tableUuid,omitempty"`
 	// Indicates the player/client is the one that initiated the new game
-	Initiator bool `json:"initiator,omitempty"`
+	Initiator     bool     `json:"initiator,omitempty"`
+	SelectedCards []string `json:"selectedCards,omitempty"`
 }
 
 // The WebsocketClient struct represents a client that is connected to

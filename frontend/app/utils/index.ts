@@ -1,3 +1,5 @@
+export * from './__fixtures__'
+
 type BaseWsMessage<T = Record<string, unknown>> = {
   action: string
 } & {

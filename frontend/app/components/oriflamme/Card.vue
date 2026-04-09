@@ -1,5 +1,19 @@
 <template>
-  <article ref="cardEl" :data-uuid="card.Uuid" :class="{ ' bg-primary-200': !toggleSelection, 'bg-blue-500': toggleSelection }" class="relative h-70 min-w-50 transition-all ease-in-out duration-500 rounded-lg p-2 hover:shadow-xl cursor-pointer">
+  <article ref="cardEl" :data-uuid="card.uuid" :class="{ ' bg-primary-200 dark:bg-primary-700': !toggleSelection, 'bg-blue-500 dark:bg-blue-700': toggleSelection }" class="relative h-70 min-w-50 transition-all ease-in-out duration-500 rounded-lg p-2 hover:shadow-xl cursor-pointer">
+    <img :src="card.image" :alt="card.name" class="w-full h-full aspect-square object-cover rounded-lg">
+
+    <nuxt-popover mode="hover">
+      <nuxt-button class="absolute top-0 right-0 z-30">
+        Help
+      </nuxt-button>
+
+      <template #content>
+        <div class="w-50 h-50 p-2">
+          Something
+        </div>
+      </template>
+    </nuxt-popover>
+
     <!-- Actions -->
     <transition
       mode="in-out"
@@ -28,8 +42,7 @@ const props = defineProps<{
 const cardEl = useTemplateRef('cardEl')
 
 const isHovered = useElementHover(cardEl, {
-  delayEnter: 200,
-  delayLeave: 500
+  delayEnter: 200
 })
 
 const { isSelected } = useOriflameeActionsStore()
