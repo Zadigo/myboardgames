@@ -14,8 +14,9 @@ type WebsocketMessage struct {
 	// The unique identifier for the player/client sending
 	// the message. This can be used to associate messages with
 	// specific players and manage game state accordingly.
-	PlayerUuid string `json:"player_uuid,omitempty"`
-	CardAction string `json:"card_action,omitempty"`
+	PlayerUuid  string  `json:"player_uuid,omitempty"`
+	CardAction  string  `json:"card_action,omitempty"`
+	CardsInPlay []*Card `json:"cards_in_play,omitempty"`
 	// The unique identifier for the game table that the player is trying to join or create.
 	// This can be used to associate players with specific games and manage game state accordingly.
 	TableUuid string `json:"table_uuid,omitempty"`
@@ -32,11 +33,11 @@ type WebsocketClient struct {
 	conn      *websocket.Conn `json:"-"`
 	// Each player has a certain number of influence tokens that are won when reveling the
 	// the card, performing an action on the card etc.
-	Tokens   int
+	Tokens int
 	// Cards that were discared when the player selected the cards that
 	// he wants to play with
 	DiscardPile []*Card
-	// The send channel is used to queue messages 
+	// The send channel is used to queue messages
 	// that need to be sent to the client.
 	send chan WebsocketMessage
 	mu   sync.Mutex
@@ -67,7 +68,7 @@ func (player *WebsocketClient) DecreaseTokens(k int) {
 
 }
 
-// Send messages from the send channel 
+// Send messages from the send channel
 // to the websocket connection.
 // func (c *WebsocketClient) Broadcast() {
 // 	for msg := range c.send {

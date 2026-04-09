@@ -38,6 +38,7 @@ func LiveGameHandler(w http.ResponseWriter, r *http.Request, serverRegistry *bac
 	client.SendJsonMessage(backend.WebsocketMessage{
 		Action:     "must_identify",
 		PlayerUuid: clientUuid,
+		Message:    "Connection established successfully! Please identify yourself with your username.",
 	})
 
 	// go client.Broadcast()

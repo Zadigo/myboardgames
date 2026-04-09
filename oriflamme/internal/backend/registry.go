@@ -3,6 +3,7 @@ package backend
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math/rand"
 	"slices"
@@ -67,13 +68,13 @@ func (r *GameRegistry) ListenToRoomChannels() {
 					delete(r.Clients, client.Uuid)
 				}
 			}
-			// default:
-			// 	if !r.IsRunning {
-			// 		close(r.register)
-			// 		close(r.unregister)
-			// 		close(r.broadcast)
-			// 		return
-			// 	}
+		default:
+			if !r.IsRunning {
+				close(r.register)
+				close(r.unregister)
+				close(r.broadcast)
+				return
+			}
 		}
 	}
 }
@@ -106,8 +107,12 @@ func (r *GameRegistry) PublishToRoom(redisClient *redis.Client, message Websocke
 }
 
 // Indicates that the game with the given UUID has started.
-func (r *GameRegistry) StartGame(gameUuid string) {
+func (r *GameRegistry) StartGame(gameUuid string) error {
 	colors := []string{"red", "blue", "green", "yellow", "purple"}
+
+	if len(r.Clients) > len(colors) {
+		return errors.New("There are too many players for this game")
+	}
 
 	rand.Shuffle(len(colors), func(x int, y int) {
 		colors[x], colors[y] = colors[y], colors[x]
@@ -144,14 +149,16 @@ func (r *GameRegistry) StartGame(gameUuid string) {
 	}
 
 	r.broadcast <- WebsocketMessage{
-		Action: "start_game",
+		Action:      "start_game",
+		CardsInPlay: r.CardsInPlay,
 	}
+
+	return nil
 }
 
 func (r *GameRegistry) EndGame(gameUuid string) {
 	r.broadcast <- WebsocketMessage{
-		Action: "end_game",
-	}
+		Action: "end_game"}
 }
 
 // The ServerRegistry is responsible for managing the state of the server,
