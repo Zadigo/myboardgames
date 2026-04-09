@@ -1,4 +1,4 @@
-import type { OriflammeCard } from '~/types'
+import type { CardActions, OriflammeCard } from '~/types'
 
 export * from './actions'
 
@@ -18,13 +18,15 @@ export enum OriflammeCardAction {
 export type ActionOptions = {
   create_game: [{ playerUuid: string }]
   start_game: [{ playerUuid: string, tableUuid: string }]
-  select_cards: [{ playerUuid: string, selectedCards: string[] }]
+  select_cards: [{ tableUuid: string, playerUuid: string, selectedCards: string[] }]
   identify: [{ playerUuid: string, username: string }]
+  play_card: [{ playerUuid: string, tableUuid: string, cardAction: CardActions }]
 }
 
 export type ResponseOptions = {
   must_identify: { playerUuid: string }
   create_game: { tableUuid: string }
+  place_card: { queue: null }
 }
 
 export const useOriflammeComposable = createGlobalState(() => {
@@ -49,6 +51,12 @@ export const useOriflammeComposable = createGlobalState(() => {
       decode<ResponseOptions>(event.data)('create_game', (data) => {
         if (data) {
           tableUuid.value = data.tableUuid
+        }
+      })
+
+      decode<ResponseOptions>(event.data)('place_card', (data) => {
+        if (data) {
+          influenceQueue.value = data.queue
         }
       })
     }

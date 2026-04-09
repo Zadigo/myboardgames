@@ -21,8 +21,8 @@ definePageMeta({
 
 const cards = ref<OriflammeCard[]>(oriflammeCardFixtures)
 
-const { ws, influenceQueue } = useOriflammeComposable()
-const { selectedCards } = useOriflammeActionsComposable(ws)
+const { ws, tableUuid, playerUuid, influenceQueue } = useOriflammeComposable()
+const { selectedCards } = useOriflammeActionsComposable(ws, tableUuid, playerUuid)
 
 const theme = ['bg-primary-50', 'dark:bg-primary-900', 'dark:text-primary-50']
 

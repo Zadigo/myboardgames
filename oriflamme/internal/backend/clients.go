@@ -21,8 +21,10 @@ type WebsocketMessage struct {
 	// This can be used to associate players with specific games and manage game state accordingly.
 	TableUuid string `json:"tableUuid,omitempty"`
 	// Indicates the player/client is the one that initiated the new game
-	Initiator     bool     `json:"initiator,omitempty"`
-	SelectedCards []string `json:"selectedCards,omitempty"`
+	Initiator     bool            `json:"initiator,omitempty"`
+	SelectedCards []string        `json:"selectedCards,omitempty"`
+	CardUuid      string          `json:"cardUuid,omitempty"`
+	Queue         *InfluenceQueue `json:"queue,omitempty"`
 }
 
 // The WebsocketClient struct represents a client that is connected to

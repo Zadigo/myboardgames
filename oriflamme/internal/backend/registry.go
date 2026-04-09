@@ -21,11 +21,12 @@ import (
 // games, and updating game states as players take actions.
 // TODO: Rename to GameRoom
 type GameRegistry struct {
-	Uuid      string                      `json:"uuid"`
-	Clients   map[string]*WebsocketClient `json:"clients"`
-	IsRunning bool                        `json:"isRunning"`
-	IsStarted bool                        `json:"isStarted"`
-	StartedAt time.Time                   `json:"startedAt"`
+	Uuid                string                      `json:"uuid"`
+	Clients             map[string]*WebsocketClient `json:"clients"`
+	InfluenceQueueLayer *InfluenceQueue             `json:"influenceQueueLayer"`
+	IsRunning           bool                        `json:"isRunning"`
+	IsStarted           bool                        `json:"isStarted"`
+	StartedAt           time.Time                   `json:"startedAt"`
 	// CardsInPlay represents all the cards that were selected by the players
 	// to be played in the current game
 	CardsInPlay []*Card      `json:"cardsInPlay"`
@@ -161,6 +162,16 @@ func (r *GameRegistry) EndGame(gameUuid string) {
 		Action: "end_game"}
 }
 
+// GetCardByUuid retrieves a card from the game registry's CardsInPlay based on its UUID.
+func (r *GameRegistry) GetCardByUuid(cardUuid string) (*Card, error) {
+	for _, card := range r.CardsInPlay {
+		if card.Uuid == cardUuid {
+			return card, nil
+		}
+	}
+	return nil, errors.New("Card not found")
+}
+
 // The ServerRegistry is responsible for managing the state of the server,
 // including the Redis client and any other global resources that need to be
 // shared across games. It provides a centralized place to access these resources
@@ -249,14 +260,17 @@ func NewServerRegistry(redisClient *redis.Client) *ServerRegistry {
 }
 
 func NewGameRegistry() *GameRegistry {
+	influenceQueueLayer := NewInfluenceQueue()
+
 	return &GameRegistry{
-		Uuid:       uuid.NewString(),
-		broadcast:  make(chan WebsocketMessage),
-		register:   make(chan *WebsocketClient),
-		unregister: make(chan *WebsocketClient),
-		Clients:    make(map[string]*WebsocketClient),
-		IsRunning:  true,
-		IsStarted:  false,
-		StartedAt:  time.Now(),
+		Uuid:                uuid.NewString(),
+		broadcast:           make(chan WebsocketMessage),
+		register:            make(chan *WebsocketClient),
+		unregister:          make(chan *WebsocketClient),
+		Clients:             make(map[string]*WebsocketClient),
+		IsRunning:           true,
+		IsStarted:           false,
+		StartedAt:           time.Now(),
+		InfluenceQueueLayer: influenceQueueLayer,
 	}
 }

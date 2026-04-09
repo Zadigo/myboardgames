@@ -87,3 +87,12 @@ export type PlayerChoices = {
    */
   royalDecreeTo: number
 }
+
+export enum CardActionsEnum {
+  PlaceCard = 'place_card',
+  Reveal = 'reveal',
+  PlaceToken = 'place_token',
+  StackCard = 'stack_card'
+}
+
+export type CardActions = `${CardActionsEnum}`

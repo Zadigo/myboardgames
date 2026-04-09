@@ -1,5 +1,5 @@
 <template>
-  <article ref="cardEl" :data-uuid="card.uuid" :class="{ ' bg-primary-200 dark:bg-primary-700': !toggleSelection, 'bg-blue-500 dark:bg-blue-700': toggleSelection }" class="relative h-70 min-w-50 transition-all ease-in-out duration-500 rounded-lg p-2 hover:shadow-xl cursor-pointer">
+  <article ref="cardEl" :data-uuid="card.uuid" :class="{ ' bg-primary-200 dark:bg-primary-700': !toggleSelection, 'bg-blue-500 dark:bg-blue-700': toggleSelection }" class="relative h-70 min-w-50 transition-all ease-in-out duration-500 rounded-lg p-2 hover:shadow-xl cursor-pointer overflow-hidden">
     <img :src="card.image" :alt="card.name" class="w-full h-full aspect-square object-cover rounded-lg">
 
     <nuxt-popover mode="hover">
@@ -23,7 +23,8 @@
       leave-from-class="scale-100"
       leave-to-class="scale-95"
     >
-      <oriflamme-actions-base v-if="isHovered" :in-queue="inQueue" :card="card" />
+      <!-- v-if="isHovered" -->
+      <oriflamme-actions-base :in-queue="inQueue" :card="card" />
     </transition>
 
     <div v-if="inQueue" class="rounded-full w-10 h-10 bg-secondary-200/50 absolute bottom-2 left-2 animate-bounce transition-all duration-500" />

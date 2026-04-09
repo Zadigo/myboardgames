@@ -1,7 +1,7 @@
 import type { OriflammeCard } from '~/types'
 import type { ActionOptions } from '.'
 
-const [useOriflammeActionsComposable, _useOriflameeActionsStore] = createInjectionState((ws: Ref<WebSocket | undefined>) => {
+const [useOriflammeActionsComposable, _useOriflameeActionsStore] = createInjectionState((ws: Ref<WebSocket | undefined>, tableUuid: Ref<string>, playerUuid: Ref<string>) => {
   const selectedCards = ref<string[]>([])
 
   const { encode } = useWWebsocketMessages2()
@@ -18,8 +18,28 @@ const [useOriflammeActionsComposable, _useOriflameeActionsStore] = createInjecti
 
   }
 
-  function placeCard() {
+  function placeCard(card: OriflammeCard, direction: 'left' | 'right') {
+    if (direction === 'left') {
+      ws.value?.send(
+        encode<ActionOptions>('play_card', {
+          playerUuid: playerUuid.value,
+          tableUuid: tableUuid.value,
+          cardUuid: card.uuid,
+          cardAction: 'place_card_left'
+        })
+      )
+    }
 
+    if (direction === 'right') {
+      ws.value?.send(
+        encode<ActionOptions>('play_card', {
+          playerUuid: playerUuid.value,
+          tableUuid: tableUuid.value,
+          cardUuid: card.uuid,
+          cardAction: 'place_card_right'
+        })
+      )
+    }
   }
 
   /**
@@ -38,7 +58,7 @@ const [useOriflammeActionsComposable, _useOriflameeActionsStore] = createInjecti
 
     useTimeoutFn(() => {
       ws.value?.send(
-        encode<ActionOptions>('select_cards', { playerUuid: 'player_uuid', selectedCards: selectedCards.value })
+        encode<ActionOptions>('select_cards', { tableUuid: tableUuid.value, playerUuid: playerUuid.value, selectedCards: selectedCards.value })
       )
     }, 2000)
   }

@@ -21,9 +21,10 @@ func (queue *InfluenceQueue) updateCardIndexes() {
 	}
 }
 
-// Add a card to the left of the queue. This means that the card will be 
+// Add a card to the left of the queue. This means that the card will be
 // resolved before all other cards in the queue.
 func (queue *InfluenceQueue) AddCardLeft(card *Card) {
+	card.InQueue = true
 	queue.Queue = slices.Insert(queue.Queue, 0, card)
 	queue.updateCardIndexes()
 }
@@ -31,6 +32,7 @@ func (queue *InfluenceQueue) AddCardLeft(card *Card) {
 // Add a card to the right of the queue. This means that the card will be
 // resolved after all other cards in the queue.
 func (queue *InfluenceQueue) AddCardRight(card *Card) {
+	card.InQueue = true
 	queue.Queue = append(queue.Queue, card)
 	queue.updateCardIndexes()
 }
@@ -87,7 +89,7 @@ func (queue *InfluenceQueue) GetCurrentCard() (*Card, error) {
 
 // Create a new influence queue with the given cards.
 // The resolution index is initialized to -1.
-func CreateInfluenceQueue() *InfluenceQueue {
+func NewInfluenceQueue() *InfluenceQueue {
 	return &InfluenceQueue{
 		Queue:           []*Card{},
 		ResolutionIndex: -1,

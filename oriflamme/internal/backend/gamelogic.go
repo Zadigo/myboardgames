@@ -97,11 +97,40 @@ func GameLogic(message WebsocketMessage, client *WebsocketClient, serverRegistry
 		}
 
 	case "play_card":
-		// Do something to play a card
+		gameRegistry, err := serverRegistry.GetGame(message.TableUuid)
+		if err != nil {
+			client.SendJsonMessage(WebsocketMessage{Action: "error", Message: "Game not found"})
+			log.Print("🔴 Game registry does not exist")
+			return
+		}
+
 		switch message.CardAction {
-		case "place_card":
-			// Do something to place a card on the board
-			// This could involve updating the game state in Redis and sending a message to all players about the new card placement
+		case "place_card_left":
+			card, err := gameRegistry.GetCardByUuid(message.CardUuid)
+			if err != nil {
+				client.SendJsonMessage(WebsocketMessage{Action: "error", Message: err.Error()})
+				log.Printf("🟠 Card with UUID %s not found (table: %s)", message.CardUuid, gameRegistry.Uuid)
+				return
+			}
+
+			gameRegistry.InfluenceQueueLayer.AddCardLeft(card)
+			gameRegistry.broadcast <- WebsocketMessage{
+				Action: "place_card",
+				Queue:  gameRegistry.InfluenceQueueLayer,
+			}
+		case "place_card_right":
+			card, err := gameRegistry.GetCardByUuid(message.CardUuid)
+			if err != nil {
+				client.SendJsonMessage(WebsocketMessage{Action: "error", Message: err.Error()})
+				log.Printf("🟠 Card with UUID %s not found (table: %s)", message.CardUuid, gameRegistry.Uuid)
+				return
+			}
+
+			gameRegistry.InfluenceQueueLayer.AddCardRight(card)
+			gameRegistry.broadcast <- WebsocketMessage{
+				Action: "place_card",
+				Queue:  gameRegistry.InfluenceQueueLayer,
+			}
 		case "reveal":
 			// Do something to reveal a card
 		case "place_token":
@@ -109,13 +138,13 @@ func GameLogic(message WebsocketMessage, client *WebsocketClient, serverRegistry
 		case "stack_card":
 			// Do something to stack a card on top of another card
 		default:
-			client.SendJsonMessage(WebsocketMessage{})
+			client.SendJsonMessage(WebsocketMessage{Action: "error", Message: "Invalid card action"})
 		}
 	case "resolve_queue":
 		// Do something to resolve the influence queue
 	case "end_game":
 		// Do something to end the game
 	default:
-		// Handle unrecognized actions
+		client.SendJsonMessage(WebsocketMessage{Action: "error", Message: "Action not recognized"})
 	}
 }
