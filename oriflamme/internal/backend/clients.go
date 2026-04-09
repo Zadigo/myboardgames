@@ -31,7 +31,8 @@ type WebsocketClient struct {
 	Initiator bool            `json:"initiator"`
 	conn      *websocket.Conn `json:"-"`
 
-	// TEST: for broadcasting
+	// The send channel is used to queue messages 
+	// that need to be sent to the client.
 	send chan WebsocketMessage
 	mu   sync.Mutex
 }
@@ -46,20 +47,19 @@ func (client *WebsocketClient) ReceiveJsonMessage() (WebsocketMessage, error) {
 	return message, err
 }
 
-// TEST: for broadcasting
-// Broadcast messages from the client's send channel
+// Send messages from the send channel 
 // to the websocket connection.
-func (c *WebsocketClient) Broadcast() {
-	for msg := range c.send {
-		c.mu.Lock()
-		err := c.conn.WriteJSON(msg)
-		c.mu.Unlock()
+// func (c *WebsocketClient) Broadcast() {
+// 	for msg := range c.send {
+// 		c.mu.Lock()
+// 		err := c.conn.WriteJSON(msg)
+// 		c.mu.Unlock()
 
-		if err != nil {
-			return
-		}
-	}
-}
+// 		if err != nil {
+// 			return
+// 		}
+// 	}
+// }
 
 func NewWebsocketClient(conn *websocket.Conn) *WebsocketClient {
 	return &WebsocketClient{

@@ -44,9 +44,8 @@ func TestLiveGameHandler(t *testing.T) {
 		message = backend.WebsocketMessage{}
 		conn.ReadJSON(&message)
 
-		fmt.Print(message)
+		fmt.Printf("Received message: %+v\n", message)
 	})
-
 	t.Run("Another player joins the game", func(t *testing.T) {})
 
 	t.Run("Start game", func(t *testing.T) {})

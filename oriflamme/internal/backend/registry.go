@@ -1,6 +1,9 @@
 package backend
 
 import (
+	"context"
+	"encoding/json"
+	"fmt"
 	"sync"
 	"time"
 
@@ -15,12 +18,13 @@ type GameHistory struct {
 
 // The GameRegistry is responsible for managing the state of all active games.
 // It maintains a mapping of game IDs to their corresponding game states, which are
-// stored in Redis. The registry provides methods for creating new games, retrieving existing
+// stored in Redis. The registry provides methods for creating nesw games, retrieving existing
 // games, and updating game states as players take actions.
 // TODO: Rename to GameRoom
 type GameRegistry struct {
 	Uuid      string                      `json:"uuid"`
 	Clients   map[string]*WebsocketClient `json:"clients"`
+	IsRunning bool                        `json:"is_running"`
 	IsStarted bool                        `json:"is_started"`
 	StartedAt time.Time                   `json:"started_at"`
 	mu        sync.RWMutex                `json:"-"`
@@ -36,19 +40,15 @@ type GameRegistry struct {
 // initializes any necessary game state for the new player.
 func (r *GameRegistry) JoinTable(client *WebsocketClient) {
 	r.mu.Lock()
-	defer r.mu.Unlock()
-
-	if r.Clients == nil {
-		r.Clients = make(map[string]*WebsocketClient)
-	}
-
 	r.Clients[client.Uuid] = client
+	r.mu.Unlock()
+
 	r.register <- client
 }
 
 // Starts the main loop for the game room, which listens
 // for client registration, unregistration, and broadcast messages.
-func (r *GameRegistry) StartRoom() {
+func (r *GameRegistry) ListenToRoomChannels() {
 	for {
 		select {
 
@@ -66,8 +66,42 @@ func (r *GameRegistry) StartRoom() {
 					delete(r.Clients, client.Uuid)
 				}
 			}
+			// default:
+			// 	if !r.IsRunning {
+			// 		close(r.register)
+			// 		close(r.unregister)
+			// 		close(r.broadcast)
+			// 		return
+			// 	}
 		}
 	}
+}
+
+func (r *GameRegistry) SubscribeToRedisChannel(redisClient *redis.Client) {
+	// Subscribe the client to the Redis channel
+	// for the game they are in (if applicable)
+	subcription := redisClient.Subscribe(context.Background(), r.RedisRoomId())
+	redisChannel := subcription.Channel()
+
+	for message := range redisChannel {
+		var wsMsg WebsocketMessage
+		json.Unmarshal([]byte(message.Payload), &wsMsg)
+
+		// 👇 fan out to local clients
+		r.broadcast <- wsMsg
+		// for _, client := range r.Clients {
+		// 	client.send <- wsMsg
+		// }
+	}
+}
+
+func (r *GameRegistry) RedisRoomId() string {
+	return fmt.Sprintf("room:%s", r.Uuid)
+}
+
+func (r *GameRegistry) PublishToRoom(redisClient *redis.Client, message WebsocketMessage) error {
+	payload, _ := json.Marshal(message)
+	return redisClient.Publish(context.Background(), r.RedisRoomId(), payload).Err()
 }
 
 // Indicates that the game with the given UUID has started.
@@ -138,9 +172,11 @@ func (s *ServerRegistry) CreateGame(client *WebsocketClient) (*GameRegistry, boo
 	s.Tables[newGame.Uuid] = newGame
 	s.mu.Unlock()
 
-	// Start the game room in a new goroutine
-	// to handle client registration and broadcasting
-	go newGame.StartRoom()
+	// Create both local and Redis channels
+	// Start listening to the local broadcast channel for the game
+	//  and fan out messages to clients in the game
+	go newGame.ListenToRoomChannels()
+	go newGame.SubscribeToRedisChannel(s.redisClient)
 
 	client.Initiator = true
 	newGame.JoinTable(client)
@@ -162,6 +198,8 @@ func NewGameRegistry() *GameRegistry {
 		broadcast:  make(chan WebsocketMessage),
 		register:   make(chan *WebsocketClient),
 		unregister: make(chan *WebsocketClient),
+		Clients:    make(map[string]*WebsocketClient),
+		IsRunning:  true,
 		IsStarted:  false,
 		StartedAt:  time.Now(),
 	}

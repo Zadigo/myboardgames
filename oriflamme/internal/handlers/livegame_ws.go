@@ -40,7 +40,7 @@ func LiveGameHandler(w http.ResponseWriter, r *http.Request, serverRegistry *bac
 		PlayerUuid: clientUuid,
 	})
 
-	go client.Broadcast()
+	// go client.Broadcast()
 
 	for {
 		var message backend.WebsocketMessage
