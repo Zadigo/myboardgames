@@ -1,6 +1,6 @@
 import type { OriflammeCard } from '~/types'
 
-export function useOriflammeActionsComposable(ws: Ref<WebSocket | undefined>) {
+const [useOriflammeActionsComposable, _useOriflameeActionsStore] = createInjectionState((ws: Ref<WebSocket | undefined>) => {
   const selectedCards = ref<string[]>([])
 
   function reveal() {
@@ -27,11 +27,14 @@ export function useOriflammeActionsComposable(ws: Ref<WebSocket | undefined>) {
     }
   }
 
-  function isSelected(card: OriflammeCard) {
+  function _isSelected(card: OriflammeCard) {
     return selectedCards.value.includes(card.Uuid)
   }
 
+  const isSelected = reactify(_isSelected)
+
   return {
+    selectedCards,
     reveal,
     applyEffect,
     placeToken,
@@ -39,4 +42,14 @@ export function useOriflammeActionsComposable(ws: Ref<WebSocket | undefined>) {
     selectCards,
     isSelected
   }
+})
+
+export { useOriflammeActionsComposable }
+
+export function useOriflameeActionsStore() {
+  const store = _useOriflameeActionsStore()
+  if (!store) {
+    throw new Error('useOriflameeActionsStore must be used within a useOriflammeActionsComposable')
+  }
+  return store
 }

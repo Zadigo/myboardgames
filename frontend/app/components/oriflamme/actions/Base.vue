@@ -7,13 +7,13 @@
     </template>
     <template v-else>
       <oriflamme-actions-button icon="lucide:hand" @click="placeCard" />
-      <oriflamme-actions-button :class="{ selected: isSelected(card) }" icon="lucide:hand" @click="selectCards(card)" />
+      <oriflamme-actions-button icon="lucide:hand" @click="selectCards(card)" />
     </template>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { useOriflammeComposable, useOriflammeActionsComposable } from '~/composables/oriflamme'
+import { useOriflameeActionsStore } from '~/composables/oriflamme'
 import type { OriflammeCard } from '~/types'
 
 const { inQueue = false } = defineProps<{
@@ -21,6 +21,5 @@ const { inQueue = false } = defineProps<{
   inQueue?: boolean
 }>()
 
-const { ws } = useOriflammeComposable()
-const { reveal, applyEffect, placeToken, placeCard, selectCards, isSelected } = useOriflammeActionsComposable(ws)
+const { reveal, applyEffect, placeToken, placeCard, selectCards } = useOriflameeActionsStore()
 </script>

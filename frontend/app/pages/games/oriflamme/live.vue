@@ -1,5 +1,6 @@
 <template>
   <section id="oriflamme" class="h-screen px-20 space-y-2 mx-auto my-10">
+    {{ selectedCards }}
     <oriflamme-base-card-scroll title="Influence queue">
       <oriflamme-card v-for="card in cards" :key="card.Uuid" :card="card" :in-queue="true" />
     </oriflamme-base-card-scroll>
@@ -11,6 +12,7 @@
 </template>
 
 <script lang="ts" setup>
+import { useOriflammeActionsComposable, useOriflammeComposable } from '~/composables/oriflamme'
 import type { OriflammeCard } from '~/types'
 
 definePageMeta({
@@ -36,6 +38,9 @@ const cards = ref<OriflammeCard[]>([
     Type: 'Character'
   }
 ])
+
+const { ws } = useOriflammeComposable()
+const { selectedCards } = useOriflammeActionsComposable(ws)
 
 const theme = ['bg-primary-50']
 
