@@ -20,6 +20,7 @@ type ActionOptions = {
 }
 
 type DefaultResponseOptions = {
+  action: string
   error: string
   message: string
 }
@@ -38,9 +39,12 @@ type DecodeResponse<T> = DefaultResponseOptions & {
 }
 
 export function decode(message: string) {
-  return function<T extends keyof ResponseOptions>(action: T) {
+  return function<T extends keyof ResponseOptions>(action: T, callback: (data: DecodeResponse<T> | undefined) => void) {
     try {
-      return JSON.parse(message) as DecodeResponse<T>
+      const wsData = JSON.parse(message) as DecodeResponse<T>
+      if (action === wsData.action) {
+        callback(wsData)
+      }
     } catch (error) {
       console.error('Failed to decode message:', error)
       throw new Error('Invalid message format')
@@ -58,9 +62,13 @@ export const useOriflammeComposable = createGlobalState(() => {
       ws.send(encode('idle_connection'))
     },
     onMessage(_ws, event) {
-      const message = decode(event.data)
-      const data = message('another_response')
-      // data.
+      const decoder = decode(event.data)
+
+      decoder('another_response', (data) => {
+        if (data) {
+          console.log('Received another_response:', data.someData)
+        }
+      })
     }
   })
 
