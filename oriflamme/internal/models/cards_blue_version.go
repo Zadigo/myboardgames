@@ -45,12 +45,12 @@ type Card struct {
 	// used to track it in the influence queue
 	// and other game mechanics.
 	Uuid string
-	// Indicates the position of the card in the influence queue.
-	Position int
+	// Indicates the position of the card in the influence queue. Default value
+	// is -1, which means that the card is not in the queue. When a card is added to the queue,
+	// its position is updated to reflect its index.
+	PositionInQueue int
 	// Name is the name of the card
 	Name string
-	// Description is a brief text describing the card's effect or role in the game.
-	Description string
 	// Type indicates whether the card is a "Character" or an "Intrigue".
 	Type string
 	// Stack represents the stack of cards that have been played on top of this card.
@@ -76,17 +76,17 @@ type Card struct {
 
 func createBaseCards() []Card {
 	return []Card{
-		{Uuid: uuid.NewString(), Position: 0, Name: "Archer", Description: "", Type: "Character", IsSelected: false, Tokens: 0, IsRevealed: false},
-		{Uuid: uuid.NewString(), Position: 0, Name: "Soldier", Description: "", Type: "Character", IsSelected: false, Tokens: 0, IsRevealed: false},
-		{Uuid: uuid.NewString(), Position: 0, Name: "Spy", Description: "", Type: "Character", IsSelected: false, Tokens: 0, IsRevealed: false},
-		{Uuid: uuid.NewString(), Position: 0, Name: "Heir", Description: "", Type: "Character", IsSelected: false, Tokens: 0, IsRevealed: false},
-		{Uuid: uuid.NewString(), Position: 0, Name: "Shapeshifter", Description: "", Type: "Character", IsSelected: false, Tokens: 0, IsRevealed: false},
-		{Uuid: uuid.NewString(), Position: 0, Name: "Lord", Description: "", Type: "Character", IsSelected: false, Tokens: 0, IsRevealed: false},
+		{Uuid: uuid.NewString(), PositionInQueue: -1, Name: "Archer", Type: "Character", Tokens: 0},
+		{Uuid: uuid.NewString(), PositionInQueue: -1, Name: "Soldier", Type: "Character", Tokens: 0},
+		{Uuid: uuid.NewString(), PositionInQueue: -1, Name: "Spy", Type: "Character", Tokens: 0},
+		{Uuid: uuid.NewString(), PositionInQueue: -1, Name: "Heir", Type: "Character", Tokens: 0},
+		{Uuid: uuid.NewString(), PositionInQueue: -1, Name: "Shapeshifter", Type: "Character", Tokens: 0},
+		{Uuid: uuid.NewString(), PositionInQueue: -1, Name: "Lord", Type: "Character", Tokens: 0},
 
-		{Uuid: uuid.NewString(), Position: 0, Name: "Assassination", Description: "", Type: "Intrigue", IsSelected: false, Tokens: 0, IsRevealed: false},
-		{Uuid: uuid.NewString(), Position: 0, Name: "Royal Decree", Description: "", Type: "Intrigue", IsSelected: false, Tokens: 0, IsRevealed: false},
-		{Uuid: uuid.NewString(), Position: 0, Name: "Conspiracy", Description: "", Type: "Intrigue", IsSelected: false, Tokens: 0, IsRevealed: false},
-		{Uuid: uuid.NewString(), Position: 0, Name: "Ambush", Description: "", Type: "Intrigue", IsSelected: false, Tokens: 0, IsRevealed: false},
+		{Uuid: uuid.NewString(), PositionInQueue: -1, Name: "Assassination", Type: "Intrigue", Tokens: 0},
+		{Uuid: uuid.NewString(), PositionInQueue: -1, Name: "Royal Decree", Type: "Intrigue", Tokens: 0},
+		{Uuid: uuid.NewString(), PositionInQueue: -1, Name: "Conspiracy", Type: "Intrigue", Tokens: 0},
+		{Uuid: uuid.NewString(), PositionInQueue: -1, Name: "Ambush", Type: "Intrigue", Tokens: 0},
 	}
 }
 

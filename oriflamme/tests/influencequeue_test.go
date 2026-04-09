@@ -14,10 +14,10 @@ func constructQueue() (*models.InfluenceQueue, *models.Player, *models.Player) {
 	simpleQueue := models.InfluenceQueue{
 		ResolutionIndex: -1,
 		Queue: []*models.Card{
-			{Uuid: uuid.NewString(), Name: "Archer", Color: "Red", Position: 0, Owner: ownerOne},
-			{Uuid: uuid.NewString(), Name: "Assassination", Color: "Blue", Position: 1, Owner: ownerTwo},
-			{Uuid: uuid.NewString(), Name: "Spy", Color: "Red", Position: 2, Owner: ownerTwo},
-			{Uuid: uuid.NewString(), Name: "Soldier", Color: "Blue", Position: 3, Owner: ownerTwo},
+			{Uuid: uuid.NewString(), Name: "Archer", Color: "Red", PositionInQueue: 0, Owner: ownerOne},
+			{Uuid: uuid.NewString(), Name: "Assassination", Color: "Blue", PositionInQueue: 1, Owner: ownerTwo},
+			{Uuid: uuid.NewString(), Name: "Spy", Color: "Red", PositionInQueue: 2, Owner: ownerTwo},
+			{Uuid: uuid.NewString(), Name: "Soldier", Color: "Blue", PositionInQueue: 3, Owner: ownerTwo},
 		},
 	}
 	return &simpleQueue, ownerOne, ownerTwo
@@ -26,14 +26,14 @@ func constructQueue() (*models.InfluenceQueue, *models.Player, *models.Player) {
 func TestInfluenceQueue(t *testing.T) {
 	simpleQueue, ownerOne, ownerTwo := constructQueue()
 
-	otherCard := &models.Card{Uuid: uuid.NewString(), Name: "Archer", Color: "Red", Position: 0, Owner: ownerOne}
+	otherCard := &models.Card{Uuid: uuid.NewString(), Name: "Archer", Color: "Red", PositionInQueue: 0, Owner: ownerOne}
 	simpleQueue.AddCardLeft(otherCard)
 
 	if simpleQueue.NumberOfCards() != 5 {
 		t.Errorf("Expected 5 cards in the queue, got %d", simpleQueue.NumberOfCards())
 	}
 
-	otherCard = &models.Card{Uuid: uuid.NewString(), Name: "Spy", Color: "Blue", Position: 4, Owner: ownerTwo}
+	otherCard = &models.Card{Uuid: uuid.NewString(), Name: "Spy", Color: "Blue", PositionInQueue: 4, Owner: ownerTwo}
 	simpleQueue.AddCardRight(otherCard)
 
 	if simpleQueue.NumberOfCards() != 6 {
