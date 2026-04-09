@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/rand"
+	"slices"
 	"sync"
 	"time"
 
@@ -23,7 +25,10 @@ type GameRegistry struct {
 	IsRunning bool                        `json:"is_running"`
 	IsStarted bool                        `json:"is_started"`
 	StartedAt time.Time                   `json:"started_at"`
-	mu        sync.RWMutex                `json:"-"`
+	// CardsInPlay represents all the cards that were selected by the players
+	// to be played in the current game
+	CardsInPlay []*Card      `json:"cards_in_play"`
+	mu          sync.RWMutex `json:"-"`
 	// The broadcast channel is used to send messages to all clients in the game.
 	// When a message is sent to the broadcast channel, it will be received by all clients
 	// in the game and can be used to update their game state accordingly.
@@ -102,6 +107,42 @@ func (r *GameRegistry) PublishToRoom(redisClient *redis.Client, message Websocke
 
 // Indicates that the game with the given UUID has started.
 func (r *GameRegistry) StartGame(gameUuid string) {
+	colors := []string{"red", "blue", "green", "yellow", "purple"}
+
+	rand.Shuffle(len(colors), func(x int, y int) {
+		colors[x], colors[y] = colors[y], colors[x]
+	})
+
+	// For each player, create the cards of their color and add
+	// them to the game registry's CardsInPlay.
+	addToCards := func(cards []Card, owner *WebsocketClient) {
+		for _, card := range cards {
+			card.Owner = owner
+			r.CardsInPlay = append(r.CardsInPlay, &card)
+		}
+	}
+
+	for _, client := range r.Clients {
+		color := slices.Delete(colors, 1, 1)
+		switch color[0] {
+		case "red":
+			redCards := CreateRedCards(client)
+			addToCards(redCards, client)
+		case "blue":
+			blueCards := CreateBlueCards(client)
+			addToCards(blueCards, client)
+		case "green":
+			greenCards := CreateGreenCards(client)
+			addToCards(greenCards, client)
+		case "yellow":
+			yellowCards := CreateYellowCards(client)
+			addToCards(yellowCards, client)
+		case "purple":
+			purpleCards := CreatePurpleCards(client)
+			addToCards(purpleCards, client)
+		}
+	}
+
 	r.broadcast <- WebsocketMessage{
 		Action: "start_game",
 	}

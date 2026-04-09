@@ -3,17 +3,17 @@ package tests
 import (
 	"testing"
 
-	"github.com/Zadigo/oriflamme/internal/models"
+	"github.com/Zadigo/oriflamme/internal/backend"
 	"github.com/google/uuid"
 )
 
-func constructQueue() (*models.InfluenceQueue, *models.Player, *models.Player) {
-	ownerOne := &models.Player{Username: "Player1"}
-	ownerTwo := &models.Player{Username: "Player2"}
+func constructQueue() (*backend.InfluenceQueue, *backend.WebsocketClient, *backend.WebsocketClient) {
+	ownerOne := &backend.WebsocketClient{Username: "Player1"}
+	ownerTwo := &backend.WebsocketClient{Username: "Player2"}
 
-	simpleQueue := models.InfluenceQueue{
+	simpleQueue := backend.InfluenceQueue{
 		ResolutionIndex: -1,
-		Queue: []*models.Card{
+		Queue: []*backend.Card{
 			{Uuid: uuid.NewString(), Name: "Archer", Color: "Red", PositionInQueue: 0, Owner: ownerOne},
 			{Uuid: uuid.NewString(), Name: "Assassination", Color: "Blue", PositionInQueue: 1, Owner: ownerTwo},
 			{Uuid: uuid.NewString(), Name: "Spy", Color: "Red", PositionInQueue: 2, Owner: ownerTwo},
@@ -26,14 +26,14 @@ func constructQueue() (*models.InfluenceQueue, *models.Player, *models.Player) {
 func TestInfluenceQueue(t *testing.T) {
 	simpleQueue, ownerOne, ownerTwo := constructQueue()
 
-	otherCard := &models.Card{Uuid: uuid.NewString(), Name: "Archer", Color: "Red", PositionInQueue: 0, Owner: ownerOne}
+	otherCard := &backend.Card{Uuid: uuid.NewString(), Name: "Archer", Color: "Red", PositionInQueue: 0, Owner: ownerOne}
 	simpleQueue.AddCardLeft(otherCard)
 
 	if simpleQueue.NumberOfCards() != 5 {
 		t.Errorf("Expected 5 cards in the queue, got %d", simpleQueue.NumberOfCards())
 	}
 
-	otherCard = &models.Card{Uuid: uuid.NewString(), Name: "Spy", Color: "Blue", PositionInQueue: 4, Owner: ownerTwo}
+	otherCard = &backend.Card{Uuid: uuid.NewString(), Name: "Spy", Color: "Blue", PositionInQueue: 4, Owner: ownerTwo}
 	simpleQueue.AddCardRight(otherCard)
 
 	if simpleQueue.NumberOfCards() != 6 {

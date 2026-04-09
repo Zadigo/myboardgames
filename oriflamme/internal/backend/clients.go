@@ -30,7 +30,12 @@ type WebsocketClient struct {
 	Username  string          `json:"username"`
 	Initiator bool            `json:"initiator"`
 	conn      *websocket.Conn `json:"-"`
-
+	// Each player has a certain number of influence tokens that are won when reveling the
+	// the card, performing an action on the card etc.
+	Tokens   int
+	// Cards that were discared when the player selected the cards that
+	// he wants to play with
+	DiscardPile []*Card
 	// The send channel is used to queue messages 
 	// that need to be sent to the client.
 	send chan WebsocketMessage
@@ -45,6 +50,21 @@ func (client *WebsocketClient) ReceiveJsonMessage() (WebsocketMessage, error) {
 	var message WebsocketMessage
 	err := client.conn.ReadJSON(&message)
 	return message, err
+}
+
+// Increase the player's influence tokens by k. This can be used when a player wins tokens from a card.
+func (player *WebsocketClient) IncreaseTokens(k int) {
+	player.Tokens += k
+}
+
+// Decrease the player's influence tokens by k. This can be used when a player loses tokens from a card.
+func (player *WebsocketClient) DecreaseTokens(k int) {
+	if player.Tokens == 0 {
+		return
+	} else {
+		player.Tokens -= k
+	}
+
 }
 
 // Send messages from the send channel 

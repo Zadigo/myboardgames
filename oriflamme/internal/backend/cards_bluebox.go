@@ -1,4 +1,4 @@
-package models
+package backend
 
 import (
 	"errors"
@@ -38,6 +38,13 @@ type PlayerChoices struct {
 	// The card that is remotely controlling the effect of
 	// another card (e.g. the shapeshifter copying the effect of another card).
 	RemoteCard *Card
+	// The card that the Royal Decree wants to move. This is used when the player chooses to apply the Royal Decree's effect
+	// to move a card from its current position in the queue to another position.
+	RoyalDecreeTargetCard *Card
+	// The index of the card that the Royal Decree wants to move
+	RoyalDecreeFrom int
+	// The target position in the queue to which the Royal Decree wants to move the card
+	RoyalDecreeTo int
 }
 
 type Card struct {
@@ -54,11 +61,11 @@ type Card struct {
 	// Type indicates whether the card is a "Character" or an "Intrigue".
 	Type string
 	// Stack represents the stack of cards that have been played on top of this card.
-	Stack []Card
+	Stack []*Card
 	// Color represents the color of the card, which can be "Red", "Blue", "Green", "Yellow", or "Purple".
 	Color string
 	// Owner is a reference to the player who owns this card.
-	Owner *Player
+	Owner *WebsocketClient
 	// IsSelected indicates whether the card was selected by the player.
 	IsSelected bool
 	// IsRemoved indicates whether the card has been removed from the game.
@@ -90,7 +97,7 @@ func createBaseCards() []Card {
 	}
 }
 
-func createColorCards(owner *Player, color string) []Card {
+func createColorCards(owner *WebsocketClient, color string) []Card {
 	cards := createBaseCards()
 
 	for i := range cards {
@@ -102,23 +109,23 @@ func createColorCards(owner *Player, color string) []Card {
 	return cards
 }
 
-func CreateRedCards(owner *Player) []Card {
+func CreateRedCards(owner *WebsocketClient) []Card {
 	return createColorCards(owner, "Red")
 }
 
-func CreateBlueCards(owner *Player) []Card {
+func CreateBlueCards(owner *WebsocketClient) []Card {
 	return createColorCards(owner, "Blue")
 }
 
-func CreateGreenCards(owner *Player) []Card {
+func CreateGreenCards(owner *WebsocketClient) []Card {
 	return createColorCards(owner, "Green")
 }
 
-func CreateYellowCards(owner *Player) []Card {
+func CreateYellowCards(owner *WebsocketClient) []Card {
 	return createColorCards(owner, "Yellow")
 }
 
-func CreatePurpleCards(owner *Player) []Card {
+func CreatePurpleCards(owner *WebsocketClient) []Card {
 	return createColorCards(owner, "Purple")
 }
 
@@ -398,12 +405,33 @@ func (card *Card) ApplySpy(queue *InfluenceQueue, choice PlayerChoices) (state b
 }
 
 // Move a card from its current position in the queue to another position.
-func (card *Card) ApplyRoyalDecree(queue *InfluenceQueue, otherCard ...*Card) bool {
+func (card *Card) ApplyRoyalDecree(queue *InfluenceQueue, choice PlayerChoices) bool {
 	if ok, _ := card.preActionCheck(queue, "Royal Decree"); !ok {
 		return false
 	}
 
+	// targetCardIndex := -1
+
+	// for i, c := range queue.Queue {
+	// 	if c.Uuid == choice.RoyalDecreeTargetCard.Uuid {
+	// 		targetCardIndex = i
+	// 		break
+	// 	}
+	// }
+
 	card.Discard()
+
+	// for i, c := range queue.Queue {
+	// 	if !card.IsDiscarded {
+	// 		if i == targetCardIndex {
+	// 			choice.RoyalDecreeTargetCard.PositionInQueue = choice.RoyalDecreeTo
+	// 			for j := range choice.RoyalDecreeFrom {
+
+	// 			}
+	// 		}
+	// 	}
+	// }
+
 	return false
 }
 

@@ -52,6 +52,8 @@ func GameLogic(message WebsocketMessage, client *WebsocketClient, serverRegistry
 		// 1. Create all the redis dependencies for the game
 		// 2. Send a message to all players that the game has started
 		// client.SendJsonMessage(backend.WebsocketMessage{})
+	case "select_cards":
+		// Do something to select cards for the game
 	case "play_card":
 		// Do something to play a card
 		switch message.CardAction {

@@ -3,19 +3,19 @@ package tests
 import (
 	"testing"
 
-	"github.com/Zadigo/oriflamme/internal/models"
+	"github.com/Zadigo/oriflamme/internal/backend"
 	"github.com/stretchr/testify/assert"
 )
 
-func cardConstructor() (*models.Player, []models.Card) {
-	alice := &models.Player{Username: "Alice", Tokens: 1}
-	blueCards := models.CreateBlueCards(alice)
+func cardConstructor() (*backend.WebsocketClient, []backend.Card) {
+	alice := &backend.WebsocketClient{Username: "Alice", Tokens: 1}
+	blueCards := backend.CreateBlueCards(alice)
 
 	return alice, blueCards
 }
 
 func TestCard(t *testing.T) {
-	card := models.Card{
+	card := backend.Card{
 		IsRemoved:   false,
 		IsSelected:  true,
 		IsDiscarded: false,
@@ -24,7 +24,7 @@ func TestCard(t *testing.T) {
 	t.Run("Card revealed", func(t *testing.T) {
 		assert.False(t, card.IsRevealed)
 
-		card.Reveal(&models.InfluenceQueue{})
+		card.Reveal(&backend.InfluenceQueue{})
 		assert.True(t, card.IsRevealed)
 	})
 
@@ -64,13 +64,13 @@ func TestCard(t *testing.T) {
 
 			switch tc.action {
 			case "assassination":
-				result, _ = card.ApplyAssassination(&models.InfluenceQueue{}, models.PlayerChoices{AtIndex: 1})
+				result, _ = card.ApplyAssassination(&backend.InfluenceQueue{}, backend.PlayerChoices{AtIndex: 1})
 			case "archer":
-				result, _ = card.ApplyArcher(&models.InfluenceQueue{}, models.PlayerChoices{FirstCard: true})
+				result, _ = card.ApplyArcher(&backend.InfluenceQueue{}, backend.PlayerChoices{FirstCard: true})
 			case "soldier":
-				result, _ = card.ApplySoldier(&models.InfluenceQueue{}, models.PlayerChoices{CardBefore: false})
+				result, _ = card.ApplySoldier(&backend.InfluenceQueue{}, backend.PlayerChoices{CardBefore: false})
 			case "spy":
-				result, _ = card.ApplySpy(&models.InfluenceQueue{}, models.PlayerChoices{CardBefore: true})
+				result, _ = card.ApplySpy(&backend.InfluenceQueue{}, backend.PlayerChoices{CardBefore: true})
 			}
 
 			assert.NoError(t, tc.error)
@@ -80,15 +80,15 @@ func TestCard(t *testing.T) {
 }
 
 func TestArcherCard(t *testing.T) {
-	alice := &models.Player{Username: "Alice"}
-	blueCards := models.CreateBlueCards(alice)
-	simpleQueue := models.CreateInfluenceQueue()
+	alice := &backend.WebsocketClient{Username: "Alice"}
+	blueCards := backend.CreateBlueCards(alice)
+	simpleQueue := backend.CreateInfluenceQueue()
 
 	type testCase struct {
 		name      string
 		errorText string
 		firstCard bool
-		queue     []*models.Card
+		queue     []*backend.Card
 	}
 
 	testCases := []testCase{
@@ -96,7 +96,7 @@ func TestArcherCard(t *testing.T) {
 			name:      "Archer in first position",
 			firstCard: false,
 			errorText: "Expected only the last card in the queue to be eliminated when the archer is in the first position",
-			queue: []*models.Card{
+			queue: []*backend.Card{
 				&blueCards[0],
 				{Uuid: "1", Name: "Test Card 1", IsRevealed: false},
 				{Uuid: "2", Name: "Test Card 2", IsRevealed: false},
@@ -106,7 +106,7 @@ func TestArcherCard(t *testing.T) {
 			name:      "Archer in middle position",
 			firstCard: true,
 			errorText: "Expected the first or last card in the queue to be eliminated when the archer is in the middle position",
-			queue: []*models.Card{
+			queue: []*backend.Card{
 				{Uuid: "1", Name: "Test Card 1", IsRevealed: false},
 				&blueCards[0],
 				{Uuid: "2", Name: "Test Card 2", IsRevealed: false},
@@ -116,7 +116,7 @@ func TestArcherCard(t *testing.T) {
 			name:      "Archer in last position",
 			firstCard: true,
 			errorText: "Expected only the first card in the queue to be eliminated when the archer is in the last position",
-			queue: []*models.Card{
+			queue: []*backend.Card{
 				{Uuid: "1", Name: "Test Card 1", IsRevealed: false},
 				{Uuid: "2", Name: "Test Card 2", IsRevealed: false},
 				&blueCards[0],
@@ -133,7 +133,7 @@ func TestArcherCard(t *testing.T) {
 			assert.Equal(t, "Archer", currentCard.Name)
 			currentCard.Reveal(simpleQueue)
 
-			result, _ := currentCard.ApplyArcher(simpleQueue, models.PlayerChoices{FirstCard: tc.firstCard})
+			result, _ := currentCard.ApplyArcher(simpleQueue, backend.PlayerChoices{FirstCard: tc.firstCard})
 			assert.True(t, result, tc.errorText)
 
 			if tc.firstCard {
@@ -156,10 +156,10 @@ func TestArcherCard(t *testing.T) {
 }
 
 func TestSoldierCard(t *testing.T) {
-	alice := &models.Player{Username: "Alice"}
-	blueCards := models.CreateBlueCards(alice)
+	alice := &backend.WebsocketClient{Username: "Alice"}
+	blueCards := backend.CreateBlueCards(alice)
 
-	simpleQueue := models.CreateInfluenceQueue()
+	simpleQueue := backend.CreateInfluenceQueue()
 
 	type testCase struct {
 		name            string
@@ -167,7 +167,7 @@ func TestSoldierCard(t *testing.T) {
 		cardBefore      bool
 		errorText       string
 		firstCard       bool
-		queue           []*models.Card
+		queue           []*backend.Card
 	}
 
 	testCases := []testCase{
@@ -177,7 +177,7 @@ func TestSoldierCard(t *testing.T) {
 			cardBefore:      false,
 			firstCard:       false,
 			errorText:       "Expected card on the right of the soldier to be eliminated when the soldier is in the first position",
-			queue: []*models.Card{
+			queue: []*backend.Card{
 				&blueCards[1],
 				{Uuid: "1", Name: "Test Card 1"},
 				{Uuid: "2", Name: "Test Card 2"},
@@ -189,7 +189,7 @@ func TestSoldierCard(t *testing.T) {
 			cardBefore:      true,
 			firstCard:       true,
 			errorText:       "Expected the card on the left of the soldier to be eliminated when the soldier is in the middle position",
-			queue: []*models.Card{
+			queue: []*backend.Card{
 				{Uuid: "1", Name: "Test Card 1"},
 				&blueCards[1],
 				{Uuid: "2", Name: "Test Card 2"},
@@ -201,7 +201,7 @@ func TestSoldierCard(t *testing.T) {
 			resolutionIndex: 1,
 			firstCard:       true,
 			errorText:       "Expected the card on the right of the soldier to be eliminated when the soldier is in the middle position",
-			queue: []*models.Card{
+			queue: []*backend.Card{
 				{Uuid: "1", Name: "Test Card 1"},
 				&blueCards[1],
 				{Uuid: "2", Name: "Test Card 2"},
@@ -213,7 +213,7 @@ func TestSoldierCard(t *testing.T) {
 			resolutionIndex: 2,
 			firstCard:       true,
 			errorText:       "Expected card on the left of the soldier to be eliminated when the soldier is in the last position",
-			queue: []*models.Card{
+			queue: []*backend.Card{
 				{Uuid: "1", Name: "Test Card 1"},
 				{Uuid: "2", Name: "Test Card 2"},
 				&blueCards[1],
@@ -230,7 +230,7 @@ func TestSoldierCard(t *testing.T) {
 			assert.Equal(t, "Soldier", currentCard.Name)
 			currentCard.Reveal(simpleQueue)
 
-			result, err := currentCard.ApplySoldier(simpleQueue, models.PlayerChoices{CardBefore: tc.cardBefore})
+			result, err := currentCard.ApplySoldier(simpleQueue, backend.PlayerChoices{CardBefore: tc.cardBefore})
 			assert.NoError(t, err, err)
 			assert.True(t, result, tc.errorText)
 
@@ -254,13 +254,13 @@ func TestSoldierCard(t *testing.T) {
 }
 
 func TestSpyCard(t *testing.T) {
-	alice := &models.Player{Username: "Alice", Tokens: 1}
-	martin := &models.Player{Username: "Martin", Tokens: 1}
-	pauline := &models.Player{Username: "Pauline", Tokens: 1}
+	alice := &backend.WebsocketClient{Username: "Alice", Tokens: 1}
+	martin := &backend.WebsocketClient{Username: "Martin", Tokens: 1}
+	pauline := &backend.WebsocketClient{Username: "Pauline", Tokens: 1}
 
-	blueCards := models.CreateBlueCards(alice)
+	blueCards := backend.CreateBlueCards(alice)
 
-	simpleQueue := models.CreateInfluenceQueue()
+	simpleQueue := backend.CreateInfluenceQueue()
 
 	type testCase struct {
 		name                   string
@@ -270,7 +270,7 @@ func TestSpyCard(t *testing.T) {
 		expectedAdjacentTokens int
 		errorText              string
 		cardBefore             bool
-		queue                  []*models.Card
+		queue                  []*backend.Card
 	}
 
 	testCases := []testCase{
@@ -282,7 +282,7 @@ func TestSpyCard(t *testing.T) {
 			expectedOwnerTokens:    2,
 			expectedAdjacentTokens: 0,
 			errorText:              "Expected the owner of the next adjacent card to lose 1 token when the spy is in the first position",
-			queue: []*models.Card{
+			queue: []*backend.Card{
 				&blueCards[2],
 				{Uuid: "1", Name: "Test Card 1", Owner: martin},
 				{Uuid: "2", Name: "Test Card 2", Owner: pauline},
@@ -296,7 +296,7 @@ func TestSpyCard(t *testing.T) {
 			expectedOwnerTokens:    2,
 			expectedAdjacentTokens: 0,
 			errorText:              "Expected the owner of the next adjacent card to lose 1 token when the spy is in the middle position",
-			queue: []*models.Card{
+			queue: []*backend.Card{
 				{Uuid: "1", Name: "Test Card 1", Owner: martin},
 				&blueCards[2],
 				{Uuid: "2", Name: "Test Card 2", Owner: pauline},
@@ -310,7 +310,7 @@ func TestSpyCard(t *testing.T) {
 			expectedOwnerTokens:    2,
 			expectedAdjacentTokens: 0,
 			errorText:              "Expected the owner of the next adjacent card to lose 1 token when the spy is in the last position",
-			queue: []*models.Card{
+			queue: []*backend.Card{
 				{Uuid: "1", Name: "Test Card 1", Owner: martin},
 				{Uuid: "2", Name: "Test Card 2", Owner: pauline},
 				&blueCards[2],
@@ -324,7 +324,7 @@ func TestSpyCard(t *testing.T) {
 			expectedOwnerTokens:    2,
 			expectedAdjacentTokens: 0,
 			errorText:              "Cannot steal from the next adjacent card when the spy is in the last position and there is no card after it",
-			queue: []*models.Card{
+			queue: []*backend.Card{
 				{Uuid: "1", Name: "Test Card 1", Owner: martin},
 				{Uuid: "2", Name: "Test Card 2", Owner: pauline},
 				&blueCards[2],
@@ -338,7 +338,7 @@ func TestSpyCard(t *testing.T) {
 			expectedOwnerTokens:    1,
 			expectedAdjacentTokens: 1,
 			errorText:              "Expected the same owner of the next adjacent card to not lose 1 token",
-			queue: []*models.Card{
+			queue: []*backend.Card{
 				{Uuid: "1", Name: "Test Card 1", Owner: martin},
 				{Uuid: "2", Name: "Test Card 2", Owner: alice},
 				&blueCards[2],
@@ -355,7 +355,7 @@ func TestSpyCard(t *testing.T) {
 			assert.Equal(t, "Spy", currentCard.Name)
 			currentCard.Reveal(simpleQueue)
 
-			result, err := currentCard.ApplySpy(simpleQueue, models.PlayerChoices{CardBefore: tc.cardBefore})
+			result, err := currentCard.ApplySpy(simpleQueue, backend.PlayerChoices{CardBefore: tc.cardBefore})
 			if tc.expectedResult {
 				assert.True(t, result)
 				assert.NoError(t, err, err)
@@ -389,9 +389,9 @@ func TestSpyCard(t *testing.T) {
 func TestConspiracyCard(t *testing.T) {
 	_, blueCards := cardConstructor()
 
-	simpleQueue := models.InfluenceQueue{
+	simpleQueue := backend.InfluenceQueue{
 		ResolutionIndex: -1,
-		Queue: []*models.Card{
+		Queue: []*backend.Card{
 			&blueCards[8],
 		},
 	}
@@ -411,8 +411,8 @@ func TestConspiracyCard(t *testing.T) {
 }
 
 func TestAmbush(t *testing.T) {
-	blueCards := models.CreateBlueCards(&models.Player{Username: "Alice", Tokens: 1})
-	redCards := models.CreateRedCards(&models.Player{Username: "Pauline", Tokens: 1})
+	blueCards := backend.CreateBlueCards(&backend.WebsocketClient{Username: "Alice", Tokens: 1})
+	redCards := backend.CreateRedCards(&backend.WebsocketClient{Username: "Pauline", Tokens: 1})
 
 	type testCase struct {
 		name                   string
@@ -421,7 +421,7 @@ func TestAmbush(t *testing.T) {
 		expectedOwnerTokens    int
 		expectedAdjacentTokens int
 		errorText              string
-		queue                  []*models.Card
+		queue                  []*backend.Card
 	}
 
 	testCases := []testCase{
@@ -432,7 +432,7 @@ func TestAmbush(t *testing.T) {
 			expectedOwnerTokens:    2,
 			expectedAdjacentTokens: 5,
 			errorText:              "Expected owner of the ambush card to gain 4 tokens when the soldier eliminates it",
-			queue: []*models.Card{
+			queue: []*backend.Card{
 				&redCards[1],  // Solider card
 				&blueCards[9], // Ambush card
 			},
@@ -443,13 +443,13 @@ func TestAmbush(t *testing.T) {
 			revealed:            true,
 			expectedOwnerTokens: 2,
 			errorText:           "Expected owner of the ambush card to gain 1 token",
-			queue: []*models.Card{
+			queue: []*backend.Card{
 				&redCards[9],
 			},
 		},
 	}
 
-	simpleQueue := models.CreateInfluenceQueue()
+	simpleQueue := backend.CreateInfluenceQueue()
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -468,7 +468,7 @@ func TestAmbush(t *testing.T) {
 				assert.Equal(t, "Soldier", currentCard.Name)
 				// Simulate the soldier card effect by attacking the
 				// card on the right (or the Ambush card)
-				_, err := currentCard.ApplySoldier(simpleQueue, models.PlayerChoices{CardBefore: false})
+				_, err := currentCard.ApplySoldier(simpleQueue, backend.PlayerChoices{CardBefore: false})
 				assert.NoError(t, err, err)
 				assert.Equal(t, tc.expectedOwnerTokens, currentCard.Owner.Tokens)
 				assert.Equal(t, tc.expectedAdjacentTokens, simpleQueue.Queue[1].Owner.Tokens, tc.errorText)
@@ -486,15 +486,15 @@ func TestAmbush(t *testing.T) {
 }
 
 func TestShapeShifterCard(t *testing.T) {
-	alice := &models.Player{Username: "Alice", Tokens: 1}
-	pauline := &models.Player{Username: "Pauline", Tokens: 1}
-	martin := &models.Player{Username: "Martin", Tokens: 1}
+	alice := &backend.WebsocketClient{Username: "Alice", Tokens: 1}
+	pauline := &backend.WebsocketClient{Username: "Pauline", Tokens: 1}
+	martin := &backend.WebsocketClient{Username: "Martin", Tokens: 1}
 
-	blueCards := models.CreateBlueCards(alice)
-	redCards := models.CreateRedCards(pauline)
-	yellowCards := models.CreateYellowCards(martin)
+	blueCards := backend.CreateBlueCards(alice)
+	redCards := backend.CreateRedCards(pauline)
+	yellowCards := backend.CreateYellowCards(martin)
 
-	simpleQueue := models.CreateInfluenceQueue()
+	simpleQueue := backend.CreateInfluenceQueue()
 
 	type testCase struct {
 		name                string
@@ -504,7 +504,7 @@ func TestShapeShifterCard(t *testing.T) {
 		errorText           string
 		cardBefore          bool
 		adjacentRevealed    bool
-		queue               []*models.Card
+		queue               []*backend.Card
 	}
 
 	testCases := []testCase{
@@ -516,7 +516,7 @@ func TestShapeShifterCard(t *testing.T) {
 			expectedOwnerTokens: 2,
 			adjacentRevealed:    true,
 			errorText:           "Expected the owner of the next adjacent card to lose 1 token when the shape shifter is in the first position",
-			queue: []*models.Card{
+			queue: []*backend.Card{
 				&blueCards[4],
 				&redCards[1],    // Solider card
 				&yellowCards[3], // Heir
@@ -531,7 +531,7 @@ func TestShapeShifterCard(t *testing.T) {
 		// 	expectedAdjacentTokens: 0,
 		// 	adjacentRevealed:       false,
 		// 	errorText:              "Expected the owner of the next adjacent card to lose 1 token when the shape shifter is in the first position",
-		// 	queue: []*models.Card{
+		// 	queue: []*backend.Card{
 		// 		&blueCards[4],
 		// 		&redCards[1],    // Solider card
 		// 		&yellowCards[3], // Heir
@@ -552,7 +552,7 @@ func TestShapeShifterCard(t *testing.T) {
 				simpleQueue.Queue[1].Reveal(simpleQueue)
 			}
 
-			result, err := currentCard.ApplyShapeshifter(simpleQueue, models.PlayerChoices{
+			result, err := currentCard.ApplyShapeshifter(simpleQueue, backend.PlayerChoices{
 				CardBefore:             tc.cardBefore,
 				ShapeShifterCardBefore: false,
 			})
@@ -580,19 +580,19 @@ func TestShapeShifterCard(t *testing.T) {
 }
 
 func TestHeir(t *testing.T) {
-	alice := &models.Player{Username: "Alice", Tokens: 1}
-	pauline := &models.Player{Username: "Pauline", Tokens: 1}
+	alice := &backend.WebsocketClient{Username: "Alice", Tokens: 1}
+	pauline := &backend.WebsocketClient{Username: "Pauline", Tokens: 1}
 
-	blueCards := models.CreateBlueCards(alice)
-	redCards := models.CreateRedCards(pauline)
+	blueCards := backend.CreateBlueCards(alice)
+	redCards := backend.CreateRedCards(pauline)
 
-	simpleQueue := models.CreateInfluenceQueue()
+	simpleQueue := backend.CreateInfluenceQueue()
 
 	type testCase struct {
 		name            string
 		resolutionIndex int
 		expectedTokens  int
-		queue           []*models.Card
+		queue           []*backend.Card
 	}
 
 	testCases := []testCase{
@@ -600,7 +600,7 @@ func TestHeir(t *testing.T) {
 			name:            "Heir is in the only one in the queue",
 			resolutionIndex: 0,
 			expectedTokens:  3,
-			queue: []*models.Card{
+			queue: []*backend.Card{
 				&blueCards[3],
 			},
 		},
@@ -608,7 +608,7 @@ func TestHeir(t *testing.T) {
 			name:            "Heir is not the only one in the queue",
 			resolutionIndex: 0,
 			expectedTokens:  1,
-			queue: []*models.Card{
+			queue: []*backend.Card{
 				&blueCards[3],
 				&redCards[3],
 			},
