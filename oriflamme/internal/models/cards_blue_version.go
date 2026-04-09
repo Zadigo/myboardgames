@@ -7,6 +7,14 @@ import (
 	"github.com/google/uuid"
 )
 
+type PlayerChoices struct {
+	// Whether to apply an effect on the card immediately before
+	// or immediately after the card being resolved.
+	CardBefore bool
+	// Whether to apply an effect on the first or last card in the queue.
+	FirstCard bool
+}
+
 type Card struct {
 	// Uuid is a unique identifier for the card,
 	// used to track it in the influence queue
@@ -220,7 +228,7 @@ func (card *Card) ApplyArcher(queue *InfluenceQueue, firstCard bool) (state bool
 // Eliminates a card adjacent to the soldier in the queue.
 // The player can choose to eliminate either the card immediately before
 // or immediately after the soldier.
-func (card *Card) ApplySoldier(queue *InfluenceQueue, direction string) (bool, error) {
+func (card *Card) ApplySoldier(queue *InfluenceQueue, cardBefore bool) (bool, error) {
 	if ok, err := card.preActionCheck(queue, "Soldier"); !ok {
 		return false, errors.Join(err, errors.New("Pre-action check failed"))
 	}
@@ -262,13 +270,10 @@ func (card *Card) ApplySoldier(queue *InfluenceQueue, direction string) (bool, e
 	// The soldier is in the middle of the queue,
 	// so the player can choose to eliminate either
 	// the card immediately before or immediately after it.
-	switch direction {
-	case "before":
+	if cardBefore {
 		wasCard = queue.RemoveCardAtPosition(queue.ResolutionIndex - 1)
-	case "after":
+	} else {
 		wasCard = queue.RemoveCardAtPosition(queue.ResolutionIndex + 1)
-	default:
-		return false, errors.New("Invalid direction. Must be 'before' or 'after'")
 	}
 
 	finalize()
@@ -367,7 +372,7 @@ func (card *Card) ApplyConspiracy(queue *InfluenceQueue) (state bool, err error)
 
 // The shapeshifter can copy the effect of any adjacent character card in the queue
 // when it is revealed.
-func (card *Card) ApplyShapeshifter(queue *InfluenceQueue, direction string) (state bool, err error) {
+func (card *Card) ApplyShapeshifter(queue *InfluenceQueue, cardBefore bool) (state bool, err error) {
 	if ok, _ := card.preActionCheck(queue, "Shapeshifter"); !ok {
 		return false, errors.New("Pre-action check failed")
 	}
@@ -398,20 +403,16 @@ func (card *Card) ApplyShapeshifter(queue *InfluenceQueue, direction string) (st
 	// so the player can choose to copy either
 	// the card immediately before or immediately after it.
 	if queue.ResolutionIndex > 0 && queue.ResolutionIndex < queue.NumberOfCards()-1 {
-		switch direction {
-		case "before":
+		if cardBefore {
 			cardToCopy = queue.Queue[queue.ResolutionIndex-1]
-		case "after":
+		} else {
 			cardToCopy = queue.Queue[queue.ResolutionIndex+1]
-		default:
-			return false, errors.New("Invalid direction. Must be 'before' or 'after'")
 		}
 	}
 
 	if cardToCopy.IsCharacter() && cardToCopy.IsRevealed {
 		switch cardToCopy.Name {
 		case "Archer":
-			// TODO:
 			return cardToCopy.ApplyArcher(queue, true)
 		case "Spy":
 			return cardToCopy.ApplySpy(queue, true)
@@ -420,7 +421,7 @@ func (card *Card) ApplyShapeshifter(queue *InfluenceQueue, direction string) (st
 			// additional effect.
 			return false, errors.New("Cannot copy another shapeshifter")
 		case "Soldier":
-			return cardToCopy.ApplySoldier(queue, "before")
+			return cardToCopy.ApplySoldier(queue, false)
 		case "Heir":
 			return cardToCopy.ApplyHeir(queue)
 		case "Lord":

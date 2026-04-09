@@ -68,7 +68,7 @@ func TestCard(t *testing.T) {
 			case "archer":
 				result, _ = card.ApplyArcher(&models.InfluenceQueue{}, true)
 			case "soldier":
-				result, _ = card.ApplySoldier(&models.InfluenceQueue{}, "after")
+				result, _ = card.ApplySoldier(&models.InfluenceQueue{}, false)
 			case "spy":
 				result, _ = card.ApplySpy(&models.InfluenceQueue{}, true)
 			}
@@ -164,7 +164,7 @@ func TestSoldierCard(t *testing.T) {
 	type testCase struct {
 		name            string
 		resolutionIndex int
-		direction       string
+		cardBefore      bool
 		errorText       string
 		firstCard       bool
 		queue           []*models.Card
@@ -174,7 +174,7 @@ func TestSoldierCard(t *testing.T) {
 		{
 			name:            "Soldier in first position",
 			resolutionIndex: 0,
-			direction:       "",
+			cardBefore:      false,
 			firstCard:       false,
 			errorText:       "Expected card on the right of the soldier to be eliminated when the soldier is in the first position",
 			queue: []*models.Card{
@@ -186,7 +186,7 @@ func TestSoldierCard(t *testing.T) {
 		{
 			name:            "Soldier in middle position 1",
 			resolutionIndex: 1,
-			direction:       "before",
+			cardBefore:      true,
 			firstCard:       true,
 			errorText:       "Expected the card on the left of the soldier to be eliminated when the soldier is in the middle position",
 			queue: []*models.Card{
@@ -197,7 +197,7 @@ func TestSoldierCard(t *testing.T) {
 		},
 		{
 			name:            "Soldier in middle position 2",
-			direction:       "after",
+			cardBefore:      false,
 			resolutionIndex: 1,
 			firstCard:       true,
 			errorText:       "Expected the card on the right of the soldier to be eliminated when the soldier is in the middle position",
@@ -209,7 +209,7 @@ func TestSoldierCard(t *testing.T) {
 		},
 		{
 			name:            "Soldier in last position",
-			direction:       "",
+			cardBefore:      true,
 			resolutionIndex: 2,
 			firstCard:       true,
 			errorText:       "Expected card on the left of the soldier to be eliminated when the soldier is in the last position",
@@ -230,17 +230,14 @@ func TestSoldierCard(t *testing.T) {
 			assert.Equal(t, "Soldier", currentCard.Name)
 			currentCard.Reveal(simpleQueue)
 
-			result, err := currentCard.ApplySoldier(simpleQueue, tc.direction)
+			result, err := currentCard.ApplySoldier(simpleQueue, tc.cardBefore)
 			assert.NoError(t, err, err)
 			assert.True(t, result, tc.errorText)
 
-			if tc.direction != "" {
-				switch tc.direction {
-				case "before":
-					assert.True(t, simpleQueue.Queue[0].IsRemoved, tc.errorText)
-				case "after":
-					assert.True(t, simpleQueue.Queue[len(simpleQueue.Queue)-1].IsRemoved, tc.errorText)
-				}
+			if tc.cardBefore {
+				assert.True(t, simpleQueue.Queue[0].IsRemoved, tc.errorText)
+			} else {
+				assert.True(t, simpleQueue.Queue[len(simpleQueue.Queue)-1].IsRemoved, tc.errorText)
 			}
 
 			assert.Equal(t, currentCard.Owner.Tokens, 1, "Expected player to gain tokens for eliminated cards")
@@ -471,18 +468,120 @@ func TestAmbush(t *testing.T) {
 				assert.Equal(t, "Soldier", currentCard.Name)
 				// Simulate the soldier card effect by attacking the
 				// card on the right (or the Ambush card)
-				_, err := currentCard.ApplySoldier(simpleQueue, "before")
+				_, err := currentCard.ApplySoldier(simpleQueue, false)
 				assert.NoError(t, err, err)
 				assert.Equal(t, tc.expectedOwnerTokens, currentCard.Owner.Tokens)
 				assert.Equal(t, tc.expectedAdjacentTokens, simpleQueue.Queue[1].Owner.Tokens, tc.errorText)
 			}
-			
+
 			t.Cleanup(func() {
 				currentCard.Owner.Tokens = 1
 
 				for _, card := range simpleQueue.Queue {
 					card.IsRemoved = false
 				}
+			})
+		})
+	}
+}
+
+func TestShapeShifterCard(t *testing.T) {
+	alice := &models.Player{Username: "Alice", Tokens: 1}
+	pauline := &models.Player{Username: "Pauline", Tokens: 1}
+	martin := &models.Player{Username: "Martin", Tokens: 1}
+
+	blueCards := models.CreateBlueCards(alice)
+	redCards := models.CreateRedCards(pauline)
+	yellowCards := models.CreateYellowCards(martin)
+
+	simpleQueue := models.CreateInfluenceQueue()
+
+	type testCase struct {
+		name                   string
+		resolutionIndex        int
+		expectedResult         bool
+		expectedOwnerTokens    int
+		expectedAdjacentTokens int
+		errorText              string
+		cardBefore             bool
+		adjacentRevealed       bool
+		queue                  []*models.Card
+	}
+
+	testCases := []testCase{
+		{
+			name:                   "Shapeshifter copies revealed card",
+			resolutionIndex:        0,
+			cardBefore:             false,
+			expectedResult:         false,
+			expectedOwnerTokens:    2,
+			expectedAdjacentTokens: 0,
+			adjacentRevealed:       true,
+			errorText:              "Expected the owner of the next adjacent card to lose 1 token when the shape shifter is in the first position",
+			queue: []*models.Card{
+				&blueCards[4],
+				&redCards[1],    // Solider card
+				&yellowCards[3], // Heir
+			},
+		},
+		{
+			name:                   "Shapeshifter copies none revealed card",
+			resolutionIndex:        0,
+			cardBefore:             false,
+			expectedResult:         true,
+			expectedOwnerTokens:    2,
+			expectedAdjacentTokens: 0,
+			adjacentRevealed:       false,
+			errorText:              "Expected the owner of the next adjacent card to lose 1 token when the shape shifter is in the first position",
+			queue: []*models.Card{
+				&blueCards[4],
+				&redCards[1],    // Solider card
+				&yellowCards[3], // Heir
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			simpleQueue.Queue = tc.queue
+			simpleQueue.ResolutionIndex = tc.resolutionIndex
+
+			currentCard, _ := simpleQueue.GetCurrentCard()
+			assert.Equal(t, "Shape Shifter", currentCard.Name)
+			currentCard.Reveal(simpleQueue)
+
+			if tc.adjacentRevealed {
+				simpleQueue.Queue[1].Reveal(simpleQueue)
+			}
+
+			result, err := currentCard.ApplyShapeshifter(simpleQueue, tc.cardBefore)
+			assert.NoError(t, err, err)
+
+			if tc.adjacentRevealed {
+				assert.False(t, result, tc.errorText)
+			} else {
+				assert.True(t, result, tc.errorText)
+			}
+
+			resultingAdjacentTokens := 0
+
+			if tc.cardBefore {
+				resultingAdjacentTokens = simpleQueue.Queue[tc.resolutionIndex-1].Owner.Tokens
+			} else {
+				resultingAdjacentTokens = simpleQueue.Queue[tc.resolutionIndex+1].Owner.Tokens
+			}
+
+			assert.Equal(t, resultingAdjacentTokens, tc.expectedAdjacentTokens)
+			assert.Equal(t, currentCard.Owner.Tokens, tc.expectedOwnerTokens)
+
+			t.Cleanup(func() {
+				currentCard.Owner.Tokens = 1
+
+				for _, card := range simpleQueue.Queue {
+					card.IsRemoved = false
+				}
+
+				simpleQueue.Queue[1].IsRevealed = false
 			})
 		})
 	}
