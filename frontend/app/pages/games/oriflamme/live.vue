@@ -1,19 +1,21 @@
 <template>
   <section id="oriflamme" class="h-screen px-20 space-y-2 mx-auto my-10">
-    <div class="rounded-xl bg-primary-100 w-full h-auto p-5">
-      <h1 class="font-bold bg-secondary-800/20 backdrop-blur-3xl shadow-sm p-3 rounded-lg mb-3 w-auto max-w-100">
-        Influence queue
-      </h1>
+    <oriflamme-base-card-scroll title="Influence queue">
+      <oriflamme-card v-for="card in cards" :key="card.Uuid" :card="card" :in-queue="true" />
+    </oriflamme-base-card-scroll>
 
-      <div class="overflow-x-scroll w-full h-auto flex gap-2">
-        <oriflamme-card v-for="card in cards" :key="card.Uuid" :card="card" />
-      </div>
-    </div>
+    <oriflamme-base-card-scroll title="Your hand">
+      <oriflamme-card v-for="card in cards" :key="card.Uuid" :card="card" />
+    </oriflamme-base-card-scroll>
   </section>
 </template>
 
 <script lang="ts" setup>
 import type { OriflammeCard } from '~/types'
+
+definePageMeta({
+  layout: 'game'
+})
 
 const cards = ref<OriflammeCard[]>([
   {
@@ -34,4 +36,14 @@ const cards = ref<OriflammeCard[]>([
     Type: 'Character'
   }
 ])
+
+const theme = ['bg-primary-50']
+
+onMounted(() => {
+  document.body.classList.add(...theme)
+})
+
+onUnmounted(() => {
+  document.body.classList.remove(...theme)
+})
 </script>
