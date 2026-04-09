@@ -46,19 +46,6 @@ func GameLogic(message WebsocketMessage, client *WebsocketClient, serverRegistry
 			TableUuid: gameRegistry.Uuid,
 			Message:   "Game created successfully",
 		}
-
-		// TEST:
-		// err := gameRegistry.PublishToRoom(serverRegistry.redisClient, WebsocketMessage{
-		// 	Action:  "test_redis_publication",
-		// 	Message: "Gaga",
-		// })
-		// err = gameRegistry.PublishToRoom(serverRegistry.redisClient, WebsocketMessage{
-		// 	Action:  "test_redis_publication_two",
-		// 	Message: "Lady",
-		// })
-		// if err != nil {
-		// 	log.Println("❌ Failed to publish message to Redis channel:", err)
-		// }
 	case "start_game":
 		gameRegistry, err := serverRegistry.GetGame(message.TableUuid)
 		if err != nil {
@@ -76,6 +63,11 @@ func GameLogic(message WebsocketMessage, client *WebsocketClient, serverRegistry
 		}
 
 		log.Printf("⚡️ Game started: %s", gameRegistry.Uuid)
+
+		gameRegistry.PublishToRoom(serverRegistry.redisClient, WebsocketMessage{
+			Action:  "ignore",
+			Message: "IGNORE: Test for Redis pub/sub",
+		})
 
 		// 2. Create all the redis dependencies for the game
 

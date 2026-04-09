@@ -51,38 +51,38 @@ type Card struct {
 	// Uuid is a unique identifier for the card,
 	// used to track it in the influence queue
 	// and other game mechanics.
-	Uuid string
+	Uuid string `json:"uuid"`
 	// Indicates the position of the card in the influence queue. Default value
 	// is -1, which means that the card is not in the queue. When a card is added to the queue,
 	// its position is updated to reflect its index.
-	PositionInQueue int
+	PositionInQueue int `json:"positionInQueue"`
 	// Name is the name of the card
-	Name string
+	Name string `json:"name"`
 	// Type indicates whether the card is a "Character" or an "Intrigue".
-	Type string
+	Type string `json:"type"`
 	// Stack represents the stack of cards that have been played on top of this card.
-	Stack []*Card
+	Stack []*Card `json:"stack"`
 	// Color represents the color of the card, which can be "Red", "Blue", "Green", "Yellow", or "Purple".
-	Color string
+	Color string `json:"color"`
 	// Owner is a reference to the player who owns this card.
-	Owner *WebsocketClient
+	Owner *WebsocketClient `json:"owner"`
 	// IsSelected indicates whether the card was selected by the player.
-	IsSelected bool
+	IsSelected bool `json:"isSelected"`
 	// IsRemoved indicates whether the card has been removed from the game.
-	IsRemoved bool
+	IsRemoved bool `json:"isRemoved"`
 	// IsDiscarded indicates whether the card has been discarded from the queue.
-	IsDiscarded bool
-	// InQueue indicates whether the card is currently in the influence queue. 
-	// This is used to determine whether the card's effect can be applied during the 
+	IsDiscarded bool `json:"isDiscarded"`
+	// InQueue indicates whether the card is currently in the influence queue.
+	// This is used to determine whether the card's effect can be applied during the
 	// resolution phase and for Nuxt to track the card's state in the frontend.
-	InQueue bool
+	InQueue bool `json:"inQueue"`
 	// A player can choose to stack tokens on his cards which
 	// he can win when the card is revealed during the resolution phase.
-	Tokens int
+	Tokens int `json:"tokens"`
 	// Indicates whether the card has been revealed during the resolution phase.
-	IsRevealed bool
+	IsRevealed bool `json:"isRevealed"`
 	// Image is the URL of the card's image, used for displaying the card in the frontend.
-	Image string
+	Image string `json:"image"`
 }
 
 func createBaseCards() []Card {

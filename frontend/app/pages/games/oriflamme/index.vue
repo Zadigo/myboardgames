@@ -25,3 +25,4 @@ import { useOriflammeComposable } from '~/composables/oriflamme'
 
 const { createGame, openConnection, quitTable, startGame, tableUuid, isOpen, playerUuid } = useOriflammeComposable()
 </script>
+

@@ -27,14 +27,19 @@ export type ResponseOptions = {
   must_identify: { playerUuid: string }
   create_game: { tableUuid: string }
   place_card: { queue: null }
+  start_game: { cardsInPlay: OriflammeCard[] }
 }
 
 export const useOriflammeComposable = createGlobalState(() => {
+  const { encode, decode } = useWWebsocketMessages2()
+
   const tableUuid = ref<string>('')
   const playerUuid = ref<string>('')
+
   const influenceQueue = ref<OriflammeCard[]>([])
 
-  const { encode, decode } = useWWebsocketMessages2()
+  const cardsInPlay = ref<OriflammeCard[]>([])
+  const playerCards = computed(() => cardsInPlay.value.filter(card => card.owner.uuid === playerUuid.value))
 
   const { ws, open, close, send } = useWebSocket('ws://127.0.0.1:9000/oriflamme/live', {
     immediate: false,
@@ -57,6 +62,12 @@ export const useOriflammeComposable = createGlobalState(() => {
       decode<ResponseOptions>(event.data)('place_card', (data) => {
         if (data) {
           influenceQueue.value = data.queue
+        }
+      })
+
+      decode<ResponseOptions>(event.data)('start_game', (data) => {
+        if (data) {
+          cardsInPlay.value = data.cardsInPlay
         }
       })
     }
@@ -86,6 +97,8 @@ export const useOriflammeComposable = createGlobalState(() => {
     tableUuid,
     isOpen,
     influenceQueue,
+    cardsInPlay,
+    playerCards,
     openConnection,
     createGame,
     startGame,

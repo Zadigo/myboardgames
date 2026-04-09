@@ -58,7 +58,11 @@ const [useOriflammeActionsComposable, _useOriflameeActionsStore] = createInjecti
 
     useTimeoutFn(() => {
       ws.value?.send(
-        encode<ActionOptions>('select_cards', { tableUuid: tableUuid.value, playerUuid: playerUuid.value, selectedCards: selectedCards.value })
+        encode<ActionOptions>('select_cards', {
+          tableUuid: tableUuid.value,
+          playerUuid: playerUuid.value,
+          selectedCards: selectedCards.value
+        })
       )
     }, 2000)
   }
