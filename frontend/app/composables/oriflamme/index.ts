@@ -19,17 +19,48 @@ type ActionOptions = {
   must_identify: [{ playerId: string }]
 }
 
+type DefaultResponseOptions = {
+  error: string
+  message: string
+}
+
+type ResponseOptions = {
+  must_identify: { playerId: string }
+  another_response: [{ someData: string }]
+}
+
 export function encode<T extends keyof ActionOptions>(action: T, ...args: ActionOptions[T]) {
   return JSON.stringify({ action, args })
 }
 
+type DecodeResponse<T> = DefaultResponseOptions & {
+  [K in keyof T]: T[K]
+}
+
+export function decode(message: string) {
+  return function<T extends keyof ResponseOptions>(action: T) {
+    try {
+      return JSON.parse(message) as DecodeResponse<T>
+    } catch (error) {
+      console.error('Failed to decode message:', error)
+      throw new Error('Invalid message format')
+    }
+  }
+}
+
 export const useOriflammeComposable = createGlobalState(() => {
   const tableId = ref<string>('')
+  const playerId = ref<string>('')
 
   const { ws, open, close } = useWebSocket('ws://127.0.0.1:9000/oriflamme/live', {
     immediate: false,
     onConnected(ws) {
       ws.send(encode('idle_connection'))
+    },
+    onMessage(_ws, event) {
+      const message = decode(event.data)
+      const data = message('another_response')
+      // data.
     }
   })
 
