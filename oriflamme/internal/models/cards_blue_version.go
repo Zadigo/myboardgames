@@ -257,13 +257,13 @@ func (card *Card) ApplySoldier(queue *InfluenceQueue, choice PlayerChoices) (boo
 	}
 
 	var wasCard *Card
-	
+
 	finalize := func() {
 		if choice.IsRemote {
 			choice.RemoteCard.Owner.IncreaseTokens(1)
 		} else {
 			card.Owner.IncreaseTokens(1)
-	
+
 			if wasCard.Name == "Ambush" {
 				card.ApplyAmbushAttacked(queue, wasCard)
 			}
@@ -486,8 +486,7 @@ func (card *Card) ApplyShapeshifter(queue *InfluenceQueue, choice PlayerChoices)
 				RemoteCard:               card,
 			})
 		case "Shapeshifter":
-			// Copying another shapeshifter brings no
-			// additional effect.
+			// Copying another shapeshifter brings no additional effect
 			return false, errors.New("Cannot copy another shapeshifter")
 		case "Soldier":
 			return cardToCopy.ApplySoldier(queue, PlayerChoices{
@@ -499,7 +498,8 @@ func (card *Card) ApplyShapeshifter(queue *InfluenceQueue, choice PlayerChoices)
 		case "Heir":
 			return cardToCopy.ApplyHeir(queue)
 		case "Lord":
-			return cardToCopy.ApplyLord(queue)
+			return cardToCopy.ApplyLord(queue, PlayerChoices{})
+
 		default:
 			return false, errors.New("Invalid card to copy")
 		}
@@ -510,10 +510,12 @@ func (card *Card) ApplyShapeshifter(queue *InfluenceQueue, choice PlayerChoices)
 
 // Gain one token and one token for each card of the player's family
 // that are adjacent to the lord in the queue (revelaled or not).
-func (card *Card) ApplyLord(queue *InfluenceQueue) (state bool, err error) {
+func (card *Card) ApplyLord(queue *InfluenceQueue, choice PlayerChoices) (state bool, err error) {
 	if ok, _ := card.preActionCheck(queue, "Lord"); !ok {
 		return false, errors.New("Pre-action check failed")
 	}
+
+	// TODO: Implement logic for shapeshifter
 
 	card.Owner.IncreaseTokens(1)
 
@@ -534,8 +536,8 @@ func (card *Card) ApplyLord(queue *InfluenceQueue) (state bool, err error) {
 	}
 
 	if queue.ResolutionIndex > 0 && queue.ResolutionIndex < queue.NumberOfCards()-1 {
-		nextCard := queue.Queue[queue.ResolutionIndex+1]
 		prevCard := queue.Queue[queue.ResolutionIndex-1]
+		nextCard := queue.Queue[queue.ResolutionIndex+1]
 
 		if nextCard.Color == card.Color {
 			card.Owner.IncreaseTokens(1)

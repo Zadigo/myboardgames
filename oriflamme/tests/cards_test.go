@@ -578,3 +578,61 @@ func TestShapeShifterCard(t *testing.T) {
 		})
 	}
 }
+
+func TestHeir(t *testing.T) {
+	alice := &models.Player{Username: "Alice", Tokens: 1}
+	pauline := &models.Player{Username: "Pauline", Tokens: 1}
+
+	blueCards := models.CreateBlueCards(alice)
+	redCards := models.CreateRedCards(pauline)
+
+	simpleQueue := models.CreateInfluenceQueue()
+
+	type testCase struct {
+		name            string
+		resolutionIndex int
+		expectedTokens  int
+		queue           []*models.Card
+	}
+
+	testCases := []testCase{
+		{
+			name:            "Heir is in the only one in the queue",
+			resolutionIndex: 0,
+			expectedTokens:  3,
+			queue: []*models.Card{
+				&blueCards[3],
+			},
+		},
+		{
+			name:            "Heir is not the only one in the queue",
+			resolutionIndex: 0,
+			expectedTokens:  1,
+			queue: []*models.Card{
+				&blueCards[3],
+				&redCards[3],
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			simpleQueue.Queue = tc.queue
+			simpleQueue.ResolutionIndex = tc.resolutionIndex
+
+			currentCard, _ := simpleQueue.GetCurrentCard()
+			assert.Equal(t, "Heir", currentCard.Name)
+			currentCard.Reveal(simpleQueue)
+
+			_, err := currentCard.ApplyHeir(simpleQueue)
+			assert.NoError(t, err, err)
+			assert.Equal(t, tc.expectedTokens, currentCard.Owner.Tokens)
+
+			t.Cleanup(func() {
+				for _, card := range simpleQueue.Queue {
+					card.Owner.Tokens = 1
+				}
+			})
+		})
+	}
+}
