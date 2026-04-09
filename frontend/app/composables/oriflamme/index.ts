@@ -40,16 +40,16 @@ type DecodeResponse<T> = DefaultResponseOptions & {
 /**
  * Return a new decoder function that can be used to decode messages from the websocket.
  */
-export function newDecoder(message: string) {
+export function newDecoder<R>(message: string) {
   /**
    * A decoder function that listens to messages from the websocket that matches the specified
    * action. The callback function wil be called with the decoded data if the action matches, or undefined if it doesn't match.
    * @param action - The action we want to decode from the message
    * @param callback - A callback function that will be called with the decoded data if the action matches, or undefined if it doesn't match
    */
-  return function<T>(action: keyof T, callback: (data: DecodeResponse<T> | undefined) => void) {
+  return function <T extends keyof R>(action: T, callback: (data: DecodeResponse<R[T]> | undefined) => void) {
     try {
-      const wsData = JSON.parse(message) as DecodeResponse<T>
+      const wsData = JSON.parse(message) as DecodeResponse<R[T]>
       if (action === wsData.action) {
         callback(wsData)
       } else {
@@ -72,11 +72,11 @@ export const useOriflammeComposable = createGlobalState(() => {
       ws.send(encode('idle_connection'))
     },
     onMessage(_ws, event) {
-      const decoder = newDecoder(event.data)
+      const decoder = newDecoder<ResponseOptions>(event.data)
 
-      decoder<ResponseOptions>('must_identify', (data) => {
+      decoder('must_identify', (data) => {
         if (data) {
-          console.log('Received must_identify:', data)
+          console.log('Received must_identify:', data.player_uuid)
         }
       })
     }
