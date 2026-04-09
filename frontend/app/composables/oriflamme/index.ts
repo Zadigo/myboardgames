@@ -1,5 +1,4 @@
 export enum OriflammeCardAction {
-  IdleConnection = 'idle_connection',
   StartGame = 'start_game',
   SelectCards = 'select_cards',
   MustIdentify = 'must_identify',
@@ -13,7 +12,7 @@ export enum OriflammeCardAction {
 }
 
 type ActionOptions = {
-  idle_connection: []
+  create_game: [{ player_uuid: string }]
   start_game: [{ game_uuid: string }]
   select_cards: [{ player_uuid: string, cardIds: string[] }]
   identify: [{ player_uuid: string, username: string }]
@@ -27,10 +26,11 @@ type DefaultResponseOptions = {
 
 type ResponseOptions = {
   must_identify: { player_uuid: string }
+  create_game: { table_uuid: string }
 }
 
 export function encode<T extends keyof ActionOptions>(action: T, ...args: ActionOptions[T]) {
-  return JSON.stringify({ action, args })
+  return JSON.stringify({ action, ...args[0] })
 }
 
 type DecodeResponse<T> = DefaultResponseOptions & {
@@ -40,7 +40,7 @@ type DecodeResponse<T> = DefaultResponseOptions & {
 /**
  * Return a new decoder function that can be used to decode messages from the websocket.
  */
-export function newDecoder<R>(message: string) {
+export function useWsMessageDecoder<R>(message: string) {
   /**
    * A decoder function that listens to messages from the websocket that matches the specified
    * action. The callback function wil be called with the decoded data if the action matches, or undefined if it doesn't match.
@@ -63,20 +63,26 @@ export function newDecoder<R>(message: string) {
 }
 
 export const useOriflammeComposable = createGlobalState(() => {
-  const tableId = ref<string>('')
+  const tableUuid = ref<string>('')
   const playerUuid = ref<string>('')
 
-  const { ws, open, close } = useWebSocket('ws://127.0.0.1:9000/oriflamme/live', {
+  const { ws, open, close, send } = useWebSocket('ws://127.0.0.1:9000/oriflamme/live', {
     immediate: false,
-    onConnected(ws) {
-      ws.send(encode('idle_connection'))
+    onConnected(_ws) {
     },
     onMessage(_ws, event) {
-      const decoder = newDecoder<ResponseOptions>(event.data)
+      const decoder = useWsMessageDecoder<ResponseOptions>(event.data)
 
       decoder('must_identify', (data) => {
         if (data) {
-          console.log('Received must_identify:', data.player_uuid)
+          playerUuid.value = data.player_uuid
+          send(encode('identify', { player_uuid: playerUuid.value, username: 'pauline' }))
+        }
+      })
+
+      decoder('create_game', (data) => {
+        if (data) {
+          tableUuid.value = data.table_uuid
         }
       })
     }
@@ -84,13 +90,16 @@ export const useOriflammeComposable = createGlobalState(() => {
 
   const isOpen = computed(() => ws.value?.readyState === WebSocket.OPEN)
 
-  function createTable() {
+  async function openConnection() {
     open()
-    ws.value?.send(encode('start_game', { game_uuid: playerUuid.value }))
   }
 
-  function identify(username: string) {
-    ws.value?.send(encode('identify', { player_uuid: playerUuid.value, username }))
+  async function createGame() {
+    send(encode('create_game', { player_uuid: playerUuid.value }))
+  }
+
+  function startGame() {
+    send(encode('start_game', { game_uuid: playerUuid.value }))
   }
 
   function quitTable() {
@@ -99,10 +108,12 @@ export const useOriflammeComposable = createGlobalState(() => {
 
   return {
     ws,
-    tableId,
+    playerUuid,
+    tableUuid,
     isOpen,
-    identify,
-    createTable,
+    openConnection,
+    createGame,
+    startGame,
     quitTable
   }
 })

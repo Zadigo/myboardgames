@@ -39,8 +39,9 @@ func GameLogic(message WebsocketMessage, client *WebsocketClient, serverRegistry
 		log.Printf("🟢 Client %s joined table %s", client.Uuid, gameRegistry.Uuid)
 
 		gameRegistry.broadcast <- WebsocketMessage{
-			Action:  "create_game",
-			Message: "Game created successfully",
+			Action:    "create_game",
+			TableUuid: gameRegistry.Uuid,
+			Message:   "Game created successfully",
 		}
 
 		// TEST:
