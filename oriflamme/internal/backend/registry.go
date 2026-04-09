@@ -12,10 +12,6 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-type GameHistory struct {
-	mu sync.Mutex
-}
-
 // The GameRegistry is responsible for managing the state of all active games.
 // It maintains a mapping of game IDs to their corresponding game states, which are
 // stored in Redis. The registry provides methods for creating nesw games, retrieving existing
