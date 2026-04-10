@@ -1,20 +1,26 @@
 <template>
-  <article ref="cardEl" :data-uuid="card.uuid" :class="{ ' bg-primary-200 dark:bg-primary-700': !toggleSelection, 'bg-blue-500 dark:bg-blue-700': toggleSelection }" class="relative h-70 min-w-50 transition-all ease-in-out duration-500 rounded-lg p-2 hover:shadow-xl cursor-pointer overflow-hidden">
+  <article ref="cardEl" :data-uuid="card.uuid" :class="cardTheme" class="relative h-70 min-w-50 transition-all ease-in-out duration-500 rounded-lg p-2 hover:shadow-xl cursor-pointer overflow-hidden" @click="displayOptions(indexInQueue)">
+    {{ highlight }} {{ playOptions }} {{ selectedIndex }}
     <img :src="card.image" :alt="card.name" class="w-full h-full aspect-square object-cover rounded-lg">
-
-    <nuxt-popover mode="hover">
+    <lazy-nuxt-popover mode="hover" hydrate-on-idle>
       <nuxt-button class="absolute top-0 right-0 z-10">
         Help
       </nuxt-button>
 
       <template #content>
-        <div class="w-70 has-autofill: p-4">
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repudiandae ab 
-          qui at maiores aperiam aut dolores voluptatum suscipit inventore fugit nesciunt corporis, 
-          ut molestias sed iste et perspiciatis quos iusto.
+        <div class="w-70 h-auto p-4">
+          <nuxt-badge label="Power" color="info" />
+          <h3 class="font-bold italic mb-3">
+            {{ cardInfo?.power }}
+          </h3>
+
+          <nuxt-badge label="Description" color="info" />
+          <p class="font-light">
+            {{ cardInfo?.description }}
+          </p>
         </div>
       </template>
-    </nuxt-popover>
+    </lazy-nuxt-popover>
 
     <!-- Actions -->
     <transition
@@ -34,13 +40,18 @@
 </template>
 
 <script lang="ts" setup>
-import { useOriflammeActionsStore } from '~/composables/oriflamme'
+import { useOriflammeActionsStore, useOriflammeAllCardsComposable, useQueuePossibleActionsStore } from '~/composables/oriflamme'
 import type { OriflammeCard } from '~/types'
 
 const props = defineProps<{
+  indexInQueue: number
   card: OriflammeCard
   inQueue?: boolean
 }>()
+
+/**
+ * Actions Hover
+ */
 
 const cardEl = useTemplateRef('cardEl')
 
@@ -48,6 +59,60 @@ const isHovered = useElementHover(cardEl, {
   delayEnter: 200
 })
 
+/**
+ * Card Actions
+ */
+
 const { isSelected } = useOriflammeActionsStore()
 const toggleSelection = isSelected(props.card)
+
+/**
+ * Card Theme
+ */
+
+const cardTheme = computed(() => {
+  return [
+    {
+      'bg-primary-200 dark:bg-primary-700': !toggleSelection.value,
+      'bg-blue-500 dark:bg-blue-700': toggleSelection.value
+    }
+  ]
+})
+
+/**
+ * Card Information
+ */
+
+const { getCardByName } = useOriflammeAllCardsComposable('all')
+const cardInfo = getCardByName(props.card.name)
+
+/**
+ * Card Highlight
+ */
+
+const { isHighlighted, displayOptions, selectedIndex, playOptions } = useQueuePossibleActionsStore()
+const highlight = isHighlighted(props.card)
 </script>
+
+<style lang="css" scoped>
+/* article::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(315deg, var(--color-green-50), var(--color-green-100));
+}
+
+article::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(315deg, var(--color-green-50), var(--color-green-300));
+  filter: blur(30px);
+} */
+</style>

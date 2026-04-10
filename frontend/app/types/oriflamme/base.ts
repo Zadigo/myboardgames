@@ -28,7 +28,9 @@ export enum AblazeCharactersEnum {
 export type AblazeCharacters = `${AblazeCharactersEnum}`
 
 export enum AllianceCharactersEnum {
-
+  Ignore = 'Ignore'
 }
 
 export type AllianceCharacters = `${AllianceCharactersEnum}`
+
+export type AllCharacters = BaseCharacters | AblazeCharacters | AllianceCharacters

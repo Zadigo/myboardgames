@@ -1,7 +1,7 @@
 <template>
   <section id="oriflamme" class="h-screen px-20 space-y-2 mx-auto my-10">
     <lazy-oriflamme-base-card-scroll title="Influence queue" hydrate-on-idle>
-      <oriflamme-card v-for="card in oriflammeCardFixtures" :key="card.uuid" :card="card" :in-queue="true" />
+      <oriflamme-card v-for="(card, idx) in oriflammeCardFixtures" :key="card.uuid" :card="card" :in-queue="true" :index-in-queue="idx" />
     </lazy-oriflamme-base-card-scroll>
 
     <oriflamme-base-card-scroll title="Your hand">
@@ -15,15 +15,28 @@
 </template>
 
 <script lang="ts" setup>
-import { useOriflammeActionsComposable, useOriflammeComposable } from '~/composables/oriflamme'
-import type { OriflammeCard } from '~/types'
+import { useOriflammeActionsComposable, useOriflammeComposable, useQueuePossibleActions } from '~/composables/oriflamme'
 
 definePageMeta({
   layout: 'game'
 })
 
+/**
+ * Websocket
+ */
+
 const { ws, tableUuid, playerUuid, influenceQueue, playerCards } = useOriflammeComposable()
 useOriflammeActionsComposable(ws, tableUuid, playerUuid)
+
+/**
+ * Play Options
+ */
+
+useQueuePossibleActions(influenceQueue)
+
+/**
+ * Page Theme
+ */
 
 const theme = ['bg-primary-50', 'dark:bg-primary-900', 'dark:text-primary-50']
 
