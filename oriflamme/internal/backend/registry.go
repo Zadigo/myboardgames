@@ -149,10 +149,10 @@ func (r *GameRegistry) StartGame(gameUuid string) error {
 		}
 	}
 
-	r.broadcast <- WebsocketMessage{
-		Action:      "start_game",
-		CardsInPlay: r.CardsInPlay,
-	}
+	// r.broadcast <- WebsocketMessage{
+	// 	Action:      "start_game",
+	// 	CardsInPlay: r.CardsInPlay,
+	// }
 
 	return nil
 }

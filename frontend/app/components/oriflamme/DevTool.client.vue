@@ -27,8 +27,19 @@ import { useOriflammeComposable } from '~/composables/oriflamme'
 
 const { isOpen, createGame, openConnection, quitTable, startGame, tableUuid } = useOriflammeComposable()
 
+const windowLocation = useLocalStorage<{ x: number, y: number }>('dev-location', { x: 20, y: 20 }, {
+  serializer: {
+    write: value => JSON.stringify(value),
+    read: raw => JSON.parse(raw)
+  }
+})
+
 const devEl = useTemplateRef('devEl')
-const { style } = useDraggable(devEl, {
-  initialValue: { x: 20, y: 20 }
+const { style, x, y } = useDraggable(devEl, {
+  initialValue: windowLocation
+})
+
+watch([x, y], ([newX, newY]) => {
+  windowLocation.value = { x: newX, y: newY }
 })
 </script>

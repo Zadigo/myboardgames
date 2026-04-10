@@ -8,8 +8,10 @@
       </nuxt-button>
 
       <template #content>
-        <div class="w-50 h-50 p-2">
-          Something
+        <div class="w-70 has-autofill: p-4">
+          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repudiandae ab 
+          qui at maiores aperiam aut dolores voluptatum suscipit inventore fugit nesciunt corporis, 
+          ut molestias sed iste et perspiciatis quos iusto.
         </div>
       </template>
     </nuxt-popover>

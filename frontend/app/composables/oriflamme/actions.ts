@@ -1,7 +1,7 @@
-import type { OriflammeCard } from '~/types'
+import type { Nullable, OriflammeCard } from '~/types'
 import type { ActionOptions } from '.'
 
-const [useOriflammeActionsComposable, _useOriflameeActionsStore] = createInjectionState((ws: Ref<WebSocket | undefined>, tableUuid: Ref<string>, playerUuid: Ref<string>) => {
+const [ useOriflammeActionsComposable, _useOriflameeActionsStore ] = createInjectionState((ws: Ref<WebSocket | undefined>, tableUuid: MaybeRefOrGetter<Nullable<string>>, playerUuid: MaybeRefOrGetter<Nullable<string>>) => {
   const selectedCards = ref<string[]>([])
 
   const { encode } = useWWebsocketMessages2()

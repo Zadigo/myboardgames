@@ -80,6 +80,12 @@ func GameLogic(message WebsocketMessage, client *WebsocketClient, serverRegistry
 			Message: "IGNORE: Test for Redis pub/sub",
 		})
 
+		gameRegistry.PublishToRoom(serverRegistry.redisClient, WebsocketMessage{
+			Action:       "start_game",
+			GameRegistry: gameRegistry,
+			Message:      "Game started successfully",
+		})
+
 		// 2. Create all the redis dependencies for the game
 
 		// 3. Send a message to all players that the game has started

@@ -82,11 +82,11 @@ type Card struct {
 	// Indicates whether the card has been revealed during the resolution phase.
 	IsRevealed bool `json:"isRevealed"`
 	// Image is the URL of the card's image, used for displaying the card in the frontend.
-	Image string `json:"image"`
+	Image       string `json:"image"`
 }
 
 func createBaseCards() []Card {
-	return []Card{
+	cards := []Card{
 		{Uuid: uuid.NewString(), PositionInQueue: -1, Name: "Archer", Type: "Character", Tokens: 0},
 		{Uuid: uuid.NewString(), PositionInQueue: -1, Name: "Soldier", Type: "Character", Tokens: 0},
 		{Uuid: uuid.NewString(), PositionInQueue: -1, Name: "Spy", Type: "Character", Tokens: 0},
@@ -99,6 +99,8 @@ func createBaseCards() []Card {
 		{Uuid: uuid.NewString(), PositionInQueue: -1, Name: "Conspiracy", Type: "Intrigue", Tokens: 0},
 		{Uuid: uuid.NewString(), PositionInQueue: -1, Name: "Ambush", Type: "Intrigue", Tokens: 0},
 	}
+
+	return cards
 }
 
 func createColorCards(owner *WebsocketClient, color string) []Card {

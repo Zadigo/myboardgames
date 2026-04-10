@@ -1,7 +1,7 @@
 <template>
   <section id="oriflamme" class="h-screen px-20 space-y-2 mx-auto my-10">
     <lazy-oriflamme-base-card-scroll title="Influence queue" hydrate-on-idle>
-      <oriflamme-card v-for="card in influenceQueue" :key="card.uuid" :card="card" :in-queue="true" />
+      <oriflamme-card v-for="card in oriflammeCardFixtures" :key="card.uuid" :card="card" :in-queue="true" />
     </lazy-oriflamme-base-card-scroll>
 
     <oriflamme-base-card-scroll title="Your hand">
@@ -23,7 +23,7 @@ definePageMeta({
 })
 
 const { ws, tableUuid, playerUuid, influenceQueue, playerCards } = useOriflammeComposable()
-const { selectedCards } = useOriflammeActionsComposable(ws, tableUuid, playerUuid)
+useOriflammeActionsComposable(ws, tableUuid, playerUuid)
 
 const theme = ['bg-primary-50', 'dark:bg-primary-900', 'dark:text-primary-50']
 
