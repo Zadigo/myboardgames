@@ -29,7 +29,8 @@ export function useWWebsocketMessages2() {
           callback(undefined)
         }
       } catch (error) {
-        throw new Error(`Invalid message format: ${error}`)
+        console.error(`Invalid message format: ${error}`)
+        callback(undefined)
       }
     }
   }
