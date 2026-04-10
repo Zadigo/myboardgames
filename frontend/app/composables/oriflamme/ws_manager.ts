@@ -19,6 +19,7 @@ export type ActionOptions = {
   select_cards: [ { tableUuid: Nullable<string>, playerUuid: Nullable<string>, selectedCards: string[] } ]
   identify: [ { playerUuid: Nullable<string>, username: string } ]
   play_card: [ { playerUuid: Nullable<string>, tableUuid: Nullable<string>, cardAction: CardActions } ]
+  reveal: [ { playerUuid: Nullable<string>, tableUuid: Nullable<string>, cardUuid: string } ]
 }
 
 export type ResponseOptions = {

@@ -1,10 +1,9 @@
 <template>
-  <div class="absolute top-0 left-0 w-full h-full space-y-2">
+  <div class="absolute top-0 left-0 w-full h-full space-y-2 z-20">
     <div class="flex flex-col content-center gap-2 space-x-2">
       <template v-if="inQueue">
         <oriflamme-actions-button icon="lucide:badge-dollar-sign" @click="placeToken" />
-        <oriflamme-actions-button icon="lucide:flip-horizontal-2" @click="reveal" />
-        <oriflamme-actions-button icon="lucide:cloud-lightning" @click="applyEffect" />
+        <oriflamme-actions-button icon="lucide:flip-horizontal-2" @click="() => reveal(card)" />
       </template>
       <template v-else>
         <oriflamme-actions-button icon="lucide:move-left" @click="() => placeCard(card, 'left')" />
@@ -24,5 +23,5 @@ const { inQueue = false } = defineProps<{
   inQueue?: boolean
 }>()
 
-const { reveal, applyEffect, placeToken, placeCard, selectCards } = useOriflammeActionsStore()
+const { reveal, placeToken, placeCard, selectCards } = useOriflammeActionsStore()
 </script>

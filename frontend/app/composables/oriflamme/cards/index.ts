@@ -10,6 +10,7 @@ export type BaseCardInformation<T> = {
   name: T
   power: string
   description: string
+  image: string
   type: 'character' | 'intrigue'
   canTarget: 'adjacent' | 'first_or_last' | 'any' | 'none'
 }

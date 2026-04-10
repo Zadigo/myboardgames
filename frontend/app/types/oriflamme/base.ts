@@ -1,4 +1,4 @@
-export enum BaseCharacters {
+export enum BaseCharactersEnum {
   Archer = 'Archer',
   Soldier = 'Soldier',
   Spy = 'Spy',
@@ -10,6 +10,8 @@ export enum BaseCharacters {
   Conspiracy = 'Conspiracy',
   Ambush = 'Ambush'
 }
+
+export type BaseCharacters = `${BaseCharactersEnum}`
 
 export enum AblazeCharactersEnum {
   Prince = 'Prince',

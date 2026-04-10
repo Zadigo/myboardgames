@@ -1,5 +1,5 @@
 import type { Nullable } from '..'
-import type { BaseCharacters } from './base'
+import type { AllCharacters } from './base'
 
 export type * from './base'
 
@@ -8,15 +8,15 @@ export type WebsocketClient = {
   username: string
   initiator: boolean
   tokens: number
-  discardPile: OriflammeCard[] | null
+  discardPile: OriflammeCard<AllCharacters>[] | null
 }
 
-export type OriflammeCard = {
+export type OriflammeCard<T extends AllCharacters = AllCharacters> = {
   uuid: string
   positionInQueue: number
-  name: `${BaseCharacters}`
+  name: T
   type: string
-  stack: OriflammeCard[] | null
+  stack: OriflammeCard<T>[] | null
   color: string
   owner: WebsocketClient
   tokens: number
@@ -77,12 +77,12 @@ export type PlayerChoices = {
    * The card that is remotely controlling the effect of
    * another card (e.g. the shapeshifter copying the effect of another card).
    */
-  remoteCard: OriflammeCard
+  remoteCard: OriflammeCard<AllCharacters>
   /**
    * The card that the Royal Decree wants to move. This is used when the player chooses to apply the Royal Decree's effect
    * to move a card from its current position in the queue to another position.
    */
-  royalDecreeTargetCard: OriflammeCard
+  royalDecreeTargetCard: OriflammeCard<AllCharacters>
   /**
    * The index of the card that the Royal Decree wants to move.
    */
@@ -110,11 +110,11 @@ export type GameRegistry = {
   uuid: string
   clients: Record<string, WebsocketClient>
   influenceQueueLayer: {
-    queue: OriflammeCard[]
+    queue: OriflammeCard<AllCharacters>[]
     resolutionIndex: number
   }
   isRunning: boolean
   isStarted: boolean
   startedAt: string
-  cardsInPlay: Nullable<OriflammeCard[]>
+  cardsInPlay: Nullable<OriflammeCard<AllCharacters>[]>
 }

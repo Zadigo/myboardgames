@@ -1,11 +1,11 @@
 <template>
   <section id="oriflamme" class="h-screen px-20 space-y-2 mx-auto my-10">
     <lazy-oriflamme-base-card-scroll title="Influence queue" hydrate-on-idle>
-      <oriflamme-card v-for="(card, idx) in oriflammeCardFixtures" :key="card.uuid" :card="card" :in-queue="true" :index-in-queue="idx" />
+      <oriflamme-card v-for="(card, idx) in influenceQueue" :key="card.uuid" :card="card" :in-queue="true" :index-in-queue="idx" />
     </lazy-oriflamme-base-card-scroll>
 
     <oriflamme-base-card-scroll title="Your hand">
-      <oriflamme-card v-for="card in playerCards" :key="card.uuid" :card="card" />
+      <oriflamme-card v-for="(card, idx) in playerCards" :key="card.uuid" :card="card" :index-in-queue="idx" />
     </oriflamme-base-card-scroll>
 
     <dev-only>

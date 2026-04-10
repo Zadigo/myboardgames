@@ -6,12 +6,19 @@ const [useOriflammeActionsComposable, _useOriflameeActionsStore] = createInjecti
 
   const { encode } = useWWebsocketMessages2()
 
-  function reveal() {
-    ws.value?.send('a')
-  }
-
-  function applyEffect() {
-
+  function reveal(card: OriflammeCard) {
+    card.isRevealed = true
+    try {
+      ws.value?.send(
+        encode<ActionOptions>('reveal', {
+          playerUuid: playerUuid.value,
+          tableUuid: tableUuid.value,
+          cardUuid: card.uuid
+        })
+      )
+    } catch (error) {
+      console.error('Failed to send reveal action:', error)
+    }
   }
 
   function placeToken() {
@@ -76,7 +83,6 @@ const [useOriflammeActionsComposable, _useOriflameeActionsStore] = createInjecti
   return {
     selectedCards,
     reveal,
-    applyEffect,
     placeToken,
     placeCard,
     selectCards,
