@@ -1,51 +1,61 @@
-type DefaultResponseOptions = {
+type DecodedData<R extends Record<string, unknown>, K extends keyof R> = {
   action: string
   error: string
   message: string
-}
-
-// type DecodeResponse<T> = DefaultResponseOptions & {
-//   [ K in keyof T ]: T[K]
-// }
+} & Partial<R[K]>
 
 export function useWWebsocketMessages2() {
   function encode<T extends Record<string, Record<string, unknown>[]>>(action: keyof T, ...args: T[keyof T]) {
     return JSON.stringify({ action, ...args[0] })
   }
 
-  /**
-   * Return a new decoder function that can be used to decode messages from the websocket.
-   */
-  function decode<R>(message: string) {
+  function decode<R extends Record<string, unknown>>(message: string) {
     /**
-     * A decoder function that listens to messages from the websocket that matches the specified
-     * action. The callback function wil be called with the decoded data if the action matches, or undefined if it doesn't match.
+     * A decoder function that listens to messages from the websocket by matching the specified
+     * action. The callback function will be called with the decoded data if the action matches,
+     * or undefined if it doesn't match.
      * @param action - The action we want to decode from the message
      * @param callback - A callback function that will be called with the decoded data if the action matches, or undefined if it doesn't match
      */
-    return function <K extends keyof R>(action: K, callback: (data: R & DefaultResponseOptions | undefined) => void) {
+    return function <K extends keyof R>(action: K, callback: (data: DecodedData<R, K> | undefined) => void) {
       try {
-        const wsData = JSON.parse(message) as R & DefaultResponseOptions
+        const wsData = JSON.parse(message) as DecodedData<R, K>
+
         if (action === wsData.action) {
           callback(wsData)
         } else {
           callback(undefined)
         }
       } catch (error) {
-        console.error('Failed to decode message:', error)
-        throw new Error('Invalid message format')
+        throw new Error(`Invalid message format: ${error}`)
       }
     }
   }
 
   return {
+    /**
+     * Encode a message to be sent through the websocket. The message will be a JSON string with the specified action and data.
+     * @param action - The action to be included in the message
+     * @param args - The data to be included in the message
+     */
     encode,
+    /**
+     * Return a new decoder function that can be used to decode messages from the websocket.
+     * @param message - The message to be decoded
+     */
     decode
   }
 }
 
-const { decode } = useWWebsocketMessages2()
-const encoder = decode<{ firstname: string }>('')
-encoder('firstname', (d) => {
-  return d ? d.action : ''
-})
+// type Something = {
+//   some_action: { something: string, another: string }
+//   another_action: { something_else: string }
+// }
+
+// const { decode } = useWWebsocketMessages2()
+// const decoder = decode<Something>('')
+// decoder('some_action', (data) => {
+//   if (data) {
+//     data.something = 'google'
+//   }
+// })
