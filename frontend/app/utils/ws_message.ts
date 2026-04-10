@@ -1,8 +1,10 @@
-type DecodedData<R extends Record<string, unknown>, K extends keyof R> = {
+type DefaultDecodedData = {
   action: string
   error: string
   message: string
-} & Partial<R[K]>
+}
+
+type DecodedData<R extends Record<string, unknown>, K extends keyof R> = DefaultDecodedData & Partial<R[K]>
 
 export function useWWebsocketMessages2() {
   function encode<T extends Record<string, Record<string, unknown>[]>>(action: keyof T, ...args: T[keyof T]) {
@@ -46,16 +48,3 @@ export function useWWebsocketMessages2() {
     decode
   }
 }
-
-// type Something = {
-//   some_action: { something: string, another: string }
-//   another_action: { something_else: string }
-// }
-
-// const { decode } = useWWebsocketMessages2()
-// const decoder = decode<Something>('')
-// decoder('some_action', (data) => {
-//   if (data) {
-//     data.something = 'google'
-//   }
-// })
