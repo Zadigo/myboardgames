@@ -1,7 +1,7 @@
 import type { Nullable } from '..'
-import type { BlueBoxCharacters } from './bluebox'
+import type { BaseCharacters } from './base'
 
-export type * from './bluebox'
+export type * from './base'
 
 export type WebsocketClient = {
   uuid: string
@@ -14,7 +14,7 @@ export type WebsocketClient = {
 export type OriflammeCard = {
   uuid: string
   positionInQueue: number
-  name: `${BlueBoxCharacters}`
+  name: `${BaseCharacters}`
   type: string
   stack: OriflammeCard[] | null
   color: string

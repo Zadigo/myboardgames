@@ -1,11 +1,11 @@
-import type { BlueBoxCharacters } from '~/types'
+import type { BaseCharacters } from '~/types'
 import type { BaseCardInformation } from '.'
 
 /**
  * Gives a textual description of the power of each card, as well as the rules for targeting other cards with it.
  * This is used in the base card scroll, and also in the card popover when hovering over a card in play.
  */
-export const baseCards: BaseCardInformation<`${BlueBoxCharacters}`>[] = [
+export const baseCards: BaseCardInformation<`${BaseCharacters}`>[] = [
   {
     name: 'Archer',
     power: 'Eliminate the first or last card from the Queue',
@@ -77,31 +77,3 @@ export const baseCards: BaseCardInformation<`${BlueBoxCharacters}`>[] = [
     canTarget: 'none'
   }
 ]
-
-/**
- * A helper composable to get information about the base cards, such as their power and description.
- * This is used in the base card scroll, and also in the card popover when hovering over a card in play.
- */
-export function useOriflammeBaseCardsComposable() {
-  function _getCardByName(name: BlueBoxCharacters) {
-    return baseCards.find(card => card.name === name)
-  }
-
-  const getCardByName = reactify(_getCardByName)
-
-  function _cardHasAbility(cardName: BlueBoxCharacters) {
-    return cardName !== 'Conspiracy' && cardName !== 'Ambush'
-  }
-
-  const cardHasAbility = reactify(_cardHasAbility)
-
-  return {
-    baseCards,
-    getCardByName,
-    /**
-     * Helper function used to toggle the visibility of certain
-     * buttons in the card popover
-     */
-    cardHasAbility
-  }
-}

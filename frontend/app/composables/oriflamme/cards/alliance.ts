@@ -3,9 +3,9 @@ import type { BaseCardInformation } from '.'
 
 /**
  * Gives a textual description of the power of each card, as well as the rules for targeting other cards with it.
- * This is used in the ablaze card scroll, and also in the card popover when hovering over a card in play.
+ * This is used in the alliance card scroll, and also in the card popover when hovering over a card in play.
  */
-export const ablazeCards: BaseCardInformation<`${BaseCharacters}`>[] = [
+export const allianceCards: BaseCardInformation<`${BaseCharacters}`>[] = [
   {
     name: 'Archer',
     power: 'Eliminate the first or last card from the Queue',
