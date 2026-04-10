@@ -1,3 +1,8 @@
+import type { Nullable } from '..'
+import type { BlueBoxCharacters } from './bluebox'
+
+export type * from './bluebox'
+
 export type WebsocketClient = {
   uuid: string
   username: string
@@ -9,7 +14,7 @@ export type WebsocketClient = {
 export type OriflammeCard = {
   uuid: string
   positionInQueue: number
-  name: string
+  name: `${BlueBoxCharacters}`
   type: string
   stack: OriflammeCard[] | null
   color: string
@@ -96,3 +101,20 @@ export enum CardActionsEnum {
 }
 
 export type CardActions = `${CardActionsEnum}`
+
+/**
+ * Holds the state of a game, including the players,
+ * the cards in play, the influence queue, and other relevant information.
+ */
+export type GameRegistry = {
+  uuid: string
+  clients: Record<string, WebsocketClient>
+  influenceQueueLayer: {
+    queue: OriflammeCard[]
+    resolutionIndex: number
+  }
+  isRunning: boolean
+  isStarted: boolean
+  startedAt: string
+  cardsInPlay: Nullable<OriflammeCard[]>
+}

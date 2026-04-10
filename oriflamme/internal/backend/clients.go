@@ -24,6 +24,7 @@ type WebsocketMessage struct {
 	Initiator     bool            `json:"initiator,omitempty"`
 	SelectedCards []string        `json:"selectedCards,omitempty"`
 	CardUuid      string          `json:"cardUuid,omitempty"`
+	GameRegistry  *GameRegistry   `json:"gameRegistry,omitempty"`
 	Queue         *InfluenceQueue `json:"queue,omitempty"`
 }
 
@@ -36,14 +37,14 @@ type WebsocketClient struct {
 	conn      *websocket.Conn `json:"-"`
 	// Each player has a certain number of influence tokens that are won when reveling the
 	// the card, performing an action on the card etc.
-	Tokens int
+	Tokens int `json:"tokens"`
 	// Cards that were discared when the player selected the cards that
 	// he wants to play with
-	DiscardPile []*Card
+	DiscardPile []*Card `json:"discardPile,omitempty"`
 	// The send channel is used to queue messages
 	// that need to be sent to the client.
-	send chan WebsocketMessage
-	mu   sync.Mutex
+	send chan WebsocketMessage `json:"-"`
+	mu   sync.Mutex            `json:"-"`
 }
 
 func (client *WebsocketClient) SendJsonMessage(message WebsocketMessage) error {

@@ -8,11 +8,11 @@ import (
 type InfluenceQueue struct {
 	// The influence queue is a list of cards
 	// that have been played but have not yet resolved.
-	Queue []*Card
+	Queue []*Card `json:"queue"`
 	// Each card is resolved one by one in an ascending order of their position in the queue.
 	// This index tracks which card is currently being resolved. The index is initialized to
 	// -1, meaning that no card has been resolved yet.
-	ResolutionIndex int
+	ResolutionIndex int `json:"resolutionIndex"`
 }
 
 func (queue *InfluenceQueue) updateCardIndexes() {

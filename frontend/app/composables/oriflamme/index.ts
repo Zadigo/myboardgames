@@ -1,4 +1,4 @@
-import type { CardActions, OriflammeCard } from '~/types'
+import type { CardActions, GameRegistry, Nullable, OriflammeCard } from '~/types'
 
 export * from './actions'
 
@@ -17,15 +17,15 @@ export enum OriflammeCardAction {
 
 export type ActionOptions = {
   create_game: [{ playerUuid: string }]
-  start_game: [{ playerUuid: string, tableUuid: string }]
-  select_cards: [{ tableUuid: string, playerUuid: string, selectedCards: string[] }]
+  start_game: [{ playerUuid: string, tableUuid: Nullable<string> }]
+  select_cards: [{ tableUuid: Nullable<string>, playerUuid: string, selectedCards: string[] }]
   identify: [{ playerUuid: string, username: string }]
-  play_card: [{ playerUuid: string, tableUuid: string, cardAction: CardActions }]
+  play_card: [{ playerUuid: string, tableUuid: Nullable<string>, cardAction: CardActions }]
 }
 
 export type ResponseOptions = {
   must_identify: { playerUuid: string }
-  create_game: { tableUuid: string }
+  create_game: { gameRegistry: GameRegistry }
   place_card: { queue: null }
   start_game: { cardsInPlay: OriflammeCard[] }
 }
@@ -33,12 +33,24 @@ export type ResponseOptions = {
 export const useOriflammeComposable = createGlobalState(() => {
   const { encode, decode } = useWWebsocketMessages2()
 
-  const tableUuid = ref<string>('')
-  const playerUuid = ref<string>('')
+  const playerUuid = useLocalStorage<string>('oriflamme-player-uuid', null)
+  const gameRegistry = useLocalStorage<GameRegistry>('oriflamme-game-registry', null, {
+    serializer: {
+      read: raw => JSON.parse(raw),
+      write: value => JSON.stringify(value)
+    }
+  })
+  const tableUuid = computed(() => isDefined(gameRegistry) ? gameRegistry.value.uuid : null)
 
-  const influenceQueue = ref<OriflammeCard[]>([])
+  const influenceQueue = computed(() => isDefined(gameRegistry) ? gameRegistry.value.influenceQueueLayer.queue : [])
 
-  const cardsInPlay = ref<OriflammeCard[]>([])
+  const cardsInPlay = computed(() => {
+    if (!isDefined(gameRegistry)) {
+      return []
+    } else {
+      return gameRegistry.value.cardsInPlay || []
+    }
+  })
   const playerCards = computed(() => cardsInPlay.value.filter(card => card.owner.uuid === playerUuid.value))
 
   const { ws, open, close, send } = useWebSocket('ws://127.0.0.1:9000/oriflamme/live', {
@@ -55,19 +67,19 @@ export const useOriflammeComposable = createGlobalState(() => {
 
       decode<ResponseOptions>(event.data)('create_game', (data) => {
         if (data) {
-          tableUuid.value = data.tableUuid
+          gameRegistry.value = data.gameRegistry
         }
       })
 
       decode<ResponseOptions>(event.data)('place_card', (data) => {
         if (data) {
-          influenceQueue.value = data.queue
+          // Do something
         }
       })
 
       decode<ResponseOptions>(event.data)('start_game', (data) => {
         if (data) {
-          cardsInPlay.value = data.cardsInPlay
+          // Do something
         }
       })
     }

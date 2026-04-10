@@ -42,10 +42,21 @@ func GameLogic(message WebsocketMessage, client *WebsocketClient, serverRegistry
 		log.Printf("🟢 Client %s joined table %s", client.Uuid, gameRegistry.Uuid)
 
 		gameRegistry.broadcast <- WebsocketMessage{
-			Action:    "create_game",
-			TableUuid: gameRegistry.Uuid,
-			Message:   "Game created successfully",
+			Action:       "create_game",
+			GameRegistry: gameRegistry,
+			Message:      "Game created successfully",
 		}
+
+		// gameRegistry.broadcast <- WebsocketMessage{
+		// 	Action:    "create_game",
+		// 	TableUuid: gameRegistry.Uuid,
+		// 	Message:   "Game created successfully",
+		// }
+		// gameRegistry.PublishToRoom(serverRegistry.redisClient, WebsocketMessage{
+		// 	Action: "create_game",
+		// 	GameRegistry: gameRegistry,
+		// 	Message: "Game created successfully",
+		// })
 	case "start_game":
 		gameRegistry, err := serverRegistry.GetGame(message.TableUuid)
 		if err != nil {
@@ -107,8 +118,9 @@ func GameLogic(message WebsocketMessage, client *WebsocketClient, serverRegistry
 
 			gameRegistry.InfluenceQueueLayer.AddCardLeft(card)
 			gameRegistry.broadcast <- WebsocketMessage{
-				Action: "place_card",
-				Queue:  gameRegistry.InfluenceQueueLayer,
+				Action:       "place_card",
+				GameRegistry: gameRegistry,
+				Queue:        gameRegistry.InfluenceQueueLayer,
 			}
 		case "place_card_right":
 			card, err := gameRegistry.GetCardByUuid(message.CardUuid)
@@ -120,8 +132,9 @@ func GameLogic(message WebsocketMessage, client *WebsocketClient, serverRegistry
 
 			gameRegistry.InfluenceQueueLayer.AddCardRight(card)
 			gameRegistry.broadcast <- WebsocketMessage{
-				Action: "place_card",
-				Queue:  gameRegistry.InfluenceQueueLayer,
+				Action:       "place_card",
+				GameRegistry: gameRegistry,
+				Queue:        gameRegistry.InfluenceQueueLayer,
 			}
 		case "reveal":
 			// Do something to reveal a card

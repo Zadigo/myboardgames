@@ -3,7 +3,7 @@
     <img :src="card.image" :alt="card.name" class="w-full h-full aspect-square object-cover rounded-lg">
 
     <nuxt-popover mode="hover">
-      <nuxt-button class="absolute top-0 right-0 z-30">
+      <nuxt-button class="absolute top-0 right-0 z-10">
         Help
       </nuxt-button>
 
