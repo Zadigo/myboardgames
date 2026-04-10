@@ -1,79 +1,86 @@
-import type { BaseCharacters } from '~/types'
+import type { AblazeCharacters } from '~/types'
 import type { BaseCardInformation } from '.'
 
 /**
  * Gives a textual description of the power of each card, as well as the rules for targeting other cards with it.
  * This is used in the ablaze card scroll, and also in the card popover when hovering over a card in play.
  */
-export const ablazeCards: BaseCardInformation<`${BaseCharacters}`>[] = [
+export const ablazeCards: BaseCardInformation<AblazeCharacters>[] = [
   {
-    name: 'Archer',
-    power: 'Eliminate the first or last card from the Queue',
-    description: 'The targeted card can be revealed or not. You may choose or may be forced to eliminate a card from your family, includng the Archer itself if it’s the first or last card in the Queue. You gain 1 in any case',
-    type: 'character',
-    canTarget: 'first_or_last'
-  },
-  {
-    name: 'Soldier',
-    power: ' Eliminate an adjacent card',
-    description: 'The targeted card can be revealed or not. You may choose or may be forced to eliminate a card from your family. You gain 1 in any case.',
-    type: 'character',
-    canTarget: 'adjacent'
-  },
-  {
-    name: 'Spy',
-    power: 'Steal 1 from a player with an adjacent card',
-    description: 'The adjacent card can be revealed or not.Take the directly from the owner of the card, not from the adjacent card (in case it’s face down and has on it). Stealing from yourself has no effect.',
-    type: 'character',
-    canTarget: 'adjacent'
-  },
-  {
-    name: 'Heir',
-    power: 'If there is no other card revealed with the same name, gain 2',
-    description: 'As soon as another Heir is revealed and uncovered in the Queue, no Heirs gain any',
+    name: 'Prince',
+    power: 'When you reveal your Prince, place your family’s Twin, revealed, in the Queue. Gain 1',
+    description: 'When the Prince is eliminated, discard your family’s Twin, unless it is covered by another card.',
     type: 'character',
     canTarget: 'none'
   },
   {
-    name: 'Shapeshifter',
-    power: 'Copy the ability of an adjacent revealed character',
-    description: 'The targeted card must be revealed and uncovered. TheShapeshifter copies only the ability of a card, not its name. No matter what it copies, the Shapeshifter always retains its name, Shapeshifter. EXAMPLE: If you copy an Heir, you gain 2 unless there is another Shapeshifter in the Queue. Once resolved, the Shapeshifter immediately loses the copied ability Consequently, copying a Shapeshifter with a Shapeshifter has no effect. At each Resolution Phase, the Shapeshifter can, of course, choose to copy a different character than the previous turn.',
-    type: 'character',
-    canTarget: 'adjacent'
-  },
-  {
-    name: 'Lord',
-    power: 'Gain 1 plus 1 for each adjacent card that is in your family.',
-    description: 'Gain 1 additionnal for each adjacent card in your family, whether it’s revealed or not. If your Lord is adjacent to a stack of cards of your family, only the top card is taken into account',
+    name: 'Twin',
+    power: 'When the Twin is eliminated, discard your family’s Prince, unless it is covered by another card.',
+    description: 'During setup, only shuffle the Prince with your family’s other cards. The Twin can only be played through the Prince’s ability. The Twin can be placed as usual, at the beginning or at the end of the Queue, or on another of your Family’s cards, EXCEPT ON THE PRINCE. • Some cards may cause a player to have 2 Princes or 2 Twins at the same time. Eliminating 1 copy of one of them discards every copy of the other. Example: You have 2 Princes and 1 Twin. If 1 Prince is eliminated, the Twin is discarded and the second Prince remains. If your Twin is eliminated, both Princes are discarded.',
     type: 'character',
     canTarget: 'none'
   },
   {
-    name: 'Assassination',
-    power: 'Eliminate a card anywhere in the Queue. Discard Assassination',
-    description: 'The targeted card can be revealed or not. You can eliminate a card from your family, including the Assassination itself. You gain 1 in any case.',
+    name: 'Queen',
+    power: 'Gain 2',
+    description: 'If an opponent eliminates the Queen, they gain 1 additional.',
+    type: 'character',
+    canTarget: 'adjacent'
+  },
+  {
+    name: 'Cutthroat',
+    power: 'Eliminate an adjacent card and all the opponents’ revealed cards with the same name. If only one card is eliminated, do not gain the for eliminating a card.',
+    description: 'EXAMPLE: If the Cutthroat eliminates a Felon, you gain no . If the Cutthroat eliminates 2 Felons, you gain 2 . If the Cutthroat eliminates an opponent’s Queen, you gain 1 . If the Cutthroat eliminates 2 opponents’ Queens, you gain 4',
+    type: 'character',
+    canTarget: 'none'
+  },
+  {
+    name: 'Apothecary',
+    power: 'Eliminate a card adjacent to another card of your family.',
+    description: 'The other card from your Family may be revealed or face down. • The eliminated card still counts as eliminated by the Apothecary. Example: If the eliminated card is a Trap, the Apothecary is discarded. • If you have no other card from your family in the Queue, the Apothecary’s ability has no effect.',
+    type: 'character',
+    canTarget: 'any'
+  },
+  {
+    name: 'Felon',
+    power: 'Each player loses 1 for each adjacent card of their family.',
+    description: 'GIf a card from your Family is adjacent to your own Felon, you lose 1 . If a player has 2 cards from their Family adjacent to the Felon, they lose 2',
+    type: 'character',
+    canTarget: 'any'
+  },
+  {
+    name: 'Schemer',
+    power: 'Discard this card if it’s adjacent to a stack of cards. If not, gain 2',
+    description: 'Discard the Schemer only if it is adjacent to a stack of cards when you resolve its ability.',
+    type: 'character',
+    canTarget: 'any'
+  },
+  {
+    name: 'Impersonation',
+    power: 'Eliminate an adjacent card. If it is an opponent’s character, replace it with the same character, revealed, taken from your discarded, eliminated or set aside cards. Discard Impersonation',
+    description: '• If the eliminated Character was on top of a stack of cards, you can not replace it with a character from your Family. • Using Impersonation on a Prince does not allow you to play your Twin, because your Prince is already revealed when it is placed. • The Twin does not count as a card you set aside at the beginning of the game. Using Impersonation on a Twin allows you to place your own Twin only if it was previously played and discarded or eliminated.',
     type: 'intrigue',
     canTarget: 'any'
   },
   {
-    name: 'Royal Decree',
-    power: 'Move a card anywhere in the Queue, except on another card. Discard Royal Decree',
-    description: 'It doesn’t matter whether the target card is revealed. It can be from any family. Any on the card are moved as well. If you target a stack of cards, only the top card can be moved. To move a card, leave the Royal Decree where it is, make the move, then remove the Royal Decree and continue resolution with the following card in the Queue. NOTE: By moving a card before the Royal Decree, you can prevent a card from being resolved, or instead have a card resolved twice by moving it after the Royal Decree',
+    name: 'Plot',
+    power: 'Discard Plot. Activate the ability of any revealed character of your family. Each on the Plot can either be gained or discarded to repeat the effect above',
+    description: '• You can freely choose any Character of your choice for each iteration of the effect. You can choose the same character or a different one. • Fully resolve each ability before deciding to discard or gain the next.',
+    type: 'intrigue',
+    canTarget: 'adjacent'
+  },
+  {
+    name: 'Trap',
+    power: 'Discard all on Trap and gain 1 . Discard Trap or If Trap is eliminated by an opponent’s card, discard the opponent’s card and steal 3 from that player.',
+    description: 'When a player eliminates a Trap, they gain 1 before you steal 3 from them. ADVICE: The second part of the ability is the main appeal of the Trap. If no one falls into your Trap, the first part of its ability lets you gain 1 as a consolation. EXAMPLE 1: An opponent’s Apothecary eliminates your Trap. The owner of the Apothecary gains 1 then you steal 3 from them. The Apothecary is discarded. EXAMPLE 2: Your Apothecary eliminates your Trap. You gain 1 . Your Apothecary stays in the Queue because the Trap’s ability only triggers on opponent’s cards.',
+    type: 'intrigue',
+    canTarget: 'none'
+  },
+  {
+    name: 'Bribery',
+    power: 'Place your family’s Bribery token on any revealed character. This character now belongs to your family. Discard Bribery.',
+    description: '• If you place your Bribery token on a character which already has a Bribery token, replace the token with yours. • You can not play your Bribery on a character on top of a stack of cards. • When a character with a Bribery token is discarded or eliminated, discard the Bribery token and place the character’s card with its original owner’s eliminated cards.',
     type: 'intrigue',
     canTarget: 'any'
-  },
-  {
-    name: 'Conspiracy',
-    power: 'Gain double the accumulated on Conspiracy. Discard Conspiracy.',
-    description: 'If there are 3 on this card when you reveal it, you gain these and you gain 3 more, for a total of 6.',
-    type: 'intrigue',
-    canTarget: 'none'
-  },
-  {
-    name: 'Ambush',
-    power: 'Discard all on Ambush and gain 1 . Discard Ambush.',
-    description: 'If Ambush is eliminated by an opponent’s card, discard the opponent’s card and gain 4 . NOTE: The second ability is, of course, the main appeal of the Ambush. If no one has fallen into your trap, the first ability still allows you to gain a single as a consolation. EXAMPLE 1: If an opponent’s Soldier eliminates your Ambush, the Soldier’s owner gains 1 and you gain 4 . The Soldier is discarded. EXAMPLE 2: If your own Archer eliminates your Ambush, you gain 1 . The Ambush is discarded. Your Archer remains in the Queue (as the second ability of Ambush only applies to opponent’s cards).',
-    type: 'intrigue',
-    canTarget: 'none'
   }
 ]

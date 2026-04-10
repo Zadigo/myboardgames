@@ -1,3 +1,4 @@
+import { ablazeCards } from './ablaze'
 import { baseCards } from './base'
 
 export * from './base'
@@ -47,10 +48,12 @@ export function useOriflammeCardsComposable<T>(cards: BaseCardInformation<T>[]) 
  */
 export function useOriflammeAllCards() {
   const { cards: baseGameCards } = useOriflammeCardsComposable(baseCards)
+  const { cards: ablazeGameCards } = useOriflammeCardsComposable(ablazeCards)
 
   const allCards = computed(() => {
     return [
-      ...baseGameCards
+      ...baseGameCards,
+      ...ablazeGameCards
     ]
   })
 

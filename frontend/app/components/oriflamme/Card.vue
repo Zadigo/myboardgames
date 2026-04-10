@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useOriflameeActionsStore } from '~/composables/oriflamme'
+import { useOriflammeActionsStore } from '~/composables/oriflamme'
 import type { OriflammeCard } from '~/types'
 
 const props = defineProps<{
@@ -48,6 +48,6 @@ const isHovered = useElementHover(cardEl, {
   delayEnter: 200
 })
 
-const { isSelected } = useOriflameeActionsStore()
+const { isSelected } = useOriflammeActionsStore()
 const toggleSelection = isSelected(props.card)
 </script>

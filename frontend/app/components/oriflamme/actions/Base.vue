@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useOriflameeActionsStore } from '~/composables/oriflamme'
+import { useOriflammeActionsStore } from '~/composables/oriflamme'
 import type { OriflammeCard } from '~/types'
 
 const { inQueue = false } = defineProps<{
@@ -24,5 +24,5 @@ const { inQueue = false } = defineProps<{
   inQueue?: boolean
 }>()
 
-const { reveal, applyEffect, placeToken, placeCard, selectCards } = useOriflameeActionsStore()
+const { reveal, applyEffect, placeToken, placeCard, selectCards } = useOriflammeActionsStore()
 </script>

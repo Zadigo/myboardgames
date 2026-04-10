@@ -13,6 +13,7 @@ export enum BaseCharacters {
 
 export enum AblazeCharactersEnum {
   Prince = 'Prince',
+  Twin = 'Twin',
   Queen = 'Queen',
   Cutthroat = 'Cutthroat',
   Apothecary = 'Apothecary',
