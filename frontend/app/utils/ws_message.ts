@@ -4,9 +4,9 @@ type DefaultResponseOptions = {
   message: string
 }
 
-type DecodeResponse<T> = DefaultResponseOptions & {
-  [ K in keyof T ]: T[K]
-}
+// type DecodeResponse<T> = DefaultResponseOptions & {
+//   [ K in keyof T ]: T[K]
+// }
 
 export function useWWebsocketMessages2() {
   function encode<T extends Record<string, Record<string, unknown>[]>>(action: keyof T, ...args: T[keyof T]) {
@@ -23,9 +23,9 @@ export function useWWebsocketMessages2() {
      * @param action - The action we want to decode from the message
      * @param callback - A callback function that will be called with the decoded data if the action matches, or undefined if it doesn't match
      */
-    return function <T extends keyof R>(action: T, callback: (data: DecodeResponse<R[T]> | undefined) => void) {
+    return function <K extends keyof R>(action: K, callback: (data: R & DefaultResponseOptions | undefined) => void) {
       try {
-        const wsData = JSON.parse(message) as DecodeResponse<R[T]>
+        const wsData = JSON.parse(message) as R & DefaultResponseOptions
         if (action === wsData.action) {
           callback(wsData)
         } else {
@@ -43,3 +43,9 @@ export function useWWebsocketMessages2() {
     decode
   }
 }
+
+const { decode } = useWWebsocketMessages2()
+const encoder = decode<{ firstname: string }>('')
+encoder('firstname', (d) => {
+  return d ? d.action : ''
+})
