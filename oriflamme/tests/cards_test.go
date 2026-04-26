@@ -82,7 +82,7 @@ func TestCard(t *testing.T) {
 func TestArcherCard(t *testing.T) {
 	alice := &backend.WebsocketClient{Username: "Alice"}
 	blueCards := backend.CreateBlueCards(alice)
-	simpleQueue := backend.CreateInfluenceQueue()
+	simpleQueue := backend.NewInfluenceQueue()
 
 	type testCase struct {
 		name      string
@@ -159,7 +159,7 @@ func TestSoldierCard(t *testing.T) {
 	alice := &backend.WebsocketClient{Username: "Alice"}
 	blueCards := backend.CreateBlueCards(alice)
 
-	simpleQueue := backend.CreateInfluenceQueue()
+	simpleQueue := backend.NewInfluenceQueue()
 
 	type testCase struct {
 		name            string
@@ -260,7 +260,7 @@ func TestSpyCard(t *testing.T) {
 
 	blueCards := backend.CreateBlueCards(alice)
 
-	simpleQueue := backend.CreateInfluenceQueue()
+	simpleQueue := backend.NewInfluenceQueue()
 
 	type testCase struct {
 		name                   string
@@ -449,7 +449,7 @@ func TestAmbush(t *testing.T) {
 		},
 	}
 
-	simpleQueue := backend.CreateInfluenceQueue()
+	simpleQueue := backend.NewInfluenceQueue()
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -494,7 +494,7 @@ func TestShapeShifterCard(t *testing.T) {
 	redCards := backend.CreateRedCards(pauline)
 	yellowCards := backend.CreateYellowCards(martin)
 
-	simpleQueue := backend.CreateInfluenceQueue()
+	simpleQueue := backend.NewInfluenceQueue()
 
 	type testCase struct {
 		name                string
@@ -586,7 +586,7 @@ func TestHeir(t *testing.T) {
 	blueCards := backend.CreateBlueCards(alice)
 	redCards := backend.CreateRedCards(pauline)
 
-	simpleQueue := backend.CreateInfluenceQueue()
+	simpleQueue := backend.NewInfluenceQueue()
 
 	type testCase struct {
 		name            string
