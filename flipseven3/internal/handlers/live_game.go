@@ -8,6 +8,7 @@ import (
 
 func getGame(message logic.WebsocketMessage, serverRegistry *logic.ServerRegistry) (*logic.GameRegistry, error) {
 	game, err := serverRegistry.GetGame(message.TableUuid)
+
 	if err != nil {
 		log.Printf("❌ Error retrieving game: %s", message.TableUuid)
 
@@ -22,18 +23,20 @@ func getGame(message logic.WebsocketMessage, serverRegistry *logic.ServerRegistr
 
 		return nil, err
 	}
+
 	return game, nil
 }
 
 func GameHandler(message logic.WebsocketMessage, client *logic.WebsocketClient, serverRegistry *logic.ServerRegistry) {
 	switch message.Action {
 	case "create_game":
-		_, state := serverRegistry.CreateGame(client)
+		game, state := serverRegistry.CreateGame(client)
 		if state {
 			client.SendJsonMessage(logic.WebsocketMessage{
-				Action:     "game_created",
-				PlayerUuid: client.Uuid,
-				Message:    "Game created successfully! Waiting for players to join.",
+				Action:       "game_created",
+				PlayerUuid:   client.Uuid,
+				Message:      "Game created successfully! Waiting for players to join.",
+				GameRegistry: game,
 			})
 		}
 
@@ -46,7 +49,13 @@ func GameHandler(message logic.WebsocketMessage, client *logic.WebsocketClient, 
 		err = game.StartGame()
 		if err != nil {
 			log.Printf("❌ Error starting game: %v", err)
+			return
 		}
+
+		game.PublishToRoom(nil, logic.WebsocketMessage{
+			Action:       "start_game",
+			GameRegistry: game,
+		})
 
 	case "end_game":
 		game, err := getGame(message, serverRegistry)
@@ -119,7 +128,7 @@ func GameHandler(message logic.WebsocketMessage, client *logic.WebsocketClient, 
 				if card.Category == "Flip 3" {
 					game.PublishToRoom(nil, logic.WebsocketMessage{
 						Action:     "must_flip_three",
-						Message: "Player must flip three cards consecutively",
+						Message:    "Player must flip three cards consecutively",
 						PlayerUuid: otherClient.Uuid,
 					})
 				}

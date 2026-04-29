@@ -25,10 +25,7 @@ type GameRegistry struct {
 	IsRunning bool                        `json:"isRunning"`
 	IsStarted bool                        `json:"isStarted"`
 	StartedAt time.Time                   `json:"startedAt"`
-	// CardsInPlay represents all the cards that were selected by the players
-	// to be played in the current game
-	CardsInPlay []*Card      `json:"cardsInPlay"`
-	mu          sync.RWMutex `json:"-"`
+	mu        sync.RWMutex                `json:"-"`
 	// The broadcast channel is used to send messages to all clients in the game.
 	// When a message is sent to the broadcast channel, it will be received by all clients
 	// in the game and can be used to update their game state accordingly.
@@ -107,13 +104,12 @@ func (r *GameRegistry) PublishToRoom(redisClient *redis.Client, message Websocke
 
 // Indicates that the game with the given UUID has started.
 func (r *GameRegistry) StartGame() error {
-	cards := []*Card{}
 
 	numberCards := GetNumberCards()
 	specialCards := GetSpecialCards()
 
-	cards = append(cards, numberCards...)
-	cards = append(cards, specialCards...)
+	r.CardQueue.Queue = append(r.CardQueue.Queue, numberCards...)
+	r.CardQueue.Queue = append(r.CardQueue.Queue, specialCards...)
 
 	r.broadcast <- WebsocketMessage{
 		Action: "start_game",
@@ -128,7 +124,7 @@ func (r *GameRegistry) EndGame() {
 
 // GetCardByUuid retrieves a card from the game registry's CardsInPlay based on its UUID.
 func (r *GameRegistry) GetCardByUuid(cardUuid string) (*Card, error) {
-	for _, card := range r.CardsInPlay {
+	for _, card := range r.CardQueue.Queue {
 		if card.Uuid == cardUuid {
 			return card, nil
 		}
