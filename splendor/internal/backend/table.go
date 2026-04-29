@@ -54,17 +54,23 @@ type PlayingTable struct {
 }
 
 // Add a player to the table
-func (t *PlayingTable) AddPlayer(player *Player) error {
+func (t *PlayingTable) AddPlayer(player *WebsocketClient) error {
 	return nil
 }
 
 // Start the game and initialize the table.
-func (t *PlayingTable) StartGame() {}
+func (t *PlayingTable) StartGame() error {
+	return nil
+}
 
 // End the game and reset the table.
-func (t *PlayingTable) EndGame() {}
+func (t *PlayingTable) EndGame() error {
+	return nil
+}
 
-func (t *PlayingTable) NewDeck() {}
+func (t *PlayingTable) NewDeck() error {
+	return nil
+}
 
 // Return the number of players currently at the table.
 func (t *PlayingTable) NumberOfPlayers() int {
@@ -78,7 +84,7 @@ func NewPlayingTable(isNormalGame bool) *PlayingTable {
 			CurrentRound:  0,
 			CurrentPlayer: nil,
 			IsStarted:     false,
-			StartedAt:     time.Time{},
+			StartedAt:     time.Now(),
 		},
 		PlayingTableRules: PlayingTableRules{
 			MaxPlayers:     4,
