@@ -38,6 +38,20 @@ func TestPlayingTable(t *testing.T) {
 			numPlayers := table.NumberOfPlayers()
 			assert.Len(t, numPlayers, 1)
 		})
+
+		t.Cleanup(func() {
+			table.CardsLevelOne = []backend.CardInterface{}
+			table.CardsLevelTwo = []backend.CardInterface{}
+			table.CardsLevelThree = []backend.CardInterface{}
+
+			table.DeckLevelOne = []backend.CardInterface{}
+			table.DeckLevelTwo = []backend.CardInterface{}
+			table.DeckLevelThree = []backend.CardInterface{}
+
+			table.CurrentPlayer = nil
+			table.CurrentRound = 0
+			table.IsStarted = false
+		})
 	})
 
 	t.Run("Should create a new deck without error", func(t *testing.T) {

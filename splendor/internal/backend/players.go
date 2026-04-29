@@ -36,6 +36,7 @@ type Player struct {
 }
 
 type PlayerInterface interface {
+	// GetPlayer() *Player
 	BuyCard(card CardInterface) error
 	ReserveCard(card CardInterface) error
 	TakeTokens(emerald int, diamond int, sapphire int, onyx int, ruby int) (int, error)
@@ -43,6 +44,10 @@ type PlayerInterface interface {
 	CanBuyCard(card CardInterface) bool
 	CanReserveCard() bool
 }
+
+// func (p *Player) GetPlayer() *Player {
+// 	return p
+// }
 
 func (p *Player) BuyCard(card CardInterface) error {
 	return nil
