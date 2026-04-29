@@ -1,17 +1,23 @@
 package backend
 
-import "errors"
+import (
+	"errors"
+	"slices"
+)
+
+// Base card colors
+var colors = []string{"Red", "Blue", "Green", "Yellow", "Purple"}
 
 // Eliminate a card anywhere in the queue
 type AssassinationCard struct {
-	*BaseCard
+	BaseCard
 }
 
-func (c AssassinationCard) GetBaseCard() *BaseCard {
-	return c.BaseCard
+func (c *AssassinationCard) GetBaseCard() *BaseCard {
+	return &c.BaseCard
 }
 
-func (c AssassinationCard) Reveal(queue *InfluenceQueue, choices PlayerChoices) (state bool, err error) {
+func (c *AssassinationCard) Reveal(queue *InfluenceQueue, choices PlayerChoices) (state bool, err error) {
 	if choices.AtIndex < 0 || choices.AtIndex >= queue.NumberOfCards() {
 		return false, errors.New("Invalid index for assassination")
 	}
@@ -30,14 +36,14 @@ func (c AssassinationCard) Reveal(queue *InfluenceQueue, choices PlayerChoices) 
 
 // Elimate the first or last card in the queue
 type ArcherCard struct {
-	*BaseCard
+	BaseCard
 }
 
-func (c ArcherCard) GetBaseCard() *BaseCard {
-	return c.BaseCard
+func (c *ArcherCard) GetBaseCard() *BaseCard {
+	return &c.BaseCard
 }
 
-func (c ArcherCard) Reveal(queue *InfluenceQueue, choices PlayerChoices) (state bool, err error) {
+func (c *ArcherCard) Reveal(queue *InfluenceQueue, choices PlayerChoices) (state bool, err error) {
 	state, err = c.CanReveal(queue)
 	if err != nil {
 		return state, err
@@ -65,14 +71,14 @@ func (c ArcherCard) Reveal(queue *InfluenceQueue, choices PlayerChoices) (state 
 // The player can choose to eliminate either the card immediately before
 // or immediately after the soldier.
 type SoldierCard struct {
-	*BaseCard
+	BaseCard
 }
 
-func (c SoldierCard) GetBaseCard() *BaseCard {
-	return c.BaseCard
+func (c *SoldierCard) GetBaseCard() *BaseCard {
+	return &c.BaseCard
 }
 
-func (c SoldierCard) Reveal(queue *InfluenceQueue, choices PlayerChoices) (state bool, err error) {
+func (c *SoldierCard) Reveal(queue *InfluenceQueue, choices PlayerChoices) (state bool, err error) {
 	// The soldier is the only card in the queue,
 	// so there are no adjacent cards to eliminate.
 	if queue.NumberOfCards() == 1 {
@@ -138,11 +144,11 @@ func (c SoldierCard) Reveal(queue *InfluenceQueue, choices PlayerChoices) (state
 // Steal a token from the player's card immediately before or
 // after the spy in the queue and add it to the spy.
 type SpyCard struct {
-	*BaseCard
+	BaseCard
 }
 
 func (c SpyCard) GetBaseCard() *BaseCard {
-	return c.BaseCard
+	return &c.BaseCard
 }
 
 func (c SpyCard) Reveal(queue *InfluenceQueue, choices PlayerChoices) (state bool, err error) {
@@ -227,11 +233,11 @@ func (c SpyCard) Reveal(queue *InfluenceQueue, choices PlayerChoices) (state boo
 
 // Move a card from its current position in the queue to another position.
 type RoyalDecreeCard struct {
-	*BaseCard
+	BaseCard
 }
 
-func (c RoyalDecreeCard) GetBaseCard() *BaseCard {
-	return c.BaseCard
+func (c *RoyalDecreeCard) GetBaseCard() *BaseCard {
+	return &c.BaseCard
 }
 
 func (c RoyalDecreeCard) Reveal(queue *InfluenceQueue, choices PlayerChoices) (state bool, err error) {
@@ -241,14 +247,14 @@ func (c RoyalDecreeCard) Reveal(queue *InfluenceQueue, choices PlayerChoices) (s
 // If the card has tokens on it, when the card is revealed, the
 // player wins double the number of tokens on the card.
 type ConspiracyCard struct {
-	*BaseCard
+	BaseCard
 }
 
-func (c ConspiracyCard) GetBaseCard() *BaseCard {
-	return c.BaseCard
+func (c *ConspiracyCard) GetBaseCard() *BaseCard {
+	return &c.BaseCard
 }
 
-func (c ConspiracyCard) Reveal(queue *InfluenceQueue, choices PlayerChoices) (state bool, err error) {
+func (c *ConspiracyCard) Reveal(queue *InfluenceQueue, choices PlayerChoices) (state bool, err error) {
 	c.Owner.IncreaseTokens(c.Tokens * 2)
 	c.Discard()
 	return true, nil
@@ -257,14 +263,14 @@ func (c ConspiracyCard) Reveal(queue *InfluenceQueue, choices PlayerChoices) (st
 // The shapeshifter can copy the effect of any adjacent character card in the queue
 // when it is revealed.
 type ShapeShifterCard struct {
-	*BaseCard
+	BaseCard
 }
 
-func (c ShapeShifterCard) GetBaseCard() *BaseCard {
-	return c.BaseCard
+func (c *ShapeShifterCard) GetBaseCard() *BaseCard {
+	return &c.BaseCard
 }
 
-func (c ShapeShifterCard) Reveal(queue *InfluenceQueue, choices PlayerChoices) (state bool, err error) {
+func (c *ShapeShifterCard) Reveal(queue *InfluenceQueue, choices PlayerChoices) (state bool, err error) {
 	// The shapeshifter is the only card in the queue,
 	// so there are no adjacent cards to copy.
 	if queue.NumberOfCards() == 1 {
@@ -365,27 +371,27 @@ func (c ShapeShifterCard) Reveal(queue *InfluenceQueue, choices PlayerChoices) (
 // Gain one token and one token for each card of the player's family
 // that are adjacent to the lord in the queue (revelaled or not).
 type LordCard struct {
-	*BaseCard
+	BaseCard
 }
 
-func (c LordCard) GetBaseCard() *BaseCard {
-	return c.BaseCard
+func (c *LordCard) GetBaseCard() *BaseCard {
+	return &c.BaseCard
 }
 
-func (c LordCard) Reveal(queue *InfluenceQueue, choices PlayerChoices) (state bool, err error) {
+func (c *LordCard) Reveal(queue *InfluenceQueue, choices PlayerChoices) (state bool, err error) {
 	return true, nil
 }
 
 // If there is exactly one heir in the queue, the player wins 2 tokens.
 type HeirCard struct {
-	*BaseCard
+	BaseCard
 }
 
-func (c HeirCard) GetBaseCard() *BaseCard {
-	return c.BaseCard
+func (c *HeirCard) GetBaseCard() *BaseCard {
+	return &c.BaseCard
 }
 
-func (c HeirCard) Reveal(queue *InfluenceQueue, choices PlayerChoices) (state bool, err error) {
+func (c *HeirCard) Reveal(queue *InfluenceQueue, choices PlayerChoices) (state bool, err error) {
 	heirs := 0
 
 	for _, card := range queue.Queue {
@@ -407,20 +413,20 @@ func (c HeirCard) Reveal(queue *InfluenceQueue, choices PlayerChoices) (state bo
 // another card, the owner of the Ambush card wins 4 tokens and the Ambush card is discarded.
 // The attacking card is also discarded.
 type AmbushCard struct {
-	*BaseCard
+	BaseCard
 }
 
-func (c AmbushCard) GetBaseCard() *BaseCard {
-	return c.BaseCard
+func (c *AmbushCard) GetBaseCard() *BaseCard {
+	return &c.BaseCard
 }
 
-func (c AmbushCard) Reveal(queue *InfluenceQueue, choices PlayerChoices) (state bool, err error) {
+func (c *AmbushCard) Reveal(queue *InfluenceQueue, choices PlayerChoices) (state bool, err error) {
 	c.Owner.IncreaseTokens(1)
 	c.Discard()
 	return true, nil
 }
 
-func (c AmbushCard) RevealSideEffect(initiator CardInterface, choices PlayerChoices) (state bool, err error) {
+func (c *AmbushCard) RevealSideEffect(initiator CardInterface, choices PlayerChoices) (state bool, err error) {
 	if initiator.GetBaseCard().Name == "Ambush" {
 		// The Ambush card cannot attack its own self, so the ApplyAmbushAttacked is necessarily
 		// called from another card's effect when the Ambush card is attacked. "initiator" is therefore
@@ -436,35 +442,39 @@ func (c AmbushCard) RevealSideEffect(initiator CardInterface, choices PlayerChoi
 
 // BaseCard represents the common properties of all cards in the game.
 func CreateBaseCards() []CardInterface {
-	colors := []string{"Red", "Blue", "Green", "Yellow", "Purple"}
+	// colors := []string{"Red", "Blue", "Green", "Yellow", "Purple"}
 	cards := []CardInterface{}
 
 	for _, color := range colors {
-		cards = append(cards, ArcherCard{BaseCard: NewBaseCard("Archer", "Character", nil, color)})
-		cards = append(cards, SoldierCard{BaseCard: NewBaseCard("Soldier", "Character", nil, color)})
-		cards = append(cards, SpyCard{BaseCard: NewBaseCard("Spy", "Character", nil, color)})
-		cards = append(cards, ShapeShifterCard{BaseCard: NewBaseCard("Shape Shifter", "Character", nil, color)})
-		cards = append(cards, LordCard{BaseCard: NewBaseCard("Lord", "Character", nil, color)})
-		cards = append(cards, HeirCard{BaseCard: NewBaseCard("Heir", "Character", nil, color)})
-		cards = append(cards, RoyalDecreeCard{BaseCard: NewBaseCard("Royal Decree", "Intrigue", nil, color)})
-		cards = append(cards, ConspiracyCard{BaseCard: NewBaseCard("Conspiracy", "Intrigue", nil, color)})
-		cards = append(cards, AmbushCard{BaseCard: NewBaseCard("Ambush", "Intrigue", nil, color)})
+		cards = append(cards, &ArcherCard{BaseCard: NewBaseCard("Archer", "Character", nil, color)})
+		cards = append(cards, &SoldierCard{BaseCard: NewBaseCard("Soldier", "Character", nil, color)})
+		cards = append(cards, &SpyCard{BaseCard: NewBaseCard("Spy", "Character", nil, color)})
+		cards = append(cards, &ShapeShifterCard{BaseCard: NewBaseCard("Shape Shifter", "Character", nil, color)})
+		cards = append(cards, &LordCard{BaseCard: NewBaseCard("Lord", "Character", nil, color)})
+		cards = append(cards, &HeirCard{BaseCard: NewBaseCard("Heir", "Character", nil, color)})
+		cards = append(cards, &RoyalDecreeCard{BaseCard: NewBaseCard("Royal Decree", "Intrigue", nil, color)})
+		cards = append(cards, &ConspiracyCard{BaseCard: NewBaseCard("Conspiracy", "Intrigue", nil, color)})
+		cards = append(cards, &AmbushCard{BaseCard: NewBaseCard("Ambush", "Intrigue", nil, color)})
 	}
 	return cards
 }
 
-// AttributeBaseCard assigns the given owner to all the base cards of the 
-// specified color and returns a slice of CardInterface containing all the cards 
+// AttributeBaseCard assigns the given owner to all the base cards of the
+// specified color and returns a slice of CardInterface containing all the cards
 // of that color.
-func AttributeBaseCard(owner *WebsocketClient, color string) []CardInterface {
+func AttributeBaseCard(owner *WebsocketClient, color string) ([]CardInterface, error) {
 	cards := CreateBaseCards()
 
+	if !slices.Contains(colors, color) {
+		return nil, errors.New("Invalid color")
+	}
+
 	for i := range cards {
-		card := cards[i]
-		if card.GetBaseCard().Color == color {
-			card.GetBaseCard().Owner = owner
+		card := cards[i].GetBaseCard()
+		if card.Color == color {
+			card.Owner = owner
 		}
 	}
 
-	return cards
+	return cards, nil
 }

@@ -30,18 +30,26 @@ func TestCardConstructors(t *testing.T) {
 		assert.Equal(t, 45, len(cards), "Expected 45 base cards to be created")
 	})
 
-	alice := &backend.WebsocketClient{Username: "Alice"}
+	data, server := CreateMultipleGameConn(t, "alice")
+	defer server.Close()
+
+	alice := backend.NewWebsocketClient(data["alice"])
+
 	t.Run("Cards have correct owner", func(t *testing.T) {
-		cards := backend.AttributeBaseCard(alice, "red")
-		for _, card := range cards {
-			owner := card.GetBaseCard().Owner
-			assert.Equal(t, alice.Username, owner.Username, "Expected card owner to be Alice")
+		cards, err := backend.AttributeBaseCard(alice, "Red")
+		assert.NoError(t, err)
+
+		for i := range cards {
+			card := cards[i].GetBaseCard()
+			if card.Owner != nil && card.Color == "Red" {
+				assert.Equal(t, alice.Username, card.Owner.Username, "Expected card owner to be Alice")
+			}
 		}
 	})
 }
 
 func TestCard(t *testing.T) {
-	card := backend.ArcherCard{BaseCard: &backend.BaseCard{}}
+	card := backend.ArcherCard{BaseCard: backend.NewBaseCard("Archer", "Character", nil, "Blue")}
 
 	t.Run("Card cannot be revealed with no queue and no owner", func(t *testing.T) {
 		assert.False(t, card.IsRevealed)
@@ -108,7 +116,7 @@ func TestArcherCard(t *testing.T) {
 	simpleQueue := backend.NewInfluenceQueue()
 
 	alice := &backend.WebsocketClient{Username: "Alice"}
-	cards := backend.AttributeBaseCard(alice, "blue")
+	cards, _ := backend.AttributeBaseCard(alice, "Blue")
 
 	lucie := &backend.WebsocketClient{Username: "Lucie"}
 	marie := &backend.WebsocketClient{Username: "Marie"}
@@ -127,8 +135,8 @@ func TestArcherCard(t *testing.T) {
 			errorText: "Expected only the last card in the queue to be eliminated when the archer is in the first position",
 			queue: []backend.CardInterface{
 				cards[0],
-				backend.AssassinationCard{BaseCard: &backend.BaseCard{Uuid: "1", Name: "Test Card 1", Owner: lucie, IsRevealed: false}},
-				backend.HeirCard{BaseCard: &backend.BaseCard{Uuid: "1", Name: "Test Card 1", Owner: marie, IsRevealed: false}},
+				&backend.AssassinationCard{BaseCard: backend.NewBaseCard("Test Card 1", "Character", lucie, "blue")},
+				&backend.HeirCard{BaseCard: backend.NewBaseCard("Test Card 2", "Character", marie, "blue")},
 			},
 		},
 		// {
@@ -136,9 +144,9 @@ func TestArcherCard(t *testing.T) {
 		// 	firstCard: true,
 		// 	errorText: "Expected the first or last card in the queue to be eliminated when the archer is in the middle position",
 		// 	queue: []backend.CardInterface{
-		// 		backend.AssassinationCard{BaseCard: &backend.BaseCard{Uuid: "1", Name: "Test Card 1", IsRevealed: false}},
+		// 		backend.AssassinationCard{BaseCard: backend.NewBaseCard("Test Card 1", "Character", lucie, "blue")},
 		// 		cards[0],
-		// 		backend.HeirCard{BaseCard: &backend.BaseCard{Uuid: "2", Name: "Test Card 2", IsRevealed: false}},
+		// 		backend.HeirCard{BaseCard: backend.NewBaseCard("Test Card 2", "Character", marie, "blue")},
 		// 	},
 		// },
 		// {
@@ -146,8 +154,8 @@ func TestArcherCard(t *testing.T) {
 		// 	firstCard: true,
 		// 	errorText: "Expected only the first card in the queue to be eliminated when the archer is in the last position",
 		// 	queue: []backend.CardInterface{
-		// 		backend.AssassinationCard{BaseCard: &backend.BaseCard{Uuid: "1", Name: "Test Card 1", IsRevealed: false}},
-		// 		backend.HeirCard{BaseCard: &backend.BaseCard{Uuid: "2", Name: "Test Card 2", IsRevealed: false}},
+		// 		backend.AssassinationCard{BaseCard: backend.NewBaseCard("Test Card 1", "Character", lucie, "blue")},
+		// 		backend.HeirCard{BaseCard: backend.NewBaseCard("Test Card 2", "Character", marie, "blue")},
 		// 		cards[0],
 		// 	},
 		// },

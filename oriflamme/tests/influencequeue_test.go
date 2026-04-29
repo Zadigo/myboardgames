@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/Zadigo/oriflamme/internal/backend"
-	"github.com/google/uuid"
 )
 
 func constructQueue(t *testing.T) (*backend.InfluenceQueue, *backend.WebsocketClient, *backend.WebsocketClient) {
@@ -16,10 +15,10 @@ func constructQueue(t *testing.T) (*backend.InfluenceQueue, *backend.WebsocketCl
 	simpleQueue := backend.InfluenceQueue{
 		ResolutionIndex: -1,
 		Queue: []backend.CardInterface{
-			backend.ArcherCard{BaseCard: &backend.BaseCard{Uuid: uuid.NewString(), Name: "Archer", Color: "Red", PositionInQueue: 0, Owner: ownerOne}},
-			backend.AssassinationCard{BaseCard: &backend.BaseCard{Uuid: uuid.NewString(), Name: "Assassination", Color: "Blue", PositionInQueue: 1, Owner: ownerTwo}},
-			backend.SpyCard{BaseCard: &backend.BaseCard{Uuid: uuid.NewString(), Name: "Spy", Color: "Red", PositionInQueue: 2, Owner: ownerTwo}},
-			backend.SoldierCard{BaseCard: &backend.BaseCard{Uuid: uuid.NewString(), Name: "Soldier", Color: "Blue", PositionInQueue: 3, Owner: ownerTwo}},
+			&backend.ArcherCard{BaseCard: backend.NewBaseCard("Archer", "Character", ownerOne, "Red")},
+			&backend.AssassinationCard{BaseCard: backend.NewBaseCard("Assassination", "Character", ownerTwo, "Blue")},
+			&backend.SpyCard{BaseCard: backend.NewBaseCard("Spy", "Character", ownerTwo, "Red")},
+			&backend.SoldierCard{BaseCard: backend.NewBaseCard("Soldier", "Character", ownerTwo, "Blue")},
 		},
 	}
 	return &simpleQueue, ownerOne, ownerTwo

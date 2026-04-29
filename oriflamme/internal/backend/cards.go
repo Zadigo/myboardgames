@@ -159,8 +159,8 @@ type CardInterface interface {
 	Reveal(queue *InfluenceQueue, choice PlayerChoices) (state bool, err error)
 }
 
-func NewBaseCard(name string, cardType string, owner *WebsocketClient, color string) *BaseCard {
-	return &BaseCard{
+func NewBaseCard(name string, cardType string, owner *WebsocketClient, color string) BaseCard {
+	return BaseCard{
 		Uuid:            uuid.NewString(),
 		Color:           color,
 		Name:            name,
