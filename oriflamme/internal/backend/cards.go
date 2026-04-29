@@ -1,6 +1,8 @@
 package backend
 
 import (
+	"errors"
+
 	"github.com/google/uuid"
 )
 
@@ -34,10 +36,10 @@ type PlayerChoices struct {
 	IsRemote bool `json:"isRemote,omitempty"`
 	// The card that is remotely controlling the effect of
 	// another card (e.g. the shapeshifter copying the effect of another card).
-	RemoteCard *BaseCard `json:"remoteCard,omitempty"`
+	RemoteCard CardInterface `json:"remoteCard,omitempty"`
 	// The card that the Royal Decree wants to move. This is used when the player chooses to apply the Royal Decree's effect
 	// to move a card from its current position in the queue to another position.
-	RoyalDecreeTargetCard *BaseCard `json:"royalDecreeTargetCard,omitempty"`
+	RoyalDecreeTargetCard CardInterface `json:"royalDecreeTargetCard,omitempty"`
 	// The index of the card that the Royal Decree wants to move
 	RoyalDecreeFrom int `json:"royalDecreeFrom,omitempty"`
 	// The target position in the queue to which the Royal Decree wants to move the card
@@ -82,10 +84,75 @@ type BaseCard struct {
 	Image string `json:"image"`
 }
 
+// Add tokens to a card. The number of tokens on a card can be
+// increased by the player, and these tokens can be won when
+// the card is revealed during the resolution phase.
+func (card *BaseCard) AddToken(k int) {
+	card.Tokens += k
+}
+
+// Remove tokens from a card. If the number of tokens to remove exceeds
+// the current number of tokens on the card, the card's
+// tokens will be set to zero.
+func (card *BaseCard) RemoveToken(k int) {
+	if card.Tokens > 0 {
+		card.Tokens -= k
+
+		if card.Tokens < 0 {
+			card.Tokens = 0
+		}
+	}
+}
+
+// Check if two cards are owned by the same player. This can be used to determine
+// if a card's special ability can be applied to another card in the queue.
+func (card *BaseCard) IsSameOwnerAs(b *BaseCard) (bool, error) {
+	if b.Owner == nil || card.Owner == nil {
+		return false, errors.New("One of the cards does not have an owner")
+	} else {
+		return card.Owner.Username == b.Owner.Username, nil
+	}
+}
+
+// Check if the queue has cards to resolve. This is a common check for
+// certain cards special abilities.
+func (card *BaseCard) CanReveal(queue *InfluenceQueue) (bool, error) {
+	if queue.NumberOfCards() == 0 {
+		return false, errors.New("Queue has no cards to resolve")
+	} else {
+		return true, nil
+	}
+}
+
+// RevealSideEffect is a method that can be overridden by specific card types to implement
+// any side effects that should occur when the card is revealed during the resolution phase.
+// By default, it does nothing and returns false, indicating that the card's effect cannot be applied.
+// The initiator parameter is the card that is currently being resolved in the queue, and who is triggering
+// the side effects of this cards implementing the method. For example, to resolve the side effects of an ambush card.
+func (c *BaseCard) RevealSideEffect(initiator CardInterface, choices PlayerChoices) (state bool, err error) {
+	return false, nil
+}
+
+// Discard a card from the queue. The card is simply marked
+// as discarded and will be skipped during resolution.
+func (card *BaseCard) Discard() {
+	card.IsDiscarded = true
+}
+
+func (card *BaseCard) IsCharacter() bool {
+	return card.Type == "Character"
+}
+
+func (card *BaseCard) IsIntrigue() bool {
+	return card.Type == "Intrigue"
+}
+
 type CardInterface interface {
 	GetBaseCard() *BaseCard
-	Reveal(queue *InfluenceQueue) (state bool, err error)
-	Resolve(queue *InfluenceQueue, choice PlayerChoices) (state bool, err error)
+	// Reveal a card during the resolution phase.
+	// The card's effect will be applied if it is not
+	// removed or discarded.
+	Reveal(queue *InfluenceQueue, choice PlayerChoices) (state bool, err error)
 }
 
 func NewBaseCard(name string, cardType string, owner *WebsocketClient, color string) *BaseCard {

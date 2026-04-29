@@ -39,10 +39,10 @@ func (queue *InfluenceQueue) AddCardRight(card CardInterface) {
 
 // Remove a card at a specific position in the queue. The card is simply
 // marked as removed and will be skipped during resolution.
-func (queue *InfluenceQueue) RemoveCardAtPosition(index int) *BaseCard {
+func (queue *InfluenceQueue) RemoveCardAtPosition(index int) CardInterface {
 	card := queue.Queue[index]
 	card.GetBaseCard().IsRemoved = true
-	return card.GetBaseCard()
+	return card
 }
 
 func (queue *InfluenceQueue) StackCard(index int) *BaseCard {
