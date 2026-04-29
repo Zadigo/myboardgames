@@ -106,25 +106,3 @@ func NewBaseCard(name string, cardType string, owner *WebsocketClient, color str
 		IsRevealed:      false,
 	}
 }
-
-// func createBaseCards() []CardInterface {
-// 	cards := []CardInterface{
-// 		ArcherCard{BaseCard{}},
-// 	}
-
-// 	// cards := []Card{
-// 	// 	{Uuid: uuid.NewString(), PositionInQueue: -1, Name: "Archer", Type: "Character", Tokens: 0},
-// 	// 	{Uuid: uuid.NewString(), PositionInQueue: -1, Name: "Soldier", Type: "Character", Tokens: 0},
-// 	// 	{Uuid: uuid.NewString(), PositionInQueue: -1, Name: "Spy", Type: "Character", Tokens: 0},
-// 	// 	{Uuid: uuid.NewString(), PositionInQueue: -1, Name: "Heir", Type: "Character", Tokens: 0},
-// 	// 	{Uuid: uuid.NewString(), PositionInQueue: -1, Name: "Shapeshifter", Type: "Character", Tokens: 0},
-// 	// 	{Uuid: uuid.NewString(), PositionInQueue: -1, Name: "Lord", Type: "Character", Tokens: 0},
-
-// 	// 	{Uuid: uuid.NewString(), PositionInQueue: -1, Name: "Assassination", Type: "Intrigue", Tokens: 0},
-// 	// 	{Uuid: uuid.NewString(), PositionInQueue: -1, Name: "Royal Decree", Type: "Intrigue", Tokens: 0},
-// 	// 	{Uuid: uuid.NewString(), PositionInQueue: -1, Name: "Conspiracy", Type: "Intrigue", Tokens: 0},
-// 	// 	{Uuid: uuid.NewString(), PositionInQueue: -1, Name: "Ambush", Type: "Intrigue", Tokens: 0},
-// 	// }
-
-// 	return cards
-// }

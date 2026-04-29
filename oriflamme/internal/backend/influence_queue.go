@@ -8,7 +8,7 @@ import (
 type InfluenceQueue struct {
 	// The influence queue is a list of cards
 	// that have been played but have not yet resolved.
-	Queue []*Card `json:"queue"`
+	Queue []CardInterface `json:"queue"`
 	// Each card is resolved one by one in an ascending order of their position in the queue.
 	// This index tracks which card is currently being resolved. The index is initialized to
 	// -1, meaning that no card has been resolved yet.
@@ -17,35 +17,35 @@ type InfluenceQueue struct {
 
 func (queue *InfluenceQueue) updateCardIndexes() {
 	for i := range queue.Queue {
-		queue.Queue[i].PositionInQueue = i
+		queue.Queue[i].GetBaseCard().PositionInQueue = i
 	}
 }
 
 // Add a card to the left of the queue. This means that the card will be
 // resolved before all other cards in the queue.
-func (queue *InfluenceQueue) AddCardLeft(card *Card) {
-	card.InQueue = true
+func (queue *InfluenceQueue) AddCardLeft(card CardInterface) {
+	card.GetBaseCard().InQueue = true
 	queue.Queue = slices.Insert(queue.Queue, 0, card)
 	queue.updateCardIndexes()
 }
 
 // Add a card to the right of the queue. This means that the card will be
 // resolved after all other cards in the queue.
-func (queue *InfluenceQueue) AddCardRight(card *Card) {
-	card.InQueue = true
+func (queue *InfluenceQueue) AddCardRight(card CardInterface) {
+	card.GetBaseCard().InQueue = true
 	queue.Queue = append(queue.Queue, card)
 	queue.updateCardIndexes()
 }
 
 // Remove a card at a specific position in the queue. The card is simply
 // marked as removed and will be skipped during resolution.
-func (queue *InfluenceQueue) RemoveCardAtPosition(index int) *Card {
+func (queue *InfluenceQueue) RemoveCardAtPosition(index int) *BaseCard {
 	card := queue.Queue[index]
-	card.IsRemoved = true
-	return card
+	card.GetBaseCard().IsRemoved = true
+	return card.GetBaseCard()
 }
 
-func (queue *InfluenceQueue) StackCard(index int) *Card {
+func (queue *InfluenceQueue) StackCard(index int) *BaseCard {
 	return nil
 }
 
@@ -71,7 +71,7 @@ func (queue *InfluenceQueue) Resolve() error {
 
 // Get the current card being resolved. If the resolution index
 // is out of bounds, return nil.
-func (queue *InfluenceQueue) GetCurrentCard() (*Card, error) {
+func (queue *InfluenceQueue) GetCurrentCard() (CardInterface, error) {
 	if queue.NumberOfCards() == 0 {
 		return nil, errors.New("No cards in the queue")
 	}
@@ -91,7 +91,7 @@ func (queue *InfluenceQueue) GetCurrentCard() (*Card, error) {
 // The resolution index is initialized to -1.
 func NewInfluenceQueue() *InfluenceQueue {
 	return &InfluenceQueue{
-		Queue:           []*Card{},
+		Queue:           []CardInterface{},
 		ResolutionIndex: -1,
 	}
 }

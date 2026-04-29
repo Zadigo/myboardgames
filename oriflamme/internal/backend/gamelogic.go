@@ -98,10 +98,10 @@ func GameLogic(message WebsocketMessage, client *WebsocketClient, serverRegistry
 		}
 
 		for _, card := range gameRegistry.CardsInPlay {
-			if slices.Contains(message.SelectedCards, card.Uuid) {
-				card.IsSelected = true
+			if slices.Contains(message.SelectedCards, card.GetBaseCard().Uuid) {
+				card.GetBaseCard().IsSelected = true
 			} else {
-				card.IsSelected = false
+				card.GetBaseCard().IsSelected = false
 			}
 		}
 

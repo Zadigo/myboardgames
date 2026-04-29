@@ -16,7 +16,7 @@ type WebsocketMessage struct {
 	// specific players and manage game state accordingly.
 	PlayerUuid  string  `json:"playerUuid,omitempty"`
 	CardAction  string  `json:"cardAction,omitempty"`
-	CardsInPlay []*Card `json:"cardsInPlay,omitempty"`
+	CardsInPlay []CardInterface `json:"cardsInPlay,omitempty"`
 	// The unique identifier for the game table that the player is trying to join or create.
 	// This can be used to associate players with specific games and manage game state accordingly.
 	TableUuid string `json:"tableUuid,omitempty"`
@@ -40,7 +40,7 @@ type WebsocketClient struct {
 	Tokens int `json:"tokens"`
 	// Cards that were discared when the player selected the cards that
 	// he wants to play with
-	DiscardPile []*Card `json:"discardPile,omitempty"`
+	DiscardPile []CardInterface `json:"discardPile,omitempty"`
 	// The send channel is used to queue messages
 	// that need to be sent to the client.
 	send chan WebsocketMessage `json:"-"`

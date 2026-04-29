@@ -29,8 +29,8 @@ type GameRegistry struct {
 	StartedAt           time.Time                   `json:"startedAt"`
 	// CardsInPlay represents all the cards that were selected by the players
 	// to be played in the current game
-	CardsInPlay []*Card      `json:"cardsInPlay"`
-	mu          sync.RWMutex `json:"-"`
+	CardsInPlay []CardInterface `json:"cardsInPlay"`
+	mu          sync.RWMutex    `json:"-"`
 	// The broadcast channel is used to send messages to all clients in the game.
 	// When a message is sent to the broadcast channel, it will be received by all clients
 	// in the game and can be used to update their game state accordingly.
@@ -119,33 +119,32 @@ func (r *GameRegistry) StartGame(gameUuid string) error {
 		colors[x], colors[y] = colors[y], colors[x]
 	})
 
+	cards := CreateBaseCards()
+
 	// For each player, create the cards of their color and add
 	// them to the game registry's CardsInPlay.
-	addToCards := func(cards []Card, owner *WebsocketClient) {
+	addToCards := func(color string, owner *WebsocketClient) {
 		for _, card := range cards {
-			card.Owner = owner
-			r.CardsInPlay = append(r.CardsInPlay, &card)
+			card.GetBaseCard().Owner = owner
+			card.GetBaseCard().Color = color
+			r.CardsInPlay = append(r.CardsInPlay, card)
 		}
 	}
 
 	for _, client := range r.Clients {
 		color := slices.Delete(colors, 1, 1)
+
 		switch color[0] {
 		case "red":
-			redCards := CreateRedCards(client)
-			addToCards(redCards, client)
+			addToCards("red", client)
 		case "blue":
-			blueCards := CreateBlueCards(client)
-			addToCards(blueCards, client)
+			addToCards("blue", client)
 		case "green":
-			greenCards := CreateGreenCards(client)
-			addToCards(greenCards, client)
+			addToCards("green", client)
 		case "yellow":
-			yellowCards := CreateYellowCards(client)
-			addToCards(yellowCards, client)
+			addToCards("yellow", client)
 		case "purple":
-			purpleCards := CreatePurpleCards(client)
-			addToCards(purpleCards, client)
+			addToCards("purple", client)
 		}
 	}
 
@@ -163,9 +162,9 @@ func (r *GameRegistry) EndGame(gameUuid string) {
 }
 
 // GetCardByUuid retrieves a card from the game registry's CardsInPlay based on its UUID.
-func (r *GameRegistry) GetCardByUuid(cardUuid string) (*Card, error) {
+func (r *GameRegistry) GetCardByUuid(cardUuid string) (CardInterface, error) {
 	for _, card := range r.CardsInPlay {
-		if card.Uuid == cardUuid {
+		if card.GetBaseCard().Uuid == cardUuid {
 			return card, nil
 		}
 	}
