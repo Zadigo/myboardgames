@@ -1,18 +1,13 @@
 package backend
 
 import (
-	"sync"
-
-	"github.com/gorilla/websocket"
+	"github.com/google/uuid"
 )
 
 // PlayerWallet represents the resources a
 // player has, including the tokens and bonuses
 // from cards.
 type PlayerWallet struct {
-	// IsNormalGame indicates whether the game is a normal
-	// game or a Marvel expansion game.
-	IsNormalGame bool
 	CardResources
 	MarvelCardResources
 }
@@ -32,24 +27,45 @@ func (w *PlayerWallet) AvailableResources(card CardInterface) {
 type Player struct {
 	PlayerWallet
 	Uuid          string
+	Username      string
 	Points        int
 	ReservedCards []CardInterface
-
-	// Emerald               int
-	// Diamond               int
-	// Sapphire              int
-	// Onyx                  int
-	// Ruby                  int
-	// GoldJoker             int
+	// IsNormalGame indicates whether the game is a normal
+	// game or a Marvel expansion game.
+	IsNormalGame bool
 }
 
 type PlayerInterface interface {
-	BuyCard(card CardInterface)
-	ReserveCard(card CardInterface)
-	TakeTokens(emerald int, diamond int, sapphire int, onyx int, ruby int) (int, bool)
-	ReturnTokens(emerald int, diamond int, sapphire int, onyx int, ruby int)
+	BuyCard(card CardInterface) error
+	ReserveCard(card CardInterface) error
+	TakeTokens(emerald int, diamond int, sapphire int, onyx int, ruby int) (int, error)
+	ReturnTokens(emerald int, diamond int, sapphire int, onyx int, ruby int) error
 	CanBuyCard(card CardInterface) bool
 	CanReserveCard() bool
+}
+
+func (p *Player) BuyCard(card CardInterface) error {
+	return nil
+}
+
+func (p *Player) ReserveCard(card CardInterface) error {
+	return nil
+}
+
+func (p *Player) TakeTokens(emerald int, diamond int, sapphire int, onyx int, ruby int) (int, error) {
+	return 0, nil
+}
+
+func (p *Player) ReturnTokens(emerald int, diamond int, sapphire int, onyx int, ruby int) error {
+	return nil
+}
+
+func (p *Player) CanBuyCard(card CardInterface) bool {
+	return false
+}
+
+func (p *Player) CanReserveCard() bool {
+	return false
 }
 
 // func (p *Player) NumberOfTokens() int {
@@ -107,19 +123,27 @@ type PlayerInterface interface {
 // 	return false
 // }
 
-// WebsocketClient represents a client connected 
-// to the game via websocket. It wraps the player's 
-// information and the websocket connection.
-type WebsocketClient struct {
-	Player *Player
-	Conn   *websocket.Conn
-	Mu     *sync.RWMutex
-}
-
-func NewWebsocketClient(player *Player, conn *websocket.Conn) *WebsocketClient {
-	return &WebsocketClient{
-		Player: player,
-		Conn:   conn,
-		Mu:     &sync.RWMutex{},
+func NewPlayer(username string, isNormalGame bool) *Player {
+	return &Player{
+		Username:     username,
+		IsNormalGame: isNormalGame,
+		PlayerWallet: PlayerWallet{
+			CardResources: CardResources{
+				Emerald:  0,
+				Diamond:  0,
+				Sapphire: 0,
+				Onyx:     0,
+				Ruby:     0,
+			},
+			MarvelCardResources: MarvelCardResources{
+				Mind:    0,
+				Power:   0,
+				Reality: 0,
+				Soul:    0,
+				Time:    0,
+			},
+		},
+		Uuid:   uuid.NewString(),
+		Points: 0,
 	}
 }

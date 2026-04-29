@@ -7,3 +7,24 @@ func (c *NormalCard) Buy() {
 func (c *NormalCard) Reserve() {
 	// Implement the logic for reserving the card
 }
+
+func NormalCardsLevelOne() []CardInterface {
+	characters := []map[string]any{
+		{"name": "", "points": 0, "emerald": 1, "diamond": 1, "sapphire": 1, "onyx": 1, "ruby": 1},
+	}
+	return CreateCard(MarvelCard{}, 1, characters)
+}
+
+func NormalCardsLevelTwo() []CardInterface {
+	characters := []map[string]any{
+		{"name": "", "points": 0, "emerald": 1, "diamond": 1, "sapphire": 1, "onyx": 1, "ruby": 1},
+	}
+	return CreateCard(MarvelCard{}, 2, characters)
+}
+
+func NormalCardsLevelThree() []CardInterface {
+	characters := []map[string]any{
+		{"name": "", "points": 5, "emerald": 1, "diamond": 1, "sapphire": 1, "onyx": 1, "ruby": 1},
+	}
+	return CreateCard(MarvelCard{}, 3, characters)
+}
