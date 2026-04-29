@@ -7,22 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func cardConstructor(t *testing.T) (*backend.WebsocketClient, []backend.CardInterface) {
-	t.Helper()
-
-	alice := &backend.WebsocketClient{Username: "Alice", Tokens: 1}
-	cards := backend.CreateBaseCards()
-
-	for i := range cards {
-		card := cards[i].GetBaseCard()
-		if card.Color == "blue" {
-			card.Owner = alice
-		}
-	}
-
-	return alice, cards
-}
-
 func TestCardConstructors(t *testing.T) {
 	cards := backend.CreateBaseCards()
 
@@ -112,14 +96,36 @@ func TestCard(t *testing.T) {
 // 	}
 // }
 
+func createHands(t *testing.T) (aliceCards []backend.CardInterface, paulineCards []backend.CardInterface, lucieCards []backend.CardInterface) {
+	t.Helper()
+
+	alice := &backend.WebsocketClient{Username: "Alice"}
+	pauline := &backend.WebsocketClient{Username: "Pauline"}
+	lucie := &backend.WebsocketClient{Username: "Lucie"}
+
+	cards := backend.CreateBaseCards()
+
+	for _, card := range cards {
+		switch card.GetBaseCard().Color {
+		case "Red":
+			card.GetBaseCard().Owner = alice
+			aliceCards = append(aliceCards, card)
+		case "Blue":
+			card.GetBaseCard().Owner = pauline
+			paulineCards = append(paulineCards, card)
+		case "Green":
+			card.GetBaseCard().Owner = lucie
+			lucieCards = append(lucieCards, card)
+		}
+	}
+
+	return aliceCards, paulineCards, lucieCards
+}
+
 func TestArcherCard(t *testing.T) {
 	simpleQueue := backend.NewInfluenceQueue()
 
-	alice := &backend.WebsocketClient{Username: "Alice"}
-	cards, _ := backend.AttributeBaseCard(alice, "Blue")
-
-	lucie := &backend.WebsocketClient{Username: "Lucie"}
-	marie := &backend.WebsocketClient{Username: "Marie"}
+	aliceCards, paulineCards, lucieCards := createHands(t)
 
 	type testCase struct {
 		name      string
@@ -134,31 +140,31 @@ func TestArcherCard(t *testing.T) {
 			firstCard: false,
 			errorText: "Expected only the last card in the queue to be eliminated when the archer is in the first position",
 			queue: []backend.CardInterface{
-				cards[0],
-				&backend.AssassinationCard{BaseCard: backend.NewBaseCard("Test Card 1", "Character", lucie, "blue")},
-				&backend.HeirCard{BaseCard: backend.NewBaseCard("Test Card 2", "Character", marie, "blue")},
+				aliceCards[0],
+				paulineCards[6],
+				lucieCards[6],
 			},
 		},
-		// {
-		// 	name:      "Archer in middle position",
-		// 	firstCard: true,
-		// 	errorText: "Expected the first or last card in the queue to be eliminated when the archer is in the middle position",
-		// 	queue: []backend.CardInterface{
-		// 		backend.AssassinationCard{BaseCard: backend.NewBaseCard("Test Card 1", "Character", lucie, "blue")},
-		// 		cards[0],
-		// 		backend.HeirCard{BaseCard: backend.NewBaseCard("Test Card 2", "Character", marie, "blue")},
-		// 	},
-		// },
-		// {
-		// 	name:      "Archer in last position",
-		// 	firstCard: true,
-		// 	errorText: "Expected only the first card in the queue to be eliminated when the archer is in the last position",
-		// 	queue: []backend.CardInterface{
-		// 		backend.AssassinationCard{BaseCard: backend.NewBaseCard("Test Card 1", "Character", lucie, "blue")},
-		// 		backend.HeirCard{BaseCard: backend.NewBaseCard("Test Card 2", "Character", marie, "blue")},
-		// 		cards[0],
-		// 	},
-		// },
+		{
+			name:      "Archer in middle position",
+			firstCard: true,
+			errorText: "Expected the first or last card in the queue to be eliminated when the archer is in the middle position",
+			queue: []backend.CardInterface{
+				paulineCards[6],
+				aliceCards[0],
+				lucieCards[6],
+			},
+		},
+		{
+			name:      "Archer in last position",
+			firstCard: true,
+			errorText: "Expected only the first card in the queue to be eliminated when the archer is in the last position",
+			queue: []backend.CardInterface{
+				paulineCards[6],
+				lucieCards[6],
+				aliceCards[0],
+			},
+		},
 	}
 
 	for i, tc := range testCases {
@@ -179,7 +185,7 @@ func TestArcherCard(t *testing.T) {
 				assert.True(t, simpleQueue.Queue[len(simpleQueue.Queue)-1].GetBaseCard().IsRemoved, tc.errorText)
 			}
 
-			assert.Equal(t, currentCard.GetBaseCard().Owner.Tokens, 1, "Expected player to gain tokens for eliminated cards")
+			assert.Equal(t, 1, currentCard.GetBaseCard().Owner.Tokens, "Expected player to gain tokens for eliminated cards")
 
 			t.Cleanup(func() {
 				currentCard.GetBaseCard().Owner.Tokens = 0
@@ -192,103 +198,101 @@ func TestArcherCard(t *testing.T) {
 	}
 }
 
-// func TestSoldierCard(t *testing.T) {
-// 	alice := &backend.WebsocketClient{Username: "Alice"}
-// 	blueCards := backend.CreateBlueCards(alice)
+func TestSoldierCard(t *testing.T) {
+	simpleQueue := backend.NewInfluenceQueue()
 
-// 	simpleQueue := backend.NewInfluenceQueue()
+	aliceCards, paulineCards, lucieCards := createHands(t)
 
-// 	type testCase struct {
-// 		name            string
-// 		resolutionIndex int
-// 		cardBefore      bool
-// 		errorText       string
-// 		firstCard       bool
-// 		queue           []*backend.Card
-// 	}
+	type testCase struct {
+		name            string
+		resolutionIndex int
+		cardBefore      bool
+		errorText       string
+		firstCard       bool
+		queue           []backend.CardInterface
+	}
 
-// 	testCases := []testCase{
-// 		{
-// 			name:            "Soldier in first position",
-// 			resolutionIndex: 0,
-// 			cardBefore:      false,
-// 			firstCard:       false,
-// 			errorText:       "Expected card on the right of the soldier to be eliminated when the soldier is in the first position",
-// 			queue: []*backend.Card{
-// 				&blueCards[1],
-// 				{Uuid: "1", Name: "Test Card 1"},
-// 				{Uuid: "2", Name: "Test Card 2"},
-// 			},
-// 		},
-// 		{
-// 			name:            "Soldier in middle position 1",
-// 			resolutionIndex: 1,
-// 			cardBefore:      true,
-// 			firstCard:       true,
-// 			errorText:       "Expected the card on the left of the soldier to be eliminated when the soldier is in the middle position",
-// 			queue: []*backend.Card{
-// 				{Uuid: "1", Name: "Test Card 1"},
-// 				&blueCards[1],
-// 				{Uuid: "2", Name: "Test Card 2"},
-// 			},
-// 		},
-// 		{
-// 			name:            "Soldier in middle position 2",
-// 			cardBefore:      false,
-// 			resolutionIndex: 1,
-// 			firstCard:       true,
-// 			errorText:       "Expected the card on the right of the soldier to be eliminated when the soldier is in the middle position",
-// 			queue: []*backend.Card{
-// 				{Uuid: "1", Name: "Test Card 1"},
-// 				&blueCards[1],
-// 				{Uuid: "2", Name: "Test Card 2"},
-// 			},
-// 		},
-// 		{
-// 			name:            "Soldier in last position",
-// 			cardBefore:      true,
-// 			resolutionIndex: 2,
-// 			firstCard:       true,
-// 			errorText:       "Expected card on the left of the soldier to be eliminated when the soldier is in the last position",
-// 			queue: []*backend.Card{
-// 				{Uuid: "1", Name: "Test Card 1"},
-// 				{Uuid: "2", Name: "Test Card 2"},
-// 				&blueCards[1],
-// 			},
-// 		},
-// 	}
+	testCases := []testCase{
+		{
+			name:            "Soldier in first position",
+			resolutionIndex: 0,
+			cardBefore:      false,
+			firstCard:       false,
+			errorText:       "Expected card on the right of the soldier to be eliminated when the soldier is in the first position",
+			queue: []backend.CardInterface{
+				aliceCards[2],
+				paulineCards[1],
+				lucieCards[1],
+			},
+		},
+		{
+			name:            "Soldier in middle position 1",
+			resolutionIndex: 1,
+			cardBefore:      true,
+			firstCard:       true,
+			errorText:       "Expected the card on the left of the soldier to be eliminated when the soldier is in the middle position",
+			queue: []backend.CardInterface{
+				paulineCards[1],
+				aliceCards[2],
+				lucieCards[1],
+			},
+		},
+		{
+			name:            "Soldier in middle position 2",
+			cardBefore:      false,
+			resolutionIndex: 1,
+			firstCard:       true,
+			errorText:       "Expected the card on the right of the soldier to be eliminated when the soldier is in the middle position",
+			queue: []backend.CardInterface{
+				paulineCards[1],
+				aliceCards[2],
+				lucieCards[1],
+			},
+		},
+		{
+			name:            "Soldier in last position",
+			cardBefore:      true,
+			resolutionIndex: 2,
+			firstCard:       true,
+			errorText:       "Expected card on the left of the soldier to be eliminated when the soldier is in the last position",
+			queue: []backend.CardInterface{
+				paulineCards[1],
+				aliceCards[2],
+				lucieCards[1],
+			},
+		},
+	}
 
-// 	for _, tc := range testCases {
-// 		t.Run(tc.name, func(t *testing.T) {
-// 			simpleQueue.Queue = tc.queue
-// 			simpleQueue.ResolutionIndex = tc.resolutionIndex
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			simpleQueue.Queue = tc.queue
+			simpleQueue.ResolutionIndex = tc.resolutionIndex
 
-// 			currentCard, _ := simpleQueue.GetCurrentCard()
-// 			assert.Equal(t, "Soldier", currentCard.Name)
-// 			currentCard.Reveal(simpleQueue)
+			currentCard, _ := simpleQueue.GetCurrentCard()
+			assert.Equal(t, "Soldier", currentCard.GetBaseCard().Name)
+			state, err := currentCard.Reveal(simpleQueue, backend.PlayerChoices{FirstCard: true})
 
-// 			result, err := currentCard.ApplySoldier(simpleQueue, backend.PlayerChoices{CardBefore: tc.cardBefore})
-// 			assert.NoError(t, err, err)
-// 			assert.True(t, result, tc.errorText)
+			assert.NoError(t, err, err)
+			assert.True(t, state, tc.errorText)
 
-// 			if tc.cardBefore {
-// 				assert.True(t, simpleQueue.Queue[0].IsRemoved, tc.errorText)
-// 			} else {
-// 				assert.True(t, simpleQueue.Queue[len(simpleQueue.Queue)-1].IsRemoved, tc.errorText)
-// 			}
+			if tc.cardBefore {
+				assert.True(t, simpleQueue.Queue[0].GetBaseCard().IsRemoved, tc.errorText)
+			} else {
+				assert.True(t, simpleQueue.Queue[len(simpleQueue.Queue)-1].GetBaseCard().IsRemoved, tc.errorText)
+			}
 
-// 			assert.Equal(t, currentCard.Owner.Tokens, 1, "Expected player to gain tokens for eliminated cards")
+			assert.Equal(t, 1, currentCard.GetBaseCard().Owner.Tokens, "Expected player to gain tokens for eliminated cards")
 
-// 			t.Cleanup(func() {
-// 				currentCard.Owner.Tokens = 0
+			t.Cleanup(func() {
+				currentCard.GetBaseCard().Owner.Tokens = 0
 
-// 				for _, card := range simpleQueue.Queue {
-// 					card.IsRemoved = false
-// 				}
-// 			})
-// 		})
-// 	}
-// }
+				for _, card := range simpleQueue.Queue {
+					card.GetBaseCard().IsRemoved = false
+				}
+			})
+		})
+	}
+}
 
 // func TestSpyCard(t *testing.T) {
 // 	alice := &backend.WebsocketClient{Username: "Alice", Tokens: 1}

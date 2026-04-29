@@ -442,11 +442,11 @@ func (c *AmbushCard) RevealSideEffect(initiator CardInterface, choices PlayerCho
 
 // BaseCard represents the common properties of all cards in the game.
 func CreateBaseCards() []CardInterface {
-	// colors := []string{"Red", "Blue", "Green", "Yellow", "Purple"}
 	cards := []CardInterface{}
 
 	for _, color := range colors {
 		cards = append(cards, &ArcherCard{BaseCard: NewBaseCard("Archer", "Character", nil, color)})
+		cards = append(cards, &AssassinationCard{BaseCard: NewBaseCard("Assassination", "Character", nil, color)})
 		cards = append(cards, &SoldierCard{BaseCard: NewBaseCard("Soldier", "Character", nil, color)})
 		cards = append(cards, &SpyCard{BaseCard: NewBaseCard("Spy", "Character", nil, color)})
 		cards = append(cards, &ShapeShifterCard{BaseCard: NewBaseCard("Shape Shifter", "Character", nil, color)})
