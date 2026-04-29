@@ -16,11 +16,15 @@ type WebsocketClient struct {
 }
 
 func (c *WebsocketClient) SendJsonMessage(message WebsocketMessage) error {
-	return nil
+	c.Mu.Lock()
+	defer c.Mu.Unlock()
+	return c.Conn.WriteJSON(message)
 }
 
-func (c *WebsocketClient) ReadJsonMessage() WebsocketMessage {
-	return WebsocketMessage{}
+func (c *WebsocketClient) ReadJsonMessage(message *WebsocketMessage) error {
+	c.Mu.RLock()
+	defer c.Mu.RUnlock()
+	return c.Conn.ReadJSON(message)
 }
 
 func (c *WebsocketClient) GetPlayer() *Player {
@@ -30,7 +34,7 @@ func (c *WebsocketClient) GetPlayer() *Player {
 type WebsocketClientInterface[T any] interface {
 	GetPlayer() *Player
 	SendJsonMessage(message T) error
-	ReadJsonMessage() T
+	ReadJsonMessage(message *T) error
 }
 
 func NewWebsocketClient(username string, conn *websocket.Conn, isNormalGame bool) WebsocketClientInterface[WebsocketMessage] {
@@ -47,7 +51,6 @@ type WebsocketMessage struct {
 	PlayerUuid   string        `json:"playerUuid"`
 	Message      string        `json:"message"`
 	PlayingTable *PlayingTable `json:"playingTable,omitempty"`
-}
-
-type GameRegistry struct {
+	Username     string        `json:"username,omitempty"`
+	IsNormalGame bool          `json:"isNormalGame,omitempty"`
 }

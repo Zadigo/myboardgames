@@ -1,6 +1,7 @@
 package backend
 
 import (
+	"fmt"
 	"sync"
 	"time"
 
@@ -15,16 +16,16 @@ type PlayingTableTokens struct {
 }
 
 type PlayingTableDetails struct {
-	Uuid          string `json:"uuid"`
-	CurrentRound  int
+	Uuid          string           `json:"uuid"`
+	CurrentRound  int              `json:"currentRound"`
 	CurrentPlayer *WebsocketClient `json:"currentPlayer"`
 	IsStarted     bool             `json:"isStarted"`
 	StartedAt     time.Time        `json:"startedAt"`
 }
 
 type PlayingTableRules struct {
-	MaxPlayers     int
-	MaxCardsPerRow int
+	MaxPlayers     int `json:"-"`
+	MaxCardsPerRow int `json:"-"`
 }
 
 // PlayingTable represents the state of the game table,
@@ -32,6 +33,7 @@ type PlayingTableRules struct {
 type PlayingTable struct {
 	PlayingTableDetails
 	PlayingTableRules
+	PlayingTableTokens
 
 	DeckLevelOne   []CardInterface `json:"deckLevelOne"`
 	DeckLevelTwo   []CardInterface `json:"deckLevelTwo"`
@@ -45,16 +47,34 @@ type PlayingTable struct {
 
 	// Clients connected to this specific table,
 	// mapped by player UUIDs
-	Clients []map[string]*WebsocketClient `json:"clients"`
+	Clients map[string]WebsocketClientInterface[WebsocketMessage] `json:"-"`
 
-	broadcast  chan WebsocketMessage `json:"-"`
-	register   chan *WebsocketClient `json:"-"`
-	unregister chan *WebsocketClient `json:"-"`
-	mu         sync.RWMutex          `json:"-"`
+	// Channel used to broadcast messages to all clients at the table
+	broadcast chan WebsocketMessage `json:"-"`
+	// Channel used to broadcast messages to all clients at the table
+	// when a player registers on the table
+	register chan WebsocketClientInterface[WebsocketMessage] `json:"-"`
+	// Channel used to broadcast messages to all clients at the table
+	// when a player unregisters from the table
+	unregister chan WebsocketClientInterface[WebsocketMessage] `json:"-"`
+	mu         sync.RWMutex                                    `json:"-"`
 }
 
 // Add a player to the table
-func (t *PlayingTable) AddPlayer(player *WebsocketClient) error {
+func (t *PlayingTable) AddPlayer(player WebsocketClientInterface[WebsocketMessage]) error {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
+	if len(t.Clients) >= t.MaxPlayers {
+		return fmt.Errorf("Table is full. Max players: %d", t.MaxPlayers)
+	}
+
+	playerUuid := player.GetPlayer().Uuid
+	if _, exists := t.Clients[playerUuid]; exists {
+		return fmt.Errorf("Player with UUID %s is already at the table", playerUuid)
+	}
+
+	t.Clients[playerUuid] = player
 	return nil
 }
 
@@ -74,7 +94,35 @@ func (t *PlayingTable) NewDeck() error {
 
 // Return the number of players currently at the table.
 func (t *PlayingTable) NumberOfPlayers() int {
-	return 0
+	t.mu.RLock()
+	defer t.mu.RUnlock()
+	return len(t.Clients)
+}
+
+// Starts the broadcaster for the table, which listens for messages
+// to broadcast to all clients at the table.
+func (t *PlayingTable) StartBroadcaster() {
+	go func() {
+		for {
+			select {
+			case client := <-t.register:
+				t.Clients[client.GetPlayer().Uuid] = client
+			case client := <-t.unregister:
+				delete(t.Clients, client.GetPlayer().Uuid)
+			case message := <-t.broadcast:
+				for _, client := range t.Clients {
+					err := client.SendJsonMessage(message)
+					if err != nil {
+						t.unregister <- client
+					}
+				}
+			}
+		}
+	}()
+}
+
+func (t *PlayingTable) BroadcastMessage(message WebsocketMessage) {
+	t.broadcast <- message
 }
 
 func NewPlayingTable(isNormalGame bool) *PlayingTable {
@@ -90,13 +138,35 @@ func NewPlayingTable(isNormalGame bool) *PlayingTable {
 			MaxPlayers:     4,
 			MaxCardsPerRow: 4,
 		},
+		PlayingTableTokens: PlayingTableTokens{
+			CardResources: CardResources{
+				Emerald: 7,
+				Diamond: 7,
+				Sapphire: 7,
+				Onyx:    7,
+				Ruby:    7,
+			},
+			MarvelCardResources: MarvelCardResources{
+				Mind:    7,
+				Space:   7,
+				Soul:    7,
+				Power:   7,
+				Reality: 7,
+				Time:    7,
+				Shield:  7,
+			},
+		},
+		DeckLevelOne:   []CardInterface{},
+		DeckLevelTwo:   []CardInterface{},
+		DeckLevelThree: []CardInterface{},
 		CardsLevelThree: []CardInterface{},
 		CardsLevelTwo:   []CardInterface{},
 		CardsLevelOne:   []CardInterface{},
 		IsNormalGame:    isNormalGame,
+		Clients:         make(map[string]WebsocketClientInterface[WebsocketMessage]),
 		broadcast:       make(chan WebsocketMessage),
-		register:        make(chan *WebsocketClient),
-		unregister:      make(chan *WebsocketClient),
+		register:        make(chan WebsocketClientInterface[WebsocketMessage]),
+		unregister:      make(chan WebsocketClientInterface[WebsocketMessage]),
 	}
 }
 

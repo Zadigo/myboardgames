@@ -5,33 +5,33 @@ import "github.com/google/uuid"
 // CardResources represents the resources
 // required to buy a card in the Splendor game.
 type CardResources struct {
-	Emerald  int
-	Diamond  int
-	Sapphire int
-	Onyx     int
-	Ruby     int
+	Emerald  int `json:"emerald"`
+	Diamond  int `json:"diamond"`
+	Sapphire int `json:"sapphire"`
+	Onyx     int `json:"onyx"`
+	Ruby     int `json:"ruby"`
 }
 
 // MarvelCardResources represents the specific
 // resources required for the Splendor Marvel cards.
 type MarvelCardResources struct {
-	Mind    int
-	Space   int
-	Soul    int
-	Power   int
-	Reality int
-	Time    int
-	Shield  int
+	Mind    int `json:"mind"`
+	Space   int `json:"space"`
+	Soul    int `json:"soul"`
+	Power   int `json:"power"`
+	Reality int `json:"reality"`
+	Time    int `json:"time"`
+	Shield  int `json:"shield"`
 }
 
 // CardDetails contains the common details
 // for both Normal and Marvel cards.
 type CardDetails struct {
-	Uuid   string
-	Name   string
-	Level  int
-	Points int
-	Owner  *Player
+	Uuid   string  `json:"uuid"`
+	Name   string  `json:"name"`
+	Level  int     `json:"level"`
+	Points int     `json:"points"`
+	Owner  *Player `json:"owner"`
 }
 
 // NormalCard represents a standard
