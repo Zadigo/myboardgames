@@ -49,8 +49,23 @@ func tableHandler(message backend.WebsocketMessage, client backend.WebsocketClie
 		table.BroadcastMessage(backend.WebsocketMessage{
 			Action:       "table_created",
 			Message:      "Table created successfully",
-			PlayingTable: table,
+			PlayingTable: table.GetTableDetails(),
 		})
+	case "start_game":
+		tableUuid := message.TableUuid
+		table, exists := serverRegistry.GetPlayingTable(tableUuid)
+		if !exists {
+			client.SendJsonMessage(backend.WebsocketMessage{
+				Action:  "error",
+				Message: "Table not found.",
+			})
+			return
+		}
+		table.StartGame()
+
+	case "join_table":
+
+	case "leave_table":
 	}
 }
 

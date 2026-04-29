@@ -47,10 +47,11 @@ func NewWebsocketClient(username string, conn *websocket.Conn, isNormalGame bool
 }
 
 type WebsocketMessage struct {
-	Action       string        `json:"action"`
-	PlayerUuid   string        `json:"playerUuid"`
-	Message      string        `json:"message"`
-	PlayingTable *PlayingTable `json:"playingTable,omitempty"`
-	Username     string        `json:"username,omitempty"`
-	IsNormalGame bool          `json:"isNormalGame,omitempty"`
+	Action       string         `json:"action"`
+	PlayerUuid   string         `json:"playerUuid"`
+	TableUuid    string         `json:"tableUuid,omitempty"`
+	Message      string         `json:"message"`
+	PlayingTable map[string]any `json:"playingTable,omitempty"`
+	Username     string         `json:"username,omitempty"`
+	IsNormalGame bool           `json:"isNormalGame,omitempty"`
 }

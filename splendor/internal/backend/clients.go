@@ -20,6 +20,7 @@ type ServerRegistryInterface interface {
 	RemoveClient(client WebsocketClientInterface[WebsocketMessage]) error
 	GetClient(clientUuid string) (WebsocketClientInterface[WebsocketMessage], bool)
 	AddPlayingTable(table *PlayingTable) error
+	GetPlayingTable(tableUuid string) (*PlayingTable, bool)
 }
 
 func (sr *ServerRegistry) AddClient(client WebsocketClientInterface[WebsocketMessage]) error {
@@ -70,6 +71,14 @@ func (sr *ServerRegistry) AddPlayingTable(table *PlayingTable) error {
 
 	sr.Games[table.Uuid] = table
 	return nil
+}
+
+func (sr *ServerRegistry) GetPlayingTable(tableUuid string) (*PlayingTable, bool) {
+	sr.Mu.RLock()
+	defer sr.Mu.RUnlock()
+
+	table, exists := sr.Games[tableUuid]
+	return table, exists
 }
 
 func NewServerRegistry() ServerRegistryInterface {
