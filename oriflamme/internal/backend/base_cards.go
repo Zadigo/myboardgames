@@ -3,15 +3,15 @@ package backend
 import "errors"
 
 // Eliminate a card anywhere in the queue
-type AssasinationCard struct {
+type AssassinationCard struct {
 	*BaseCard
 }
 
-func (c AssasinationCard) GetBaseCard() *BaseCard {
+func (c AssassinationCard) GetBaseCard() *BaseCard {
 	return c.BaseCard
 }
 
-func (c AssasinationCard) Reveal(queue *InfluenceQueue, choices PlayerChoices) (state bool, err error) {
+func (c AssassinationCard) Reveal(queue *InfluenceQueue, choices PlayerChoices) (state bool, err error) {
 	if choices.AtIndex < 0 || choices.AtIndex >= queue.NumberOfCards() {
 		return false, errors.New("Invalid index for assassination")
 	}
@@ -38,6 +38,11 @@ func (c ArcherCard) GetBaseCard() *BaseCard {
 }
 
 func (c ArcherCard) Reveal(queue *InfluenceQueue, choices PlayerChoices) (state bool, err error) {
+	state, err = c.CanReveal(queue)
+	if err != nil {
+		return state, err
+	}
+
 	wasCard := CardInterface(nil)
 
 	if choices.FirstCard {
@@ -445,5 +450,21 @@ func CreateBaseCards() []CardInterface {
 		cards = append(cards, ConspiracyCard{BaseCard: NewBaseCard("Conspiracy", "Intrigue", nil, color)})
 		cards = append(cards, AmbushCard{BaseCard: NewBaseCard("Ambush", "Intrigue", nil, color)})
 	}
+	return cards
+}
+
+// AttributeBaseCard assigns the given owner to all the base cards of the 
+// specified color and returns a slice of CardInterface containing all the cards 
+// of that color.
+func AttributeBaseCard(owner *WebsocketClient, color string) []CardInterface {
+	cards := CreateBaseCards()
+
+	for i := range cards {
+		card := cards[i]
+		if card.GetBaseCard().Color == color {
+			card.GetBaseCard().Owner = owner
+		}
+	}
+
 	return cards
 }

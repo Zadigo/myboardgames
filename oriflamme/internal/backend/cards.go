@@ -116,7 +116,11 @@ func (card *BaseCard) IsSameOwnerAs(b *BaseCard) (bool, error) {
 
 // Check if the queue has cards to resolve. This is a common check for
 // certain cards special abilities.
-func (card *BaseCard) CanReveal(queue *InfluenceQueue) (bool, error) {
+func (card *BaseCard) CanReveal(queue *InfluenceQueue) (state bool, err error) {
+	if card.Owner == nil {
+		return false, errors.New("Card does not have an owner")
+	}
+
 	if queue.NumberOfCards() == 0 {
 		return false, errors.New("Queue has no cards to resolve")
 	} else {
