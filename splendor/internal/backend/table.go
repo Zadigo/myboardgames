@@ -84,6 +84,8 @@ func (t *PlayingTable) StartGame() error {
 	// we need to adjust the number of tokens
 	// available on the table.
 	switch t.NumberOfPlayers() {
+	// case 1:
+	// 	return fmt.Errorf("At least 2 players are required to start the game")
 	case 2:
 		t.Emerald = 4
 		t.Diamond = 4
@@ -115,7 +117,7 @@ func (t *PlayingTable) StartGame() error {
 	t.StartedAt = time.Now()
 
 	t.BroadcastMessage(WebsocketMessage{
-		Action: "game_started",
+		Action:       "game_started",
 		PlayingTable: t.GetTableDetails(),
 	})
 
@@ -133,13 +135,13 @@ func (t *PlayingTable) EndGame() error {
 // on each level to be available for purchase.
 func (t *PlayingTable) NewDeck() {
 	if t.IsNormalGame {
-		t.CardsLevelOne = NormalCardsLevelOne()
-		t.CardsLevelTwo = NormalCardsLevelTwo()
-		t.CardsLevelThree = NormalCardsLevelThree()
+		t.DeckLevelOne = NormalCardsLevelOne()
+		t.DeckLevelTwo = NormalCardsLevelTwo()
+		t.DeckLevelThree = NormalCardsLevelThree()
 	} else {
-		t.CardsLevelOne = MarvelCardsLevelOne()
-		t.CardsLevelTwo = MarvelCardsLevelTwo()
-		t.CardsLevelThree = MarvelCardsLevelThree()
+		t.DeckLevelOne = MarvelCardsLevelOne()
+		t.DeckLevelTwo = MarvelCardsLevelTwo()
+		t.DeckLevelThree = MarvelCardsLevelThree()
 	}
 }
 

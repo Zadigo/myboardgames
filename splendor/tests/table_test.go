@@ -15,16 +15,6 @@ func TestPlayingTable(t *testing.T) {
 		assert.False(t, table.StartedAt.IsZero())
 	})
 
-	t.Run("Should start the game without error", func(t *testing.T) {
-		err := table.StartGame()
-		assert.NoError(t, err)
-	})
-
-	t.Run("Should end the game without error", func(t *testing.T) {
-		err := table.EndGame()
-		assert.NoError(t, err)
-	})
-
 	t.Run("Should add a player without error", func(t *testing.T) {
 		client := &backend.WebsocketClient{
 			Player: &backend.Player{
@@ -36,7 +26,7 @@ func TestPlayingTable(t *testing.T) {
 
 		t.Run("Should return the correct number of players", func(t *testing.T) {
 			numPlayers := table.NumberOfPlayers()
-			assert.Len(t, numPlayers, 1)
+			assert.Equal(t, 1, numPlayers)
 		})
 
 		t.Cleanup(func() {
@@ -55,15 +45,20 @@ func TestPlayingTable(t *testing.T) {
 	})
 
 	t.Run("Should create a new deck without error", func(t *testing.T) {
-		err := table.NewDeck()
+		err := table.StartGame()
 		assert.NoError(t, err)
 
 		assert.Len(t, table.DeckLevelOne, 40)
 		assert.Len(t, table.DeckLevelTwo, 30)
 		assert.Len(t, table.DeckLevelThree, 20)
 
-		assert.Len(t, table.DeckLevelOne, 4)
-		assert.Len(t, table.DeckLevelTwo, 4)
-		assert.Len(t, table.DeckLevelThree, 4)
+		assert.Len(t, table.CardsLevelOne, 4)
+		assert.Len(t, table.CardsLevelTwo, 4)
+		assert.Len(t, table.CardsLevelThree, 4)
+
+		t.Run("Should end the game without error", func(t *testing.T) {
+			err := table.EndGame()
+			assert.NoError(t, err)
+		})
 	})
 }

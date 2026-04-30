@@ -12,7 +12,14 @@
             "program": "${file}",
         },
         {
-            "name": "Flip 7 Package",
+            "name": "Splendor",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/splendor",
+        },
+        {
+            "name": "Flip 7",
             "type": "go",
             "request": "launch",
             "mode": "debug",

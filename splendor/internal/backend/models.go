@@ -59,12 +59,12 @@ type CardInterface interface {
 	Reserve()
 }
 
-func CreateCard[T MarvelCard | NormalCard](cardType T, level int, characters []map[string]any) []CardInterface {
+func CreateCard(isNormalGame bool, level int, characters []map[string]any) []CardInterface {
 	cards := []CardInterface{}
 
 	for _, character := range characters {
-		switch any(cardType).(type) {
-		case NormalCard:
+		switch isNormalGame {
+		case true:
 			card := NormalCard{
 				CardResources: CardResources{
 					Emerald:  character["emerald"].(int),
@@ -81,7 +81,7 @@ func CreateCard[T MarvelCard | NormalCard](cardType T, level int, characters []m
 				},
 			}
 			cards = append(cards, &card)
-		case MarvelCard:
+		case false:
 			card := MarvelCard{
 				MarvelCardResources: MarvelCardResources{
 					Mind:    character["mind"].(int),

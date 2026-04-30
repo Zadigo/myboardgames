@@ -26,13 +26,10 @@ func (w *PlayerWallet) AvailableResources(card CardInterface) {
 
 type Player struct {
 	PlayerWallet
-	Uuid          string
-	Username      string
-	Points        int
-	ReservedCards []CardInterface
-	// IsNormalGame indicates whether the game is a normal
-	// game or a Marvel expansion game.
-	IsNormalGame bool
+	Uuid          string          `json:"uuid"`
+	Username      string          `json:"username"`
+	Points        int             `json:"points"`
+	ReservedCards []CardInterface `json:"reservedCards"`
 }
 
 type PlayerInterface interface {
@@ -130,8 +127,7 @@ func (p *Player) CanReserveCard() bool {
 
 func NewPlayer(username string, isNormalGame bool) *Player {
 	return &Player{
-		Username:     username,
-		IsNormalGame: isNormalGame,
+		Username: username,
 		PlayerWallet: PlayerWallet{
 			CardResources: CardResources{
 				Emerald:  0,
