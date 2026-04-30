@@ -5,11 +5,12 @@ import (
 )
 
 // PlayerWallet represents the resources a
-// player has, including the tokens and bonuses
-// from cards.
+// player has, including the tokens he was able to
+// take and bonuses from cards.
 type PlayerWallet struct {
 	CardResources
 	MarvelCardResources
+	MarvelSpecialResouces
 }
 
 func (w *PlayerWallet) CanAfford(card CardInterface) bool {
@@ -141,7 +142,6 @@ func NewPlayer(username string, isNormalGame bool) *Player {
 				Power:   0,
 				Reality: 0,
 				Soul:    0,
-				Time:    0,
 			},
 		},
 		Uuid:   uuid.NewString(),

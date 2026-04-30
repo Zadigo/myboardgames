@@ -211,8 +211,6 @@ func (t *PlayingTable) GetTableDetails() map[string]any {
 				"soul":    t.Soul,
 				"power":   t.Power,
 				"reality": t.Reality,
-				"time":    t.Time,
-				"shield":  t.Shield,
 			},
 		},
 	}
@@ -254,8 +252,6 @@ func NewPlayingTable(isNormalGame bool) *PlayingTable {
 				Soul:    7,
 				Power:   7,
 				Reality: 7,
-				Time:    7,
-				Shield:  7,
 			},
 		},
 		DeckLevelOne:    []CardInterface{},
