@@ -15,6 +15,6 @@ func main() {
 	router.Get("/ws/splendor/live", func(w http.ResponseWriter, r *http.Request) {
 		handlers.LiveGameHandler(w, r, serverRegistry)
 	})
-	
+
 	http.ListenAndServe(":9000", router)
 }
