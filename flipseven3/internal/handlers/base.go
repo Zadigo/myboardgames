@@ -1,0 +1,58 @@
+package handlers
+
+import (
+	"log"
+	"net/http"
+	"time"
+
+	"github.com/Zadigo/flipseven3/internal/backend/logic"
+)
+
+func LiveGameHandler(w http.ResponseWriter, r *http.Request, serverRegistry *logic.ServerRegistry) {
+	conn, err := CustomRequestUpgrader.Upgrade(w, r, nil)
+
+	if err != nil {
+		return
+	}
+
+	// Setup connection safety measures (e.g., origin check, authentication) here if needed
+	conn.SetReadLimit(1024)
+	conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+
+	conn.SetPongHandler(func(string) error {
+		conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+		return nil
+	})
+
+	defer func() {
+		conn.Close()
+
+		// connection.WriteMessage(
+		// 	websocket.CloseMessage,
+		// 	websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""),
+		// )
+	}()
+
+	// Add the new client to the server registry
+	clientUuid, client := serverRegistry.AddClient(conn)
+	client.SendJsonMessage(logic.WebsocketMessage{
+		Action:     "must_identify",
+		PlayerUuid: clientUuid,
+		Message:    "Connection established successfully! Please identify yourself with your username.",
+	})
+
+	// go client.Broadcast()
+
+	for {
+		var message logic.WebsocketMessage
+		err = conn.ReadJSON(&message)
+
+		if err != nil {
+			log.Println("❌ Read error:", err)
+			break
+		}
+
+		AuthHandler(message, client, serverRegistry)
+		GameHandler(message, client, serverRegistry)
+	}
+}

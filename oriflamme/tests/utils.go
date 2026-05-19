@@ -67,3 +67,18 @@ func CreateMultipleGameConn(t *testing.T, usernames ...string) (map[string]*webs
 
 	return conns, server
 }
+
+func ConvertToWebsocketClient(t *testing.T, conns map[string]*websocket.Conn) []*backend.WebsocketClient {
+	t.Helper()
+
+	totalConns := len(conns)
+
+	clients := make([]*backend.WebsocketClient, 0, totalConns)
+	for name, conn := range conns {
+		client := backend.NewWebsocketClient(conn)
+		client.Username = name
+		clients = append(clients, client)
+	}
+
+	return clients
+}

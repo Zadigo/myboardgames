@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/Zadigo/oriflamme/internal/backend"
@@ -12,6 +13,8 @@ func TestLiveGameHandler(t *testing.T) {
 
 	defer conn.Close()
 	defer server.Close()
+
+	var playerUuid string
 
 	t.Run("Initial connection", func(t *testing.T) {
 		message := backend.WebsocketMessage{}
@@ -25,10 +28,24 @@ func TestLiveGameHandler(t *testing.T) {
 			PlayerUuid: message.PlayerUuid,
 			Username:   "pauline",
 		})
+
+		playerUuid = message.PlayerUuid
 	})
 
-	t.Run("Create game", func(t *testing.T) {})
+	t.Run("Create game", func(t *testing.T) {
+		conn.WriteJSON(backend.WebsocketMessage{
+			Action:     "create_game",
+			PlayerUuid: playerUuid,
+		})
 
+		message := backend.WebsocketMessage{}
+		conn.ReadJSON(&message)
+
+		message = backend.WebsocketMessage{}
+		conn.ReadJSON(&message)
+
+		fmt.Printf("Received message: %+v\n", message)
+	})
 	t.Run("Another player joins the game", func(t *testing.T) {})
 
 	t.Run("Start game", func(t *testing.T) {})

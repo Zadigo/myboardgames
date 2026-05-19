@@ -14,13 +14,18 @@ type WebsocketMessage struct {
 	// The unique identifier for the player/client sending
 	// the message. This can be used to associate messages with
 	// specific players and manage game state accordingly.
-	PlayerUuid string `json:"player_uuid,omitempty"`
-	CardAction string `json:"card_action,omitempty"`
+	PlayerUuid  string  `json:"playerUuid,omitempty"`
+	CardAction  string  `json:"cardAction,omitempty"`
+	CardsInPlay []CardInterface `json:"cardsInPlay,omitempty"`
 	// The unique identifier for the game table that the player is trying to join or create.
 	// This can be used to associate players with specific games and manage game state accordingly.
-	TableUuid string `json:"table_uuid,omitempty"`
+	TableUuid string `json:"tableUuid,omitempty"`
 	// Indicates the player/client is the one that initiated the new game
-	Initiator bool `json:"initiator,omitempty"`
+	Initiator     bool            `json:"initiator,omitempty"`
+	SelectedCards []string        `json:"selectedCards,omitempty"`
+	CardUuid      string          `json:"cardUuid,omitempty"`
+	GameRegistry  *GameRegistry   `json:"gameRegistry,omitempty"`
+	Queue         *InfluenceQueue `json:"queue,omitempty"`
 }
 
 // The WebsocketClient struct represents a client that is connected to
@@ -30,10 +35,16 @@ type WebsocketClient struct {
 	Username  string          `json:"username"`
 	Initiator bool            `json:"initiator"`
 	conn      *websocket.Conn `json:"-"`
-
-	// TEST: for broadcasting
-	send chan WebsocketMessage
-	mu   sync.Mutex
+	// Each player has a certain number of influence tokens that are won when reveling the
+	// the card, performing an action on the card etc.
+	Tokens int `json:"tokens"`
+	// Cards that were discared when the player selected the cards that
+	// he wants to play with
+	DiscardPile []CardInterface `json:"discardPile,omitempty"`
+	// The send channel is used to queue messages
+	// that need to be sent to the client.
+	send chan WebsocketMessage `json:"-"`
+	mu   sync.Mutex            `json:"-"`
 }
 
 func (client *WebsocketClient) SendJsonMessage(message WebsocketMessage) error {
@@ -46,17 +57,34 @@ func (client *WebsocketClient) ReceiveJsonMessage() (WebsocketMessage, error) {
 	return message, err
 }
 
-func (c *WebsocketClient) Broadcast() {
-	for msg := range c.send {
-		c.mu.Lock()
-		err := c.conn.WriteJSON(msg)
-		c.mu.Unlock()
-
-		if err != nil {
-			return
-		}
-	}
+// Increase the player's influence tokens by k. This can be used when a player wins tokens from a card.
+func (player *WebsocketClient) IncreaseTokens(k int) {
+	player.Tokens += k
 }
+
+// Decrease the player's influence tokens by k. This can be used when a player loses tokens from a card.
+func (player *WebsocketClient) DecreaseTokens(k int) {
+	if player.Tokens == 0 {
+		return
+	} else {
+		player.Tokens -= k
+	}
+
+}
+
+// Send messages from the send channel
+// to the websocket connection.
+// func (c *WebsocketClient) Broadcast() {
+// 	for msg := range c.send {
+// 		c.mu.Lock()
+// 		err := c.conn.WriteJSON(msg)
+// 		c.mu.Unlock()
+
+// 		if err != nil {
+// 			return
+// 		}
+// 	}
+// }
 
 func NewWebsocketClient(conn *websocket.Conn) *WebsocketClient {
 	return &WebsocketClient{
@@ -64,6 +92,6 @@ func NewWebsocketClient(conn *websocket.Conn) *WebsocketClient {
 		Username: "",
 		conn:     conn,
 		// TEST: for broadcasting
-		send:     make(chan WebsocketMessage),
+		send: make(chan WebsocketMessage),
 	}
 }
