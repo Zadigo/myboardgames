@@ -16,10 +16,12 @@ type App struct {
 	ctx         context.Context
 	router      *chi.Mux
 	redisClient *redis.Client
-	gameEngine  *logic.GameEngine
+	gameEngine  logic.GameEngineInterface
 }
 
 func (a *App) Start(ctx context.Context) error {
+	log.Println("🚀 Starting Gosplendor server...")
+
 	a.ctx = ctx
 
 	err := a.redisClient.Ping(ctx).Err()
@@ -33,7 +35,7 @@ func (a *App) Start(ctx context.Context) error {
 	}()
 
 	// Engine setup
-	a.gameEngine = logic.NewGameEngine(ctx)
+	a.gameEngine = logic.NewGameEngine(ctx, a.redisClient)
 
 	server := http.Server{
 		Addr: ":9000",
@@ -42,6 +44,7 @@ func (a *App) Start(ctx context.Context) error {
 	ch := make(chan error, 1)
 
 	go func() {
+		log.Println("✅ Server is listening on port 9000")
 		err := server.ListenAndServe()
 		if err != nil {
 			ch <- fmt.Errorf("🔴 Could not start server %w", err)

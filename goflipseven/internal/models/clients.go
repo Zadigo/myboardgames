@@ -6,6 +6,11 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+type WebsocketMessageInterface interface {
+	SendJsonMessage() error
+	ReadJsonMessage() error
+}
+
 // Base websocket message structure for
 // communication between client and server
 type WebsocketMessage struct {
@@ -29,9 +34,4 @@ func (c *WebsocketMessage) ReadJsonMessage() error {
 type WebsocketClient struct {
 	Conn *websocket.Conn
 	Mu   *sync.RWMutex
-}
-
-type WebsocketClientInterface interface {
-	SendJsonMessage(message WebsocketMessage) error
-	ReadJsonMessage(message *WebsocketMessage) error
 }
