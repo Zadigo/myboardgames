@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Zadigo/gosplendor/internal/handlers/game"
 	"github.com/Zadigo/gosplendor/internal/models"
 	"github.com/gorilla/websocket"
 )
@@ -28,7 +29,7 @@ func (h *LiveGame) Connect(w http.ResponseWriter, r *http.Request) {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
 
-	message := models.WebsocketMessage{
+	message := models.WebsocketMessage[models.AuthenticationMessage]{
 		Action:  "must_identify",
 		Message: "Connection established successfully! Please identify yourself with your username.",
 	}
@@ -44,7 +45,7 @@ func (h *LiveGame) Connect(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	for {
-		var message models.WebsocketMessage
+		var message models.WebsocketMessage[models.BaseWebsocketMessage]
 		err := message.ReadJsonMessage()
 
 		if err != nil {
@@ -55,5 +56,8 @@ func (h *LiveGame) Connect(w http.ResponseWriter, r *http.Request) {
 			}
 			break
 		}
+
+		authActions := game.AuthenticationActions{Client: nil}
+		authActions.ParseMessage(message)
 	}
 }
