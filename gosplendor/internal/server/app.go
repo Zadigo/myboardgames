@@ -14,6 +14,7 @@ import (
 
 type App struct {
 	ctx         context.Context
+	config      *ServerConfig
 	router      *chi.Mux
 	redisClient *redis.Client
 	gameEngine  logic.GameEngineInterface
@@ -38,13 +39,13 @@ func (a *App) Start(ctx context.Context) error {
 	a.gameEngine = logic.NewGameEngine(ctx, a.redisClient)
 
 	server := http.Server{
-		Addr: ":9000",
+		Addr: fmt.Sprintf(":%s", a.config.Port),
 	}
 
 	ch := make(chan error, 1)
 
 	go func() {
-		log.Println("✅ Server is listening on port 9000")
+		log.Printf("✅ Server is listening on port %s", a.config.Port)
 		err := server.ListenAndServe()
 		if err != nil {
 			ch <- fmt.Errorf("🔴 Could not start server %w", err)
@@ -62,8 +63,9 @@ func (a *App) Start(ctx context.Context) error {
 	}
 }
 
-func NewApp() *App {
+func NewApp(config *ServerConfig) *App {
 	app := &App{
+		config: config,
 		redisClient: redis.NewClient(&redis.Options{
 			Addr: "localhost:6379",
 		}),

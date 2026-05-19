@@ -6,21 +6,23 @@ import (
 	"os/signal"
 
 	"github.com/Zadigo/gosplendor/internal/server"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	godotenv.Load(".env")
+
+	rootDir, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 
-	app := server.NewApp()
-	app.Start(ctx)
-
-	// serverRegistry := backend.NewServerRegistry()
-	// router := chi.NewRouter()
-
-	// router.Get("/ws/splendor/live", func(w http.ResponseWriter, r *http.Request) {
-	// 	handlers.LiveGameHandler(w, r, serverRegistry)
-	// })
-
-	// http.ListenAndServe(":9000", router)
+	app := server.NewApp(server.LoadConfig(rootDir))
+	err = app.Start(ctx)
+	if err != nil {
+		panic(err)
+	}
 }
