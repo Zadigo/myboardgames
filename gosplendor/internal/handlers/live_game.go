@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Zadigo/splendor/internal/models"
+	"github.com/Zadigo/gosplendor/internal/models"
 	"github.com/gorilla/websocket"
 )
 

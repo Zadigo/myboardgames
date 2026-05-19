@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Zadigo/splendor/internal/logic"
+	"github.com/Zadigo/gosplendor/internal/logic"
 	"github.com/go-chi/chi/v5"
 	"github.com/redis/go-redis/v9"
 )

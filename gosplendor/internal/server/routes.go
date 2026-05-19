@@ -3,7 +3,7 @@ package server
 import (
 	"time"
 
-	"github.com/Zadigo/splendor/internal/handlers"
+	"github.com/Zadigo/gosplendor/internal/handlers"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
 )

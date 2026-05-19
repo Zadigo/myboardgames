@@ -1,4 +1,4 @@
-module github.com/Zadigo/splendor
+module github.com/Zadigo/gosplendor
 
 go 1.25.5
 
