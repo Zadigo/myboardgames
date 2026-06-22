@@ -6,7 +6,7 @@ type AuthenticationActions struct {
 	Client *models.WebsocketClient
 }
 
-func (h *AuthenticationActions) ParseMessage(message models.WebsocketMessage[models.AuthenticationMessage]) error {
+func (h *AuthenticationActions) ParseMessage(message models.WebsocketMessage[models.BaseWebsocketMessage]) error {
 	switch message.Action {
 	case "identify":
 		return h.Identify(message)
@@ -16,11 +16,13 @@ func (h *AuthenticationActions) ParseMessage(message models.WebsocketMessage[mod
 }
 
 func (h *AuthenticationActions) Identify(message models.WebsocketMessage[models.AuthenticationMessage]) error {
-	username := message.Username
+	username := message.Data.Username
 	if username == "" {
 		message := models.WebsocketMessage[models.AuthenticationMessage]{
-			Action:  "error",
-			Message: "Username cannot be empty.",
+			BaseWebsocketMessage: models.BaseWebsocketMessage{
+				Action:  "error",
+				Message: "Username cannot be empty.",
+			},
 		}
 		return message.SendJsonMessage()
 	}

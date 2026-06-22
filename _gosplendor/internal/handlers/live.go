@@ -30,8 +30,12 @@ func (h *LiveGame) Connect(w http.ResponseWriter, r *http.Request) {
 	defer ticker.Stop()
 
 	message := models.WebsocketMessage[models.AuthenticationMessage]{
-		Action:  "must_identify",
-		Message: "Connection established successfully! Please identify yourself with your username.",
+		Data: models.AuthenticationMessage{
+			BaseWebsocketMessage: models.BaseWebsocketMessage{
+				Action:  "must_identify",
+				Message: "Connection established successfully! Please identify yourself with your username.",
+			},
+		},
 	}
 
 	message.SendJsonMessage()
