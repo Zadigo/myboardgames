@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/Zadigo/basegame/internal/game/cards"
+	"github.com/Zadigo/basegame/internal/models"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -14,7 +14,7 @@ type GameRedis struct {
 }
 
 // SaveCards saves the provided cards to Redis as a caching mechanism for the game.
-func (g *GameRedis) SaveCards(cards []cards.BaseCardInterface) error {
+func (g *GameRedis) SaveCards(cards []models.BaseCardInterface) error {
 	byteCards, err := json.Marshal(cards)
 	if err != nil {
 		return err
@@ -28,15 +28,15 @@ func (g *GameRedis) SaveCards(cards []cards.BaseCardInterface) error {
 }
 
 // GetCards retrieves the cards from Redis and returns them as a slice of BaseCardInterface.
-func (g *GameRedis) GetCards() ([]cards.BaseCardInterface, error) {
+func (g *GameRedis) GetCards() ([]models.BaseCardInterface, error) {
 	cmd := g.redisClient.LRange(g.ctx, g.storageKey, 0, -1)
 	if cmd.Err() != nil {
 		return nil, cmd.Err()
 	}
 
-	cachedCards := []cards.BaseCardInterface{}
+	cachedCards := []models.BaseCardInterface{}
 	for _, cmdVal := range cmd.Val() {
-		var card cards.BaseCardInterface
+		var card models.BaseCardInterface
 
 		err := json.Unmarshal([]byte(cmdVal), &card)
 		if err != nil {

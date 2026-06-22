@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/Zadigo/basegame/internal/game/cards"
 	"github.com/Zadigo/basegame/internal/game/redis"
+	"github.com/Zadigo/basegame/internal/models"
 	"github.com/go-co-op/gocron"
 )
 
@@ -44,7 +44,7 @@ func (b *BaseGame) CreateCards() error {
 		return err
 	}
 
-	newCards := []cards.BaseCardInterface{}
+	newCards := []models.BaseCardInterface{}
 	if len(cachedCards) == 0 {
 		// Handle the case where no cards are available
 	}
@@ -96,31 +96,10 @@ func NewExtensionGame() *ExtensionGame {
 	}
 }
 
-type GameInterface interface {
-	// Start initializes and starts the game server application.
-	// It checks if the game instance is properly initialized, prepares the game state,
-	// and then starts the game logic.
-	Start() error
-	// CreateTable sets up a new game table, initializing the necessary data structures
-	// and state for a new game session. This method is responsible for ensuring that the
-	// game environment is ready for players to join and interact with the game.
-	CreateTable() error
-	// CreateCards initializes the card deck for the game,
-	// setting up the necessary cards and their properties. This method is
-	// responsible for ensuring that the game has a complete set of cards ready for play,
-	// and it may involve shuffling or organizing the cards as needed.
-	CreateCards() error
-	// Prepare sets up the game state, initializes necessary components,
-	// and ensures that the game is ready to start. This method is called before
-	// the game begins and can include tasks such as shuffling cards, assigning
-	// players to tables, and setting initial game parameters.
-	Prepare() error
-}
-
 // CreateGame is a factory function that creates a new game instance based on the specified game type.
 // It returns an instance of GameInterface, which can be either a StandardGame or an ExtensionGame,
 // depending on the provided gameType. If the gameType is not recognized, it returns nil.
-func CreateGame(gameType string) GameInterface {
+func CreateGame(gameType string) models.GameInterface {
 	switch gameType {
 	case STANDARD:
 		return NewStandardGame()

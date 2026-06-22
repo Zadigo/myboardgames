@@ -32,8 +32,9 @@ func (g *GenericHandler) JoinGameHandler(w http.ResponseWriter, r *http.Request)
 			break
 		}
 
-		AuthMessageProcessor(conn, message)
-		GameMessageProcessor(conn, message)
+		options := ProcessorOptions{Conn: conn, Message: message, Errors: []string{}}
+		AuthMessageProcessor(options)
+		GameMessageProcessor(options)
 	}
 }
 
@@ -62,9 +63,11 @@ func (g *GenericHandler) ObserveGameHandler(w http.ResponseWriter, r *http.Reque
 			break
 		}
 
-		g.app.GetGameApp()
+		// g.app.GetGameApp()
 
-		AuthMessageProcessor(conn, message)
-		ObserveMessageProcessor(conn, message)
+		options := ProcessorOptions{Conn: conn, Message: message, Errors: []string{}}
+		AuthMessageProcessor(options)
+		ObserveMessageProcessor(options)
+
 	}
 }

@@ -5,18 +5,24 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+type ProcessorOptions struct {
+	Conn    *websocket.Conn
+	Message models.WebsocketMessage
+	Errors  []string
+}
+
 // AuthMessageProcessor processes messages that require identification
-func AuthMessageProcessor(conn *websocket.Conn, message models.WebsocketMessage) {
-	switch message.Action {
+func AuthMessageProcessor(options ProcessorOptions) {
+	switch options.Message.Action {
 	case models.MUST_IDENTIFY:
 		// Handle identification logic here
 	default:
-		// Handle other actions or log unrecognized actions
+		options.Errors = append(options.Errors, "Unrecognized action for AuthMessageProcessor")
 	}
 }
 
-func GameMessageProcessor(conn *websocket.Conn, message models.WebsocketMessage) {
-	switch message.Action {
+func GameMessageProcessor(options ProcessorOptions) {
+	switch options.Message.Action {
 	case models.JOIN:
 		// Handle join game logic here
 	case models.START_GAME:
@@ -31,18 +37,28 @@ func GameMessageProcessor(conn *websocket.Conn, message models.WebsocketMessage)
 		// Handle flip card logic here
 	case models.GIVE_CARD:
 		// Handle give card logic here
+	case models.RESOLVE_CARD:
+		// Handle resolve card logic here
 	default:
-		// Handle other actions or log unrecognized actions
+		options.Errors = append(options.Errors, "Unrecognized action for GameMessageProcessor")
 	}
 }
 
-func ObserveMessageProcessor(conn *websocket.Conn, message models.WebsocketMessage) {
-	switch message.Action {
+func ObserveMessageProcessor(options ProcessorOptions) {
+	switch options.Message.Action {
 	case models.JOIN:
 		// Handle observe game logic here
 	case models.OBSERVE:
 		// Handle observe game logic here
 	default:
-		// Handle other actions or log unrecognized actions
+		options.Errors = append(options.Errors, "Unrecognized action for ObserveMessageProcessor")
+	}
+}
+
+func ErrorProcessor(conn *websocket.Conn, errors []string) {
+	if len(errors) > 0 {
+		for _, err := range errors {
+			conn.WriteJSON(map[string]string{"error": err})
+		}
 	}
 }
