@@ -95,3 +95,15 @@ func JsonHeartbeat(endpoint string) func(http.Handler) http.Handler {
 	}
 	return f
 }
+
+func TableIdMiddleware(next http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		tableId := chi.URLParam(r, "tableId")
+
+		var ctx context.Context
+		ctx = context.WithValue(r.Context(), "tableId", tableId)
+		
+		next.ServeHTTP(w, r.WithContext(ctx))
+	}
+	return http.HandlerFunc(fn)
+}

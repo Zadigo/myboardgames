@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/Zadigo/flipseven/internal/game"
 	"github.com/Zadigo/flipseven/internal/models"
 	"github.com/go-chi/chi/v5"
 	"github.com/redis/go-redis/v9"
@@ -21,6 +22,7 @@ type App struct {
 	router      *chi.Mux
 	errorCh     chan error
 	appConfig   models.AppConfigInterface
+	gameApp     *game.GameApp
 }
 
 func (app *App) Start() error {
@@ -91,6 +93,7 @@ func NewApp(ctx context.Context, baseDir string) models.AppInterface {
 		router:    nil,
 		errorCh:   make(chan error),
 		appConfig: &AppConfig{},
+		gameApp:   nil,
 	}
 
 	app.redisClient = redis.NewClient(&redis.Options{
@@ -104,6 +107,14 @@ func NewApp(ctx context.Context, baseDir string) models.AppInterface {
 		panic(cmd.Err())
 	}
 
+	go func() {
+		log.Println("🔵 Starting game service...")
+		gameApp := game.NewGameApp(game.STANDARD)
+		app.gameApp = gameApp
+		app.errorCh <- gameApp.Start()
+	}()
+
 	app.loadRouter()
+
 	return app
 }

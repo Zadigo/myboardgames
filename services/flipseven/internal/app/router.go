@@ -3,6 +3,7 @@ package app
 import (
 	"time"
 
+	"github.com/Zadigo/flipseven/internal/handlers"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
@@ -25,5 +26,15 @@ func (app *App) loadRouter() {
 }
 
 func (app *App) loadServerRoutes(r chi.Router) {
+	genericHandler := handlers.GenericHandler{}
+	genericHandler.SetApp(app)
 
+	r.Post("/create", genericHandler.CreateGameHandler)
+
+	r.Route("/{tableId}", func(r chi.Router) {
+		r.Use(TableIdMiddleware)
+		
+		r.Get("/join", genericHandler.JoinGameHandler)
+		r.Get("/observe", genericHandler.ObserveGameHandler)
+	})
 }
