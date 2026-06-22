@@ -1,23 +1,42 @@
 package game
 
+import (
+	"time"
+
+	"github.com/go-co-op/gocron"
+)
+
 type BaseGame struct {
 	table   map[string]*Table
 	players map[string]*Player
 }
 
-func (g *BaseGame) Start() error {
+func (b *BaseGame) Start() error {
+	scheduler := gocron.NewScheduler(time.UTC)
+
+	// Start a taks that will run every X seconds in order
+	// to check if the game is still active, that the players
+	// are still connected, etc.
+	_, err := scheduler.Every(60).Second().Do(func() {})
+
+	if err != nil {
+		// Handle error
+		return err
+	}
+	
+	scheduler.StartBlocking()
 	return nil
 }
 
-func (g *BaseGame) CreateTable() error {
+func (b *BaseGame) CreateTable() error {
 	return nil
 }
 
-func (g *BaseGame) CreateCards() error {
+func (b *BaseGame) CreateCards() error {
 	return nil
 }
 
-func (g *BaseGame) Prepare() error {
+func (b *BaseGame) Prepare() error {
 	return nil
 }
 
@@ -26,7 +45,12 @@ type StandardGame struct {
 }
 
 func NewStandardGame() *StandardGame {
-	return &StandardGame{}
+	return &StandardGame{
+		BaseGame: BaseGame{
+			table:   make(map[string]*Table),
+			players: make(map[string]*Player),
+		},
+	}
 }
 
 type ExtensionGame struct {
@@ -34,7 +58,12 @@ type ExtensionGame struct {
 }
 
 func NewExtensionGame() *ExtensionGame {
-	return &ExtensionGame{}
+	return &ExtensionGame{
+		BaseGame: BaseGame{
+			table:   make(map[string]*Table),
+			players: make(map[string]*Player),
+		},
+	}
 }
 
 type GameInterface interface {

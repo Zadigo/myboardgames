@@ -5,6 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Generic Application",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/services/flipseven",
+            "presentation": {
+                "hidden": false,
+                "group": "Generic",
+                "order": 1
+            }
+        },
+        {
             "name": "Go File",
             "type": "go",
             "request": "launch",

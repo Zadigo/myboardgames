@@ -1,5 +1,7 @@
 package game
 
+import "fmt"
+
 const (
 	STANDARD  = "standard"
 	EXTENSION = "extension"
@@ -11,11 +13,13 @@ type GameApp struct {
 
 func (app *GameApp) Start() error {
 	if app.game == nil {
-		return nil
+		return fmt.Errorf("❌ Game server is not initialized")
 	}
+
 	app.game.Prepare()
+	app.game.Start()
 	
-	return app.game.Start()
+	return nil
 }
 
 func NewGameApp(gameType string) *GameApp {

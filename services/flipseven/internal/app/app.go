@@ -53,9 +53,21 @@ func (app *App) Start() error {
 		app.errorCh <- server.ListenAndServe()
 	}()
 
+	gameChError := make(chan error)
+
+	go func() {
+		log.Printf("🔵 Starting %s game application...", os.Getenv("SERVICE_NAME"))
+		gameApp := game.NewGameApp(game.STANDARD)
+		app.gameApp = gameApp
+		gameChError <- app.gameApp.Start()
+	}()
+
 	select {
+	case gameErr := <-gameChError:
+		log.Printf("🔴 %s game application error: %v", os.Getenv("SERVICE_NAME"), gameErr)
+		return gameErr
 	case err := <-app.errorCh:
-		return fmt.Errorf("HTTP server error: %v", err)
+		return fmt.Errorf("🔴 %s service error: %v", os.Getenv("SERVICE_NAME"), err)
 	case <-app.ctx.Done():
 		timeoutCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
@@ -107,14 +119,23 @@ func NewApp(ctx context.Context, baseDir string) models.AppInterface {
 		panic(cmd.Err())
 	}
 
-	go func() {
-		log.Printf("🔵 Starting %s game application...", os.Getenv("SERVICE_NAME"))
-		gameApp := game.NewGameApp(game.STANDARD)
-		app.gameApp = gameApp
-		app.errorCh <- gameApp.Start()
-	}()
-
 	app.loadRouter()
+
+	// gameChError := make(chan error)
+
+	// go func() {
+	// 	log.Printf("🔵 Starting %s game application...", os.Getenv("SERVICE_NAME"))
+	// 	gameApp := game.NewGameApp(game.STANDARD)
+	// 	app.gameApp = gameApp
+	// 	// gameChError <- gameApp.Start()
+	// }()
+
+	// select {
+	// case err := <-gameChError:
+	// 	log.Printf("🔴 %s game application error: %v", os.Getenv("SERVICE_NAME"), err)
+	// case <-app.ctx.Done():
+	// 	log.Printf("🔴 Shutting down %s game application...", os.Getenv("SERVICE_NAME"))
+	// }
 
 	return app
 }
