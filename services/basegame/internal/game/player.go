@@ -1,8 +1,11 @@
 package game
 
-import "github.com/gorilla/websocket"
+import (
+	"github.com/Zadigo/basegame/internal/game/cards"
+	"github.com/gorilla/websocket"
+)
 
 type Player struct {
 	Conn  *websocket.Conn
-	Cards []BaseCardInterface
+	Cards []cards.BaseCardInterface
 }
