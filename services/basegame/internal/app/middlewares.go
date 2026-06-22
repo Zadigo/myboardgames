@@ -5,31 +5,9 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/Zadigo/basegame/internal/utils"
 	"github.com/go-chi/chi/v5"
-	"github.com/gorilla/websocket"
 )
-
-var allowedOrigins = map[string]bool{
-	"http://localhost":      true,
-	"http://localhost:3000": true,
-	"http://127.0.0.1:8000": true,
-	"PostmanRuntime/7.*":    true,
-}
-
-var CustomRequestUpgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-	CheckOrigin: func(request *http.Request) bool {
-		origin := request.Header.Get("Origin")
-
-		_, ok := allowedOrigins[origin]
-		if !ok {
-			return false
-		}
-
-		return allowedOrigins[origin]
-	},
-}
 
 // CORS middleware to handle cross-origin requests
 func Cors(next http.Handler) http.Handler {
@@ -45,7 +23,7 @@ func Cors(next http.Handler) http.Handler {
 
 		origin := r.Header.Get("Origin")
 
-		if _, ok := allowedOrigins[origin]; !ok {
+		if _, ok := utils.AllowedOrigins[origin]; !ok {
 			http.Error(w, "Origin not allowed", http.StatusForbidden)
 			return
 		}
@@ -102,7 +80,7 @@ func TableIdMiddleware(next http.Handler) http.Handler {
 
 		var ctx context.Context
 		ctx = context.WithValue(r.Context(), "tableId", tableId)
-		
+
 		next.ServeHTTP(w, r.WithContext(ctx))
 	}
 	return http.HandlerFunc(fn)
