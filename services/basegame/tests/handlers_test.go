@@ -12,8 +12,10 @@ type SuccessHandlerSuite struct {
 
 func (suite *SuccessHandlerSuite) SetupTest() {}
 
-func (suite *SuccessHandlerSuite) TestCreateGameHandler()  {}
-func (suite *SuccessHandlerSuite) TestJoinGameHandler()    {}
+func (suite *SuccessHandlerSuite) TestCreateGameHandler() {}
+
+func (suite *SuccessHandlerSuite) TestJoinGameHandler() {}
+
 func (suite *SuccessHandlerSuite) TestObserveGameHandler() {}
 
 func TestSuccessHandlerSuite(t *testing.T) {
