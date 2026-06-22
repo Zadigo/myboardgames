@@ -9,3 +9,7 @@ type BaseHandler struct {
 func (b *BaseHandler) SetApp(app models.AppInterface) {
 	b.app = app
 }
+
+func (b *BaseHandler) GetApp() models.AppInterface {
+	return b.app
+}

@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 
+	"github.com/Zadigo/basegame/internal/game"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -20,4 +21,5 @@ type AppInterface interface {
 	Start() error
 	GetContext() context.Context
 	GetConfig() AppConfigInterface
+	GetGameApp() *game.GameApp
 }

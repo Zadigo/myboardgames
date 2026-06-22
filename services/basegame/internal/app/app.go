@@ -99,6 +99,10 @@ func (app *App) GetRedisClient() *redis.Client {
 	return app.redisClient
 }
 
+func (app *App) GetGameApp() *game.GameApp {
+	return app.gameApp
+}
+
 // NewApp initializes and returns a new instance of the App struct
 // with the provided context and base directory. It also sets up the Redis client
 // and service registry.
