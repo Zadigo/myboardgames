@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/Zadigo/basegame/internal/game/cards"
 	"github.com/Zadigo/basegame/internal/game/redis"
 	"github.com/go-co-op/gocron"
 )
@@ -37,7 +38,23 @@ func (b *BaseGame) CreateTable() error {
 
 func (b *BaseGame) CreateCards() error {
 	redisHandler := redis.NewGameRedis(b.ctx, nil)
-	redisHandler.GetCards()
+	cachedCards, err := redisHandler.GetCards()
+
+	if err != nil {
+		return err
+	}
+
+	newCards := []cards.BaseCardInterface{}
+	if len(cachedCards) == 0 {
+		// Handle the case where no cards are available
+	}
+
+	err = redisHandler.SaveCards(newCards)
+
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -50,7 +67,9 @@ type StandardGame struct {
 }
 
 // NewStandardGame creates a standard game with standard rules and configurations.
-//  It initializes the game state, sets up the necessary components, and prepares the game 
+//
+//	It initializes the game state, sets up the necessary components, and prepares the game
+//
 // for players to join and interact with.
 func NewStandardGame() *StandardGame {
 	return &StandardGame{
@@ -66,7 +85,7 @@ type ExtensionGame struct {
 }
 
 // NewExtensionGame creates an extension game with additional rules and configurations.
-// It initializes the game state, sets up the necessary components, and prepares the game 
+// It initializes the game state, sets up the necessary components, and prepares the game
 // for players to join and interact with, including any special features or mechanics.
 func NewExtensionGame() *ExtensionGame {
 	return &ExtensionGame{

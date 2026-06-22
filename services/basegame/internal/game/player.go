@@ -6,6 +6,9 @@ import (
 )
 
 type Player struct {
-	Conn  *websocket.Conn
-	Cards []cards.BaseCardInterface
+	Conn *websocket.Conn
+}
+
+func (p *Player) GetCards() []cards.BaseCardInterface {
+	return nil
 }

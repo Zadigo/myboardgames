@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/Zadigo/basegame/internal/game/cards"
 	"github.com/redis/go-redis/v9"
@@ -9,25 +10,48 @@ import (
 
 type GameRedis struct {
 	BaseRedis
+	storageKey string
 }
 
 // SaveCards saves the provided cards to Redis as a caching mechanism for the game.
 func (g *GameRedis) SaveCards(cards []cards.BaseCardInterface) error {
+	byteCards, err := json.Marshal(cards)
+	if err != nil {
+		return err
+	}
+
+	err = g.redisClient.LPush(g.ctx, g.storageKey, byteCards).Err()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 // GetCards retrieves the cards from Redis and returns them as a slice of BaseCardInterface.
 func (g *GameRedis) GetCards() ([]cards.BaseCardInterface, error) {
-	return nil, nil
-}
+	cmd := g.redisClient.LRange(g.ctx, g.storageKey, 0, -1)
+	if cmd.Err() != nil {
+		return nil, cmd.Err()
+	}
 
-// AttributeCard associates a card with a player in Redis, allowing for tracking of which player has which card.
-func (g *GameRedis) AttributeCard(card cards.BaseCardInterface, player any) error {
-	return nil
+	cachedCards := []cards.BaseCardInterface{}
+	for _, cmdVal := range cmd.Val() {
+		var card cards.BaseCardInterface
+
+		err := json.Unmarshal([]byte(cmdVal), &card)
+		if err != nil {
+			return nil, err
+		}
+
+		cachedCards = append(cachedCards, card)
+	}
+
+	return cachedCards, nil
 }
 
 func NewGameRedis(ctx context.Context, redisClient *redis.Client) *GameRedis {
 	return &GameRedis{
+		storageKey: "game_cards", // Example storage key for cards in Redis
 		BaseRedis: BaseRedis{
 			ctx:         ctx,
 			redisClient: redisClient,
