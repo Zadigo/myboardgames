@@ -3,10 +3,14 @@ package app
 import (
 	"context"
 	"fmt"
+	"io/fs"
 	"log"
 	"net/http"
 	"os"
+	"path"
+	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/Zadigo/basegame/internal/game"
@@ -99,9 +103,22 @@ func (app *App) GetRedisClient() *redis.Client {
 // with the provided context and base directory. It also sets up the Redis client
 // and service registry.
 func NewApp(ctx context.Context, baseDir string) models.AppInterface {
+	// Get the absolute path of the base directory
+	absPath, err := filepath.Abs(baseDir)
+	if err != nil {
+		log.Printf("❌ Failed to get absolute path: %v", err)
+		return nil
+	}
+
+	result := path.Ext(absPath)
+	if result != "" {
+		log.Printf("❌ Base directory should be a directory, got a file: %s", absPath)
+		return nil
+	}
+
 	app := &App{
 		ctx:       ctx,
-		baseDir:   baseDir,
+		baseDir:   absPath,
 		router:    nil,
 		errorCh:   make(chan error),
 		appConfig: &AppConfig{},
@@ -121,21 +138,17 @@ func NewApp(ctx context.Context, baseDir string) models.AppInterface {
 
 	app.loadRouter()
 
-	// gameChError := make(chan error)
+	// Once the base directory is validated, we can walk through it to find the config.yaml file
+	filepath.WalkDir(absPath, func(path string, d fs.DirEntry, err error) error {
+		if strings.Contains(path, ".yaml") {
+			if strings.Contains(path, "config.yaml") {
+				// TODO: Load the config.yaml file and initialize the appConfig
+				return nil
+			}
+		}
 
-	// go func() {
-	// 	log.Printf("🔵 Starting %s game application...", os.Getenv("SERVICE_NAME"))
-	// 	gameApp := game.NewGameApp(game.STANDARD)
-	// 	app.gameApp = gameApp
-	// 	// gameChError <- gameApp.Start()
-	// }()
-
-	// select {
-	// case err := <-gameChError:
-	// 	log.Printf("🔴 %s game application error: %v", os.Getenv("SERVICE_NAME"), err)
-	// case <-app.ctx.Done():
-	// 	log.Printf("🔴 Shutting down %s game application...", os.Getenv("SERVICE_NAME"))
-	// }
+		return nil
+	})
 
 	return app
 }
