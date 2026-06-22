@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	godotenv.Load()
+	godotenv.Load(".env")
 
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()

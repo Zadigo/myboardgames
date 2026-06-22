@@ -26,4 +26,4 @@ type SpecialExtensionCard struct {
 
 func (c *SpecialExtensionCard) Resolve() {}
 
-func CreateCards()
+func CreateCards() {}

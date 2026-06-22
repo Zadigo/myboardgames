@@ -26,7 +26,7 @@ type App struct {
 }
 
 func (app *App) Start() error {
-	log.Print("🚀 Starting Goemailer service...")
+	log.Printf("🚀 Starting %s service...\n", os.Getenv("SERVICE_NAME"))
 
 	if app.redisClient == nil {
 		return fmt.Errorf("Redis client is not initialized")
@@ -40,7 +40,7 @@ func (app *App) Start() error {
 
 	port, err := strconv.ParseUint(os.Getenv("GO_PORT"), 10, 16)
 	if err != nil {
-		return fmt.Errorf("🔴 Invalid port: %w", err)
+		port = 9000
 	}
 
 	server := http.Server{
@@ -49,7 +49,7 @@ func (app *App) Start() error {
 	}
 
 	go func() {
-		log.Printf("✅ Goemailer service is running on port %d", port)
+		log.Printf("✅ %s service is running on port %d", os.Getenv("SERVICE_NAME"), port)
 		app.errorCh <- server.ListenAndServe()
 	}()
 
@@ -62,7 +62,7 @@ func (app *App) Start() error {
 
 		app.redisClient.Close()
 
-		log.Println("🔴 Shutting down Goemailer service...")
+		log.Printf("🔴 Shutting down %s service...", os.Getenv("SERVICE_NAME"))
 		return server.Shutdown(timeoutCtx)
 	}
 }
@@ -108,7 +108,7 @@ func NewApp(ctx context.Context, baseDir string) models.AppInterface {
 	}
 
 	go func() {
-		log.Println("🔵 Starting game service...")
+		log.Printf("🔵 Starting %s game application...", os.Getenv("SERVICE_NAME"))
 		gameApp := game.NewGameApp(game.STANDARD)
 		app.gameApp = gameApp
 		app.errorCh <- gameApp.Start()
