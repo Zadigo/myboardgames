@@ -19,8 +19,6 @@ type AppInterface interface {
 	AppExtraInterface
 	Start() error
 	GetContext() context.Context
-	GetConfig() AppConfigInterface
-	// GetGameApp() *game.GameApp
 }
 
 type GameInterface interface {

@@ -1,4 +1,4 @@
-package app
+package server
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type AppConfig struct {
+type ServerConfig struct {
 	models.AppConfigInterface
 	Django struct {
 		SecretKey string `yaml:"secret_key"`
@@ -34,14 +34,14 @@ type AppConfig struct {
 	}
 }
 
-func (a *AppConfig) checkPrefix(value string) string {
+func (a *ServerConfig) checkPrefix(value string) string {
 	if trueValue, ok := strings.CutPrefix(value, "$"); ok {
 		return os.Getenv(trueValue)
 	}
 	return value
 }
 
-func (a *AppConfig) setEnvironment() {
+func (a *ServerConfig) setEnvironment() {
 	for key, value := range a.Env {
 		os.Setenv(key, value)
 	}
@@ -51,7 +51,7 @@ func (a *AppConfig) setEnvironment() {
 	a.Tests.Auth.RefreshEnv = a.checkPrefix(a.Tests.Auth.RefreshEnv)
 }
 
-func (a *AppConfig) LoadConfig(app models.AppInterface) error {
+func (a *ServerConfig) LoadConfig(app models.AppInterface) error {
 	filePath := path.Join(app.GetBaseDir(), "settings.yaml")
 
 	var fileName string

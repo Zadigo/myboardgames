@@ -65,16 +65,16 @@ func (s *ServerApp) Start(rootDir string) error {
 		panic(cmd.Err())
 	}
 
-	appErrors := []error{}
+	appErrors := make(chan error)
 
 	// Start the HTTP server application
-	httpApp := app.NewApp(s.ctx, absPath, models.AppOptions{
-		RedisClient: s.redisClient,
-		ServerApp:   s,
-	})
-	err = httpApp.Start()
-
-	appErrors = append(appErrors, err)
+	go func() {
+		httpApp := app.NewApp(s.ctx, absPath, models.AppOptions{
+			RedisClient: s.redisClient,
+			ServerApp:   s,
+		})
+		appErrors <- httpApp.Start()
+	}()
 
 	// Start the game server application
 	gameChError := make(chan error)
@@ -94,10 +94,13 @@ func (s *ServerApp) Start(rootDir string) error {
 	case gameErr := <-gameChError:
 		log.Printf("🔴 %s game application error: %v", os.Getenv("SERVICE_NAME"), gameErr)
 		return gameErr
+	case appErr := <-appErrors:
+		log.Printf("🔴 %s HTTP application error: %v", os.Getenv("SERVICE_NAME"), appErr)
+		return appErr
 	case <-s.ctx.Done():
 		s.redisClient.Close()
 
-		log.Printf("🔴 Shutting down %s service...", os.Getenv("SERVICE_NAME"))
+		log.Printf("🔴 Shutting down %s server...", os.Getenv("SERVICE_NAME"))
 		return nil
 	}
 }

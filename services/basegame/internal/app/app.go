@@ -20,11 +20,10 @@ type App struct {
 	redisClient *redis.Client
 	router      *chi.Mux
 	errorCh     chan error
-	appConfig   models.AppConfigInterface
 }
 
 func (app *App) Start() error {
-	log.Printf("🚀 Starting %s service...\n", os.Getenv("SERVICE_NAME"))
+	log.Printf("🔵 Starting %s HTTP server...\n", os.Getenv("SERVICE_NAME"))
 
 	if app.redisClient == nil {
 		return fmt.Errorf("Redis client is not initialized")
@@ -47,20 +46,20 @@ func (app *App) Start() error {
 	}
 
 	go func() {
-		log.Printf("✅ %s service is running on port %d", os.Getenv("SERVICE_NAME"), port)
+		log.Printf("✅ %s HTTP server is running on port %d", os.Getenv("SERVICE_NAME"), port)
 		app.errorCh <- server.ListenAndServe()
 	}()
 
 	select {
 	case err := <-app.errorCh:
-		return fmt.Errorf("🔴 %s service error: %v", os.Getenv("SERVICE_NAME"), err)
+		return fmt.Errorf("🔴 %s HTTP server error: %v", os.Getenv("SERVICE_NAME"), err)
 	case <-app.ctx.Done():
 		timeoutCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
 		app.redisClient.Close()
 
-		log.Printf("🔴 Shutting down %s service...", os.Getenv("SERVICE_NAME"))
+		log.Printf("🔴 Shutting down %s HTTP server...", os.Getenv("SERVICE_NAME"))
 		return server.Shutdown(timeoutCtx)
 	}
 }
@@ -73,10 +72,6 @@ func (app *App) GetContext() context.Context {
 	return app.ctx
 }
 
-func (app *App) GetConfig() models.AppConfigInterface {
-	return app.appConfig
-}
-
 func (app *App) GetRedisClient() *redis.Client {
 	return app.redisClient
 }
@@ -86,11 +81,10 @@ func (app *App) GetRedisClient() *redis.Client {
 // and service registry.
 func NewApp(ctx context.Context, baseDir string, options models.AppOptions) models.AppInterface {
 	app := &App{
-		ctx:       ctx,
-		baseDir:   baseDir,
-		router:    nil,
-		errorCh:   make(chan error),
-		appConfig: &AppConfig{},
+		ctx:     ctx,
+		baseDir: baseDir,
+		router:  nil,
+		errorCh: make(chan error),
 	}
 
 	app.redisClient = options.RedisClient
