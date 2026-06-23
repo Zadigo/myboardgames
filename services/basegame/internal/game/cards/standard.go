@@ -5,7 +5,7 @@ import "github.com/google/uuid"
 type StandardCardFactory struct {
 }
 
-func (s *StandardCardFactory) createCards() []CardInterface {
+func (s *StandardCardFactory) CreateCards() []CardInterface {
 	cards := []CardInterface{}
 
 	for i := range 12 {

@@ -56,7 +56,11 @@ func (b *BaseCard) Resolve(currentScore int, options ResolveOptions) int {
 }
 
 func (b *BaseCard) SetPlayer(playerUuid string) {
-	// Implementation for setting the player UUID if needed
+	b.Uuid = playerUuid
+}
+
+func (b *BaseCard) GetPlayer() string {
+	return b.Uuid
 }
 
 // MakeCards is a factory function that returns the appropriate CardFactory
