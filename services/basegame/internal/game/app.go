@@ -1,6 +1,7 @@
 package game
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/Zadigo/basegame/internal/models"
@@ -33,7 +34,7 @@ func (app *GameApp) Start() error {
 // based on the specified game type (standard or extension). This server
 // is independent of the main chi server and can be used to manage game sessions,
 // handle player interactions, and maintain game state.
-func NewGameApp(gameType string) *GameApp {
-	game := CreateGame(gameType)
+func NewGameApp(ctx context.Context, baseDir string, options models.GameAppOptions) *GameApp {
+	game := CreateGame(options.GameType)
 	return &GameApp{game: game}
 }

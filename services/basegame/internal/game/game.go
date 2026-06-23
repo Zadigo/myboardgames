@@ -67,9 +67,7 @@ type StandardGame struct {
 }
 
 // NewStandardGame creates a standard game with standard rules and configurations.
-//
-//	It initializes the game state, sets up the necessary components, and prepares the game
-//
+// It initializes the game state, sets up the necessary components, and prepares the game
 // for players to join and interact with.
 func NewStandardGame() *StandardGame {
 	return &StandardGame{

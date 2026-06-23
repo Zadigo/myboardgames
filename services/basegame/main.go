@@ -5,7 +5,7 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/Zadigo/basegame/internal/app"
+	"github.com/Zadigo/basegame/internal/server"
 	"github.com/joho/godotenv"
 )
 
@@ -15,8 +15,8 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 
-	app := app.NewApp(ctx, ".")
-	err := app.Start()
+	server := server.NewServerApp(ctx)
+	err := server.Start(".")
 
 	if err != nil {
 		panic(err)

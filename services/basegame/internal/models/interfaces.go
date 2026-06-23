@@ -50,3 +50,5 @@ type BaseCardInterface interface {
 	Resolve()
 	AttribuRteCard(player any)
 }
+
+type ServerAppInterface any

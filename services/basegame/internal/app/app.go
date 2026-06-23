@@ -3,17 +3,12 @@ package app
 import (
 	"context"
 	"fmt"
-	"io/fs"
 	"log"
 	"net/http"
 	"os"
-	"path"
-	"path/filepath"
 	"strconv"
-	"strings"
 	"time"
 
-	"github.com/Zadigo/basegame/internal/game"
 	"github.com/Zadigo/basegame/internal/models"
 	"github.com/go-chi/chi/v5"
 	"github.com/redis/go-redis/v9"
@@ -26,7 +21,6 @@ type App struct {
 	router      *chi.Mux
 	errorCh     chan error
 	appConfig   models.AppConfigInterface
-	gameApp     *game.GameApp
 }
 
 func (app *App) Start() error {
@@ -57,19 +51,7 @@ func (app *App) Start() error {
 		app.errorCh <- server.ListenAndServe()
 	}()
 
-	gameChError := make(chan error)
-
-	go func() {
-		log.Printf("🔵 Starting %s game application...", os.Getenv("SERVICE_NAME"))
-		gameApp := game.NewGameApp(game.STANDARD)
-		app.gameApp = gameApp
-		gameChError <- app.gameApp.Start()
-	}()
-
 	select {
-	case gameErr := <-gameChError:
-		log.Printf("🔴 %s game application error: %v", os.Getenv("SERVICE_NAME"), gameErr)
-		return gameErr
 	case err := <-app.errorCh:
 		return fmt.Errorf("🔴 %s service error: %v", os.Getenv("SERVICE_NAME"), err)
 	case <-app.ctx.Done():
@@ -99,60 +81,20 @@ func (app *App) GetRedisClient() *redis.Client {
 	return app.redisClient
 }
 
-func (app *App) GetGameApp() *game.GameApp {
-	return app.gameApp
-}
-
 // NewApp initializes and returns a new instance of the App struct
 // with the provided context and base directory. It also sets up the Redis client
 // and service registry.
-func NewApp(ctx context.Context, baseDir string) models.AppInterface {
-	// Get the absolute path of the base directory
-	absPath, err := filepath.Abs(baseDir)
-	if err != nil {
-		log.Printf("❌ Failed to get absolute path: %v", err)
-		return nil
-	}
-
-	result := path.Ext(absPath)
-	if result != "" {
-		log.Printf("❌ Base directory should be a directory, got a file: %s", absPath)
-		return nil
-	}
-
+func NewApp(ctx context.Context, baseDir string, options models.AppOptions) models.AppInterface {
 	app := &App{
 		ctx:       ctx,
-		baseDir:   absPath,
+		baseDir:   baseDir,
 		router:    nil,
 		errorCh:   make(chan error),
 		appConfig: &AppConfig{},
-		gameApp:   nil,
 	}
 
-	app.redisClient = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "", // no password set
-		DB:       0,  // use default DB
-	})
-
-	cmd := app.redisClient.Ping(ctx)
-	if cmd.Err() != nil {
-		panic(cmd.Err())
-	}
-
+	app.redisClient = options.RedisClient
 	app.loadRouter()
-
-	// Once the base directory is validated, we can walk through it to find the config.yaml file
-	filepath.WalkDir(absPath, func(path string, d fs.DirEntry, err error) error {
-		if strings.Contains(path, ".yaml") {
-			if strings.Contains(path, "config.yaml") {
-				// TODO: Load the config.yaml file and initialize the appConfig
-				return nil
-			}
-		}
-
-		return nil
-	})
 
 	return app
 }

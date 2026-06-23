@@ -35,8 +35,7 @@ type AppConfig struct {
 }
 
 func (a *AppConfig) checkPrefix(value string) string {
-	if strings.HasPrefix(value, "$") {
-		trueValue := strings.TrimPrefix(value, "$")
+	if trueValue, ok := strings.CutPrefix(value, "$"); ok {
 		return os.Getenv(trueValue)
 	}
 	return value
