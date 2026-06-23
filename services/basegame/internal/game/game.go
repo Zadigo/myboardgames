@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/Zadigo/basegame/internal/game/redis"
 	"github.com/Zadigo/basegame/internal/models"
 	"github.com/go-co-op/gocron"
 )
@@ -37,24 +36,6 @@ func (b *BaseGame) CreateTable() error {
 }
 
 func (b *BaseGame) CreateCards() error {
-	redisHandler := redis.NewGameRedis(b.ctx, nil)
-	cachedCards, err := redisHandler.GetCards()
-
-	if err != nil {
-		return err
-	}
-
-	newCards := []models.BaseCardInterface{}
-	if len(cachedCards) == 0 {
-		// Handle the case where no cards are available
-	}
-
-	err = redisHandler.SaveCards(newCards)
-
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 

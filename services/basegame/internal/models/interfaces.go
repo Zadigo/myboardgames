@@ -42,11 +42,4 @@ type GameInterface interface {
 	Prepare() error
 }
 
-type BaseCardInterface interface {
-	// Resolve defines the behavior of a card when it is played or activated in the game.
-	// Each card type will implement its own logic for this method.
-	Resolve()
-	AttribuRteCard(player any)
-}
-
 type ServerAppInterface any

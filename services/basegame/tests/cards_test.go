@@ -40,3 +40,20 @@ func TestCardPile(t *testing.T) {
 	assert.Equal(t, 11, pile.RemainingCards(), "Expected 11 cards remaining in the pile after drawing one card")
 	assert.NotEmpty(t, card.GetPlayer(), "Expected the card to have a player assigned")
 }
+
+func TestCardsRedis(t *testing.T) {
+	redisClient := CreateRedisClient()
+	defer redisClient.Close()
+
+	client := cards.NewCardsRedis(t.Context(), redisClient)
+
+	factory := cards.MakeCards(cards.STANDARD_CARD)
+	items := factory.CreateCards()
+
+	err := client.Save(items)
+	assert.NoError(t, err, "Expected no error when saving cards to Redis")
+
+	retrievedCards, err := client.Get()
+	assert.NoError(t, err, "Expected no error when retrieving cards from Redis")
+	assert.Equal(t, len(items), len(retrievedCards), "Expected the number of retrieved cards to match the number of saved cards")
+}

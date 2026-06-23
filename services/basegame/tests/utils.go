@@ -12,6 +12,7 @@ import (
 	"github.com/Zadigo/basegame/internal/utils"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
+	"github.com/redis/go-redis/v9"
 )
 
 func NewRecorder(t *testing.T, method, path string, handler http.HandlerFunc) (*httptest.Server, *httptest.ResponseRecorder) {
@@ -74,4 +75,12 @@ func CreateTestCards() []cards.BaseCard {
 			Uuid: uuid.NewString(),
 		},
 	}
+}
+
+func CreateRedisClient() *redis.Client {
+	return redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "",
+		DB:       0,
+	})
 }
