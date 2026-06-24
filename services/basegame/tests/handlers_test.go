@@ -3,6 +3,7 @@ package tests
 import (
 	"testing"
 
+	"github.com/Zadigo/basegame/tests/utils"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -13,7 +14,7 @@ type SuccessHandlerSuite struct {
 func (suite *SuccessHandlerSuite) SetupTest() {}
 
 func (suite *SuccessHandlerSuite) TestCreateGameHandler() {
-	server, recorder := NewCreateRecorder(suite.T())
+	server, recorder := utils.NewCreateRecorder(suite.T())
 	defer server.Close()
 
 	suite.NotNil(server)
@@ -21,7 +22,7 @@ func (suite *SuccessHandlerSuite) TestCreateGameHandler() {
 }
 
 func (suite *SuccessHandlerSuite) TestJoinGameHandler() {
-	conn, server, recorder, err := NewJoinRecorder(suite.T())
+	conn, server, recorder, err := utils.NewJoinRecorder(suite.T())
 	defer server.Close()
 	if err != nil {
 		suite.T().Fatal(err)
@@ -33,7 +34,7 @@ func (suite *SuccessHandlerSuite) TestJoinGameHandler() {
 }
 
 func (suite *SuccessHandlerSuite) TestObserveGameHandler() {
-	conn, server, recorder, err := NewObserveRecorder(suite.T())
+	conn, server, recorder, err := utils.NewObserveRecorder(suite.T())
 	defer server.Close()
 	if err != nil {
 		suite.T().Fatal(err)

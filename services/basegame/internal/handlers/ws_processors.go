@@ -1,11 +1,14 @@
 package handlers
 
 import (
+	"context"
+
 	"github.com/Zadigo/basegame/internal/models"
 	"github.com/gorilla/websocket"
 )
 
 type ProcessorOptions struct {
+	Ctx     context.Context
 	App     models.AppInterface
 	Conn    *websocket.Conn
 	Message models.WebsocketMessage
@@ -23,11 +26,12 @@ func AuthMessageProcessor(options ProcessorOptions) {
 }
 
 func GameMessageProcessor(options ProcessorOptions) {
+	gameId := options.Ctx.Value("gameId")
+
 	switch options.Message.Action {
 	case models.JOIN:
 		// Handle join game logic here
-		// options.App.GetServerApp().JoinGame("game-uuid")
-		options.App.GetServerApp()
+		options.App.GetServerApp().JoinGame(options.Conn, gameId.(string))
 	case models.START_GAME:
 		// Handle start game logic here
 		// options.App.GetServerApp().NotifyAll("game-uuid")

@@ -1,4 +1,4 @@
-package tests
+package utils
 
 import (
 	"maps"
@@ -87,10 +87,7 @@ func CreateRedisClient() *redis.Client {
 }
 
 func CreateClientPlayer(t *testing.T) *games.WebsocketClient {
-	return games.NewWebsocketClient(&games.Player{
-		Username:    "some-username",
-		IsInitiator: true,
-	}, nil)
+	return games.NewWebsocketClient(nil)
 }
 
 func CreatePlayer(t *testing.T) *games.Player {

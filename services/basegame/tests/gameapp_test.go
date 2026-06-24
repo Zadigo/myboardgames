@@ -8,6 +8,7 @@ import (
 	"github.com/Zadigo/basegame/internal/game/games"
 	"github.com/Zadigo/basegame/internal/handlers"
 	"github.com/Zadigo/basegame/internal/models"
+	"github.com/Zadigo/basegame/tests/utils"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -52,7 +53,7 @@ func (suite *GameAppTestSuite) TestCreateWithNil() {
 }
 
 func (suite *GameAppTestSuite) TestGetCurrentPlayer() {
-	client := CreateClientPlayer(suite.T())
+	client := utils.CreateClientPlayer(suite.T())
 
 	// TODO: Create a method to add a player to the game app and set the current player UUID
 	suite.gameApp.CurrentPlayerUuid = client.GetUuid()
@@ -78,11 +79,11 @@ func (suite *GameAppTestSuite) TestDrawCardFromPile() {
 	suite.gameApp.CurrentPlayerUuid = ""
 
 	handler := handlers.GenericHandler{}
-	c1, _, _, _ := NewWebsocketRecorder(suite.T(), "/join", handler.JoinGameHandler)
-	c2, _, _, _ := NewWebsocketRecorder(suite.T(), "/join", handler.JoinGameHandler)
+	c1, _, _, _ := utils.NewWebsocketRecorder(suite.T(), "/join", handler.JoinGameHandler)
+	c2, _, _, _ := utils.NewWebsocketRecorder(suite.T(), "/join", handler.JoinGameHandler)
 
-	p1 := games.NewWebsocketClient(CreatePlayer(suite.T()), c1)
-	p2 := games.NewWebsocketClient(CreatePlayer(suite.T()), c2)
+	p1 := games.NewWebsocketClient(c1)
+	p2 := games.NewWebsocketClient(c2)
 
 	suite.gameApp.AddPlayer(p1)
 	suite.gameApp.AddPlayer(p2)
@@ -126,9 +127,9 @@ func (suite *GameAppTestSuite) TestDrawCardFromPileWithSpecialCard() {
 	suite.gameApp.CardPile.AddCards(card1, card2)
 
 	handler := handlers.GenericHandler{}
-	c1, _, _, _ := NewWebsocketRecorder(suite.T(), "/join", handler.JoinGameHandler)
+	c1, _, _, _ := utils.NewWebsocketRecorder(suite.T(), "/join", handler.JoinGameHandler)
 
-	p1 := games.NewWebsocketClient(CreatePlayer(suite.T()), c1)
+	p1 := games.NewWebsocketClient(c1)
 
 	err := suite.gameApp.AddPlayer(p1)
 	suite.NoError(err)
@@ -153,7 +154,7 @@ func (suite *GameAppTestSuite) TestDrawCardFromPileWithSpecialCard() {
 			suite.True(suite.gameApp.MustResolve)
 			suite.Equal(tc.card, suite.gameApp.EventResolutionOptions.Card)
 			suite.Equal(p1, suite.gameApp.EventResolutionOptions.Player)
-			
+
 			suite.gameApp.MustResolve = false
 			suite.gameApp.EventResolutionOptions = game.EventResolutionOptions{}
 		})
@@ -165,8 +166,8 @@ func (suite *GameAppTestSuite) TestDrawCardFromPileWithNoCardsLeft() {}
 func (suite *GameAppTestSuite) TestDrawCardWithSameValue() {
 	handler := handlers.GenericHandler{}
 
-	c1, _, _, _ := NewWebsocketRecorder(suite.T(), "/join", handler.JoinGameHandler)
-	p1 := games.NewWebsocketClient(CreatePlayer(suite.T()), c1)
+	c1, _, _, _ := utils.NewWebsocketRecorder(suite.T(), "/join", handler.JoinGameHandler)
+	p1 := games.NewWebsocketClient(c1)
 
 	card1 := &cards.BaseCard{
 		Uuid:         "card-1",

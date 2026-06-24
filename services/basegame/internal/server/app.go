@@ -13,6 +13,7 @@ import (
 	"github.com/Zadigo/basegame/internal/game"
 	"github.com/Zadigo/basegame/internal/game/games"
 	"github.com/Zadigo/basegame/internal/models"
+	"github.com/gorilla/websocket"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -120,6 +121,10 @@ func (s *ServerApp) Start(rootDir string) error {
 		log.Printf("🔴 Shutting down %s server...", os.Getenv("SERVICE_NAME"))
 		return nil
 	}
+}
+
+func (s *ServerApp) JoinGame(conn *websocket.Conn, gameUUID string) error {
+	return s.GameApp.AddPlayer(games.NewWebsocketClient(conn))
 }
 
 func (s *ServerApp) CreateGame(gameType string) error {

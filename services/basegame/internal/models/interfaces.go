@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 
+	"github.com/gorilla/websocket"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -24,4 +25,5 @@ type AppInterface interface {
 }
 
 type ServerAppInterface interface {
+	JoinGame(conn *websocket.Conn, gameUUID string) error
 }

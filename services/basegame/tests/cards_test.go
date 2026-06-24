@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/Zadigo/basegame/internal/game/cards"
+	"github.com/Zadigo/basegame/tests/utils"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -42,7 +43,7 @@ func TestCardPile(t *testing.T) {
 }
 
 func TestCardsRedis(t *testing.T) {
-	redisClient := CreateRedisClient()
+	redisClient := utils.CreateRedisClient()
 	defer redisClient.Close()
 
 	client := cards.NewCardsRedis(t.Context(), redisClient)
