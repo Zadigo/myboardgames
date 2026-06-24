@@ -8,12 +8,18 @@ const (
 )
 
 const (
-	OPERATION_ADD           = "+"
-	OPERATION_SUBTRACT      = "-"
-	OPERATION_MULTIPLY      = "*"
-	OPERATION_DIVIDE        = "/"
-	OPERATION_FREEZE        = "freeze"
-	OPERATION_FLIP3         = "flip3"
+	OPERATION_ADD      = "+"
+	OPERATION_SUBTRACT = "-"
+	OPERATION_MULTIPLY = "*"
+	OPERATION_DIVIDE   = "/"
+	// OPERATION_FREEZE is a special event that freezes any player for one turn,
+	// preventing them from drawing any cards from the pile
+	OPERATION_FREEZE = "freeze"
+	// OPERATION_FLIP3 is a special event that forces any player to *immediately*
+	// draw 3 cards from the pile and add them to their hand
+	OPERATION_FLIP3 = "flip3"
+	// OPERATION_SECOND_CHANCE is a special event that allows the player to
+	// continue the turn even though they have drawn a card with the same value
 	OPERATION_SECOND_CHANCE = "second_chance"
 )
 
@@ -72,6 +78,14 @@ func (b *BaseCard) GetValue() int {
 func (b *BaseCard) IsSpecial() bool {
 	values := []string{OPERATION_FREEZE, OPERATION_FLIP3, OPERATION_SECOND_CHANCE}
 	return slices.Contains(values, b.CardOperator)
+}
+
+func (b *BaseCard) GetOperator() string {
+	return b.CardOperator
+}
+
+func (b *BaseCard) IsCardOperation(operation string) bool {
+	return b.CardOperator == operation
 }
 
 // MakeCards is a factory function that returns the appropriate CardFactory

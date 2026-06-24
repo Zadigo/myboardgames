@@ -105,6 +105,8 @@ func (app *GameApp) AddPlayer(client *games.WebsocketClient) error {
 	return nil
 }
 
+// DrawCardFromPile draws a card from the card pile and adds it to the current player's hand.
+// It also checks for special cards and handles the game logic accordingly.
 func (app *GameApp) DrawCardFromPile() error {
 	newCard := app.CardPile.DrawCard()
 	if newCard == nil {
@@ -114,6 +116,17 @@ func (app *GameApp) DrawCardFromPile() error {
 	player, err := app.GetCurrentPlayer()
 	if err != nil {
 		return err
+	}
+
+	// Freez and Flip 3 cards must be resolved immediately. In other words, the
+	// user has to decide what he wants to do with the card since it can affect scores
+	if newCard.IsSpecial() && (newCard.IsCardOperation(cards.OPERATION_FREEZE) || newCard.IsCardOperation(cards.OPERATION_FLIP3)) {
+		app.MustResolve = true
+		app.EventResolutionOptions = EventResolutionOptions{
+			Card:   newCard,
+			Player: player,
+		}
+		return nil
 	}
 
 	// Add the drawn card to the player's hand
@@ -135,31 +148,45 @@ func (app *GameApp) DrawCardFromPile() error {
 		}
 	}()
 
+	// Map the other types of special cards that can be resolved
+	// later on in the game (e.g. second chance)
+	otherSpecialCards := map[string]bool{}
 	for _, cardInHand := range player.Player.GetCards() {
 		if cardInHand.IsSpecial() {
-			// Special cards must be resolved before the game can continue
-			app.MustResolve = true
-			app.EventResolutionOptions = EventResolutionOptions{
-				Card:   cardInHand,
-				Player: player.Player,
-			}
-			return nil
-		} else {
-			if player.Player.GetNumberOfCards() > 1 {
-				// A player cannot draw a card if they already have a card
-				// of the same value in their hand. Their turn stops and
-				// they loose all the points of all the cards that they
-				// currently have in their hand
-				values := make(map[int]bool)
-				for _, card := range player.Player.GetCards() {
-					if values[card.GetValue()] {
-						// Reset the player's hand and end their turn
-						player.Player.Cards = []cards.CardInterface{}
-						player.Player.IsFrozen = true
+			otherSpecialCards[cardInHand.GetOperator()] = true
+		}
+	}
+
+	for range player.Player.GetCards() {
+		if player.Player.GetNumberOfCards() > 1 {
+			// A player cannot draw a card if they already have a card
+			// of the same value in their hand. Their turn stops and
+			// they loose all the points of all the cards that they
+			// currently have in their hand
+			values := make(map[int]bool)
+			for _, card := range player.Player.GetCards() {
+				if values[card.GetValue()] {
+					if otherSpecialCards[cards.OPERATION_SECOND_CHANCE] {
+						// Remove the second chance card from the player's hand
+						// and allow them to continue their turn -; also remove
+						// the last card that was drawn from the player's hand since
+						// it has the same value as another card in their hand
+						for i, c := range player.Player.GetCards() {
+							if c.GetOperator() == cards.OPERATION_SECOND_CHANCE {
+								player.Player.Cards = append(player.Player.Cards[:i], player.Player.Cards[i+1:]...)
+								break
+							}
+						}
+						player.Player.Cards = player.Player.Cards[:len(player.Player.Cards)-1]
 						return nil
 					}
-					values[card.GetValue()] = true
+
+					// Reset the player's hand and end their turn
+					player.Player.Cards = []cards.CardInterface{}
+					player.Player.IsFrozen = true
+					return nil
 				}
+				values[card.GetValue()] = true
 			}
 		}
 	}

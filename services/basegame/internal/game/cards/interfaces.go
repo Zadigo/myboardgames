@@ -12,6 +12,10 @@ type CardInterface interface {
 	GetValue() int
 	// Check if the card is a special card (e.g., freeze, flip3, second_chance)
 	IsSpecial() bool
+	// Get the operator of the card (e.g., "+", "-", "*", "/", "freeze", "flip3", "second_chance")
+	GetOperator() string
+	// Check card operation type (e.g., "draw", "flip3", "freeze", "second_chance")
+	IsCardOperation(operator string) bool
 }
 
 // CardFactory is an interface for creating cards.

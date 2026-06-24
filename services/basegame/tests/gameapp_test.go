@@ -108,7 +108,57 @@ func (suite *GameAppTestSuite) TestDrawCardFromPile() {
 	})
 }
 
-func (suite *GameAppTestSuite) TestDrawCardFromPileWithSpecialCard() {}
+func (suite *GameAppTestSuite) TestDrawCardFromPileWithSpecialCard() {
+	card1 := &cards.BaseCard{
+		Uuid:         "card-1",
+		CardType:     cards.STANDARD_SPECIAL_CARD,
+		CardValue:    0,
+		CardOperator: cards.OPERATION_FREEZE,
+	}
+
+	card2 := &cards.BaseCard{
+		Uuid:         "card-1",
+		CardType:     cards.STANDARD_SPECIAL_CARD,
+		CardValue:    0,
+		CardOperator: cards.OPERATION_FLIP3,
+	}
+
+	suite.gameApp.CardPile.AddCards(card1, card2)
+
+	handler := handlers.GenericHandler{}
+	c1, _, _, _ := NewWebsocketRecorder(suite.T(), "/join", handler.JoinGameHandler)
+
+	p1 := games.NewWebsocketClient(CreatePlayer(suite.T()), c1)
+
+	err := suite.gameApp.AddPlayer(p1)
+	suite.NoError(err)
+
+	err = suite.gameApp.SetCurrentPlayer(p1.GetUuid())
+	suite.NoError(err)
+
+	type testCase struct {
+		name string
+		card *cards.BaseCard
+	}
+
+	testCases := []testCase{
+		{name: "Draw Freeze Card", card: card1},
+		{name: "Draw Flip3 Card", card: card2},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			err = suite.gameApp.DrawCardFromPile()
+			suite.NoError(err)
+			suite.True(suite.gameApp.MustResolve)
+			suite.Equal(tc.card, suite.gameApp.EventResolutionOptions.Card)
+			suite.Equal(p1, suite.gameApp.EventResolutionOptions.Player)
+			
+			suite.gameApp.MustResolve = false
+			suite.gameApp.EventResolutionOptions = game.EventResolutionOptions{}
+		})
+	}
+}
 
 func (suite *GameAppTestSuite) TestDrawCardFromPileWithNoCardsLeft() {}
 
