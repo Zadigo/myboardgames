@@ -6,7 +6,7 @@ type GameSpecific struct {
 	// Indicates that the player was stopped by the freeze card
 	// or cannot continue flipping cards because he has
 	// two similar card numbers
-	IsFreezed bool `json:"isFreezed"`
+	IsFrozen bool `json:"isFreezed"`
 	// The score of the player in each round played by the player
 	// Scores []int `json:"scores"`
 	Cards []cards.CardInterface `json:"cards"`

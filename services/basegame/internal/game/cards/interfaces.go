@@ -8,6 +8,10 @@ type CardInterface interface {
 	SetPlayer(playerUuid string)
 	// Get the player UUID of the player who owns the card
 	GetPlayer() string
+	// Get the value of the card
+	GetValue() int
+	// Check if the card is a special card (e.g., freeze, flip3, second_chance)
+	IsSpecial() bool
 }
 
 // CardFactory is an interface for creating cards.

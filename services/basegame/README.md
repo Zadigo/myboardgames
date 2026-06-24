@@ -2,6 +2,24 @@
 
 Use this template to create a new game service. It contains the basic structure and files needed to get started with a new game service
 
+## Server Architecture
+
+```mermaid
+flowchart
+
+S[Server] --> G[[Game Server]]
+S <--> R[(Redis)]
+S[Server] --> C[Chi HTTP Server]
+
+G --> ST[[Standard Game Service]]
+G --> EX[[Extension Game Service]]
+
+EX <--> CR1(Cron Job)
+ST <--> CR2(Cron Job)
+```
+
+## Game Flow
+
 ```mermaid
 sequenceDiagram
 

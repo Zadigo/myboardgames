@@ -30,6 +30,10 @@ func (c *WebsocketClient) SetConn(conn *websocket.Conn) {
 	c.conn = conn
 }
 
+func (c *WebsocketClient) GetConn() *websocket.Conn {
+	return c.conn
+}
+
 func (c *WebsocketClient) SendJsonMessage(message models.WebsocketMessage) error {
 	return c.conn.WriteJSON(message)
 }

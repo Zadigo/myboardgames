@@ -35,7 +35,7 @@ func TestCardPile(t *testing.T) {
 	items := factory.CreateCards()
 	pile.AddCards(items...)
 
-	card := pile.DrawCard("player-uuid")
+	card := pile.DrawCard()
 	assert.NotNil(t, card, "Expected to draw a card from the pile")
 	assert.Equal(t, 11, pile.RemainingCards(), "Expected 11 cards remaining in the pile after drawing one card")
 	assert.NotEmpty(t, card.GetPlayer(), "Expected the card to have a player assigned")

@@ -13,7 +13,7 @@ func (p *CardPile) AddCards(card ...CardInterface) {
 	p.Cards = append(p.Cards, card...)
 }
 
-func (p *CardPile) DrawCard(playerUuid string) CardInterface {
+func (p *CardPile) DrawCard() CardInterface {
 	if len(p.Cards) == 0 {
 		return nil
 	}
@@ -21,7 +21,6 @@ func (p *CardPile) DrawCard(playerUuid string) CardInterface {
 	card := p.Cards[0]
 	p.Cards = p.Cards[1:]
 
-	card.SetPlayer(playerUuid)
 	return card
 }
 

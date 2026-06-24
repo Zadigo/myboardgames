@@ -3,27 +3,137 @@ package game
 import (
 	"context"
 	"fmt"
+	"time"
 
+	"github.com/Zadigo/basegame/internal/game/cards"
 	"github.com/Zadigo/basegame/internal/game/games"
 	"github.com/Zadigo/basegame/internal/models"
 )
 
 type GameApp struct {
-	game games.GameInterface
+	ctx               context.Context
+	Game              games.GameInterface               `json:"game"`
+	CurrentRound      int                               `json:"currentRound"`
+	CardPile          *cards.CardPile                   `json:"cardPile"`
+	Players           map[string]*games.WebsocketClient `json:"players"`
+	CurrentPlayerUuid string                            `json:"currentPlayerIndex"`
+	IsRunning         bool                              `json:"isRunning"`
+	// An action or an event must be resolved before the game can continue.
+	// This is useful for special cards that may have more complex effects
+	MustResolve bool `json:"mustResolve"`
+	// Options for resolving an event or an action that must be resolved
+	// before the game can continue
+	EventResolutionOptions EventResolutionOptions `json:"-"`
 }
 
 // Start initializes and starts the game server application.
 // It checks if the game instance is properly initialized, prepares the game state,
 // and then starts the game logic.
 func (app *GameApp) Start() error {
-	if app.game == nil {
+	if app.Game == nil {
 		return fmt.Errorf("❌ Game server is not initialized")
 	}
 
-	app.game.Prepare()
-	app.game.Start()
+	app.Game.Prepare()
+	app.Game.Start()
+
+	app.IsRunning = true
+	return nil
+}
+
+func (app *GameApp) Stop() error {
+	if app.Game == nil {
+		return fmt.Errorf("❌ Game server is not initialized")
+	}
+
+	timeoutCtx, cancel := context.WithTimeout(app.ctx, 5000*time.Millisecond)
+	defer cancel()
+
+	app.IsRunning = false
+	timeoutCtx.Done()
 
 	return nil
+}
+
+func (app *GameApp) GetPlayer() (*games.WebsocketClient, error) {
+	player, exists := app.Players[app.CurrentPlayerUuid]
+	if !exists {
+		return nil, fmt.Errorf("❌ Player not found")
+	}
+	return player, nil
+}
+
+func (app *GameApp) DrawCardFromPile() error {
+	newCard := app.CardPile.DrawCard()
+	player, err := app.GetPlayer()
+
+	if err != nil {
+		return err
+	}
+
+	for _, card := range player.Player.GetCards() {
+		if card.IsSpecial() {
+			// Special cards must be resolved before the game can continue
+			app.MustResolve = true
+			app.EventResolutionOptions = EventResolutionOptions{
+				Card:   card,
+				Player: player.Player,
+			}
+			return nil
+		} else {
+			// A player cannot draw a card if they already have a card
+			// of the same value in their hand. Their turn stops and
+			// they loose all the points of all the cards that they
+			// currently have in their hand
+			if card.GetValue() == newCard.GetValue() {
+				player.Player.IsFrozen = true
+				return nil
+			} else {
+				// When none of the above conditions are, just add the card to
+				// the player's hand and continue the game -; append a copy of
+				// the card since the card pile will be reshuffled and the card
+				// will be lost if we don't make a copy of it
+				player.Player.Cards = append(player.Player.Cards, newCard)
+				return nil
+			}
+		}
+	}
+
+	if app.CardPile.RemainingCards() == 0 {
+		// Reshuffle the card pile when all cards have been drawn
+	}
+
+	return nil
+}
+
+func (app *GameApp) ResolveEvent(action EventResolutionAction) {
+	if app.MustResolve {
+		// Resolve a pending event
+	}
+}
+
+func (app *GameApp) NextRound() {
+
+}
+
+// Create a new game instance based on the specified game type. This method is a placeholder
+// and should be implemented to return a new game instance that adheres to the GameInterface.
+func (app *GameApp) Create(gameType string) games.GameInterface {
+	game := games.CreateGame(gameType)
+	return game
+}
+
+func (app *GameApp) NotifyAll() {
+	// TODO: This is a simple implementation but for production, create a
+	// loop that sends messages to all players when a message is sent
+	// to a channel. This will allow for better performance and scalability.
+	for _, player := range app.Players {
+		player.GetConn().WriteJSON(models.WebsocketMessage{})
+	}
+}
+
+func (app *GameApp) GetGameState() bool {
+	return app.IsRunning
 }
 
 // NewGameApp creates a new instance of the game server application
@@ -31,6 +141,10 @@ func (app *GameApp) Start() error {
 // is independent of the main chi server and can be used to manage game sessions,
 // handle player interactions, and maintain game state.
 func NewGameApp(ctx context.Context, baseDir string, options models.GameAppOptions) *GameApp {
+	// FIXME: Create a map that identifies each game individually and
+	// allows for multiple games to be played simultaneously. This will
+	// require a unique identifier for each game session and a way to manage
+	// the state of each game independently.
 	game := games.CreateGame(options.GameType)
-	return &GameApp{game: game}
+	return &GameApp{ctx: ctx, Game: game}
 }

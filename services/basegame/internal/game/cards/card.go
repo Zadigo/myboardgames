@@ -65,6 +65,10 @@ func (b *BaseCard) GetPlayer() string {
 	return b.Uuid
 }
 
+func (b *BaseCard) GetValue() int {
+	return b.CardValue
+}
+
 func (b *BaseCard) IsSpecial() bool {
 	values := []string{OPERATION_FREEZE, OPERATION_FLIP3, OPERATION_SECOND_CHANCE}
 	return slices.Contains(values, b.CardOperator)

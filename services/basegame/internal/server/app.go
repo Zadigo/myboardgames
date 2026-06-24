@@ -81,9 +81,20 @@ func (s *ServerApp) Start(rootDir string) error {
 	gameChError := make(chan error)
 
 	go func() {
-		log.Printf("🔵 Starting %s game application...", os.Getenv("SERVICE_NAME"))
+		log.Printf("🔵 Starting %s standard game application...", os.Getenv("SERVICE_NAME"))
 		gameApp := game.NewGameApp(s.ctx, absPath, models.GameAppOptions{
 			GameType: games.STANDARD,
+			AppOptions: models.AppOptions{
+				ServerApp: s,
+			},
+		})
+		gameChError <- gameApp.Start()
+	}()
+
+	go func() {
+		log.Printf("🔵 Starting %s extension game application...", os.Getenv("SERVICE_NAME"))
+		gameApp := game.NewGameApp(s.ctx, absPath, models.GameAppOptions{
+			GameType: games.EXTENSION,
 			AppOptions: models.AppOptions{
 				ServerApp: s,
 			},
