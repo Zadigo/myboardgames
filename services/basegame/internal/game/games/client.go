@@ -17,6 +17,9 @@ type WebsocketClient struct {
 	Player *Player         `json:"player"`
 	conn   *websocket.Conn `json:"-"`
 	mu     sync.Mutex      `json:"-"`
+	// The send channel is used to queue messages that need to
+	// be sent to the client.
+	send chan models.WebsocketMessage `json:"-"`
 }
 
 func (c *WebsocketClient) GetUuid() string {
@@ -37,10 +40,10 @@ func (c *WebsocketClient) ReceiveJsonMessage() (models.WebsocketMessage, error) 
 	return message, err
 }
 
-func NewWebsocketClient(conn *websocket.Conn) *WebsocketClient {
+func NewWebsocketClient(player *Player) *WebsocketClient {
 	return &WebsocketClient{
-		Uuid: uuid.NewString(),
-		conn: conn,
-		// Player: &game.Player{},
+		Uuid:   uuid.NewString(),
+		conn:   nil,
+		Player: player,
 	}
 }

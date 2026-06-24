@@ -1,5 +1,7 @@
 package cards
 
+import "slices"
+
 const (
 	STANDARD_CARD         = "standard"
 	STANDARD_SPECIAL_CARD = "standard_special"
@@ -61,6 +63,11 @@ func (b *BaseCard) SetPlayer(playerUuid string) {
 
 func (b *BaseCard) GetPlayer() string {
 	return b.Uuid
+}
+
+func (b *BaseCard) IsSpecial() bool {
+	values := []string{OPERATION_FREEZE, OPERATION_FLIP3, OPERATION_SECOND_CHANCE}
+	return slices.Contains(values, b.CardOperator)
 }
 
 // MakeCards is a factory function that returns the appropriate CardFactory
