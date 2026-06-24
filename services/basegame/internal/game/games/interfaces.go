@@ -1,5 +1,7 @@
 package games
 
+import "github.com/Zadigo/basegame/internal/models"
+
 type GameInterface interface {
 	// Start initializes and starts the game server application.
 	// It checks if the game instance is properly initialized, prepares the game state,
@@ -28,4 +30,13 @@ type GameInterface interface {
 	// or an error if the player does not exist in the game. This method is useful for
 	// managing player interactions and accessing player-specific information during gameplay.
 	GetPlayer(playerUuid string) (*WebsocketClient, error)
+	// SetOptions sets the game options for the game instance. It takes a GameAppOptions struct
+	// containing configuration settings and parameters for the game. This method allows
+	// for customization of game behavior, rules, and other settings based on the provided options.
+	SetOptions(options models.GameAppOptions)
+	// GetOptions retrieves the current game options for the game instance.
+	// It returns a GameAppOptions struct containing the configuration settings and parameters
+	// that are currently applied to the game. This method allows for inspection of the game's
+	// configuration and can be used to adjust gameplay or settings as needed.
+	GetOptions() models.GameAppOptions
 }

@@ -3,7 +3,7 @@ package cards
 type CardInterface interface {
 	GetUuid() string
 	// Resolution logic for the card's effect, if any
-	Resolve(currentScore int, options ResolveOptions) int
+	Resolve(currentScore int, options CardResolveOptions) int
 	// Set the player UUID to indicate ownership of the card
 	SetPlayer(playerUuid string)
 	// Get the player UUID of the player who owns the card

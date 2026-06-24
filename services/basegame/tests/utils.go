@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/Zadigo/basegame/internal/game/cards"
+	"github.com/Zadigo/basegame/internal/game/games"
 	"github.com/Zadigo/basegame/internal/handlers"
 	"github.com/Zadigo/basegame/internal/utils"
 	"github.com/google/uuid"
@@ -83,4 +84,18 @@ func CreateRedisClient() *redis.Client {
 		Password: "",
 		DB:       0,
 	})
+}
+
+func CreateClientPlayer(t *testing.T) *games.WebsocketClient {
+	return games.NewWebsocketClient(&games.Player{
+		Username:    "some-username",
+		IsInitiator: true,
+	}, nil)
+}
+
+func CreatePlayer(t *testing.T) *games.Player {
+	return &games.Player{
+		Username:    "some-username",
+		IsInitiator: true,
+	}
 }

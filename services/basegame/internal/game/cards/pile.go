@@ -28,6 +28,12 @@ func (p *CardPile) RemainingCards() int {
 	return len(p.Cards)
 }
 
+func (p *CardPile) Shuffle() {}
+
+func (p *CardPile) Clear() {
+	p.Cards = []CardInterface{}
+}
+
 func NewCardPile() *CardPile {
 	return &CardPile{
 		Cards: []CardInterface{},

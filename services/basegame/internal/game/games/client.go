@@ -44,10 +44,10 @@ func (c *WebsocketClient) ReceiveJsonMessage() (models.WebsocketMessage, error) 
 	return message, err
 }
 
-func NewWebsocketClient(player *Player) *WebsocketClient {
+func NewWebsocketClient(player *Player, conn *websocket.Conn) *WebsocketClient {
 	return &WebsocketClient{
 		Uuid:   uuid.NewString(),
-		conn:   nil,
+		conn:   conn,
 		Player: player,
 	}
 }

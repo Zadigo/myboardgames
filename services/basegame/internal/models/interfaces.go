@@ -13,12 +13,15 @@ type AppConfigInterface interface {
 type AppExtraInterface interface {
 	GetRedisClient() *redis.Client
 	GetBaseDir() string
+	GetServerApp() ServerAppInterface
 }
 
+// Deprecated: Do we really need this interface?
 type AppInterface interface {
 	AppExtraInterface
 	Start() error
 	GetContext() context.Context
 }
 
-type ServerAppInterface any
+type ServerAppInterface interface {
+}

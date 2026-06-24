@@ -8,7 +8,6 @@ Use this template to create a new game service. It contains the basic structure 
 flowchart
 
 S[Server] --> G[[Game Server]]
-S <--> R[(Redis)]
 S[Server] --> C[Chi HTTP Server]
 
 G --> ST[[Standard Game Service]]
@@ -31,9 +30,10 @@ actor U as Alice
 
 participant G@{type: "control"} as Golang
 
-U ->> G: Must identify
+U ->> G: Create game (HTTP)
+U() <<->> ()G: Must identify
 G -->> U: Identified
-U ->> G: Join
+U <<->> G: Waiting for players
 UA ->> G: Must identify
 G -->> UA: Identified
 UA ->> G: Join

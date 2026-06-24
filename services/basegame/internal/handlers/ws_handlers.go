@@ -32,7 +32,7 @@ func (g *GenericHandler) JoinGameHandler(w http.ResponseWriter, r *http.Request)
 			break
 		}
 
-		options := ProcessorOptions{Conn: conn, Message: message, Errors: []string{}}
+		options := ProcessorOptions{Conn: conn, App: g.app, Message: message, Errors: []string{}}
 		AuthMessageProcessor(options)
 		GameMessageProcessor(options)
 	}

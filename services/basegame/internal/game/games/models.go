@@ -2,24 +2,40 @@ package games
 
 import (
 	"context"
+	"log"
 	"time"
 
+	"github.com/Zadigo/basegame/internal/models"
 	"github.com/go-co-op/gocron"
 )
 
 type BaseGame struct {
 	ctx     context.Context
 	players map[string]*WebsocketClient
+	options models.GameAppOptions
+}
+
+func (b *BaseGame) SetOptions(options models.GameAppOptions) {
+	b.options = options
+}
+
+func (b *BaseGame) GetOptions() models.GameAppOptions {
+	return b.options
 }
 
 func (b *BaseGame) Start() error {
 	scheduler := gocron.NewScheduler(time.UTC)
 
+	if b.options.Debug {
+		log.Print("🟢 Scheduler was not started in debug mode")
+		return nil
+	}
+
 	// Start a taks that will run every X seconds in order
 	// to check if the game is still active, that the players
 	// are still connected, game rules etc.
 	_, err := scheduler.Every(60).Second().Do(func() {
-		// Rule: When all the players are frozen, 
+		// Rule: When all the players are frozen,
 		// the game should automatically move to the next round
 		var frozenPlayerCount int
 		for _, player := range b.players {

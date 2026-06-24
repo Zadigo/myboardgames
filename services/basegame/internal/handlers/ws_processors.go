@@ -6,6 +6,7 @@ import (
 )
 
 type ProcessorOptions struct {
+	App     models.AppInterface
 	Conn    *websocket.Conn
 	Message models.WebsocketMessage
 	Errors  []string
@@ -25,20 +26,30 @@ func GameMessageProcessor(options ProcessorOptions) {
 	switch options.Message.Action {
 	case models.JOIN:
 		// Handle join game logic here
+		// options.App.GetServerApp().JoinGame("game-uuid")
+		options.App.GetServerApp()
 	case models.START_GAME:
 		// Handle start game logic here
+		// options.App.GetServerApp().NotifyAll("game-uuid")
 	case models.END_GAME:
 		// Handle end game logic here
+		// options.App.GetServerApp().EndGame("game-uuid")
 	case models.START_TURN:
 		// Handle start turn logic here
+		// options.App.GetServerApp().NotifyAll("game-uuid")
 	case models.END_TURN:
 		// Handle end turn logic here
+		// result := options.App.GetServerApp().NotifyAll("game-uuid")
 	case models.FLIP_CARD:
 		// Handle flip card logic here
-	case models.GIVE_CARD:
-		// Handle give card logic here
+		// Two options: card is special, indicate to client to resolve the card, else, just flip the card and notify all players
+		// result := options.App.GetServerApp().GetGameApp().DrawCard("game-uuid")
 	case models.RESOLVE_CARD:
 		// Handle resolve card logic here
+		// options.App.GetServerApp().NotifyAll("game-uuid")
+		// if result.MustResolve {
+		// 	result := options.App.GetServerApp().ResolveEvent(game.EventResolutionOptions{})
+		// }
 	default:
 		options.Errors = append(options.Errors, "Unrecognized action for GameMessageProcessor")
 	}

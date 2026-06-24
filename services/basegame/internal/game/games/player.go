@@ -18,8 +18,6 @@ func (g *GameSpecific) GetNumberOfCards() int {
 
 type Player struct {
 	GameSpecific
-	// Unique identifier for the player
-	Uuid string `json:"uuid"`
 	// Username of the player
 	Username string `json:"username"`
 	// Indicates that the player is the initiator of the game
@@ -33,7 +31,7 @@ func (p *Player) GetCards() []cards.CardInterface {
 func (p *Player) GetTotalScore() int {
 	total := 0
 	for _, card := range p.Cards {
-		total += card.Resolve(total, cards.ResolveOptions{})
+		total += card.Resolve(total, cards.CardResolveOptions{})
 	}
 	return total
 }

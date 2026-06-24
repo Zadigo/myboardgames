@@ -23,8 +23,6 @@ const (
 	FLIP_CARD = "flip_card"
 	// The value of the card is resolved
 	RESOLVE_CARD = "resolve_card"
-	// A player gives a card to another player
-	GIVE_CARD = "give_card"
 )
 
 // WebsocketMessage represents a message sent

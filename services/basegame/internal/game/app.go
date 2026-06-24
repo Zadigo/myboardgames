@@ -24,9 +24,15 @@ type GameApp struct {
 	// Options for resolving an event or an action that must be resolved
 	// before the game can continue
 	EventResolutionOptions EventResolutionOptions `json:"-"`
+	// Reference to the main server application that
+	// manages the lifecycle of the game server and
+	// other services
+	serverApp models.ServerAppInterface
+	// ConnectionCounter int
+	Scores map[string]int `json:"scores"`
 }
 
-// Start initializes and starts the game server application.
+// Build initializes and starts the game server application.
 // It checks if the game instance is properly initialized, prepares the game state,
 // and then starts the game logic.
 func (app *GameApp) Start() error {
@@ -55,7 +61,11 @@ func (app *GameApp) Stop() error {
 	return nil
 }
 
-func (app *GameApp) GetPlayer() (*games.WebsocketClient, error) {
+func (app *GameApp) GetCurrentPlayer() (client *games.WebsocketClient, err error) {
+	if app.CurrentPlayerUuid == "" {
+		return nil, fmt.Errorf("❌ Current player UUID is not set")
+	}
+
 	player, exists := app.Players[app.CurrentPlayerUuid]
 	if !exists {
 		return nil, fmt.Errorf("❌ Player not found")
@@ -63,44 +73,95 @@ func (app *GameApp) GetPlayer() (*games.WebsocketClient, error) {
 	return player, nil
 }
 
+func (app *GameApp) SetCurrentPlayer(clientUuid string) error {
+	if clientUuid == "" {
+		return fmt.Errorf("❌ Player UUID is empty")
+	}
+
+	player, exists := app.Players[clientUuid]
+	if !exists {
+		return fmt.Errorf("❌ Player not found")
+	}
+
+	app.CurrentPlayerUuid = player.GetUuid()
+	return nil
+}
+
+func (app *GameApp) AddPlayer(client *games.WebsocketClient) error {
+	if client == nil {
+		return fmt.Errorf("❌ Player is nil")
+	}
+
+	if client.GetConn() == nil {
+		return fmt.Errorf("❌ Websocket connection is nil")
+	}
+
+	if _, exists := app.Players[client.GetUuid()]; exists {
+		return fmt.Errorf("❌ Player already exists")
+	}
+
+	app.Players[client.GetUuid()] = client
+
+	return nil
+}
+
 func (app *GameApp) DrawCardFromPile() error {
 	newCard := app.CardPile.DrawCard()
-	player, err := app.GetPlayer()
+	if newCard == nil {
+		return fmt.Errorf("❌ No cards left in the pile")
+	}
 
+	player, err := app.GetCurrentPlayer()
 	if err != nil {
 		return err
 	}
 
-	for _, card := range player.Player.GetCards() {
-		if card.IsSpecial() {
+	// Add the drawn card to the player's hand
+	player.Player.Cards = append(player.Player.Cards, newCard)
+
+	// Additional logic to handler
+	// once the function is complete
+	defer func() {
+		if app.CardPile.RemainingCards() == 0 {
+			// Reshuffle the card pile when all cards have been drawn
+			return
+		}
+
+		// Recalculate the points for each player
+		// after a card has been drawn
+		for _, player := range app.Players {
+			totalScore := player.Player.GetTotalScore()
+			app.Scores[player.GetUuid()] = totalScore
+		}
+	}()
+
+	for _, cardInHand := range player.Player.GetCards() {
+		if cardInHand.IsSpecial() {
 			// Special cards must be resolved before the game can continue
 			app.MustResolve = true
 			app.EventResolutionOptions = EventResolutionOptions{
-				Card:   card,
+				Card:   cardInHand,
 				Player: player.Player,
 			}
 			return nil
 		} else {
-			// A player cannot draw a card if they already have a card
-			// of the same value in their hand. Their turn stops and
-			// they loose all the points of all the cards that they
-			// currently have in their hand
-			if card.GetValue() == newCard.GetValue() {
-				player.Player.IsFrozen = true
-				return nil
-			} else {
-				// When none of the above conditions are, just add the card to
-				// the player's hand and continue the game -; append a copy of
-				// the card since the card pile will be reshuffled and the card
-				// will be lost if we don't make a copy of it
-				player.Player.Cards = append(player.Player.Cards, newCard)
-				return nil
+			if player.Player.GetNumberOfCards() > 1 {
+				// A player cannot draw a card if they already have a card
+				// of the same value in their hand. Their turn stops and
+				// they loose all the points of all the cards that they
+				// currently have in their hand
+				values := make(map[int]bool)
+				for _, card := range player.Player.GetCards() {
+					if values[card.GetValue()] {
+						// Reset the player's hand and end their turn
+						player.Player.Cards = []cards.CardInterface{}
+						player.Player.IsFrozen = true
+						return nil
+					}
+					values[card.GetValue()] = true
+				}
 			}
 		}
-	}
-
-	if app.CardPile.RemainingCards() == 0 {
-		// Reshuffle the card pile when all cards have been drawn
 	}
 
 	return nil
@@ -118,8 +179,8 @@ func (app *GameApp) NextRound() {
 
 // Create a new game instance based on the specified game type. This method is a placeholder
 // and should be implemented to return a new game instance that adheres to the GameInterface.
-func (app *GameApp) Create(gameType string) games.GameInterface {
-	game := games.CreateGame(gameType)
+func (app *GameApp) Create(options models.GameAppOptions) games.GameInterface {
+	game := games.CreateGame(options)
 	return game
 }
 
@@ -145,6 +206,17 @@ func NewGameApp(ctx context.Context, baseDir string, options models.GameAppOptio
 	// allows for multiple games to be played simultaneously. This will
 	// require a unique identifier for each game session and a way to manage
 	// the state of each game independently.
-	game := games.CreateGame(options.GameType)
-	return &GameApp{ctx: ctx, Game: game}
+	game := games.CreateGame(options)
+	return &GameApp{
+		ctx:                    ctx,
+		Game:                   game, // Rename to Games which will be a map of game instances to allow for multiple games to be played simultaneously
+		CurrentRound:           0,
+		CardPile:               &cards.CardPile{},
+		CurrentPlayerUuid:      "",
+		IsRunning:              false,
+		MustResolve:            false,
+		EventResolutionOptions: EventResolutionOptions{},
+		serverApp:              options.ServerApp,
+		Players:                map[string]*games.WebsocketClient{},
+	}
 }

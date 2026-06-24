@@ -20,6 +20,10 @@ type App struct {
 	redisClient *redis.Client
 	router      *chi.Mux
 	errorCh     chan error
+	// Reference to the main server application that
+	// manages the lifecycle of the game server and
+	// other services
+	serverApp models.ServerAppInterface
 }
 
 func (app *App) Start() error {
@@ -64,16 +68,23 @@ func (app *App) Start() error {
 	}
 }
 
+// Deprecated: Use GetServerApp() instead. This method is kept for backward compatibility.
 func (app *App) GetBaseDir() string {
 	return app.baseDir
 }
 
+// Deprecated: Use GetServerApp() instead. This method is kept for backward compatibility.
 func (app *App) GetContext() context.Context {
 	return app.ctx
 }
 
+// Deprecated: Use GetServerApp() instead. This method is kept for backward compatibility.
 func (app *App) GetRedisClient() *redis.Client {
 	return app.redisClient
+}
+
+func (app *App) GetServerApp() models.ServerAppInterface {
+	return app.serverApp
 }
 
 // NewApp initializes and returns a new instance of the App struct
@@ -88,6 +99,7 @@ func NewApp(ctx context.Context, baseDir string, options models.AppOptions) mode
 	}
 
 	app.redisClient = options.RedisClient
+	app.serverApp = options.ServerApp
 	app.loadRouter()
 
 	return app

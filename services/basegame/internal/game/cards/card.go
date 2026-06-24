@@ -21,7 +21,7 @@ const (
 // for resolving card effects in the future
 // useful for special cards that may have
 // more complex effects
-type ResolveOptions struct {
+type CardResolveOptions struct {
 	// Uuid of the player to whom the
 	// card effect is being applied, if applicable
 	ToPlayer string
@@ -39,7 +39,7 @@ func (b *BaseCard) GetUuid() string {
 	return b.Uuid
 }
 
-func (b *BaseCard) Resolve(currentScore int, options ResolveOptions) int {
+func (b *BaseCard) Resolve(currentScore int, options CardResolveOptions) int {
 	newScore := currentScore
 
 	switch b.CardOperator {

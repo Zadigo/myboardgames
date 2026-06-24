@@ -25,6 +25,8 @@ type ServerApp struct {
 	ctx         context.Context
 	rootDir     string
 	redisClient *redis.Client
+	GameApp     *game.GameApp
+	httpApp     models.AppInterface
 }
 
 func (s *ServerApp) Start(rootDir string) error {
@@ -74,6 +76,7 @@ func (s *ServerApp) Start(rootDir string) error {
 			RedisClient: s.redisClient,
 			ServerApp:   s,
 		})
+		s.httpApp = httpApp
 		appErrors <- httpApp.Start()
 	}()
 
@@ -85,7 +88,8 @@ func (s *ServerApp) Start(rootDir string) error {
 		gameApp := game.NewGameApp(s.ctx, absPath, models.GameAppOptions{
 			GameType: games.STANDARD,
 			AppOptions: models.AppOptions{
-				ServerApp: s,
+				ServerApp:   s,
+				RedisClient: s.redisClient,
 			},
 		})
 		gameChError <- gameApp.Start()
@@ -96,7 +100,8 @@ func (s *ServerApp) Start(rootDir string) error {
 		gameApp := game.NewGameApp(s.ctx, absPath, models.GameAppOptions{
 			GameType: games.EXTENSION,
 			AppOptions: models.AppOptions{
-				ServerApp: s,
+				ServerApp:   s,
+				RedisClient: s.redisClient,
 			},
 		})
 		gameChError <- gameApp.Start()
@@ -115,6 +120,17 @@ func (s *ServerApp) Start(rootDir string) error {
 		log.Printf("🔴 Shutting down %s server...", os.Getenv("SERVICE_NAME"))
 		return nil
 	}
+}
+
+func (s *ServerApp) CreateGame(gameType string) error {
+	s.GameApp.Create(models.GameAppOptions{
+		GameType: gameType,
+		AppOptions: models.AppOptions{
+			ServerApp:   s,
+			RedisClient: s.redisClient,
+		},
+	})
+	return nil
 }
 
 func NewServerApp(ctx context.Context) *ServerApp {

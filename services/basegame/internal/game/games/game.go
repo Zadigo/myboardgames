@@ -1,5 +1,7 @@
 package games
 
+import "github.com/Zadigo/basegame/internal/models"
+
 const (
 	STANDARD  = "standard"
 	EXTENSION = "extension"
@@ -8,13 +10,18 @@ const (
 // CreateGame is a factory function that creates a new game instance based on the specified game type.
 // It returns an instance of GameInterface, which can be either a StandardGame or an ExtensionGame,
 // depending on the provided gameType. If the gameType is not recognized, it returns nil.
-func CreateGame(gameType string) GameInterface {
-	switch gameType {
+func CreateGame(options models.GameAppOptions) GameInterface {
+	var game GameInterface
+
+	switch options.GameType {
 	case STANDARD:
-		return &StandardGame{}
+		game = &StandardGame{}
 	case EXTENSION:
-		return &ExtensionGame{}
+		game = &ExtensionGame{}
 	default:
 		return nil
 	}
+	
+	game.SetOptions(options)
+	return game
 }
