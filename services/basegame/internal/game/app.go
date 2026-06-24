@@ -4,16 +4,12 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/Zadigo/basegame/internal/game/games"
 	"github.com/Zadigo/basegame/internal/models"
 )
 
-const (
-	STANDARD  = "standard"
-	EXTENSION = "extension"
-)
-
 type GameApp struct {
-	game models.GameInterface
+	game games.GameInterface
 }
 
 // Start initializes and starts the game server application.
@@ -35,6 +31,6 @@ func (app *GameApp) Start() error {
 // is independent of the main chi server and can be used to manage game sessions,
 // handle player interactions, and maintain game state.
 func NewGameApp(ctx context.Context, baseDir string, options models.GameAppOptions) *GameApp {
-	game := CreateGame(options.GameType)
+	game := games.CreateGame(options.GameType)
 	return &GameApp{game: game}
 }

@@ -11,6 +11,7 @@ import (
 
 	"github.com/Zadigo/basegame/internal/app"
 	"github.com/Zadigo/basegame/internal/game"
+	"github.com/Zadigo/basegame/internal/game/games"
 	"github.com/Zadigo/basegame/internal/models"
 	"github.com/redis/go-redis/v9"
 )
@@ -82,7 +83,7 @@ func (s *ServerApp) Start(rootDir string) error {
 	go func() {
 		log.Printf("🔵 Starting %s game application...", os.Getenv("SERVICE_NAME"))
 		gameApp := game.NewGameApp(s.ctx, absPath, models.GameAppOptions{
-			GameType: game.STANDARD,
+			GameType: games.STANDARD,
 			AppOptions: models.AppOptions{
 				ServerApp: s,
 			},

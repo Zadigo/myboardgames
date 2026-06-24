@@ -1,4 +1,4 @@
-package game
+package games
 
 import "github.com/Zadigo/basegame/internal/game/cards"
 
