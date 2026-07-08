@@ -15,7 +15,10 @@ func main() {
 	mainCtx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 
+	debug := os.Getenv("DEBUG") == "true"
+
 	mainCtx = context.WithValue(mainCtx, "baseDir", ".")
+	mainCtx = context.WithValue(mainCtx, "debug", debug)
 
 	server := server.NewServerApp(mainCtx)
 	err := server.Start()

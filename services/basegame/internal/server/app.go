@@ -23,6 +23,7 @@ import (
 // and managing the lifecycle of the servers, handling requests, and coordinating
 // communication between different components of the application.
 type ServerApp struct {
+	// Parent context
 	ctx         context.Context
 	rootDir     string
 	redisClient *redis.Client
@@ -32,6 +33,7 @@ type ServerApp struct {
 
 func (s *ServerApp) Start() error {
 	rootDir := s.ctx.Value("baseDir").(string)
+	debug := s.ctx.Value("debug").(bool)
 
 	absPath, err := filepath.Abs(rootDir)
 	if err != nil {
@@ -95,6 +97,7 @@ func (s *ServerApp) Start() error {
 
 		gameApp := game.NewGameApp(cancelCtx, models.GameAppOptions{
 			GameType: games.STANDARD,
+			Debug:    debug,
 			AppOptions: models.AppOptions{
 				ServerApp:   s,
 				RedisClient: s.redisClient,
@@ -112,6 +115,7 @@ func (s *ServerApp) Start() error {
 
 		gameApp := game.NewGameApp(cancelCtx, models.GameAppOptions{
 			GameType: games.EXTENSION,
+			Debug:    debug,
 			AppOptions: models.AppOptions{
 				ServerApp:   s,
 				RedisClient: s.redisClient,

@@ -33,11 +33,11 @@ func (suite *GameAppTestSuite) TestCreate() {
 
 	err := suite.gameApp.Start()
 	suite.NoError(err)
-	suite.True(suite.gameApp.IsRunning)
+	suite.True(suite.gameApp.IsRunning.Load())
 
 	err = suite.gameApp.Stop()
 	suite.NoError(err)
-	suite.False(suite.gameApp.IsRunning)
+	suite.False(suite.gameApp.IsRunning.Load())
 }
 
 func (suite *GameAppTestSuite) TestCreateWithNil() {

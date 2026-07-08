@@ -31,7 +31,7 @@ func (b *BaseGame) Start() error {
 		return nil
 	}
 
-	// Start a taks that will run every X seconds in order
+	// Start a task that will run every X seconds in order
 	// to check if the game is still active, that the players
 	// are still connected, game rules etc.
 	_, err := scheduler.Every(60).Second().Do(func() {

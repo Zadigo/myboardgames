@@ -3,6 +3,7 @@ package game
 import (
 	"context"
 	"fmt"
+	"sync/atomic"
 	"time"
 
 	"github.com/Zadigo/basegame/internal/game/cards"
@@ -17,7 +18,7 @@ type GameApp struct {
 	CardPile          *cards.CardPile                   `json:"cardPile"`
 	Players           map[string]*games.WebsocketClient `json:"players"`
 	CurrentPlayerUuid string                            `json:"currentPlayerIndex"`
-	IsRunning         bool                              `json:"isRunning"`
+	IsRunning         atomic.Bool                       `json:"isRunning"`
 	// An action or an event must be resolved before the game can continue.
 	// This is useful for special cards that may have more complex effects
 	MustResolve bool `json:"mustResolve"`
@@ -43,7 +44,7 @@ func (app *GameApp) Start() error {
 	app.Game.Prepare()
 	app.Game.Start()
 
-	app.IsRunning = true
+	app.IsRunning.Store(true)
 	return nil
 }
 
@@ -55,7 +56,7 @@ func (app *GameApp) Stop() error {
 	timeoutCtx, cancel := context.WithTimeout(app.ctx, 5000*time.Millisecond)
 	defer cancel()
 
-	app.IsRunning = false
+	app.IsRunning.Store(false)
 	timeoutCtx.Done()
 
 	return nil
@@ -221,7 +222,7 @@ func (app *GameApp) NotifyAll() {
 }
 
 func (app *GameApp) GetGameState() bool {
-	return app.IsRunning
+	return app.IsRunning.Load()
 }
 
 // NewGameApp creates a new instance of the game server application
@@ -240,7 +241,7 @@ func NewGameApp(ctx context.Context, options models.GameAppOptions) *GameApp {
 		CurrentRound:           0,
 		CardPile:               &cards.CardPile{},
 		CurrentPlayerUuid:      "",
-		IsRunning:              false,
+		IsRunning:              atomic.Bool{},
 		MustResolve:            false,
 		EventResolutionOptions: EventResolutionOptions{},
 		serverApp:              options.ServerApp,
