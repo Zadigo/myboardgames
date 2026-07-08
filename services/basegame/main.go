@@ -12,11 +12,13 @@ import (
 func main() {
 	godotenv.Load(".env")
 
-	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+	mainCtx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 
-	server := server.NewServerApp(ctx)
-	err := server.Start(".")
+	mainCtx = context.WithValue(mainCtx, "baseDir", ".")
+
+	server := server.NewServerApp(mainCtx)
+	err := server.Start()
 
 	if err != nil {
 		panic(err)

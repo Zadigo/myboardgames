@@ -30,7 +30,9 @@ type ServerApp struct {
 	httpApp     models.AppInterface
 }
 
-func (s *ServerApp) Start(rootDir string) error {
+func (s *ServerApp) Start() error {
+	rootDir := s.ctx.Value("baseDir").(string)
+
 	absPath, err := filepath.Abs(rootDir)
 	if err != nil {
 		log.Printf("❌ Failed to get absolute path: %v", err)
@@ -82,34 +84,44 @@ func (s *ServerApp) Start(rootDir string) error {
 	}()
 
 	// Start the game server application
-	gameChError := make(chan error)
+	gameErrors := make(chan error)
 
 	go func() {
 		log.Printf("🔵 Starting %s standard game application...", os.Getenv("SERVICE_NAME"))
-		gameApp := game.NewGameApp(s.ctx, absPath, models.GameAppOptions{
+
+		ctx := context.WithValue(s.ctx, "gameType", games.STANDARD)
+		cancelCtx, cancel := context.WithCancel(ctx)
+		defer cancel()
+
+		gameApp := game.NewGameApp(cancelCtx, models.GameAppOptions{
 			GameType: games.STANDARD,
 			AppOptions: models.AppOptions{
 				ServerApp:   s,
 				RedisClient: s.redisClient,
 			},
 		})
-		gameChError <- gameApp.Start()
+		gameErrors <- gameApp.Start()
 	}()
 
 	go func() {
 		log.Printf("🔵 Starting %s extension game application...", os.Getenv("SERVICE_NAME"))
-		gameApp := game.NewGameApp(s.ctx, absPath, models.GameAppOptions{
+
+		ctx := context.WithValue(s.ctx, "gameType", games.EXTENSION)
+		cancelCtx, cancel := context.WithCancel(ctx)
+		defer cancel()
+
+		gameApp := game.NewGameApp(cancelCtx, models.GameAppOptions{
 			GameType: games.EXTENSION,
 			AppOptions: models.AppOptions{
 				ServerApp:   s,
 				RedisClient: s.redisClient,
 			},
 		})
-		gameChError <- gameApp.Start()
+		gameErrors <- gameApp.Start()
 	}()
 
 	select {
-	case gameErr := <-gameChError:
+	case gameErr := <-gameErrors:
 		log.Printf("🔴 %s game application error: %v", os.Getenv("SERVICE_NAME"), gameErr)
 		return gameErr
 	case appErr := <-appErrors:

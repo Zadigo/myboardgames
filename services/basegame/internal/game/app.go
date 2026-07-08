@@ -228,7 +228,7 @@ func (app *GameApp) GetGameState() bool {
 // based on the specified game type (standard or extension). This server
 // is independent of the main chi server and can be used to manage game sessions,
 // handle player interactions, and maintain game state.
-func NewGameApp(ctx context.Context, baseDir string, options models.GameAppOptions) *GameApp {
+func NewGameApp(ctx context.Context, options models.GameAppOptions) *GameApp {
 	// FIXME: Create a map that identifies each game individually and
 	// allows for multiple games to be played simultaneously. This will
 	// require a unique identifier for each game session and a way to manage

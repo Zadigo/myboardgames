@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"context"
 	"testing"
 
 	"github.com/Zadigo/basegame/internal/game"
@@ -18,7 +19,9 @@ type GameAppTestSuite struct {
 }
 
 func (suite *GameAppTestSuite) SetupTest() {
-	suite.gameApp = game.NewGameApp(suite.T().Context(), ".", models.GameAppOptions{
+	ctx := context.WithValue(context.Background(), "baseDir", ".")
+
+	suite.gameApp = game.NewGameApp(ctx, models.GameAppOptions{
 		GameType:   games.STANDARD,
 		AppOptions: models.AppOptions{},
 		Debug:      true,
