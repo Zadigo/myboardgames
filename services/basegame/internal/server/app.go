@@ -60,7 +60,7 @@ func (s *ServerApp) Start() error {
 		panic(cmd.Err())
 	}
 
-	appErrors := make(chan error)
+	appErrs := make(chan error)
 
 	// Start the HTTP server application
 	go func() {
@@ -69,15 +69,13 @@ func (s *ServerApp) Start() error {
 			ServerApp:   s,
 		})
 		s.httpApp = httpApp
-		appErrors <- httpApp.Start()
+		appErrs <- httpApp.Start()
 	}()
 
 	// Start the game server application
-	// gameErrors := make(chan error)
+	miniServerErrs := make(chan error)
 
 	go func() {
-		log.Printf("🔵 Starting %s standard game application...", os.Getenv("SERVICE_NAME"))
-
 		ctx := context.WithValue(s.ctx, "gameType", games.STANDARD)
 		gameCtx, cancel := context.WithCancel(ctx)
 		defer cancel()
@@ -90,12 +88,10 @@ func (s *ServerApp) Start() error {
 				RedisClient: s.redisClient,
 			},
 		})
-		appErrors <- gameApp.Start()
+		miniServerErrs <- gameApp.Start()
 	}()
 
 	go func() {
-		log.Printf("🔵 Starting %s extension game application...", os.Getenv("SERVICE_NAME"))
-
 		ctx := context.WithValue(s.ctx, "gameType", games.EXTENSION)
 		gameCtx, cancel := context.WithCancel(ctx)
 		defer cancel()
@@ -108,25 +104,36 @@ func (s *ServerApp) Start() error {
 				RedisClient: s.redisClient,
 			},
 		})
-		appErrors <- gameApp.Start()
+		miniServerErrs <- gameApp.Start()
 	}()
 
-	select {
-	// case gameErr := <-gameErrors:
-	// 	log.Printf("🔴 %s game application error: %v", os.Getenv("SERVICE_NAME"), gameErr)
-	// 	return gameErr
-	case appErr, ok := <-appErrors:
-		if ok {
-			log.Printf("🔴 %s HTTP application error: %v", os.Getenv("SERVICE_NAME"), appErr)
-			return appErr
-		}
-		return nil
-	case <-s.ctx.Done():
-		s.redisClient.Close()
+	go func() {
+		select {
+		case miniServerErr, ok := <-miniServerErrs:
+			if ok {
+				log.Printf("🔴 %s game mini-server error: %v", os.Getenv("SERVICE_NAME"), miniServerErr)
+				return
+			}
+			close(miniServerErrs)
+		case appErr, ok := <-appErrs:
+			if ok {
+				log.Printf("🔴 %s HTTP application error: %v", os.Getenv("SERVICE_NAME"), appErr)
+				return
+			}
+			close(appErrs)
+		case <-s.ctx.Done():
+			close(appErrs)
+			s.redisClient.Close()
 
-		log.Printf("🔴 Shutting down %s server: %v", os.Getenv("SERVICE_NAME"), s.ctx.Err())
-		return nil
-	}
+			log.Printf("🔴 Shutting down %s server: %v", os.Getenv("SERVICE_NAME"), s.ctx.Err())
+			return
+		}
+	}()
+
+	<-s.ctx.Done()
+
+	log.Printf("🔴 Shutting down %s server: %v", os.Getenv("SERVICE_NAME"), s.ctx.Err())
+	return nil
 }
 
 func (s *ServerApp) JoinGame(conn *websocket.Conn, gameId string) error {
@@ -135,7 +142,7 @@ func (s *ServerApp) JoinGame(conn *websocket.Conn, gameId string) error {
 	if err != nil {
 		return err
 	}
-	
+
 	return game.AddPlayer(games.NewWebsocketClient(conn))
 }
 

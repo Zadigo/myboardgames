@@ -2,6 +2,7 @@ package game
 
 import (
 	"context"
+	"log"
 	"sync/atomic"
 
 	"github.com/Zadigo/basegame/internal/game/games"
@@ -18,6 +19,14 @@ type GamesMiniServer struct {
 // Starts the GamesMiniServer, allowing it to manage multiple game instances concurrently.
 func (app *GamesMiniServer) Start() error {
 	app.IsRunning.Store(true)
+
+	gameType := app.ctx.Value("gameType").(string)
+	log.Printf("🔵 Starting %s game mini-server...", gameType)
+
+	<-app.ctx.Done()
+
+	app.IsRunning.Store(false)
+	log.Printf("🔴 Game mini-server for %s is stopping...", gameType)
 	return nil
 }
 
@@ -50,10 +59,7 @@ func (app *GamesMiniServer) GetGame(gameId string) (games.GameInterface, error) 
 // It allows for the creation and management of multiple game instances, each with its own state and players. The server can start and
 // stop the game instances as needed, and it provides a centralized point for managing the lifecycle of the games.
 func NewGamesMiniServer(ctx context.Context, options models.GameAppOptions) *GamesMiniServer {
-	miniServerCtx, cancel := context.WithCancel(ctx)
-	defer cancel()
-
-	miniServerCtx = context.WithValue(miniServerCtx, "gameType", options.GameType)
+	miniServerCtx := context.WithValue(ctx, "gameType", options.GameType)
 
 	return &GamesMiniServer{
 		ctx:       miniServerCtx,
