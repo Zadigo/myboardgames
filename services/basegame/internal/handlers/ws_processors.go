@@ -48,6 +48,7 @@ func GameMessageProcessor(options ProcessorOptions) {
 		// Handle flip card logic here
 		// Two options: card is special, indicate to client to resolve the card, else, just flip the card and notify all players
 		// result := options.App.GetServerApp().GetGameApp().DrawCard("game-uuid")
+		options.App.GetServerApp().GetGame(gameId)
 	case models.RESOLVE_CARD:
 		// Handle resolve card logic here
 		// options.App.GetServerApp().NotifyAll("game-uuid")

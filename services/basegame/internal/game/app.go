@@ -16,6 +16,10 @@ type GamesMiniServer struct {
 	IsRunning atomic.Bool                    `json:"-"`
 }
 
+func (app *GamesMiniServer) SetContext(ctx context.Context) {
+	app.ctx = ctx
+}
+
 // Starts the GamesMiniServer, allowing it to manage multiple game instances concurrently.
 func (app *GamesMiniServer) Start() error {
 	app.IsRunning.Store(true)

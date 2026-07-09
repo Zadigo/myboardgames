@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"maps"
 	"net/http"
 	"net/http/httptest"
@@ -95,4 +96,27 @@ func CreatePlayer(t *testing.T) *games.Player {
 		Username:    "some-username",
 		IsInitiator: true,
 	}
+}
+
+// CreatePileFlipOnTop creates a card pile with a Flip3 special card on top,
+// followed by standard cards with values 0 to 3.
+func CreatePileFlipOnTop(t *testing.T) (pile []cards.CardInterface) {
+	c1 := &cards.BaseCard{
+		Uuid:         "card-1",
+		CardType:     cards.STANDARD_SPECIAL_CARD,
+		CardValue:    0,
+		CardOperator: cards.OPERATION_FLIP3,
+	}
+
+	for i := range 4 {
+		item := &cards.BaseCard{
+			Uuid:         fmt.Sprintf("card-2-%d", i),
+			CardType:     cards.STANDARD_CARD,
+			CardValue:    i,
+			CardOperator: cards.OPERATION_ADD,
+		}
+		pile = append(pile, item)
+	}
+
+	return append([]cards.CardInterface{c1}, pile...)
 }

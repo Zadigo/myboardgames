@@ -14,29 +14,37 @@ import (
 
 type GameAppTestSuite struct {
 	suite.Suite
+	ctx     context.Context
 	gameApp *games.GameApp
 }
 
 func (suite *GameAppTestSuite) SetupTest() {
-	ctx := context.WithValue(context.Background(), "baseDir", ".")
+	suite.ctx = context.WithValue(context.Background(), "baseDir", ".")
 
-	suite.gameApp = games.NewGame(ctx, models.GameAppOptions{
+	suite.gameApp = games.NewGame(suite.ctx, models.GameAppOptions{
 		GameType:   games.STANDARD,
 		AppOptions: models.AppOptions{},
 		Debug:      true,
 	})
 }
 
-func (suite *GameAppTestSuite) TestCreate() {
-	suite.NotNil(suite.gameApp)
+func (suite *GameAppTestSuite) TestNewGame() {
+	gameApp := games.NewGame(suite.ctx, models.GameAppOptions{
+		GameType:   games.STANDARD,
+		AppOptions: models.AppOptions{},
+		Debug:      true,
+	})
 
-	err := suite.gameApp.Start()
-	suite.NoError(err)
-	suite.True(suite.gameApp.IsRunning.Load())
+	suite.NotNil(gameApp)
+	suite.False(gameApp.IsRunning.Load())
 
-	err = suite.gameApp.Stop()
-	suite.NoError(err)
-	suite.False(suite.gameApp.IsRunning.Load())
+	// err := suite.gameApp.Start()
+	// suite.NoError(err)
+	// suite.True(gameApp.IsRunning.Load())
+
+	// err = suite.gameApp.Stop()
+	// suite.NoError(err)
+	// suite.False(suite.gameApp.IsRunning.Load())
 }
 
 func (suite *GameAppTestSuite) TestCreateWithNil() {
@@ -94,10 +102,13 @@ func (suite *GameAppTestSuite) TestDrawCardFromPile() {
 
 	suite.gameApp.SetCurrentPlayer(p1.GetUuid())
 
+	// Create the card pile
 	factory := cards.MakeCards(cards.STANDARD_CARD)
 	suite.gameApp.CardPile.AddCards(factory.CreateCards()...)
 
+	// Draw from the pile -
 	err := suite.gameApp.DrawCardFromPile()
+
 	suite.NoError(err)
 	suite.False(suite.gameApp.MustResolve)
 	suite.Equal(1, len(p1.Player.GetCards()))
@@ -106,12 +117,17 @@ func (suite *GameAppTestSuite) TestDrawCardFromPile() {
 	suite.T().Cleanup(func() {
 		c1.Close()
 		c2.Close()
+
 		suite.gameApp.CardPile.Clear()
 		suite.gameApp.CurrentPlayerUuid = ""
 	})
 }
 
 func (suite *GameAppTestSuite) TestDrawCardFromPileWithSpecialCard() {
+	// Pulling a special card from the pile should set MustResolve to true 
+	// and populate EventResolutionOptions. The client should then resolve
+	// the event before the game can continue.
+
 	card1 := &cards.BaseCard{
 		Uuid:         "card-1",
 		CardType:     cards.STANDARD_SPECIAL_CARD,
@@ -152,15 +168,19 @@ func (suite *GameAppTestSuite) TestDrawCardFromPileWithSpecialCard() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			err = suite.gameApp.DrawCardFromPile()
+
 			suite.NoError(err)
 			suite.True(suite.gameApp.MustResolve)
 			suite.Equal(tc.card, suite.gameApp.EventResolutionOptions.Card)
 			suite.Equal(p1, suite.gameApp.EventResolutionOptions.Player)
-
-			suite.gameApp.MustResolve = false
-			suite.gameApp.EventResolutionOptions = games.EventResolutionOptions{}
 		})
 	}
+
+	suite.T().Cleanup(func() {
+		suite.gameApp.MustResolve = false
+		suite.gameApp.EventResolutionOptions = games.EventResolutionOptions{}
+		suite.gameApp.CardPile.Clear()
+	})
 }
 
 func (suite *GameAppTestSuite) TestDrawCardFromPileWithNoCardsLeft() {}

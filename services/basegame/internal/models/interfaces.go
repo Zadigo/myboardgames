@@ -26,4 +26,6 @@ type AppInterface interface {
 
 type ServerAppInterface interface {
 	JoinGame(conn *websocket.Conn, gameUUID string) error
+	CreateGame(gameType string) error
+	// GetGame(gameId string) games.GameInterface
 }
