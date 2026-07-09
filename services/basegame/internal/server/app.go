@@ -73,16 +73,16 @@ func (s *ServerApp) Start() error {
 	}()
 
 	// Start the game server application
-	gameErrors := make(chan error)
+	// gameErrors := make(chan error)
 
 	go func() {
 		log.Printf("🔵 Starting %s standard game application...", os.Getenv("SERVICE_NAME"))
 
 		ctx := context.WithValue(s.ctx, "gameType", games.STANDARD)
-		cancelCtx, cancel := context.WithCancel(ctx)
+		gameCtx, cancel := context.WithCancel(ctx)
 		defer cancel()
 
-		gameApp := game.NewGameApp(cancelCtx, models.GameAppOptions{
+		gameApp := game.NewGameApp(gameCtx, models.GameAppOptions{
 			GameType: games.STANDARD,
 			Debug:    debug,
 			AppOptions: models.AppOptions{
@@ -90,17 +90,17 @@ func (s *ServerApp) Start() error {
 				RedisClient: s.redisClient,
 			},
 		})
-		gameErrors <- gameApp.Start()
+		appErrors <- gameApp.Start()
 	}()
 
 	go func() {
 		log.Printf("🔵 Starting %s extension game application...", os.Getenv("SERVICE_NAME"))
 
 		ctx := context.WithValue(s.ctx, "gameType", games.EXTENSION)
-		cancelCtx, cancel := context.WithCancel(ctx)
+		gameCtx, cancel := context.WithCancel(ctx)
 		defer cancel()
 
-		gameApp := game.NewGameApp(cancelCtx, models.GameAppOptions{
+		gameApp := game.NewGameApp(gameCtx, models.GameAppOptions{
 			GameType: games.EXTENSION,
 			Debug:    debug,
 			AppOptions: models.AppOptions{
@@ -108,20 +108,23 @@ func (s *ServerApp) Start() error {
 				RedisClient: s.redisClient,
 			},
 		})
-		gameErrors <- gameApp.Start()
+		appErrors <- gameApp.Start()
 	}()
 
 	select {
-	case gameErr := <-gameErrors:
-		log.Printf("🔴 %s game application error: %v", os.Getenv("SERVICE_NAME"), gameErr)
-		return gameErr
-	case appErr := <-appErrors:
-		log.Printf("🔴 %s HTTP application error: %v", os.Getenv("SERVICE_NAME"), appErr)
-		return appErr
+	// case gameErr := <-gameErrors:
+	// 	log.Printf("🔴 %s game application error: %v", os.Getenv("SERVICE_NAME"), gameErr)
+	// 	return gameErr
+	case appErr, ok := <-appErrors:
+		if ok {
+			log.Printf("🔴 %s HTTP application error: %v", os.Getenv("SERVICE_NAME"), appErr)
+			return appErr
+		}
+		return nil
 	case <-s.ctx.Done():
 		s.redisClient.Close()
 
-		log.Printf("🔴 Shutting down %s server...", os.Getenv("SERVICE_NAME"))
+		log.Printf("🔴 Shutting down %s server: %v", os.Getenv("SERVICE_NAME"), s.ctx.Err())
 		return nil
 	}
 }

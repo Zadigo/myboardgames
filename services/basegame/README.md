@@ -13,8 +13,11 @@ S[Server] --> C[Chi HTTP Server]
 G --> ST[[Standard Game Service]]
 G --> EX[[Extension Game Service]]
 
-EX <--> CR1(Cron Job)
-ST <--> CR2(Cron Job)
+ST --> |Table|T1(Game 1)
+ST --> |Table|T2(Game 2)
+
+T1 <--> C1(Cron)
+T2 <--> C2(Cron)
 ```
 
 ## Game Flow

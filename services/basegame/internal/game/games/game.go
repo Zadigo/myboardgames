@@ -1,6 +1,8 @@
 package games
 
-import "github.com/Zadigo/basegame/internal/models"
+import (
+	"github.com/Zadigo/basegame/internal/models"
+)
 
 const (
 	STANDARD  = "standard"
@@ -21,7 +23,7 @@ func CreateGame(options models.GameAppOptions) GameInterface {
 	default:
 		return nil
 	}
-	
+
 	game.SetOptions(options)
 	return game
 }
