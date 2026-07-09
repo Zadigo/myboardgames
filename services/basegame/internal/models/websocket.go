@@ -28,14 +28,15 @@ const (
 // WebsocketMessage represents a message sent
 // over the websocket connection.
 type BaseWebsocketMessage struct {
-	Action string `json:"action"`
+	Action  string `json:"action"`
+	Message string `json:"message"`
 }
 
 type WebsocketMessage struct {
 	BaseWebsocketMessage
 }
 
-type WebscoketClientInterface interface {
+type WebsocketClientInterface interface {
 	GetUuid() string
 	SetConn(conn *websocket.Conn)
 	SendJsonMessage(message WebsocketMessage) error

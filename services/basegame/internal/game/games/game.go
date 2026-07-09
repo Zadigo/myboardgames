@@ -1,6 +1,8 @@
 package games
 
 import (
+	"context"
+
 	"github.com/Zadigo/basegame/internal/models"
 )
 
@@ -10,16 +12,29 @@ const (
 )
 
 // CreateGame is a factory function that creates a new game instance based on the specified game type.
-// It returns an instance of GameInterface, which can be either a StandardGame or an ExtensionGame,
-// depending on the provided gameType. If the gameType is not recognized, it returns nil.
-func CreateGame(options models.GameAppOptions) GameInterface {
+// It takes a context.Context and GameAppOptions as parameters and returns an instance of GameInterface,
+// which can be either a StandardGame or an ExtensionGame, depending on the provided gameType.
+// If the gameType is not recognized, it returns nil.
+func CreateGame(ctx context.Context, options models.GameAppOptions) GameInterface {
+	gameCtx := context.WithValue(ctx, "gameType", options.GameType)
+
 	var game GameInterface
 
 	switch options.GameType {
 	case STANDARD:
-		game = &StandardGame{}
+		game = &StandardGame{
+			BaseGame: BaseGame{
+				ctx:     gameCtx,
+				players: make(map[string]*WebsocketClient),
+			},
+		}
 	case EXTENSION:
-		game = &ExtensionGame{}
+		game = &ExtensionGame{
+			BaseGame: BaseGame{
+				ctx:     gameCtx,
+				players: make(map[string]*WebsocketClient),
+			},
+		}
 	default:
 		return nil
 	}

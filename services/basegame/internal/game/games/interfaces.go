@@ -3,10 +3,13 @@ package games
 import "github.com/Zadigo/basegame/internal/models"
 
 type GameInterface interface {
+	GetUuid() string
 	// Start initializes and starts the game server application.
 	// It checks if the game instance is properly initialized, prepares the game state,
 	// and then starts the game logic.
 	Start() error
+	Stop() error
+	// AddPlayer adds a new player to the game. It takes a WebsocketClient representing the player
 	// CreateCards initializes the card deck for the game,
 	// setting up the necessary cards and their properties. This method is
 	// responsible for ensuring that the game has a complete set of cards ready for play,
@@ -30,6 +33,10 @@ type GameInterface interface {
 	// or an error if the player does not exist in the game. This method is useful for
 	// managing player interactions and accessing player-specific information during gameplay.
 	GetPlayer(playerUuid string) (*WebsocketClient, error)
+	GetCurrentPlayer() (*WebsocketClient, error)
+	SetCurrentPlayer(clientUuid string) error
+	NextRound()
+	NotifyAll()
 	// SetOptions sets the game options for the game instance. It takes a GameAppOptions struct
 	// containing configuration settings and parameters for the game. This method allows
 	// for customization of game behavior, rules, and other settings based on the provided options.

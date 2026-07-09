@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/Zadigo/basegame/internal/game"
 	"github.com/Zadigo/basegame/internal/game/cards"
 	"github.com/Zadigo/basegame/internal/game/games"
 	"github.com/Zadigo/basegame/internal/handlers"
@@ -15,13 +14,13 @@ import (
 
 type GameAppTestSuite struct {
 	suite.Suite
-	gameApp *game.GameApp
+	gameApp *games.GameApp
 }
 
 func (suite *GameAppTestSuite) SetupTest() {
 	ctx := context.WithValue(context.Background(), "baseDir", ".")
 
-	suite.gameApp = game.NewGameApp(ctx, models.GameAppOptions{
+	suite.gameApp = games.NewGame(ctx, models.GameAppOptions{
 		GameType:   games.STANDARD,
 		AppOptions: models.AppOptions{},
 		Debug:      true,
@@ -43,15 +42,15 @@ func (suite *GameAppTestSuite) TestCreate() {
 func (suite *GameAppTestSuite) TestCreateWithNil() {
 	suite.NotNil(suite.gameApp)
 
-	oldGame := suite.gameApp.Game
-	suite.gameApp.Game = nil
+	oldGame := suite.gameApp
+	suite.gameApp = nil
 
 	err := suite.gameApp.Start()
 	suite.Error(err)
 	suite.EqualError(err, "❌ Game server is not initialized")
 
 	suite.T().Cleanup(func() {
-		suite.gameApp.Game = oldGame
+		suite.gameApp = oldGame
 	})
 }
 
@@ -121,7 +120,7 @@ func (suite *GameAppTestSuite) TestDrawCardFromPileWithSpecialCard() {
 	}
 
 	card2 := &cards.BaseCard{
-		Uuid:         "card-1",
+		Uuid:         "card-2",
 		CardType:     cards.STANDARD_SPECIAL_CARD,
 		CardValue:    0,
 		CardOperator: cards.OPERATION_FLIP3,
@@ -159,7 +158,7 @@ func (suite *GameAppTestSuite) TestDrawCardFromPileWithSpecialCard() {
 			suite.Equal(p1, suite.gameApp.EventResolutionOptions.Player)
 
 			suite.gameApp.MustResolve = false
-			suite.gameApp.EventResolutionOptions = game.EventResolutionOptions{}
+			suite.gameApp.EventResolutionOptions = games.EventResolutionOptions{}
 		})
 	}
 }

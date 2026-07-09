@@ -16,7 +16,7 @@ type GameRedis struct {
 // Save persists the current state of the game application to Redis.
 // It serializes the GameApp instance into JSON and stores it in a Redis
 // hash with the game ID as the key.
-func (gr *GameRedis) Save(app *GameApp) error {
+func (gr *GameRedis) Save(app *GamesMiniServer) error {
 	b, err := json.Marshal(app)
 	if err != nil {
 		return err

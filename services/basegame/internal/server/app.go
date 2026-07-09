@@ -26,7 +26,7 @@ type ServerApp struct {
 	ctx         context.Context
 	rootDir     string
 	redisClient *redis.Client
-	GameApp     *game.GameApp
+	GameApp     *game.GamesMiniServer
 	httpApp     models.AppInterface
 }
 
@@ -82,7 +82,7 @@ func (s *ServerApp) Start() error {
 		gameCtx, cancel := context.WithCancel(ctx)
 		defer cancel()
 
-		gameApp := game.NewGameApp(gameCtx, models.GameAppOptions{
+		gameApp := game.NewGamesMiniServer(gameCtx, models.GameAppOptions{
 			GameType: games.STANDARD,
 			Debug:    debug,
 			AppOptions: models.AppOptions{
@@ -100,7 +100,7 @@ func (s *ServerApp) Start() error {
 		gameCtx, cancel := context.WithCancel(ctx)
 		defer cancel()
 
-		gameApp := game.NewGameApp(gameCtx, models.GameAppOptions{
+		gameApp := game.NewGamesMiniServer(gameCtx, models.GameAppOptions{
 			GameType: games.EXTENSION,
 			Debug:    debug,
 			AppOptions: models.AppOptions{
@@ -129,13 +129,20 @@ func (s *ServerApp) Start() error {
 	}
 }
 
-func (s *ServerApp) JoinGame(conn *websocket.Conn, gameUUID string) error {
-	return s.GameApp.AddPlayer(games.NewWebsocketClient(conn))
+func (s *ServerApp) JoinGame(conn *websocket.Conn, gameId string) error {
+	game, err := s.GameApp.GetGame(gameId)
+
+	if err != nil {
+		return err
+	}
+	
+	return game.AddPlayer(games.NewWebsocketClient(conn))
 }
 
 func (s *ServerApp) CreateGame(gameType string) error {
-	s.GameApp.Create(models.GameAppOptions{
+	s.GameApp.CreateGame(models.GameAppOptions{
 		GameType: gameType,
+		Debug:    s.ctx.Value("debug").(bool),
 		AppOptions: models.AppOptions{
 			ServerApp:   s,
 			RedisClient: s.redisClient,

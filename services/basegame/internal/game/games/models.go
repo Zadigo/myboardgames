@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/Zadigo/basegame/internal/game/cards"
 	"github.com/Zadigo/basegame/internal/models"
 	"github.com/go-co-op/gocron"
 )
@@ -67,6 +68,10 @@ func (b *BaseGame) Start() error {
 	return nil
 }
 
+func (b *BaseGame) Stop() error {
+	return nil
+}
+
 func (b *BaseGame) CreateCards() error {
 	return nil
 }
@@ -85,4 +90,45 @@ func (b *BaseGame) RemovePlayer(player *WebsocketClient) error {
 
 func (b *BaseGame) GetPlayer(playerUuid string) (*WebsocketClient, error) {
 	return nil, nil
+}
+
+func (b *BaseGame) GetCurrentPlayer() (*WebsocketClient, error) {
+	return nil, nil
+}
+
+func (b *BaseGame) SetCurrentPlayer(clientUuid string) error {
+	return nil
+}
+
+func (b *BaseGame) GetUuid() string {
+	return ""
+}
+
+func (b *BaseGame) NextRound() {
+
+}
+
+func (b *BaseGame) NotifyAll() {
+
+}
+
+const (
+	EVENT_RESOLVE_CARD           = "resolve_card"
+	EVENT_RESOLVE_PLAYERS_FROZEN = "resolve_players_frozen"
+)
+
+// EventResolutionOptions holds the options for resolving an
+// event or an action that must be resolved
+type EventResolutionOptions struct {
+	// The card that triggered the event or action
+	// that must be resolved
+	Card cards.CardInterface
+	// The player that triggered the event or action
+	Player *WebsocketClient
+}
+
+type EventResolutionAction struct {
+	Event string
+	// A player to whom an event or action is directed
+	ToPlayer *WebsocketClient
 }
