@@ -15,9 +15,12 @@ G --> EX[[Extension Game Service]]
 
 ST --> |Table|T1(Game 1)
 ST --> |Table|T2(Game 2)
+ST --> L(Clients)
 
-T1 <--> C1(Cron)
-T2 <--> C2(Cron)
+T1 <--> C1((Cron))
+T2 <--> C2((Cron))
+T1 --> P1(Players)
+T2 --> P2(Players)
 ```
 
 ## Game Flow
