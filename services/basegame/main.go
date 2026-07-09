@@ -6,6 +6,7 @@ import (
 	"os/signal"
 
 	"github.com/Zadigo/basegame/internal/server"
+	"github.com/Zadigo/basegame/internal/utils"
 	"github.com/joho/godotenv"
 )
 
@@ -17,11 +18,16 @@ func main() {
 
 	debug := os.Getenv("DEBUG") == "true"
 
-	mainCtx = context.WithValue(mainCtx, "baseDir", ".")
+	baseDir, err := utils.GetAbsolutePath(".")
+	if err != nil {
+		panic(err)
+	}
+
+	mainCtx = context.WithValue(mainCtx, "baseDir", baseDir)
 	mainCtx = context.WithValue(mainCtx, "debug", debug)
 
 	server := server.NewServerApp(mainCtx)
-	err := server.Start()
+	err = server.Start()
 
 	if err != nil {
 		panic(err)

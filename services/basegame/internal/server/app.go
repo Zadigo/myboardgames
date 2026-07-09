@@ -5,7 +5,6 @@ import (
 	"io/fs"
 	"log"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 
@@ -35,20 +34,8 @@ func (s *ServerApp) Start() error {
 	rootDir := s.ctx.Value("baseDir").(string)
 	debug := s.ctx.Value("debug").(bool)
 
-	absPath, err := filepath.Abs(rootDir)
-	if err != nil {
-		log.Printf("❌ Failed to get absolute path: %v", err)
-		return nil
-	}
-
-	result := path.Ext(absPath)
-	if result != "" {
-		log.Printf("❌ Base directory should be a directory, got a file: %s", absPath)
-		return nil
-	}
-
 	// Once the base directory is validated, we can walk through it to find the config.yaml file
-	filepath.WalkDir(absPath, func(path string, d fs.DirEntry, err error) error {
+	filepath.WalkDir(rootDir, func(path string, d fs.DirEntry, err error) error {
 		if strings.Contains(path, ".yaml") {
 			if strings.Contains(path, "config.yaml") {
 				// TODO: Load the config.yaml file and initialize the appConfig
@@ -77,7 +64,7 @@ func (s *ServerApp) Start() error {
 
 	// Start the HTTP server application
 	go func() {
-		httpApp := app.NewApp(s.ctx, absPath, models.AppOptions{
+		httpApp := app.NewApp(s.ctx, models.AppOptions{
 			RedisClient: s.redisClient,
 			ServerApp:   s,
 		})

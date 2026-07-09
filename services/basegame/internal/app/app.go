@@ -90,7 +90,9 @@ func (app *App) GetServerApp() models.ServerAppInterface {
 // NewApp initializes and returns a new instance of the App struct
 // with the provided context and base directory. It also sets up the Redis client
 // and service registry.
-func NewApp(ctx context.Context, baseDir string, options models.AppOptions) models.AppInterface {
+func NewApp(ctx context.Context, options models.AppOptions) models.AppInterface {
+	baseDir := ctx.Value("baseDir").(string)
+
 	app := &App{
 		ctx:     ctx,
 		baseDir: baseDir,
