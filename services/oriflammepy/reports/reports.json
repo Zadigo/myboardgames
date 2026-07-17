@@ -1,6 +1,0 @@
-{"pytest_version": "9.1.1", "$report_type": "SessionStart"}
-{"nodeid": "", "outcome": "passed", "longrepr": null, "result": null, "sections": [], "$report_type": "CollectReport"}
-{"nodeid": "tests/test_cards.py::TestArcher", "outcome": "passed", "longrepr": null, "result": null, "sections": [], "$report_type": "CollectReport"}
-{"nodeid": "tests/test_cards.py", "outcome": "passed", "longrepr": null, "result": null, "sections": [], "$report_type": "CollectReport"}
-{"nodeid": "tests", "outcome": "passed", "longrepr": null, "result": null, "sections": [], "$report_type": "CollectReport"}
-{"exitstatus": 0, "$report_type": "SessionFinish"}
