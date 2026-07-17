@@ -1,16 +1,16 @@
-from game.cards.base import BaseCard
+from game.cards.generics import AbstractCard
 from game.utils.base import MustResolve
-from typings import CardResolutionActions, TypeGame
+from typings import CardResolutionActions, TypeAbstractCard, TypeGame
 
 
-class Soldier(BaseCard):
+class Soldier(AbstractCard):
     def __init__(self, game: TypeGame) -> None:
         super().__init__(game=game, name="Soldier")
 
     def resolve(self) -> None:
         if self.partial_resolve:
-            previous_card: BaseCard | None = self.game.card_queue.get_previous_card(self)
-            next_card: BaseCard | None = self.game.card_queue.get_next_card(self)
+            previous_card: TypeAbstractCard | None = self.game.card_queue.get_previous_card(self)
+            next_card: TypeAbstractCard | None = self.game.card_queue.get_next_card(self)
             
             options = MustResolve(
                 action=CardResolutionActions.REMOVE_CARD.value,
@@ -27,7 +27,7 @@ class Soldier(BaseCard):
             return
 
 
-class Archer(BaseCard):
+class Archer(AbstractCard):
     def __init__(self, game: TypeGame) -> None:
         super().__init__(game=game, name="Archer")
 
@@ -37,8 +37,8 @@ class Archer(BaseCard):
             from_card=self
         )
 
-        first_card: BaseCard | None = self.game.card_queue.get_previous_card(self)
-        last_card: BaseCard | None = self.game.card_queue.get_next_card(self)
+        first_card: TypeAbstractCard | None = self.game.card_queue.get_previous_card(self)
+        last_card: TypeAbstractCard | None = self.game.card_queue.get_next_card(self)
 
         instance.on_previous_card = first_card
         instance.on_next_card = last_card
@@ -63,3 +63,12 @@ class Archer(BaseCard):
 
                 return True
         return False
+
+
+class StandardCardFactory:
+    """A factory class to create standard cards for the game."""
+    
+    @staticmethod
+    def create_cards(game: TypeGame) -> list[TypeAbstractCard]:
+        """Create a list of standard cards for the given game instance."""
+        return [Soldier(game), Archer(game)]

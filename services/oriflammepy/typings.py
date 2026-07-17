@@ -3,15 +3,15 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from game.base import BaseGame, CardQeue
-    from game.cards.base import BaseCard
+    from game.cards.generics import AbstractCard
     from game.ws_clients import WebsocketClient
 
-type TypeCard = "BaseCard"
+type TypeAbstractCard = "AbstractCard"
 
 
 type TypeWebsocketClient = "WebsocketClient"
 
-type TypeCardQueue = "CardQeue[TypeCard]"
+type TypeCardQueue = "CardQeue[AbstractCard]"
 
 type TypeGame = "BaseGame"
 

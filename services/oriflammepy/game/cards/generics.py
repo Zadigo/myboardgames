@@ -2,10 +2,19 @@ import uuid
 from abc import ABC, abstractmethod
 
 from game.utils.base import MustResolve
-from typings import TypeCard, TypeCardQueue, TypeGame, TypeWebsocketClient
+from typings import TypeAbstractCard, TypeCardQueue, TypeGame, TypeWebsocketClient
 
 
-class BaseCard(ABC):
+class AbstractCardFactory(ABC):
+    """An interface for creating card instances. Subclasses should 
+    implement the create_cards method to generate specific card types."""
+    
+    @abstractmethod
+    def create_cards(self, game: TypeGame) -> list[TypeAbstractCard]:
+        """Create a list of cards for the given game instance."""
+
+
+class AbstractCard(ABC):
     """Base class for all cards.
 
     Attributes:
@@ -14,7 +23,7 @@ class BaseCard(ABC):
         partial_resolve (bool): Indicates if the card is partially resolved.
     """
 
-    stack: list[TypeCard] = []
+    stack: list[TypeAbstractCard] = []
     owner: TypeWebsocketClient | None = None
 
     def __init__(self, game: TypeGame, name: str) -> None:
@@ -23,11 +32,11 @@ class BaseCard(ABC):
         self.card_id = str(uuid.uuid4())
         self._partial_resolve: bool = False
 
-    def __eq__(self, other: "BaseCard" | str) -> bool:
+    def __eq__(self, other: "AbstractCard" | str) -> bool:
         if isinstance(other, str):
             return self.card_id == other
         
-        if not isinstance(other, BaseCard):
+        if not isinstance(other, AbstractCard):
             return False
         
         return self.name == other.name and self.game == other.game and self.card_id == other.card_id
