@@ -6,14 +6,16 @@ from typings import CardResolutionActions, TypeAbstractCard, TypeGame
 
 
 class Soldier(AbstractCard):
+    requires_partial_resolution: bool = False
+
     def __init__(self, game: TypeGame) -> None:
-        super().__init__(game=game, name="Soldier")
+        super().__init__(game, 'Soldier')
 
     def partial_resolve(self) -> MustResolve:
         pass
 
     def resolve(self) -> None:
-        if self.partial_resolve:
+        if self.requires_partial_resolution:
             previous_card: TypeAbstractCard | None = self.game.card_queue.get_previous_card(self)
             next_card: TypeAbstractCard | None = self.game.card_queue.get_next_card(self)
             
@@ -33,8 +35,10 @@ class Soldier(AbstractCard):
 
 
 class Archer(AbstractCard):
+    requires_partial_resolution: bool = True
+
     def __init__(self, game: TypeGame) -> None:
-        super().__init__(game=game, name="Archer")
+        super().__init__(game, 'Archer')
 
     def partial_resolve(self) -> MustResolve:
         instance = MustResolve(
@@ -42,29 +46,29 @@ class Archer(AbstractCard):
             from_card=self
         )
 
-        first_card: TypeAbstractCard | None = self.game.card_queue.get_previous_card(self)
-        last_card: TypeAbstractCard | None = self.game.card_queue.get_next_card(self)
+        first_card: TypeAbstractCard | None = self.game.card_queue.get_first_card()
+        last_card: TypeAbstractCard | None = self.game.card_queue.get_last_card()
 
-        instance.on_previous_card = first_card
-        instance.on_next_card = last_card
+        instance.on_first_card = first_card
+        instance.on_last_card = last_card
 
         return instance
 
-    def resolve(self) -> bool:
+    async def resolve(self) -> bool:
         if self.game.card_queue.number_of_cards > 1:
-            if self._partial_resolve:
+            if self.requires_partial_resolution:
                 must_resolve: MustResolve = self.partial_resolve()
                 self.game.must_resolve_action(must_resolve)
                 return True
             else:
                 if self.game.must_resolve is not None:
                     # Eliminate the previous card from the queue
-                    if self.game.must_resolve.on_card == self.game.must_resolve.on_first_card:
-                        self.game.must_resolve_action(self.game.must_resolve.on_first_card)
+                    if self.game.must_resolve.user_selection == self.game.must_resolve.on_first_card:
+                        await self.game.must_resolve_action(self.game.must_resolve.on_first_card)
 
                     # Eliminate the next card from the queue
-                    if self.game.must_resolve.on_card == self.game.must_resolve.on_last_card:
-                        self.game.must_resolve_action(self.game.must_resolve.on_last_card)
+                    if self.game.must_resolve.user_selection == self.game.must_resolve.on_last_card:
+                        await self.game.must_resolve_action(self.game.must_resolve.on_last_card)
 
                 return True
         return False

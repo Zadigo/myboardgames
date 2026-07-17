@@ -82,6 +82,28 @@ class CardQueue[T = TypeAbstractCard](ABC):
         self._queue.remove(card)
         self.post_resolve()
 
+    def get_first_card(self) -> T:
+        """Return the first card in the queue.
+        
+        Raises:
+            IndexError: If the queue is empty.
+        """
+        if self.number_of_cards == 0:
+            raise IndexError("The queue is empty.")
+
+        return self._queue[0]
+    
+    def get_last_card(self) -> T:
+        """Return the last card in the queue.
+
+        Raises:
+            IndexError: If the queue is empty.
+        """
+        if self.number_of_cards == 0:
+            raise IndexError("The queue is empty.")
+        
+        return self._queue[-1]
+
     def get_previous_card(self, card: Optional[T]) -> Optional[T]:
         if self.number_of_cards < 2:
             return None

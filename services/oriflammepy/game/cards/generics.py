@@ -12,6 +12,7 @@ class CardColors(enum.Enum):
     RED = "red"
     YELLOW = "yellow"
     BLACK = "black"
+    GREEN = "green"
     
 
 
@@ -42,18 +43,19 @@ class AbstractCard(ABC):
         partial_resolve (bool): Indicates if the card is partially resolved.
         color (Optional[CardColors]): The color of the card.
         owner (Optional[TypeWebsocketClient]): The owner of the card, if any.
+        requires_partial_resolution (bool): Indicates if the user has to perform actions on the card in order for it to be fully resolved.
     """
 
     color: Optional[CardColors] = None
     stack: list[TypeAbstractCard] = []
     owner: TypeWebsocketClient | None = None
+    requires_partial_resolution: bool = False
 
     def __init__(self, game: TypeGame, name: str) -> None:
         self.game: TypeGame = game
         self.name: str = name
         self.card_id = str(uuid.uuid4())
         self.is_resolved = False
-        self._partial_resolve: bool = False
 
     def __eq__(self, other: "AbstractCard" | str) -> bool:
         if isinstance(other, str):
@@ -77,7 +79,7 @@ class AbstractCard(ABC):
         return self.owner is not None
 
     @abstractmethod
-    def resolve(self) -> bool:
+    async def resolve(self) -> bool:
         """Fully resolve the card's effect. This method should 
         be implemented by subclasses to define the specific behavior of 
         the card when it is resolved."""
@@ -100,8 +102,8 @@ class AbstractCard(ABC):
         """Add a card to the stack for resolution."""
         self.stack.append(card)
 
-    def resolve_stack(self) -> None:
+    async def resolve_stack(self) -> None:
         """Resolve the stack of cards one by one."""
         for card in reversed(self.stack):
-            card.resolve()
+            await card.resolve()
             break
