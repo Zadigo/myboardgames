@@ -21,13 +21,17 @@ class AbstractCardFactory(ABC):
 
     cards_classes: Sequence[TypeAbstractCard] = []
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self, game: TypeGame) -> None:
+        self.game: TypeGame = game
     
     @abstractmethod
-    def create_cards(self, game: TypeGame) -> Iterable[TypeAbstractCard]:
-        """Create a list of cards for the given game instance."""
+    def __iter__(self) -> Iterable[TypeAbstractCard]:
+        pass
 
+    def cards_from_color(self, color: CardColors) -> Iterable[TypeAbstractCard]:
+        """Generate card instances of a specific color."""
+        return list(filter(lambda card: card.color == color, self.__iter__()))
+    
 
 class AbstractCard(ABC):
     """Base class for all cards.
@@ -48,6 +52,7 @@ class AbstractCard(ABC):
         self.game: TypeGame = game
         self.name: str = name
         self.card_id = str(uuid.uuid4())
+        self.is_resolved = False
         self._partial_resolve: bool = False
 
     def __eq__(self, other: "AbstractCard" | str) -> bool:
@@ -63,6 +68,9 @@ class AbstractCard(ABC):
             self.card_id == other.card_id,
             self.color == other.color
         ])
+    
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} color={self.color}>"
 
     @property
     def has_owner(self) -> bool:
@@ -83,10 +91,14 @@ class AbstractCard(ABC):
     def can_resolve(self, card_queue: TypeCardQueue) -> bool:
         pass
 
-    def add_owner(self, owner: TypeWebsocketClient) -> None:
+    def set_owner(self, owner: TypeWebsocketClient) -> None:
         if self.has_owner:
             raise ValueError("Card already has an owner.")
         self.owner = owner
+
+    def add_to_stack(self, card: TypeAbstractCard) -> None:
+        """Add a card to the stack for resolution."""
+        self.stack.append(card)
 
     def resolve_stack(self) -> None:
         """Resolve the stack of cards one by one."""

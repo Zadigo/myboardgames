@@ -9,6 +9,9 @@ class Soldier(AbstractCard):
     def __init__(self, game: TypeGame) -> None:
         super().__init__(game=game, name="Soldier")
 
+    def partial_resolve(self) -> MustResolve:
+        pass
+
     def resolve(self) -> None:
         if self.partial_resolve:
             previous_card: TypeAbstractCard | None = self.game.card_queue.get_previous_card(self)
@@ -72,11 +75,11 @@ class StandardCardFactory(AbstractCardFactory):
 
     cards_classes: Sequence[TypeAbstractCard] = [Soldier, Archer]
 
-    def create_cards(self, game: TypeGame) -> Iterable[TypeAbstractCard]:
+    def __iter__(self) -> Iterable[TypeAbstractCard]:
         """Create a list of standard cards for the given game instance."""
-        colors = [color for color in CardColors.__members__.values()]
+        colors: list[CardColors] = [color for color in CardColors.__members__.values()]
         for color in colors:
             for item in self.cards_classes:
-                card_instance = item(game)
+                card_instance = item(self.game)
                 card_instance.color = color
                 yield card_instance
