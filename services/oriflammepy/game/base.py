@@ -78,13 +78,11 @@ class BaseGame(ABC):
     async def build_cards(self) -> None:
         pass
 
-    async def must_resolve_action(self, options: "MustResolve") -> None:
+    async def set_must_resolve(self, options: "MustResolve") -> None:
         self.must_resolve = options
         await self.send_message(
             f"Action required: {options.action} for card: {options.from_card.name}")
-
-
-
+        
 
 class Game(BaseGame):
     players: list[TypeWebsocketClient] = []

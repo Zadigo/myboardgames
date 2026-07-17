@@ -3,6 +3,8 @@ from abc import ABC, abstractmethod
 
 from fastapi import WebSocket
 
+from game import models
+
 
 class BaseWebsocketClient(ABC):
     def __init__(self, websocket: WebSocket) -> None:
@@ -17,23 +19,27 @@ class BaseWebsocketClient(ABC):
 
     @abstractmethod
     async def send(self, message: str) -> None:
-        pass
+        return NotImplemented
 
     @abstractmethod
-    async def receive(self) -> str:
-        pass
+    async def receive(self) -> models.WebsocketReceive:
+        return NotImplemented
 
     @abstractmethod
     async def close(self) -> None:
-        pass
+        return NotImplemented
 
 
 class WebsocketClient(BaseWebsocketClient):
+    total_points: int = 0
+    history: list[models.HistoryEntry] = []
+
     async def send(self, message: str) -> None:
         await self.websocket.send_text(message)
 
-    async def receive(self) -> str:
-        return await self.websocket.receive_text()
+    async def receive(self) -> models.WebsocketReceive:
+        data = await self.websocket.receive_json()
+        return models.WebsocketReceive(**data)
 
     async def close(self) -> None:
         await self.websocket.close()

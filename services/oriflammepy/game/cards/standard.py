@@ -55,23 +55,38 @@ class Archer(AbstractCard):
         return instance
 
     async def resolve(self) -> bool:
-        if self.game.card_queue.number_of_cards > 1:
-            if self.requires_partial_resolution:
-                must_resolve: MustResolve = self.partial_resolve()
-                self.game.must_resolve_action(must_resolve)
-                return True
-            else:
-                if self.game.must_resolve is not None:
-                    # Eliminate the previous card from the queue
-                    if self.game.must_resolve.user_selection == self.game.must_resolve.on_first_card:
-                        await self.game.must_resolve_action(self.game.must_resolve.on_first_card)
+        """
+        Resolve the Archer card by eliminating the first or last card in the queue 
+        if user selection is provided.
+        
+        Raises:
+            ValueError: If user selection is required but not provided, or if there are no valid cards to eliminate.
+        """
+        super().pre_resolve()
 
-                    # Eliminate the next card from the queue
-                    if self.game.must_resolve.user_selection == self.game.must_resolve.on_last_card:
-                        await self.game.must_resolve_action(self.game.must_resolve.on_last_card)
+        result = True
 
-                return True
-        return False
+        if self.requires_partial_resolution and self.game.must_resolve is None:
+            must_resolve: MustResolve = self.partial_resolve()
+            await self.game.set_must_resolve(must_resolve)
+        else:
+            if self.game.must_resolve.user_selection is None:
+                raise ValueError("User selection is required for resolution.")
+            
+            if self.game.must_resolve.on_first_card is None and self.game.must_resolve.on_last_card is None:
+                raise ValueError("No valid cards to eliminate for resolution.")
+            
+            # Eliminate the previous card from the queue
+            if self.game.must_resolve.user_selection == self.game.must_resolve.on_first_card:
+                self.game.card_queue.remove_card(self.game.must_resolve.on_first_card)
+
+            # Eliminate the next card from the queue
+            if self.game.must_resolve.user_selection == self.game.must_resolve.on_last_card:
+                self.game.card_queue.remove_card(self.game.must_resolve.on_last_card)
+
+        self.resolve_side_effects()
+        self.game.card_queue.post_resolve()
+        return result
     
 
 class StandardCardFactory(AbstractCardFactory):

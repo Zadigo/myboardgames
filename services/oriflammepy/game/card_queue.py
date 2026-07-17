@@ -13,12 +13,14 @@ class CardQueue[T = TypeAbstractCard](ABC):
         current_index (int): The index of the current card being resolved.
         _queue (deque): A deque to hold the cards in the queue.
         game (TypeGame): The game instance associated with the queue.
+        removed_cards (list): A list to keep track of cards that have been removed from the queue.
     """
 
     def __init__(self, game: TypeGame) -> None:
         self.current_index : int = 0
         self._queue: deque[T] = deque()
         self.game: TypeGame = game
+        self.removed_cards: list[T] = []
 
     def __iter__(self) -> Iterator[T]:
         return iter(self._queue)
@@ -62,7 +64,7 @@ class CardQueue[T = TypeAbstractCard](ABC):
         return NotImplemented
     
     @abstractmethod
-    def resolve(self) -> bool:
+    def resolve_index(self) -> bool:
         """Resolves each card one by one in the queue."""
         return NotImplemented
     
@@ -73,14 +75,15 @@ class CardQueue[T = TypeAbstractCard](ABC):
     def post_resolve(self) -> None:
         """Perform any post-resolution actions."""
         self.game.must_resolve = None
+        self.increase_current_index()
 
     def remove_card(self, card: Optional[T]) -> None:
         if card is None:
             return
         
         card_index: int = self._queue.index(card)
+        self.removed_cards.append(self._queue[card_index])
         self._queue.remove(card)
-        self.post_resolve()
 
     def get_first_card(self) -> T:
         """Return the first card in the queue.
@@ -143,7 +146,7 @@ class Queue(CardQueue[TypeAbstractCard]):
         
         card.stack.append(card_to_stack)
 
-    def resolve(self) -> bool:
+    def resolve_index(self) -> bool:
         state: bool = self.current_card.resolve()
         self.increase_current_index()
         return state

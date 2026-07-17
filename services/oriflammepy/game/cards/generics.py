@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from typing import Iterable, Optional, Sequence
 
 from game.utils.base import MustResolve
-from typings import TypeAbstractCard, TypeCardQueue, TypeGame, TypeWebsocketClient
+from typings import CardResolutionActions, TypeAbstractCard, TypeGame, TypeWebsocketClient
 
 
 class CardColors(enum.Enum):
@@ -14,7 +14,9 @@ class CardColors(enum.Enum):
     BLACK = "black"
     GREEN = "green"
     
-
+class Cardtypes(enum.Enum):
+    CHARACTER = "character"
+    INTRIGUE = "intrigue"
 
 class AbstractCardFactory(ABC):
     """An interface for creating card instances. Subclasses should 
@@ -37,11 +39,16 @@ class AbstractCardFactory(ABC):
 class AbstractCard(ABC):
     """Base class for all cards.
 
+    Args:
+        game (TypeGame): The game instance the card belongs to.
+        name (str): The name of the card.
+
     Attributes:
         game (TypeGame): The game instance the card belongs to.
         name (str): The name of the card.
         partial_resolve (bool): Indicates if the card is partially resolved.
         color (Optional[CardColors]): The color of the card.
+        tokens (int): The number of tokens on the card.
         owner (Optional[TypeWebsocketClient]): The owner of the card, if any.
         requires_partial_resolution (bool): Indicates if the user has to perform actions on the card in order for it to be fully resolved.
     """
@@ -50,6 +57,8 @@ class AbstractCard(ABC):
     stack: list[TypeAbstractCard] = []
     owner: TypeWebsocketClient | None = None
     requires_partial_resolution: bool = False
+    tokens: int = 0
+    card_type: Cardtypes = Cardtypes.CHARACTER
 
     def __init__(self, game: TypeGame, name: str) -> None:
         self.game: TypeGame = game
@@ -87,11 +96,43 @@ class AbstractCard(ABC):
     @abstractmethod
     def partial_resolve(self) -> MustResolve:
         """A partial resolution is a resolution that requires 
-        further action from the player. It return a MustResolve 
+        further action from the player. It returns a MustResolve 
         object that describes the action required to continue."""
 
-    def can_resolve(self, card_queue: TypeCardQueue) -> bool:
-        pass
+    def resolve_side_effects(self) -> None:
+        """Resolve any side effects that occur when the card is resolved. 
+        This method should be implemented by subclasses to define any 
+        additional effects that occur as a result of resolving the card."""
+        if self.tokens > 0:
+            self.owner.total_points += self.tokens
+            self.tokens = 0
+
+        if self.game.must_resolve is not None and self.game.must_resolve.action == CardResolutionActions.REMOVE_CARD.value:
+            self.owner.total_points += 1  # Award a point for eliminating a card
+            
+        # Intrigue cards are removed from the queue 
+        # after resolution
+        if self.card_type == Cardtypes.INTRIGUE:
+            self.game.card_queue.remove_card(self)
+
+    def pre_resolve(self) -> None:
+        """A pre-resolution is a resolution that occurs before 
+        the card is fully resolved. It can be used to set up 
+        any necessary state or conditions before the card's 
+        effect is applied.
+        
+        Raises:
+            ValueError: If there is not exactly one card in the queue or if there is a pending must-resolve action.
+        """
+        if self.game.card_queue.number_of_cards < 1:
+            raise ValueError("Resolution is only applicable when there is one card in the queue.")
+        
+        # if self.game.must_resolve is not None:
+        #     raise ValueError("Cannot pre-resolve when there is a pending must-resolve action.")
+
+    def add_token(self) -> None:
+        """Add a token to the card."""
+        self.tokens += 1
 
     def set_owner(self, owner: TypeWebsocketClient) -> None:
         if self.has_owner:

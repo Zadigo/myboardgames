@@ -72,19 +72,21 @@ def test_partial_resolution_in_last_position(game_fixture: Game) -> None:
     assert must_resolve.on_last_card is not None
 
 
+async def test_resolve_no_user_selection(game_fixture: Game) -> None:
+    card = game_fixture.card_queue._queue[1]
+
+    with pytest.raises(ValueError):
+        await card.resolve()
+        await card.resolve()
+    
+
 async def test_resolve(game_fixture: Game) -> None:
     card = game_fixture.card_queue._queue[1]
 
-    assert card.requires_partial_resolution is True
-    assert card is not None
+    await card.resolve()  # Call resolve() to set up must_resolve
 
-    # Simulate the resolution process
-    must_resolve: MustResolve = card.partial_resolve()
-    assert must_resolve is not None
-
-    # Simulate user selection of the first card to eliminate
-    must_resolve.user_selection = must_resolve.on_first_card
-
-    # Call resolve and check if it returns True (indicating further action is required)
-    result = await card.resolve()
+    game_fixture.must_resolve.user_selection = game_fixture.card_queue._queue[0].card_id  # Simulate user selecting the first card to eliminate
+    
+    # Call resolve again to test the elimination of the first card
+    result: bool = await card.resolve()
     assert result is True
