@@ -1,16 +1,31 @@
+import enum
 import uuid
 from abc import ABC, abstractmethod
+from typing import Iterable, Optional, Sequence
 
 from game.utils.base import MustResolve
 from typings import TypeAbstractCard, TypeCardQueue, TypeGame, TypeWebsocketClient
 
 
+class CardColors(enum.Enum):
+    BLUE = "blue"
+    RED = "red"
+    YELLOW = "yellow"
+    BLACK = "black"
+    
+
+
 class AbstractCardFactory(ABC):
     """An interface for creating card instances. Subclasses should 
     implement the create_cards method to generate specific card types."""
+
+    cards_classes: Sequence[TypeAbstractCard] = []
+
+    def __init__(self) -> None:
+        pass
     
     @abstractmethod
-    def create_cards(self, game: TypeGame) -> list[TypeAbstractCard]:
+    def create_cards(self, game: TypeGame) -> Iterable[TypeAbstractCard]:
         """Create a list of cards for the given game instance."""
 
 
@@ -21,8 +36,11 @@ class AbstractCard(ABC):
         game (TypeGame): The game instance the card belongs to.
         name (str): The name of the card.
         partial_resolve (bool): Indicates if the card is partially resolved.
+        color (Optional[CardColors]): The color of the card.
+        owner (Optional[TypeWebsocketClient]): The owner of the card, if any.
     """
 
+    color: Optional[CardColors] = None
     stack: list[TypeAbstractCard] = []
     owner: TypeWebsocketClient | None = None
 
@@ -39,7 +57,12 @@ class AbstractCard(ABC):
         if not isinstance(other, AbstractCard):
             return False
         
-        return self.name == other.name and self.game == other.game and self.card_id == other.card_id
+        return all([
+            self.name == other.name,
+            self.game == other.game,
+            self.card_id == other.card_id,
+            self.color == other.color
+        ])
 
     @property
     def has_owner(self) -> bool:

@@ -1,4 +1,6 @@
-from game.cards.generics import AbstractCard
+from typing import Iterable, Sequence
+from game.cards.generics import CardColors
+from game.cards.generics import AbstractCard, AbstractCardFactory
 from game.utils.base import MustResolve
 from typings import CardResolutionActions, TypeAbstractCard, TypeGame
 
@@ -63,12 +65,18 @@ class Archer(AbstractCard):
 
                 return True
         return False
-
-
-class StandardCardFactory:
-    """A factory class to create standard cards for the game."""
     
-    @staticmethod
-    def create_cards(game: TypeGame) -> list[TypeAbstractCard]:
+
+class StandardCardFactory(AbstractCardFactory):
+    """A factory class to create standard cards for the game."""
+
+    cards_classes: Sequence[TypeAbstractCard] = [Soldier, Archer]
+
+    def create_cards(self, game: TypeGame) -> Iterable[TypeAbstractCard]:
         """Create a list of standard cards for the given game instance."""
-        return [Soldier(game), Archer(game)]
+        colors = [color for color in CardColors.__members__.values()]
+        for color in colors:
+            for item in self.cards_classes:
+                card_instance = item(game)
+                card_instance.color = color
+                yield card_instance
