@@ -110,3 +110,28 @@ def test_increase_current_index(game_fixture: Game, factory_fixture: StandardCar
 
     current_card: AbstractCard | None = queue.current_card
     assert current_card is not None
+
+
+def test_resolve(game_fixture: Game, factory_fixture: StandardCardFactory) -> None:
+    queue = Queue(game_fixture)
+
+    cards: Iterable[AbstractCard] = list(iter(factory_fixture))
+    selected_cards: list[AbstractCard] = random.sample(cards, 3)
+
+    queue.append_card(selected_cards[0])
+    queue.append_card(selected_cards[1])
+    queue.append_card(selected_cards[2])
+
+    assert queue.current_index == 0
+
+    state: bool = queue.resolve()
+    assert state is True
+    assert queue.current_index == 1
+
+    state: bool = queue.resolve()
+    assert state is True
+    assert queue.current_index == 2
+
+    state: bool = queue.resolve()
+    assert state is True
+    assert queue.current_index == 0

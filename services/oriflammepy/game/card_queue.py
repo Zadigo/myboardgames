@@ -57,8 +57,13 @@ class CardQueue[T = TypeAbstractCard](ABC):
         return NotImplemented
 
     @abstractmethod
-    def stack_card(self, card: T) -> None:
+    def stack_card(self, card_to_use: T, card_to_stack: T) -> None:
         """Stacks a card on top of another card in the queue."""
+        return NotImplemented
+    
+    @abstractmethod
+    def resolve(self) -> bool:
+        """Resolves each card one by one in the queue."""
         return NotImplemented
     
     def increase_current_index(self) -> None:
@@ -115,3 +120,8 @@ class Queue(CardQueue[TypeAbstractCard]):
             raise ValueError("Cannot stack cards of different colors.")
         
         card.stack.append(card_to_stack)
+
+    def resolve(self) -> bool:
+        state: bool = self.current_card.resolve()
+        self.increase_current_index()
+        return state
