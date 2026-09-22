@@ -1,10 +1,7 @@
 package games
 
 import (
-	"sync"
-
-	"github.com/Zadigo/basegame/internal/models"
-	"github.com/google/uuid"
+	"github.com/Zadigo/basegame/internal/utils"
 	"github.com/gorilla/websocket"
 )
 
@@ -13,41 +10,12 @@ import (
 // abstraction over the raw websocket connection, allowing for
 // easier message handling and communication with the client.
 type WebsocketClient struct {
-	Uuid   string          `json:"uuid"`
+	utils.BaseWebsocketClient
 	Player *Player         `json:"player"`
-	conn   *websocket.Conn `json:"-"`
-	mu     sync.Mutex      `json:"-"`
-	// The send channel is used to queue messages that need to
-	// be sent to the client.
-	send chan models.WebsocketMessage `json:"-"`
-}
-
-func (c *WebsocketClient) GetUuid() string {
-	return c.Uuid
-}
-
-func (c *WebsocketClient) SetConn(conn *websocket.Conn) {
-	c.conn = conn
-}
-
-func (c *WebsocketClient) GetConn() *websocket.Conn {
-	return c.conn
-}
-
-func (c *WebsocketClient) SendJsonMessage(message models.WebsocketMessage) error {
-	return c.conn.WriteJSON(message)
-}
-
-func (c *WebsocketClient) ReceiveJsonMessage() (models.WebsocketMessage, error) {
-	var message models.WebsocketMessage
-	err := c.conn.ReadJSON(&message)
-	return message, err
 }
 
 func NewWebsocketClient(conn *websocket.Conn) *WebsocketClient {
-	return &WebsocketClient{
-		Uuid:   uuid.NewString(),
-		conn:   conn,
-		Player: &Player{},
-	}
+	client := &WebsocketClient{}
+	client.Setup(conn)
+	return client
 }
