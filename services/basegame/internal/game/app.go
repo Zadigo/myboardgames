@@ -26,6 +26,10 @@ func (app *GamesMiniServer) SetContext(ctx context.Context) {
 func (app *GamesMiniServer) Start() error {
 	app.IsRunning.Store(true)
 
+	if app.serverApp == nil {
+		log.Fatal("❌ Server app is not initialized")
+	}
+
 	gameType := app.ctx.Value("gameType").(string)
 	log.Printf("🔵 Starting %s game mini-server...", gameType)
 

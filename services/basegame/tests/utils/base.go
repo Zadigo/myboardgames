@@ -22,7 +22,7 @@ func NewRecorder(t *testing.T, method, path string, handler http.HandlerFunc) (*
 	server := httptest.NewServer(handler)
 
 	recorder := httptest.NewRecorder()
-	request := httptest.NewRequest(method, path, nil)
+	request := httptest.NewRequest(method, path, strings.NewReader(`{"gameType": "standard"}`))
 
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("Accept", "application/json")
@@ -59,6 +59,9 @@ func NewWebsocketRecorder(t *testing.T, path string, handler http.HandlerFunc) (
 
 func NewCreateRecorder(t *testing.T) (*httptest.Server, *httptest.ResponseRecorder) {
 	handle := handlers.GenericHandler{}
+
+	// handle.SetApp()
+
 	return NewRecorder(t, "POST", "/create", handle.CreateGameHandler)
 }
 

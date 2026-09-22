@@ -17,6 +17,8 @@ func (suite *SuccessHandlerSuite) TestCreateGameHandler() {
 	server, recorder := utils.NewCreateRecorder(suite.T())
 	defer server.Close()
 
+	utils.CheckResponse(suite.T(), recorder)
+
 	suite.NotNil(server)
 	suite.NotNil(recorder)
 }

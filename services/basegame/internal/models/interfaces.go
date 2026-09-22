@@ -25,9 +25,12 @@ type AppInterface interface {
 }
 
 type ServerAppInterface interface {
-	JoinGame(conn *websocket.Conn, gameUUID string) error
+	// JoinGame allows a player to join a specific game instance.
+	JoinGame(conn *websocket.Conn, gameType string, gameUUID string) error
+	// CreateGame allows the creation of a new game instance of a specific type.
 	CreateGame(gameType string) (newGame GameInterface, err error)
-	// GetGame(gameId string) games.GameInterface
+	// GetMiniServer(gameType string) *game.GamesMiniServer
+	// GetAllMiniServers() map[string]*game.GamesMiniServer
 }
 
 type PlayerInterface interface {
@@ -56,6 +59,7 @@ type GameInterface interface {
 	// It checks if the game instance is properly initialized, prepares the game state,
 	// and then starts the game logic.
 	Start() error
+	// Stop terminates the game instance, performing any necessary cleanup and ensuring that the game is properly closed.
 	Stop() error
 	// AddPlayer adds a new player to the game. It takes a WebsocketClient representing the player
 	// CreateCards initializes the card deck for the game,
@@ -81,9 +85,13 @@ type GameInterface interface {
 	// or an error if the player does not exist in the game. This method is useful for
 	// managing player interactions and accessing player-specific information during gameplay.
 	GetPlayer(playerUuid string) (WebsocketClientInterface, error)
+	// GetCurrentPlayer retrieves the player whose turn it is currently in the game.
 	GetCurrentPlayer() (WebsocketClientInterface, error)
+	// SetCurrentPlayer sets the player whose turn it is currently in the game.
 	SetCurrentPlayer(clientUuid string) error
+	// NextRound advances the game to the next round, updating the game state accordingly.
 	NextRound()
+	// NotifyAll sends a notification to all players in the game, typically used to broadcast game events or updates.
 	NotifyAll()
 	// SetOptions sets the game options for the game instance. It takes a GameAppOptions struct
 	// containing configuration settings and parameters for the game. This method allows

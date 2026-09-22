@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 
+	"github.com/Zadigo/basegame/internal/game/games"
 	"github.com/Zadigo/basegame/internal/models"
 	"github.com/gorilla/websocket"
 )
@@ -31,7 +32,7 @@ func GameMessageProcessor(options ProcessorOptions) {
 	switch options.Message.Action {
 	case models.JOIN:
 		// Handle join game logic here
-		options.App.GetServerApp().JoinGame(options.Conn, gameId.(string))
+		options.App.GetServerApp().JoinGame(options.Conn, games.STANDARD, gameId.(string))
 	case models.START_GAME:
 		// Handle start game logic here
 		// options.App.GetServerApp().NotifyAll("game-uuid")

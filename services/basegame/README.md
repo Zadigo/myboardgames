@@ -72,6 +72,20 @@ G ->> ()UO: End game
 G ->> ()UA: End game
 G ->> ()U: End game
 end
+```
 
+## Commands
 
+```Shell
+# Cover
+go test -cover .
+
+# Export a profile map
+go test -coverprofile=coverage.out .
+
+# Function by function
+go tool cover -func=coverage.out
+
+# Browser
+go tool cover -html=coverage.out
 ```

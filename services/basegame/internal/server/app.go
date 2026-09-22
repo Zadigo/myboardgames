@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"io/fs"
 	"log"
 	"os"
@@ -26,8 +27,8 @@ type ServerApp struct {
 	ctx         context.Context
 	rootDir     string
 	redisClient *redis.Client
-	GameApp     *game.GamesMiniServer
 	httpApp     models.AppInterface
+	miniServers map[string]*game.GamesMiniServer
 }
 
 func (s *ServerApp) Start() error {
@@ -75,19 +76,28 @@ func (s *ServerApp) Start() error {
 	// Start the game server application
 	miniServerErrs := make(chan error)
 
+	// Create two mini-servers: one for the standard game and 
+	// one for the extension game. These mini-servers encapsulate
+	// all the games of a particular type, allowing for isolated 
+	// management and execution of each game variant.
+
 	go func() {
 		ctx := context.WithValue(s.ctx, "gameType", games.STANDARD)
 		gameCtx, cancel := context.WithCancel(ctx)
 		defer cancel()
 
-		gameApp := game.NewGamesMiniServer(gameCtx, models.GameAppOptions{
-			GameType: games.STANDARD,
-			Debug:    debug,
-			AppOptions: models.AppOptions{
-				ServerApp:   s,
-				RedisClient: s.redisClient,
+		gameApp := game.NewGamesMiniServer(
+			gameCtx,
+			models.GameAppOptions{
+				GameType: games.STANDARD,
+				Debug:    debug,
+				AppOptions: models.AppOptions{
+					ServerApp:   s,
+					RedisClient: s.redisClient,
+				},
 			},
-		})
+		)
+		s.miniServers[games.STANDARD] = gameApp
 		miniServerErrs <- gameApp.Start()
 	}()
 
@@ -96,14 +106,18 @@ func (s *ServerApp) Start() error {
 		gameCtx, cancel := context.WithCancel(ctx)
 		defer cancel()
 
-		gameApp := game.NewGamesMiniServer(gameCtx, models.GameAppOptions{
-			GameType: games.EXTENSION,
-			Debug:    debug,
-			AppOptions: models.AppOptions{
-				ServerApp:   s,
-				RedisClient: s.redisClient,
+		gameApp := game.NewGamesMiniServer(
+			gameCtx, 
+			models.GameAppOptions{
+				GameType: games.EXTENSION,
+				Debug:    debug,
+				AppOptions: models.AppOptions{
+					ServerApp:   s,
+					RedisClient: s.redisClient,
+				},
 			},
-		})
+		)
+		s.miniServers[games.EXTENSION] = gameApp
 		miniServerErrs <- gameApp.Start()
 	}()
 
@@ -136,20 +150,29 @@ func (s *ServerApp) Start() error {
 	return nil
 }
 
-func (s *ServerApp) JoinGame(conn *websocket.Conn, gameId string) error {
-	game, err := s.GameApp.GetGame(gameId)
+func (s *ServerApp) JoinGame(conn *websocket.Conn, gameType string, gameId string) error {
+	miniServer := s.miniServers[gameType]
+	game, err := miniServer.GetGame(gameId)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to get game server for gameType %s and gameId %s. %s", gameType, gameId, err)
 	}
 
-	return game.AddPlayer(games.NewWebsocketClient(conn))
+	err = game.AddPlayer(games.NewWebsocketClient(conn))
+	if err != nil {
+		return fmt.Errorf("Failed to add player to game %s: %s", gameId, err)
+	}
+
+	return nil
 }
 
 func (s *ServerApp) CreateGame(gameType string)  (gameApp models.GameInterface, err error) {
-	newGame := s.GameApp.CreateGame(models.GameAppOptions{
+	miniServer := s.miniServers[gameType]
+	debug := s.ctx.Value("debug").(bool)
+
+	newGame := miniServer.CreateGame(models.GameAppOptions{
 		GameType: gameType,
-		Debug:    s.ctx.Value("debug").(bool),
+		Debug:    debug,
 		AppOptions: models.AppOptions{
 			ServerApp:   s,
 			RedisClient: s.redisClient,
@@ -158,8 +181,17 @@ func (s *ServerApp) CreateGame(gameType string)  (gameApp models.GameInterface, 
 	return newGame, nil
 }
 
+func (s *ServerApp) GetMiniServer(gameType string) *game.GamesMiniServer {
+	return s.miniServers[gameType]
+}
+
+func (s *ServerApp) GetAllMiniServers() map[string]*game.GamesMiniServer {
+	return s.miniServers
+}
+
 func NewServerApp(ctx context.Context) *ServerApp {
 	return &ServerApp{
-		ctx: ctx,
+		ctx:        ctx,
+		miniServers: make(map[string]*game.GamesMiniServer),
 	}
 }
