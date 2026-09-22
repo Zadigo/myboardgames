@@ -1,13 +1,16 @@
 package cards
 
-import "github.com/google/uuid"
+import (
+	"github.com/Zadigo/basegame/internal/models"
+	"github.com/google/uuid"
+)
 
 type StandardSpecialCardsFactory struct {
 }
 
-func (j *StandardSpecialCardsFactory) CreateCards() []CardInterface {
+func (j *StandardSpecialCardsFactory) CreateCards() []models.CardInterface {
 	names := []string{OPERATION_FREEZE, OPERATION_FLIP3, OPERATION_SECOND_CHANCE}
-	cards := []CardInterface{}
+	cards := []models.CardInterface{}
 
 	for _, name := range names {
 		for range 3 {

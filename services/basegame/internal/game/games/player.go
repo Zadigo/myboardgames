@@ -1,6 +1,8 @@
 package games
 
-import "github.com/Zadigo/basegame/internal/game/cards"
+import (
+	"github.com/Zadigo/basegame/internal/models"
+)
 
 type GameSpecific struct {
 	// Indicates that the player was stopped by the freeze card
@@ -9,7 +11,7 @@ type GameSpecific struct {
 	IsFrozen bool `json:"isFreezed"`
 	// The score of the player in each round played by the player
 	// Scores []int `json:"scores"`
-	Cards []cards.CardInterface `json:"cards"`
+	Cards []models.CardInterface `json:"cards"`
 }
 
 func (g *GameSpecific) GetNumberOfCards() int {
@@ -24,14 +26,26 @@ type Player struct {
 	IsInitiator bool `json:"isInitiator"`
 }
 
-func (p *Player) GetCards() []cards.CardInterface {
+func (p *Player) GetCards() []models.CardInterface {
 	return p.Cards
+}
+
+func (p *Player) SetCards(cards []models.CardInterface) {
+	p.Cards = cards
 }
 
 func (p *Player) GetTotalScore() int {
 	total := 0
 	for _, card := range p.Cards {
-		total += card.Resolve(total, cards.CardResolveOptions{})
+		total += card.Resolve(total, models.CardResolveOptions{})
 	}
 	return total
+}
+
+func (p *Player) GetIsFrozen() bool {
+	return p.IsFrozen
+}
+
+func (p *Player) SetIsFrozen(frozen bool) {
+	p.IsFrozen = frozen
 }

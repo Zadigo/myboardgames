@@ -1,12 +1,15 @@
 package cards
 
-import "github.com/google/uuid"
+import (
+	"github.com/Zadigo/basegame/internal/models"
+	"github.com/google/uuid"
+)
 
 type StandardCardFactory struct {
 }
 
-func (s *StandardCardFactory) CreateCards() []CardInterface {
-	cards := []CardInterface{}
+func (s *StandardCardFactory) CreateCards() []models.CardInterface {
+	cards := []models.CardInterface{}
 
 	for i := range 12 {
 		cards = append(cards, &BaseCard{

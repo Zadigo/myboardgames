@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/Zadigo/basegame/internal/game/games"
+	"github.com/Zadigo/basegame/internal/models"
 	"github.com/Zadigo/basegame/internal/utils"
 )
 
@@ -31,22 +32,27 @@ func (g *GenericHandler) CreateGameHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	var newGame models.GameInterface
+	var err error
+
 	if body.GameType == games.STANDARD {
-		err := g.app.GetServerApp().CreateGame(games.STANDARD)
-		if err != nil {
-			utils.JsonResponse(w, map[string]string{"error": err.Error()}, http.StatusInternalServerError)
-			return
-		}
+		newGame, err = g.app.GetServerApp().CreateGame(games.STANDARD)
 	}
 
 	if body.GameType == games.EXTENSION {
-		err := g.app.GetServerApp().CreateGame(games.EXTENSION)
-		if err != nil {
-			utils.JsonResponse(w, map[string]string{"error": err.Error()}, http.StatusInternalServerError)
-			return
-		}
+		newGame, err = g.app.GetServerApp().CreateGame(games.EXTENSION)
+	}
+
+	if err != nil {
+		utils.JsonResponse(w, map[string]string{"error": err.Error()}, http.StatusInternalServerError)
+		return
+	}
+
+	if newGame == nil {
+		utils.JsonResponse(w, map[string]string{"error": "Failed to create game"}, http.StatusInternalServerError)
+		return
 	}
 
 	// TODO: Implement the logic for creating a game
-	utils.JsonResponse(w, map[string]string{"status": "ok", "gameType": body.GameType}, http.StatusOK)
+	utils.JsonResponse(w, map[string]string{"status": "ok", "gameType": body.GameType, "gameUUID": newGame.GetUuid()}, http.StatusOK)
 }

@@ -3,7 +3,6 @@ package tests
 import (
 	"testing"
 
-	"github.com/Zadigo/basegame/internal/game/cards"
 	"github.com/Zadigo/basegame/internal/game/games"
 	"github.com/Zadigo/basegame/internal/models"
 	"github.com/Zadigo/basegame/tests/utils"
@@ -22,7 +21,7 @@ func TestDrawCardFromPileFlip3(t *testing.T) {
 	assert.True(t, app.MustResolve)
 
 	score := 0
-	score = result.Resolve(score, cards.CardResolveOptions{})
+	score = result.Resolve(score, models.CardResolveOptions{})
 
 	assert.Equal(t, 0, score)
 }

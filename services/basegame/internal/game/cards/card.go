@@ -1,6 +1,10 @@
 package cards
 
-import "slices"
+import (
+	"slices"
+
+	"github.com/Zadigo/basegame/internal/models"
+)
 
 const (
 	STANDARD_CARD         = "standard"
@@ -23,16 +27,6 @@ const (
 	OPERATION_SECOND_CHANCE = "second_chance"
 )
 
-// Additional options that may be needed
-// for resolving card effects in the future
-// useful for special cards that may have
-// more complex effects
-type CardResolveOptions struct {
-	// Uuid of the player to whom the
-	// card effect is being applied, if applicable
-	ToPlayer string
-}
-
 type BaseCard struct {
 	Uuid         string `json:"uuid"`
 	CardType     string `json:"cardType"`
@@ -45,7 +39,7 @@ func (b *BaseCard) GetUuid() string {
 	return b.Uuid
 }
 
-func (b *BaseCard) Resolve(currentScore int, options CardResolveOptions) int {
+func (b *BaseCard) Resolve(currentScore int, options models.CardResolveOptions) int {
 	newScore := currentScore
 
 	switch b.CardOperator {

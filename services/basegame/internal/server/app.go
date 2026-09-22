@@ -146,8 +146,8 @@ func (s *ServerApp) JoinGame(conn *websocket.Conn, gameId string) error {
 	return game.AddPlayer(games.NewWebsocketClient(conn))
 }
 
-func (s *ServerApp) CreateGame(gameType string)  (gameApp games.GameInterface, err error) {
-	newGame :=s.GameApp.CreateGame(models.GameAppOptions{
+func (s *ServerApp) CreateGame(gameType string)  (gameApp models.GameInterface, err error) {
+	newGame := s.GameApp.CreateGame(models.GameAppOptions{
 		GameType: gameType,
 		Debug:    s.ctx.Value("debug").(bool),
 		AppOptions: models.AppOptions{

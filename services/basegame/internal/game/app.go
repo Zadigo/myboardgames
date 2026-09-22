@@ -9,11 +9,11 @@ import (
 	"github.com/Zadigo/basegame/internal/models"
 )
 
-// GamesMiniServer is a lightweight server that manages multiple 
+// GamesMiniServer is a lightweight server that manages multiple
 // game instances for a given type of game (e.g., standard or extension).
 type GamesMiniServer struct {
 	ctx       context.Context                `json:"-"`
-	Games     map[string]games.GameInterface `json:"game"`
+	Games     map[string]models.GameInterface `json:"game"`
 	serverApp models.ServerAppInterface      `json:"-"`
 	IsRunning atomic.Bool                    `json:"-"`
 }
@@ -43,14 +43,14 @@ func (app *GamesMiniServer) Stop() error {
 }
 
 // CreateGame creates a new game instance based on the provided options and adds it to the GamesMiniServer's managed games.
-func (app *GamesMiniServer) CreateGame(options models.GameAppOptions) games.GameInterface {
+func (app *GamesMiniServer) CreateGame(options models.GameAppOptions) models.GameInterface {
 	game := games.CreateGame(app.ctx, options)
 	app.Games[game.GetUuid()] = game
 	return game
 }
 
 // GetGame retrieves a game instance by its unique identifier (gameId) from the GamesMiniServer's managed games.
-func (app *GamesMiniServer) GetGame(gameId string) (games.GameInterface, error) {
+func (app *GamesMiniServer) GetGame(gameId string) (models.GameInterface, error) {
 	handler := games.StandardGameError{}
 
 	game, exists := app.Games[gameId]
@@ -71,6 +71,6 @@ func NewGamesMiniServer(ctx context.Context, options models.GameAppOptions) *Gam
 		ctx:       miniServerCtx,
 		IsRunning: atomic.Bool{},
 		serverApp: options.ServerApp,
-		Games:     map[string]games.GameInterface{},
+		Games:     map[string]models.GameInterface{},
 	}
 }

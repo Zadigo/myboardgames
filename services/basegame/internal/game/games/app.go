@@ -19,7 +19,7 @@ type GameApp struct {
 	Uuid              string                      `json:"uuid"`
 	CurrentRound      int                         `json:"currentRound"`
 	CardPile          *cards.CardPile             `json:"cardPile"`
-	Players           map[string]*WebsocketClient `json:"players"`
+	Players           map[string]models.WebsocketClientInterface `json:"players"`
 	CurrentPlayerUuid string                      `json:"currentPlayerIndex"`
 	IsRunning         atomic.Bool                 `json:"isRunning"`
 	// An action or an event must be resolved before the game can continue.
@@ -54,7 +54,7 @@ func (app *GameApp) Stop() error {
 	return nil
 }
 
-func (app *GameApp) GetCurrentPlayer() (client *WebsocketClient, err error) {
+func (app *GameApp) GetCurrentPlayer() (client models.WebsocketClientInterface, err error) {
 	if app.CurrentPlayerUuid == "" {
 		return nil, fmt.Errorf("❌ Current player UUID is not set")
 	}
@@ -80,7 +80,7 @@ func (app *GameApp) SetCurrentPlayer(clientUuid string) error {
 	return nil
 }
 
-func (app *GameApp) AddPlayer(client *WebsocketClient) error {
+func (app *GameApp) AddPlayer(client models.WebsocketClientInterface) error {
 	if client == nil {
 		return fmt.Errorf("❌ Player is nil")
 	}
@@ -123,7 +123,9 @@ func (app *GameApp) DrawCardFromPile() error {
 	}
 
 	// Add the drawn card to the player's hand
-	player.Player.Cards = append(player.Player.Cards, newCard)
+	playerCards := player.GetPlayer().GetCards()
+	playerCards = append(playerCards, newCard)
+	player.GetPlayer().SetCards(playerCards)
 
 	// Additional logic to handler
 	// once the function is complete
@@ -136,7 +138,7 @@ func (app *GameApp) DrawCardFromPile() error {
 		// Recalculate the points for each player
 		// after a card has been drawn
 		for _, player := range app.Players {
-			totalScore := player.Player.GetTotalScore()
+			totalScore := player.GetPlayer().GetTotalScore()
 			app.Scores[player.GetUuid()] = totalScore
 		}
 	}()
@@ -144,39 +146,41 @@ func (app *GameApp) DrawCardFromPile() error {
 	// Map the other types of special cards that can be resolved
 	// later on in the game (e.g. second chance)
 	otherSpecialCards := map[string]bool{}
-	for _, cardInHand := range player.Player.GetCards() {
+	for _, cardInHand := range player.GetPlayer().GetCards() {
 		if cardInHand.IsSpecial() {
 			otherSpecialCards[cardInHand.GetOperator()] = true
 		}
 	}
 
-	for range player.Player.GetCards() {
-		if player.Player.GetNumberOfCards() > 1 {
+	for range player.GetPlayer().GetCards() {
+		if player.GetPlayer().GetNumberOfCards() > 1 {
 			// A player cannot draw a card if they already have a card
 			// of the same value in their hand. Their turn stops and
 			// they loose all the points of all the cards that they
 			// currently have in their hand
 			values := make(map[int]bool)
-			for _, card := range player.Player.GetCards() {
+			for _, card := range player.GetPlayer().GetCards() {
 				if values[card.GetValue()] {
 					if otherSpecialCards[cards.OPERATION_SECOND_CHANCE] {
 						// Remove the second chance card from the player's hand
 						// and allow them to continue their turn -; also remove
 						// the last card that was drawn from the player's hand since
 						// it has the same value as another card in their hand
-						for i, c := range player.Player.GetCards() {
+						for i, c := range player.GetPlayer().GetCards() {
 							if c.GetOperator() == cards.OPERATION_SECOND_CHANCE {
-								player.Player.Cards = append(player.Player.Cards[:i], player.Player.Cards[i+1:]...)
+								playerCards := player.GetPlayer().GetCards()
+								player.GetPlayer().SetCards(append(playerCards[:i], playerCards[i+1:]...))
 								break
 							}
 						}
-						player.Player.Cards = player.Player.Cards[:len(player.Player.Cards)-1]
+						playerCards := player.GetPlayer().GetCards()
+						player.GetPlayer().SetCards(playerCards[:len(playerCards)-1])
 						return nil
 					}
 
 					// Reset the player's hand and end their turn
-					player.Player.Cards = []cards.CardInterface{}
-					player.Player.IsFrozen = true
+					player.GetPlayer().SetCards([]models.CardInterface{})
+					player.GetPlayer().SetIsFrozen(true)
 					return nil
 				}
 				values[card.GetValue()] = true
@@ -225,6 +229,6 @@ func NewGame(ctx context.Context, options models.GameAppOptions) *GameApp {
 		MustResolve:            false,
 		EventResolutionOptions: EventResolutionOptions{},
 		serverApp:              options.ServerApp,
-		Players:                map[string]*WebsocketClient{},
+		Players:                map[string]models.WebsocketClientInterface{},
 	}
 }

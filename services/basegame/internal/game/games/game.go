@@ -15,24 +15,24 @@ const (
 // It takes a context.Context and GameAppOptions as parameters and returns an instance of GameInterface,
 // which can be either a StandardGame or an ExtensionGame, depending on the provided gameType.
 // If the gameType is not recognized, it returns nil.
-func CreateGame(ctx context.Context, options models.GameAppOptions) GameInterface {
+func CreateGame(ctx context.Context, options models.GameAppOptions) models.GameInterface {
 	gameCtx := context.WithValue(ctx, "gameType", options.GameType)
 
-	var game GameInterface
+	var game models.GameInterface
 
 	switch options.GameType {
 	case STANDARD:
 		game = &StandardGame{
 			BaseGame: BaseGame{
 				ctx:     gameCtx,
-				players: make(map[string]*WebsocketClient),
+				players: make(map[string]models.WebsocketClientInterface),
 			},
 		}
 	case EXTENSION:
 		game = &ExtensionGame{
 			BaseGame: BaseGame{
 				ctx:     gameCtx,
-				players: make(map[string]*WebsocketClient),
+				players: make(map[string]models.WebsocketClientInterface),
 			},
 		}
 	default:

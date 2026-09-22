@@ -111,8 +111,8 @@ func (suite *GameAppTestSuite) TestDrawCardFromPile() {
 
 	suite.NoError(err)
 	suite.False(suite.gameApp.MustResolve)
-	suite.Equal(1, len(p1.Player.GetCards()))
-	suite.False(p1.Player.IsFrozen)
+	suite.Equal(1, len(p1.GetPlayer().GetCards()))
+	suite.False(p1.GetPlayer().GetIsFrozen())
 
 	suite.T().Cleanup(func() {
 		c1.Close()
@@ -199,7 +199,8 @@ func (suite *GameAppTestSuite) TestDrawCardWithSameValue() {
 	}
 
 	// Simulate that the player already has a card with the same value in their hand
-	p1.Player.Cards = append(p1.Player.Cards, card1)
+	playerCards := p1.GetPlayer().GetCards()
+	p1.GetPlayer().SetCards(append(playerCards, card1))
 
 	suite.gameApp.AddPlayer(p1)
 	suite.gameApp.SetCurrentPlayer(p1.GetUuid())
@@ -215,7 +216,7 @@ func (suite *GameAppTestSuite) TestDrawCardWithSameValue() {
 
 	err := suite.gameApp.DrawCardFromPile()
 	suite.NoError(err)
-	suite.True(p1.Player.IsFrozen)
+	suite.True(p1.GetPlayer().GetIsFrozen())
 }
 
 func TestGameApp(t *testing.T) {

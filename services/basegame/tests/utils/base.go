@@ -11,6 +11,7 @@ import (
 	"github.com/Zadigo/basegame/internal/game/cards"
 	"github.com/Zadigo/basegame/internal/game/games"
 	"github.com/Zadigo/basegame/internal/handlers"
+	"github.com/Zadigo/basegame/internal/models"
 	"github.com/Zadigo/basegame/internal/utils"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
@@ -87,7 +88,7 @@ func CreateRedisClient() *redis.Client {
 	})
 }
 
-func CreateClientPlayer(t *testing.T) *games.WebsocketClient {
+func CreateClientPlayer(t *testing.T) models.WebsocketClientInterface {
 	return games.NewWebsocketClient(nil)
 }
 
@@ -100,7 +101,7 @@ func CreatePlayer(t *testing.T) *games.Player {
 
 // CreatePileFlipOnTop creates a card pile with a Flip3 special card on top,
 // followed by standard cards with values 0 to 3.
-func CreatePileFlipOnTop(t *testing.T) (pile []cards.CardInterface) {
+func CreatePileFlipOnTop(t *testing.T) (pile []models.CardInterface) {
 	c1 := &cards.BaseCard{
 		Uuid:         "card-1",
 		CardType:     cards.STANDARD_SPECIAL_CARD,
@@ -118,5 +119,5 @@ func CreatePileFlipOnTop(t *testing.T) (pile []cards.CardInterface) {
 		pile = append(pile, item)
 	}
 
-	return append([]cards.CardInterface{c1}, pile...)
+	return append([]models.CardInterface{c1}, pile...)
 }

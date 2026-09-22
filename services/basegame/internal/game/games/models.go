@@ -5,14 +5,13 @@ import (
 	"log"
 	"time"
 
-	"github.com/Zadigo/basegame/internal/game/cards"
 	"github.com/Zadigo/basegame/internal/models"
 	"github.com/go-co-op/gocron"
 )
 
 type BaseGame struct {
 	ctx     context.Context
-	players map[string]*WebsocketClient
+	players map[string]models.WebsocketClientInterface
 	options models.GameAppOptions
 }
 
@@ -40,7 +39,7 @@ func (b *BaseGame) Start() error {
 		// the game should automatically move to the next round
 		var frozenPlayerCount int
 		for _, player := range b.players {
-			if player.Player.IsFrozen {
+			if player.GetPlayer().GetIsFrozen() {
 				frozenPlayerCount++
 			}
 
@@ -53,7 +52,7 @@ func (b *BaseGame) Start() error {
 		// automatically end and declare the player as the winner
 		for _, player := range b.players {
 			// TODO: The max total score should be configurable in the game settings
-			if player.Player.GetTotalScore() >= 200 {
+			if player.GetPlayer().GetTotalScore() >= 200 {
 				// Player has reached the winning score, end the game
 			}
 		}
@@ -80,19 +79,19 @@ func (b *BaseGame) Prepare() error {
 	return nil
 }
 
-func (b *BaseGame) AddPlayer(player *WebsocketClient) error {
+func (b *BaseGame) AddPlayer(player models.WebsocketClientInterface) error {
 	return nil
 }
 
-func (b *BaseGame) RemovePlayer(player *WebsocketClient) error {
+func (b *BaseGame) RemovePlayer(player models.WebsocketClientInterface) error {
 	return nil
 }
 
-func (b *BaseGame) GetPlayer(playerUuid string) (*WebsocketClient, error) {
+func (b *BaseGame) GetPlayer(playerUuid string) (models.WebsocketClientInterface, error) {
 	return nil, nil
 }
 
-func (b *BaseGame) GetCurrentPlayer() (*WebsocketClient, error) {
+func (b *BaseGame) GetCurrentPlayer() (models.WebsocketClientInterface, error) {
 	return nil, nil
 }
 
@@ -122,13 +121,13 @@ const (
 type EventResolutionOptions struct {
 	// The card that triggered the event or action
 	// that must be resolved
-	Card cards.CardInterface
+	Card models.CardInterface
 	// The player that triggered the event or action
-	Player *WebsocketClient
+	Player models.WebsocketClientInterface
 }
 
 type EventResolutionAction struct {
 	Event string
 	// A player to whom an event or action is directed
-	ToPlayer *WebsocketClient
+	ToPlayer models.WebsocketClientInterface
 }

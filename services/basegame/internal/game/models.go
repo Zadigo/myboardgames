@@ -1,8 +1,8 @@
 package game
 
 import (
-	"github.com/Zadigo/basegame/internal/game/cards"
 	"github.com/Zadigo/basegame/internal/game/games"
+	"github.com/Zadigo/basegame/internal/models"
 )
 
 const (
@@ -15,7 +15,7 @@ const (
 type EventResolutionOptions struct {
 	// The card that triggered the event or action
 	// that must be resolved
-	Card cards.CardInterface
+	Card models.CardInterface
 	// The player that triggered the event or action
 	Player *games.WebsocketClient
 }

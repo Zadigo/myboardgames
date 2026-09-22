@@ -1,19 +1,21 @@
 package cards
 
+import "github.com/Zadigo/basegame/internal/models"
+
 // CardPile are the collection of cards that are available to be drawn
 // by the player. The pile is typically shuffled at the start of the game,
 // and cards are drawn from the top of the pile. When a card is drawn, it is
 // removed from the pile and added to the player's hand or played directly,
 // depending on the game rules.
 type CardPile struct {
-	Cards []CardInterface `json:"cards"`
+	Cards []models.CardInterface `json:"cards"`
 }
 
-func (p *CardPile) AddCards(card ...CardInterface) {
+func (p *CardPile) AddCards(card ...models.CardInterface) {
 	p.Cards = append(p.Cards, card...)
 }
 
-func (p *CardPile) DrawCard() CardInterface {
+func (p *CardPile) DrawCard() models.CardInterface {
 	if len(p.Cards) == 0 {
 		return nil
 	}
@@ -31,11 +33,11 @@ func (p *CardPile) RemainingCards() int {
 func (p *CardPile) Shuffle() {}
 
 func (p *CardPile) Clear() {
-	p.Cards = []CardInterface{}
+	p.Cards = []models.CardInterface{}
 }
 
 func NewCardPile() *CardPile {
 	return &CardPile{
-		Cards: []CardInterface{},
+		Cards: []models.CardInterface{},
 	}
 }

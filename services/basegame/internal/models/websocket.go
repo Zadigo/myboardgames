@@ -1,9 +1,5 @@
 package models
 
-import (
-	"github.com/gorilla/websocket"
-)
-
 const (
 	// A player requests to identify themselves
 	MUST_IDENTIFY = "must_identify"
@@ -34,11 +30,4 @@ type BaseWebsocketMessage struct {
 
 type WebsocketMessage struct {
 	BaseWebsocketMessage
-}
-
-type WebsocketClientInterface interface {
-	GetUuid() string
-	SetConn(conn *websocket.Conn)
-	SendJsonMessage(message WebsocketMessage) error
-	ReceiveJsonMessage() (WebsocketMessage, error)
 }
