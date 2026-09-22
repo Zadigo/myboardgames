@@ -7,20 +7,25 @@ Use this template to create a new game service. It contains the basic structure 
 ```mermaid
 flowchart
 
-S[Server] --> G[[Game Server]]
-S[Server] --> C[Chi HTTP Server]
+	S[Main] --> G[[Main Server]]
+	S --> C[Chi HTTP Server]
 
-G --> ST[[Standard Game Service]]
-G --> EX[[Extension Game Service]]
+	G --> ST[[Standard — Mini-server]]
+	G --> EX[[Extension — Mini-server]]
 
-ST --> |Table|T1(Game 1)
-ST --> |Table|T2(Game 2)
-ST --> L(Clients)
+	ST --> |Table|T1(Game 1)
+	ST --> |Table|T2(Game 2)
+	ST --> L(Clients)
 
-T1 <--> C1((Cron))
-T2 <--> C2((Cron))
-T1 --> P1(Players)
-T2 --> P2(Players)
+	T1 <--> C1((Cron))
+	T2 <--> C2((Cron))
+	T1 --> P1(Players)
+	T2 --> P2(Players)
+
+	EX --> |Table|T3(Game X)
+
+	T3 --> P3(Players)
+	T3 <--> C3((Cron))
 ```
 
 ## Game Flow

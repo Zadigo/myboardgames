@@ -53,6 +53,5 @@ func (g *GenericHandler) CreateGameHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// TODO: Implement the logic for creating a game
-	utils.JsonResponse(w, map[string]string{"status": "ok", "gameType": body.GameType, "gameUUID": newGame.GetUuid()}, http.StatusOK)
+	utils.JsonResponse(w, map[string]string{"gameUUID": newGame.GetUuid()}, http.StatusOK)
 }
