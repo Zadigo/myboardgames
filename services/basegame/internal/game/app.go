@@ -9,6 +9,8 @@ import (
 	"github.com/Zadigo/basegame/internal/models"
 )
 
+// GamesMiniServer is a lightweight server that manages multiple 
+// game instances for a given type of game (e.g., standard or extension).
 type GamesMiniServer struct {
 	ctx       context.Context                `json:"-"`
 	Games     map[string]games.GameInterface `json:"game"`

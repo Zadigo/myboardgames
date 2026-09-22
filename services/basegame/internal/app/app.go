@@ -17,6 +17,7 @@ import (
 type App struct {
 	ctx         context.Context
 	baseDir     string
+	// Deprecated: Get the connection from the main server
 	redisClient *redis.Client
 	router      *chi.Mux
 	errorCh     chan error
@@ -83,6 +84,7 @@ func (app *App) GetRedisClient() *redis.Client {
 	return app.redisClient
 }
 
+// GetServerApp returns the reference to the main server application that manages the lifecycle of the game server and other services.
 func (app *App) GetServerApp() models.ServerAppInterface {
 	return app.serverApp
 }

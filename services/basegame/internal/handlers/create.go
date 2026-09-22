@@ -32,11 +32,19 @@ func (g *GenericHandler) CreateGameHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	if body.GameType == games.STANDARD {
-		// g.app.GetServerApp().CreateGame(games.STANDARD)
+		err := g.app.GetServerApp().CreateGame(games.STANDARD)
+		if err != nil {
+			utils.JsonResponse(w, map[string]string{"error": err.Error()}, http.StatusInternalServerError)
+			return
+		}
 	}
 
 	if body.GameType == games.EXTENSION {
-		// g.app.GetServerApp().CreateGame(games.EXTENSION)
+		err := g.app.GetServerApp().CreateGame(games.EXTENSION)
+		if err != nil {
+			utils.JsonResponse(w, map[string]string{"error": err.Error()}, http.StatusInternalServerError)
+			return
+		}
 	}
 
 	// TODO: Implement the logic for creating a game
