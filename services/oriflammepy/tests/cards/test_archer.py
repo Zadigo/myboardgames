@@ -90,3 +90,10 @@ async def test_resolve(game_fixture: Game) -> None:
     # Call resolve again to test the elimination of the first card
     result: bool = await card.resolve()
     assert result is True
+
+
+def test_destructure(game_fixture: Game) -> None:
+    card = game_fixture.card_queue._queue[1]
+
+    destructured_data: dict[str, str] = card.destructure()
+    assert destructured_data["name"] == card.name

@@ -1,14 +1,24 @@
+import asyncio
 import enum
 import random
 import uuid
+import json
 from abc import ABC, abstractmethod
 from typing import Optional
+
+from redis.client import Redis
+
+from redis.client import PubSub
+from game import models
 from game.card_queue import CardQueue, Queue
 from game.cards.generics import AbstractCardFactory, CardColors
 from game.cards.standard import StandardCardFactory
 from game.utils.base import MustResolve
 from typings import TypeAbstractCard, TypeWebsocketClient
+from game.utils.base import create_redis_connection
 
+
+GAME_TASKS: set[asyncio.Task] = set()
 
 class GameTypes(enum.Enum):
     STANDARD = "standard"
@@ -78,6 +88,16 @@ class BaseGame(ABC):
     async def build_cards(self) -> None:
         pass
 
+    def destructure(self) -> dict[str, str]:
+        return {
+            "game_id": self.game_id,
+            "game_type": self.game_type.value,
+            "is_running": self.is_running,
+            "current_player_index": self.current_player_index,
+            "available_colors": [color.value for color in self.available_colors],
+            "available_cards": [card.name for card in self.available_cards],
+        }
+
     async def set_must_resolve(self, options: "MustResolve") -> None:
         self.must_resolve = options
         await self.send_message(
@@ -116,12 +136,34 @@ class Game(BaseGame):
     async def start(self) -> None:
         self.is_running = True
 
-        while self.is_running:
-            if not self.can_start:
-                continue
+        instance: Redis = create_redis_connection()
+        
+        pubsub: PubSub = instance.pubsub()
+        pubsub.subscribe(self.game_id)
 
-            # Game logic here
+        async def game_loop() -> None:
+            while self.is_running:                
+                if not self.can_start:
+                    continue
 
+                message = pubsub.get_message()
+                if message is not None and message['type'] == 'message':
+                    json_data = json.loads(message['data'].decode('utf-8'))
+                    data = models.PubSubMessage(**json_data)
+
+                    for player in self.players:
+                        await player.send(data)
+
+                # Game logic here
+                await asyncio.sleep(1)
+
+        t1: asyncio.Task[None] = asyncio.create_task(game_loop())
+
+        GAME_TASKS.add(t1)
+
+        await t1
+
+        
     def add_player(self, player: TypeWebsocketClient) -> None:
         pass
 

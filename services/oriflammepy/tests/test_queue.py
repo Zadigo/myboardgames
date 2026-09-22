@@ -135,3 +135,21 @@ def test_resolve(game_fixture: Game, factory_fixture: StandardCardFactory) -> No
     state: bool = queue.resolve()
     assert state is True
     assert queue.current_index == 0
+
+
+def test_destructure(game_fixture: Game, factory_fixture: StandardCardFactory) -> None:
+    queue = Queue(game_fixture)
+
+    cards: Iterable[AbstractCard] = list(iter(factory_fixture))
+
+    queue.append_card(cards[0])
+    queue.append_card(cards[1])
+    queue.append_card(cards[2])
+
+    data: dict[str, any] = queue.destructure()
+
+    assert isinstance(data, dict)
+    assert "current_index" in data
+    assert "number_of_cards" in data
+    assert "removed_cards" in data
+    assert "queue" in data

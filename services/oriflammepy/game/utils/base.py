@@ -1,6 +1,8 @@
 import dataclasses
 from typing import Optional
 
+import redis
+
 from typings import TypeAbstractCard
 
 
@@ -23,3 +25,13 @@ class MustResolve:
     user_selection: Optional[str] = None
     on_first_card : Optional[TypeAbstractCard] = None
     on_last_card : Optional[TypeAbstractCard] = None
+
+
+def create_redis_connection() -> redis.Redis:
+    instance = redis.Redis(host='localhost', port=6379, db=0)
+    try:
+        instance.ping()
+        print("Connected to Redis")
+    except redis.ConnectionError:
+        print("Failed to connect to Redis")
+    return instance

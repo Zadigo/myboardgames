@@ -1,7 +1,7 @@
 import enum
 import uuid
 from abc import ABC, abstractmethod
-from typing import Iterable, Optional, Sequence
+from typing import Any, Iterable, Optional, Sequence
 
 from game.utils.base import MustResolve
 from typings import CardResolutionActions, TypeAbstractCard, TypeGame, TypeWebsocketClient
@@ -44,25 +44,28 @@ class AbstractCard(ABC):
         name (str): The name of the card.
 
     Attributes:
+        tokens (int): The number of tokens on the card.
         game (TypeGame): The game instance the card belongs to.
         name (str): The name of the card.
         partial_resolve (bool): Indicates if the card is partially resolved.
         color (Optional[CardColors]): The color of the card.
-        tokens (int): The number of tokens on the card.
         owner (Optional[TypeWebsocketClient]): The owner of the card, if any.
         requires_partial_resolution (bool): Indicates if the user has to perform actions on the card in order for it to be fully resolved.
+        is_revealed (bool): Indicates if the card is revealed.
     """
 
+    tokens: int = 0
     color: Optional[CardColors] = None
     stack: list[TypeAbstractCard] = []
     owner: TypeWebsocketClient | None = None
     requires_partial_resolution: bool = False
-    tokens: int = 0
     card_type: Cardtypes = Cardtypes.CHARACTER
+    verbose_name: Optional[str] = None
+    is_revealed: bool = False
 
-    def __init__(self, game: TypeGame, name: str) -> None:
+    def __init__(self, game: TypeGame) -> None:
         self.game: TypeGame = game
-        self.name: str = name
+        self.name: str = self.__class__.__name__
         self.card_id = str(uuid.uuid4())
         self.is_resolved = False
 
@@ -92,12 +95,43 @@ class AbstractCard(ABC):
         """Fully resolve the card's effect. This method should 
         be implemented by subclasses to define the specific behavior of 
         the card when it is resolved."""
+        if not self.is_revealed:
+            raise ValueError("Cannot resolve a card that is not revealed.")
+
+        if self.game.card_queue.number_of_cards < 1:
+            raise ValueError("Resolution is only applicable when there is one card in the queue.")
+        
+        # if self.game.must_resolve is not None:
+        #     raise ValueError("Cannot pre-resolve when there is a pending must-resolve action.")
+
+        return True
 
     @abstractmethod
     def partial_resolve(self) -> MustResolve:
         """A partial resolution is a resolution that requires 
         further action from the player. It returns a MustResolve 
         object that describes the action required to continue."""
+        return MustResolve(
+            CardResolutionActions.REMOVE_CARD.value, 
+            from_card=self
+        )
+    
+    def destructure(self) -> dict[str, Any]:
+        """Return a dictionary representation of the card's attributes."""
+        stack = [card.destructure() for card in self.stack] if self.stack else []
+
+        return {
+            "name": self.name,
+            "color": self.color.value if self.color else None,
+            "tokens": self.tokens,
+            "card_id": self.card_id,
+            "requires_partial_resolution": self.requires_partial_resolution,
+            "is_revealed": self.is_revealed,
+            "stack": stack,
+            "owner": self.owner.destructure() if self.owner else None,
+            "card_type": self.card_type.value,
+            "verbose_name": self.verbose_name
+        }
 
     def resolve_side_effects(self) -> None:
         """Resolve any side effects that occur when the card is resolved. 
@@ -114,21 +148,6 @@ class AbstractCard(ABC):
         # after resolution
         if self.card_type == Cardtypes.INTRIGUE:
             self.game.card_queue.remove_card(self)
-
-    def pre_resolve(self) -> None:
-        """A pre-resolution is a resolution that occurs before 
-        the card is fully resolved. It can be used to set up 
-        any necessary state or conditions before the card's 
-        effect is applied.
-        
-        Raises:
-            ValueError: If there is not exactly one card in the queue or if there is a pending must-resolve action.
-        """
-        if self.game.card_queue.number_of_cards < 1:
-            raise ValueError("Resolution is only applicable when there is one card in the queue.")
-        
-        # if self.game.must_resolve is not None:
-        #     raise ValueError("Cannot pre-resolve when there is a pending must-resolve action.")
 
     def add_token(self) -> None:
         """Add a token to the card."""

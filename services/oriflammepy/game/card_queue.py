@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from collections import deque
-from typing import Iterator, Optional
+from typing import Any, Iterator, Optional
 
 from typings import TypeAbstractCard, TypeGame
 
@@ -68,6 +68,16 @@ class CardQueue[T = TypeAbstractCard](ABC):
         """Resolves each card one by one in the queue."""
         return NotImplemented
     
+    def destructure(self) -> dict[str, Any]:
+        return {
+            "game": self.game.destructure(),
+            "current_card": self.current_card.destructure() if self.current_card else None,
+            "current_index": self.current_index,
+            "number_of_cards": self.number_of_cards,
+            "removed_cards": [card.destructure() for card in self.removed_cards],
+            "queue": [card.destructure() for card in self._queue]
+        }
+    
     def increase_current_index(self) -> None:
         """Increase the current index to point to the next card in the queue."""
         self.current_index = (self.current_index + 1) % len(self._queue)
@@ -118,6 +128,11 @@ class CardQueue[T = TypeAbstractCard](ABC):
         return self._queue[card_index - 1]
     
     def get_next_card(self, card: Optional[T]) -> Optional[T]:
+        """Return the next card in the queue after the given card.
+        
+        Args:
+            card (Optional[T]): The reference card to find the next card for.
+        """
         if self.number_of_cards < 2:
             return None
         

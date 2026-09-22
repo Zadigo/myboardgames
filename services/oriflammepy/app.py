@@ -2,8 +2,10 @@ import asyncio
 
 from fastapi import FastAPI
 from fastapi.websockets import WebSocket
+import redis
 
 from game.base import Game
+from game.models import WebsocketReceive
 from game.ws_clients import WebsocketClient
 from typings import TypeWebsocketClient, WebsocketActions
 
@@ -44,7 +46,7 @@ async def join_game(game_id: str, websocket: WebSocket) -> None:
     # For now, just keep the connection open
     while True:
         try:
-            message = await client.receive()
+            message: WebsocketReceive = await client.receive()
         except Exception as e:
             print(f"Error receiving message: {e}")
 
