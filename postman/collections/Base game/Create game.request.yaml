@@ -1,0 +1,10 @@
+$kind: http-request
+url: "{{golang}}create"
+method: POST
+body:
+  type: json
+  content: |-
+    {
+        "gameType": "standard"
+    }
+order: 1790073977742

@@ -1,1 +1,11 @@
 $kind: collection
+scripts:
+  - type: http:beforeRequest
+    code: |-
+      pm.test("set request", () => {
+          pm.request.headers.add({
+              key: "origin",
+              value: "Postman/x"
+          })
+      })
+    language: text/javascript

@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"strings"
 
@@ -24,6 +25,7 @@ func Cors(next http.Handler) http.Handler {
 		origin := r.Header.Get("Origin")
 
 		if _, ok := utils.AllowedOrigins[origin]; !ok {
+			log.Println("❌ Origin not allowed:", origin)
 			http.Error(w, "Origin not allowed", http.StatusForbidden)
 			return
 		}
