@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{golang}}"
+method: GET
+order: 1790073977742
