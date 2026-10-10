@@ -1,7 +1,7 @@
 mod exercises;
 
-use crate::exercises::todos::todos_exercise;
+use crate::exercises::{temperatures::temperature_exercise};
 
 fn main() {
-    todos_exercise();
+    temperature_exercise();
 }

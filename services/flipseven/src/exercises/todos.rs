@@ -12,6 +12,13 @@ impl Task {
     }
 }
 
+// enum Commands {
+//     None,
+//     ListAll,
+//     Complete,
+//     Exit
+// }
+
 pub fn todos_exercise() {
     let mut tasks: Vec<Task> = Vec::new();
 
@@ -61,5 +68,17 @@ pub fn todos_exercise() {
         });
 
         println!("\nTasks saved: {:?}\n", tasks);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_todo_exercise() {
+        let mut task = Task {name: String::from("Google"), complete: false};
+        task.mark_complete();
+        assert_eq!(task.complete, true)
     }
 }
