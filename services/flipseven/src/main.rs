@@ -1,3 +1,7 @@
+mod utils;
+
+use crate::utils::simple_function;
+
 fn main() {
-    println!("Hello, world!");
+    simple_function();
 }
