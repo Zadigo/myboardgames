@@ -1,7 +1,7 @@
-mod utils;
+mod exercises;
 
-use crate::utils::simple_function;
+use crate::exercises::todos::todos_exercise;
 
 fn main() {
-    simple_function();
+    todos_exercise();
 }
