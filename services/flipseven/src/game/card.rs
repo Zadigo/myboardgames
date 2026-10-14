@@ -1,10 +1,11 @@
-enum CardType {
+#[derive(Debug,PartialEq)]
+pub enum CardType {
     Standard,
     StandardSpecialCard
 }
 
 #[derive(Debug,PartialEq)]
-enum CardOperator {
+pub enum CardOperator {
     Add,
     Subtract,
     Multiply,
@@ -14,15 +15,17 @@ enum CardOperator {
     SecondChance,
 }
 
-struct BaseCard {
-    uuid: String,
-    card_type: CardType,
-    card_value: i32,
-    card_operator: CardOperator,
-    discarded: bool,
+#[derive(Debug, PartialEq)]
+pub struct BaseCard {
+    pub uuid: String,
+    pub card_type: CardType,
+    pub card_value: i32,
+    pub card_operator: CardOperator,
+    pub discarded: bool,
 }
 
-trait BaseCardTrait{
+trait BaseCardTrait {
+    fn new() -> BaseCard;
     fn get_uuid(self) -> String;
     fn resolve(self) -> i32;
     fn set_player(&mut self, uuid: String);
@@ -34,11 +37,11 @@ trait BaseCardTrait{
 }
 
 impl BaseCard {
-    fn new(card_type: CardType) -> BaseCard {
+    pub fn new(card_type: Option<CardType>, card_operator: Option<CardOperator>) -> BaseCard {
         Self {
             uuid: String::new(),
-            card_operator: CardOperator::Add,
-            card_type,
+            card_operator: card_operator.unwrap_or(CardOperator::Add),
+            card_type: card_type.unwrap_or(CardType::Standard),
             card_value: 0,
             discarded: false
         }
@@ -46,10 +49,23 @@ impl BaseCard {
 }
 
 impl BaseCardTrait for BaseCard {
+    fn new() -> BaseCard {
+        BaseCard {
+            uuid: String::from("1345"),
+            card_operator: CardOperator::Add,
+            card_type: CardType::Standard,
+            card_value: 0,
+            discarded: false
+        }
+    }
+
+
     fn get_uuid(self) -> String {
         self.uuid
     }
 
+    // Function used to resolve the card based on
+    // the options provided by the user
     fn resolve(self) -> i32 {
         0
     }
@@ -102,9 +118,37 @@ impl BaseCardTrait for BaseCard {
 #[cfg(test)]
 mod tests {
     use super::*;
+    // use assertables::*; 
 
     #[test]
-    fn test_base_card_instance() {
-        let card = BaseCard::new(CardType::Standard);
+    fn test_base_standard_card_instance() {
+        let card_types = [
+            CardType::Standard,
+            CardType::StandardSpecialCard
+        ];
+
+        for v in card_types {
+            let card = BaseCard::new(Some(v), Some(CardOperator::Add));
+            assert_eq!(card.card_type, CardType::Standard);
+            assert_eq!(card.card_value, 0)
+        }
     }
+
+    // #[test]
+    // fn test_get_operator() {
+    //     let operators = [
+    //         CardOperator::Add,
+    //         CardOperator::Divide,
+    //         CardOperator::Multiply,
+    //         CardOperator::Flip3,
+    //         CardOperator::Freeze,
+    //         CardOperator::SecondChance,
+    //         CardOperator::Subtract,
+    //     ];
+
+    //     for v in operators.into_iter() {
+    //         let card = BaseCard::new(Some(CardType::Standard), Some(v));
+    //         assert_eq!(card.card_operator, v)
+    //     }
+    // }
 }
