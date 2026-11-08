@@ -111,25 +111,25 @@ func (t *Thief) Resolve(options models.CharacterOptions) error {
 		// Skip the player that is attacking
 		// which is "self"
 		if p == t.GetPlayer() {
-			return fmt.Errorf("Cannot attack self")
+			return CannotAttackSelfError
 		}
 
 		selectedCharacter := p.GetSelectedCharacter()
 		if selectedCharacter == nil {
-			return fmt.Errorf("Target has no character")
+			return TargetHasNoCharacterError
 		}
 
 		if p.GetSelectedCharacter().GetId() == options.Target.GetId() {
 			if selectedCharacter.GetLevel() == 1 {
-				return fmt.Errorf("The thief cannot steal a level 1 character")
+				return CannotStealLevelOneError
 			}
 
 			if selectedCharacter.IsKilled() {
-				return fmt.Errorf("The thief cannot steal a character that was killed")
+				return CannotStealKilledError
 			}
 
 			if selectedCharacter.IsBewitched() {
-				return fmt.Errorf("The thief cannot steal a bewitched character")
+				return CannotStealBewitchedError
 			}
 
 			goldCount := selectedCharacter.GetPlayer().GoldCount()

@@ -59,7 +59,7 @@ func TestThief(t *testing.T) {
 		_, attacker := helperCreateCharacter("thief", 0)
 		err := attacker.Resolve(models.CharacterOptions{Target: attacker})
 		assert.Error(t, err)
-		assert.EqualError(t, err, "Cannot attack self")
+		assert.EqualError(t, err, characters.CannotAttackSelfError.Error())
 	})
 
 	t.Run("target has no selected character", func(t *testing.T) {})
