@@ -77,9 +77,29 @@ func TestThief(t *testing.T) {
 		assert.EqualError(t, err, characters.TargetHasNoCharacterError.Error())
 	})
 
-	t.Run("target is level 1", func(t *testing.T) {})
+	t.Run("target is level 1", func(t *testing.T) {
+		p1, attacker := helperCreateCharacter("thief", 0)
+		p2, target := helperCreateCharacter("assassin", 10)
+		game := helperCreateGame(t, p1, p2)
 
-	t.Run("target is killed", func(t *testing.T) {})
+		target.Kill()
+
+		err := attacker.Resolve(models.CharacterOptions{Target: target, CurrentGame: game})
+
+		assert.Error(t, err)
+	})
+
+	t.Run("target is killed", func(t *testing.T) {
+		p1, attacker := helperCreateCharacter("thief", 0)
+		p2, target := helperCreateCharacter("architect", 10)
+		game := helperCreateGame(t, p1, p2)
+
+		target.Kill()
+
+		err := attacker.Resolve(models.CharacterOptions{Target: target, CurrentGame: game})
+
+		assert.Error(t, err)
+	})
 
 	t.Run("target is bewitched", func(t *testing.T) {})
 

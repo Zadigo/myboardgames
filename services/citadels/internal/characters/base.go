@@ -5,6 +5,7 @@ import (
 	"uuid"
 
 	"github.com/Zadigo/citadels/internal/models"
+	"github.com/Zadigo/citadels/internal/utils"
 )
 
 // const (
@@ -36,6 +37,18 @@ import (
 //  TaxCollector = "tax_collector"
 //  Marshal = "marshal"
 // )
+
+func checkOptions(options models.CharacterOptions) error {
+	if options.Target.GetPlayer() == nil {
+		return fmt.Errorf("Target has no player")
+	}
+
+	if options.CurrentGame == nil {
+		return fmt.Errorf("No game")
+	}
+
+	return nil
+} 
 
 type Character struct {
 	models.BaseCharacter
@@ -142,6 +155,21 @@ func (t *Thief) Resolve(options models.CharacterOptions) error {
 
 type Magician struct {
 	Character
+}
+
+func (m *Magician) Resolve(options models.CharacterOptions) error {
+	if err := checkOptions(options); err == nil {
+		switch options.Magician.Choice {
+		case "exchange":
+			utils.ExchangeDistricts(m.GetPlayer(), options.Target.GetPlayer())
+		case "discard":
+		default:
+			return InvalidMagicianChoiceError
+		}
+		return nil
+	} else {
+		return err
+	}
 }
 
 type King struct {

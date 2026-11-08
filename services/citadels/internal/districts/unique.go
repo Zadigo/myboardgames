@@ -1,9 +1,13 @@
 package districts
 
-import "uuid"
+import (
+	"uuid"
 
-func CreateUniqueDistricts() [14]BaseDistrict {
-	districtNames := [14]BaseDistrict{
+	"github.com/Zadigo/citadels/internal/models"
+)
+
+func CreateUniqueDistricts() [14]models.BaseDistrict {
+	districtNames := [14]models.BaseDistrict{
 		{
 			Name:  "Dragoon Gate",
 			Cost:  3,

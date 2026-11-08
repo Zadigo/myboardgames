@@ -1,11 +1,19 @@
 package models
 
+// MagicianOptions are specific options
+// for the Magician carachter
+type MagicianOptions struct {
+	Choice          string
+	DiscardQuantity int
+}
+
 // CharacterOptions holds info for resolving a character's action.
 //   - Target: the character being targeted
 //   - CurrentGame: the game context
 type CharacterOptions struct {
 	Target      CharacterInterface
 	CurrentGame GameInterface
+	Magician    MagicianOptions
 }
 
 type CharacterInterface interface {

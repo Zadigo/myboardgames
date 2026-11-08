@@ -5,6 +5,7 @@ import (
 
 	"github.com/Zadigo/citadels/game"
 	"github.com/Zadigo/citadels/internal/characters"
+	"github.com/Zadigo/citadels/internal/districts"
 	"github.com/Zadigo/citadels/internal/models"
 )
 
@@ -33,5 +34,21 @@ func helperCreateGame(t *testing.T, players ...models.PlayerInterface) models.Ga
 	t.Helper()
 	return &game.Game{
 		Players: players,
+	}
+}
+
+func helperCreatePlayers(n int) []models.PlayerInterface {
+	players := make([]models.PlayerInterface, n)
+
+	for i := range players {
+		players[i] = models.NewPlayer()
+	}
+
+	return players
+}
+
+func helperAddDistrictsToPlayers(players []models.PlayerInterface) {
+	for _, p := range players {
+		p.AddDistrict(&districts.District{})
 	}
 }
