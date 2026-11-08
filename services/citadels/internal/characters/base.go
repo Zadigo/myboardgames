@@ -3,29 +3,15 @@ package characters
 import (
 	"fmt"
 	"uuid"
+
+	"github.com/Zadigo/citadels/internal/models"
 )
 
-type CharacterInterface interface {
-	Resolve(options CharacterOptions) error
-	GetId() string
-	GetName() string
-	IsKilled() bool
-	GetLevel() int
-	Kill()
-	SetPlayer(id string)
-	GetPlayer() string
+type Character struct {
+	models.BaseCharacter
 }
 
-type BaseCharacter struct {
-	ID     string
-	Level  int
-	Name   string
-	Image  string
-	Killed bool
-	Player string
-}
-
-func (b *BaseCharacter) Resolve(options CharacterOptions) error {
+func (c *Character) Resolve(options models.CharacterOptions) error {
 	for _, c := range options.CurrentGame.GetPlayers() {
 		if c.SelectedCharacter == options.Target.GetId() {
 			// Do something with the player
@@ -34,39 +20,39 @@ func (b *BaseCharacter) Resolve(options CharacterOptions) error {
 	return nil
 }
 
-func (b *BaseCharacter) GetId() string {
-	return b.ID
+func (c *Character) GetId() string {
+	return c.ID
 }
 
-func (b *BaseCharacter) GetName() string {
-	return b.Name
+func (c *Character) GetName() string {
+	return c.Name
 }
 
-func (b *BaseCharacter) IsKilled() bool {
-	return b.Killed
+func (c *Character) IsKilled() bool {
+	return c.Killed
 }
 
-func (b *BaseCharacter) GetLevel() int {
-	return b.Level
+func (c *Character) GetLevel() int {
+	return c.Level
 }
 
-func (b *BaseCharacter) Kill() {
-	b.Killed = true
+func (c *Character) Kill() {
+	c.Killed = true
 }
 
-func (b *BaseCharacter) SetPlayer(id string) {
-	b.Player = id
+func (c *Character) SetPlayer(id string) {
+	c.Player = id
 }
 
-func (b *BaseCharacter) GetPlayer() string {
-	return b.Player
+func (c *Character) GetPlayer() string {
+	return c.Player
 }
 
 type Assassin struct {
-	BaseCharacter
+	Character
 }
 
-func (a *Assassin) Resolve(options CharacterOptions) error {
+func (a *Assassin) Resolve(options models.CharacterOptions) error {
 	if options.Target == nil {
 		return fmt.Errorf("Assassin needs target")
 	} else {
@@ -76,41 +62,40 @@ func (a *Assassin) Resolve(options CharacterOptions) error {
 }
 
 type Thief struct {
-	BaseCharacter
+	Character
 }
 
-func (t *Thief) Resolve(options CharacterOptions) error {
+func (t *Thief) Resolve(options models.CharacterOptions) error {
 	return nil
 }
 
 type Magician struct {
-	BaseCharacter
+	Character
 }
 
 type King struct {
-	BaseCharacter
+	Character
 }
 
 type Bishop struct {
-	BaseCharacter
+	Character
 }
 
 type Merchant struct {
-	BaseCharacter
+	Character
 }
 
 type Architect struct {
-	BaseCharacter
+	Character
 }
 
 type Warlord struct {
-	BaseCharacter
+	Character
 }
 
-func NewCharacter(name string) (CharacterInterface, error) {
+func NewCharacter(name string) (models.CharacterInterface, error) {
 	characterId := uuid.New().String()
-
-	baseCharacter := BaseCharacter{
+	baseCharacter := models.BaseCharacter{
 		ID:    characterId,
 		Level: 0,
 		Name:  "",
@@ -121,35 +106,35 @@ func NewCharacter(name string) (CharacterInterface, error) {
 	case "assassin":
 		baseCharacter.Level = 1
 		baseCharacter.Name = "assassin"
-		return &Assassin{BaseCharacter: baseCharacter}, nil
+		return &Assassin{Character: Character{baseCharacter}}, nil
 	case "thief":
 		baseCharacter.Level = 2
 		baseCharacter.Name = "thief"
-		return &Thief{BaseCharacter: baseCharacter}, nil
+		return &Thief{Character: Character{baseCharacter}}, nil
 	case "magician":
 		baseCharacter.Level = 3
 		baseCharacter.Name = "magician"
-		return &Magician{BaseCharacter: baseCharacter}, nil
+		return &Magician{Character: Character{baseCharacter}}, nil
 	case "king":
 		baseCharacter.Level = 4
 		baseCharacter.Name = "king"
-		return &King{BaseCharacter: baseCharacter}, nil
+		return &King{Character: Character{baseCharacter}}, nil
 	case "bishop":
 		baseCharacter.Level = 5
 		baseCharacter.Name = "bishop"
-		return &Bishop{BaseCharacter: baseCharacter}, nil
+		return &Bishop{Character: Character{baseCharacter}}, nil
 	case "merchant":
 		baseCharacter.Level = 6
 		baseCharacter.Name = "merchant"
-		return &Merchant{BaseCharacter: baseCharacter}, nil
+		return &Merchant{Character: Character{baseCharacter}}, nil
 	case "warlord":
 		baseCharacter.Level = 7
 		baseCharacter.Name = "warlord"
-		return &Warlord{BaseCharacter: baseCharacter}, nil
+		return &Warlord{Character: Character{baseCharacter}}, nil
 	case "architect":
 		baseCharacter.Level = 8
 		baseCharacter.Name = "architect"
-		return &Architect{BaseCharacter: baseCharacter}, nil
+		return &Architect{Character: Character{baseCharacter}}, nil
 	}
 	return nil, fmt.Errorf("unknown character: %s", name)
 }

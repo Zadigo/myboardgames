@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/Zadigo/citadels/internal/characters"
+	"github.com/Zadigo/citadels/internal/models"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,29 +19,29 @@ func TestBaseCharacter(t *testing.T) {
 	assert.False(t, char.IsKilled())
 
 	t.Run("resolve base character", func(t *testing.T) {
-		simpleTarget := &characters.BaseCharacter{Name: "target"}
-		assert.NoError(t, char.Resolve(characters.CharacterOptions{Target: simpleTarget}))
+		simpleTarget := &characters.Character{Name: "target"}
+		assert.NoError(t, char.Resolve(models.CharacterOptions{Target: simpleTarget}))
 	})
 }
 
 func TestAssassin(t *testing.T) {
 	t.Run("with valid target", func(t *testing.T) {
 		char := characters.Assassin{
-			BaseCharacter: characters.BaseCharacter{},
+			BaseCharacter: models.BaseCharacter{},
 		}
 
 		target := characters.Architect{
-			BaseCharacter: characters.BaseCharacter{},
+			BaseCharacter: models.BaseCharacter{},
 		}
 
-		err := char.Resolve(characters.CharacterOptions{Target: &target})
+		err := char.Resolve(models.CharacterOptions{Target: &target})
 		assert.NoError(t, err)
 		assert.True(t, target.IsKilled())
 	})
 
 	t.Run("with invalid target", func(t *testing.T) {
 		char := characters.Assassin{}
-		err := char.Resolve(characters.CharacterOptions{Target: nil})
+		err := char.Resolve(models.CharacterOptions{Target: nil})
 		assert.Error(t, err)
 	})
 }
