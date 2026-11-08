@@ -20,9 +20,10 @@ func helperCreateCharacter(name string, gold int) (models.PlayerInterface, model
 	c, _ := characters.NewCharacter(name)
 
 	p := models.NewPlayer()
-	p.IncreaseGold(gold)
 
 	c.SetPlayer(p)
+	p.IncreaseGold(gold)
+	p.SetSelectedCharacter(c)
 
 	return p, c
 }
@@ -31,8 +32,6 @@ func helperCreateCharacter(name string, gold int) (models.PlayerInterface, model
 func helperCreateGame(t *testing.T, players ...models.PlayerInterface) models.GameInterface {
 	t.Helper()
 	return &game.Game{
-		BaseGame: models.BaseGame{
-			Players: players,
-		},
+		Players: players,
 	}
 }

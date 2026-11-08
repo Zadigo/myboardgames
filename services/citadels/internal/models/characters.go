@@ -1,11 +1,18 @@
 package models
 
+// CharacterOptions holds info for resolving a character's action.
+//   - Target: the character being targeted
+//   - CurrentGame: the game context
 type CharacterOptions struct {
 	Target      CharacterInterface
 	CurrentGame GameInterface
 }
 
 type CharacterInterface interface {
+	// Resolve calls the character's action with the given options.
+	//
+	// 	options := models.CharacterOptions{Target: characters.Architect{}}
+	// 	character.Resolve(options) // is called to perform the action.
 	Resolve(options CharacterOptions) error
 	GetId() string
 	GetName() string
@@ -13,7 +20,9 @@ type CharacterInterface interface {
 	IsBewitched() bool
 	GetLevel() int
 	Kill()
+	// SetPlayer assigns the player controlling this character.
 	SetPlayer(player PlayerInterface)
+	// GetPlayer returns the player controlling this character.
 	GetPlayer() PlayerInterface
 }
 

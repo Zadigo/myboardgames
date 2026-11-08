@@ -56,13 +56,26 @@ func TestThief(t *testing.T) {
 	})
 
 	t.Run("attacking self", func(t *testing.T) {
-		_, attacker := helperCreateCharacter("thief", 0)
-		err := attacker.Resolve(models.CharacterOptions{Target: attacker})
+		p1, attacker := helperCreateCharacter("thief", 0)
+		game := helperCreateGame(t, p1)
+
+		err := attacker.Resolve(models.CharacterOptions{Target: attacker, CurrentGame: game})
+
 		assert.Error(t, err)
 		assert.EqualError(t, err, characters.CannotAttackSelfError.Error())
 	})
 
-	t.Run("target has no selected character", func(t *testing.T) {})
+	t.Run("target has no selected character", func(t *testing.T) {
+		p1, attacker := helperCreateCharacter("thief", 0)
+		p2, target := helperCreateCharacter("architect", 0)
+
+		target.GetPlayer().SetSelectedCharacter(nil)
+
+		game := helperCreateGame(t, p1, p2)
+		err := attacker.Resolve(models.CharacterOptions{Target: target, CurrentGame: game})
+		assert.Error(t, err)
+		assert.EqualError(t, err, characters.TargetHasNoCharacterError.Error())
+	})
 
 	t.Run("target is level 1", func(t *testing.T) {})
 
@@ -70,15 +83,14 @@ func TestThief(t *testing.T) {
 
 	t.Run("target is bewitched", func(t *testing.T) {})
 
-	// t.Run("with players", func(t *testing.T) {
-	// 	p1, attacker := helperCreateCharacter("thief", 0)
-	// 	p2, target := helperCreateCharacter("architect", 10)
-	// 	game := helperCreateGame(t, p1, p2)
+	t.Run("target was robbed successfully", func(t *testing.T) {
+		p1, attacker := helperCreateCharacter("thief", 0)
+		p2, target := helperCreateCharacter("architect", 10)
+		game := helperCreateGame(t, p1, p2)
 
-	// 	err := attacker.Resolve(models.CharacterOptions{Target: target, CurrentGame: game})
-
-	// 	assert.NoError(t, err)
-	// 	assert.Equal(t, 0, target.GetPlayer().GoldCount())
-	// 	assert.Equal(t, 10, attacker.GetPlayer().GoldCount())
-	// })
+		err := attacker.Resolve(models.CharacterOptions{Target: target, CurrentGame: game})
+		assert.NoError(t, err)
+		assert.Equal(t, 0, target.GetPlayer().GoldCount())
+		assert.Equal(t, 10, attacker.GetPlayer().GoldCount())
+	})
 }

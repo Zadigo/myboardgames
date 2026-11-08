@@ -110,7 +110,7 @@ func (t *Thief) Resolve(options models.CharacterOptions) error {
 	for _, p := range options.CurrentGame.GetPlayers() {
 		// Skip the player that is attacking
 		// which is "self"
-		if p == t.GetPlayer() {
+		if t.GetPlayer() == options.Target.GetPlayer() {
 			return CannotAttackSelfError
 		}
 
@@ -164,13 +164,24 @@ type Warlord struct {
 	Character
 }
 
+// NewCharacter creates a new Citadels character:
+//
+//	character := NewCharacter()
+//	character.SetPlayer(player)
+//
+// A character can then be resolved by calling the Resolve method
+//
+//	err := character.Resolve(models.CharacterOptions{})
 func NewCharacter(name string) (models.CharacterInterface, error) {
 	characterId := uuid.New().String()
 	baseCharacter := models.BaseCharacter{
-		ID:    characterId,
-		Level: 0,
-		Name:  "",
-		Image: "",
+		ID:        characterId,
+		Level:     0,
+		Name:      "",
+		Image:     "",
+		Killed:    false,
+		Bewitched: false,
+		Player:    nil,
 	}
 
 	switch name {
