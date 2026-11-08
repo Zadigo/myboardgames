@@ -1,10 +1,10 @@
-#[derive(Debug,PartialEq)]
+#[derive(Debug,PartialEq,Clone)]
 pub enum CardType {
     Standard,
     StandardSpecialCard
 }
 
-#[derive(Debug,PartialEq)]
+#[derive(Debug,PartialEq,Clone)]
 pub enum CardOperator {
     Add,
     Subtract,
@@ -15,7 +15,7 @@ pub enum CardOperator {
     SecondChance,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq,Clone)]
 pub struct BaseCard {
     pub uuid: String,
     pub card_type: CardType,
@@ -24,13 +24,9 @@ pub struct BaseCard {
     pub discarded: bool,
 }
 
-trait BaseCardTrait {
+pub trait BaseCardTrait {
     fn new() -> BaseCard;
-    fn get_uuid(self) -> String;
     fn resolve(self) -> i32;
-    fn set_player(&mut self, uuid: String);
-    fn get_player(self) -> String;
-    fn get_value(self) -> i32;
     fn is_special(self) -> bool;
     fn get_operator(&self) -> &str;
     fn is_card_operation(self) -> bool;
@@ -59,14 +55,9 @@ impl BaseCardTrait for BaseCard {
         }
     }
 
-
-    fn get_uuid(self) -> String {
-        self.uuid
-    }
-
     // Function used to resolve the card based on
     // the options provided by the user
-    fn resolve(self) -> i32 {
+    pub fn resolve(self) -> i32 {
         0
     }
 
@@ -80,14 +71,6 @@ impl BaseCardTrait for BaseCard {
             CardOperator::Flip3=> "3",
             CardOperator::SecondChance => "S",
         }
-    }
-
-    fn get_player(self) -> String {
-        self.uuid
-    }
-
-    fn get_value(self) -> i32 {
-        self.card_value
     }
 
     fn is_card_operation(self) -> bool {
@@ -108,10 +91,6 @@ impl BaseCardTrait for BaseCard {
             CardOperator::Freeze => true,
             _ => false,
         }
-    }
-
-    fn set_player(&mut self, uuid: String) {
-        self.uuid = uuid
     }
 }
 
