@@ -1,7 +1,13 @@
 package models
 
 type GameInterface interface {
-	GetPlayers() []Player
+	GetPlayers() []PlayerInterface
 }
 
-type BaseGame struct{}
+type BaseGame struct {
+	Players []PlayerInterface
+}
+
+func (g *BaseGame) GetPlayers() []PlayerInterface {
+	return g.Players
+}

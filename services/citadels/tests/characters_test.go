@@ -45,3 +45,40 @@ func TestAssassin(t *testing.T) {
 		assert.Error(t, err)
 	})
 }
+
+func TestThief(t *testing.T) {
+	t.Run("target has no player", func(t *testing.T) {
+		target := helperCreateEmptyTarget(t)
+		_, attacker := helperCreateCharacter("thief", 0)
+
+		err := attacker.Resolve(models.CharacterOptions{Target: target})
+		assert.Error(t, err)
+	})
+
+	t.Run("attacking self", func(t *testing.T) {
+		_, attacker := helperCreateCharacter("thief", 0)
+		err := attacker.Resolve(models.CharacterOptions{Target: attacker})
+		assert.Error(t, err)
+		assert.EqualError(t, err, "Cannot attack self")
+	})
+
+	t.Run("target has no selected character", func(t *testing.T) {})
+
+	t.Run("target is level 1", func(t *testing.T) {})
+
+	t.Run("target is killed", func(t *testing.T) {})
+
+	t.Run("target is bewitched", func(t *testing.T) {})
+
+	// t.Run("with players", func(t *testing.T) {
+	// 	p1, attacker := helperCreateCharacter("thief", 0)
+	// 	p2, target := helperCreateCharacter("architect", 10)
+	// 	game := helperCreateGame(t, p1, p2)
+
+	// 	err := attacker.Resolve(models.CharacterOptions{Target: target, CurrentGame: game})
+
+	// 	assert.NoError(t, err)
+	// 	assert.Equal(t, 0, target.GetPlayer().GoldCount())
+	// 	assert.Equal(t, 10, attacker.GetPlayer().GoldCount())
+	// })
+}

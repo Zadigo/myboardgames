@@ -10,17 +10,19 @@ type CharacterInterface interface {
 	GetId() string
 	GetName() string
 	IsKilled() bool
+	IsBewitched() bool
 	GetLevel() int
 	Kill()
-	SetPlayer(id string)
-	GetPlayer() string
+	SetPlayer(player PlayerInterface)
+	GetPlayer() PlayerInterface
 }
 
 type BaseCharacter struct {
-	ID     string
-	Level  int
-	Name   string
-	Image  string
-	Killed bool
-	Player string
+	ID        string
+	Level     int
+	Name      string
+	Image     string
+	Killed    bool
+	Bewitched bool
+	Player    PlayerInterface
 }

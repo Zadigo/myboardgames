@@ -6,8 +6,8 @@ type Game struct {
 	models.BaseGame
 }
 
-func (g *Game) GetPlayers() []models.Player {
-	return nil
+func (g *Game) GetPlayers() []models.PlayerInterface {
+	return g.BaseGame.GetPlayers()
 }
 
 func NewGame() models.GameInterface {
