@@ -30,6 +30,7 @@ type PlayerInterface interface {
 	GetDistricts() []DistrictInterface
 	AddDistrict(district DistrictInterface)
 	ReplaceDistricts(districts []DistrictInterface)
+	AddPoints(points int)
 }
 
 type Player struct {
@@ -37,6 +38,7 @@ type Player struct {
 	Districts         []DistrictInterface `json:"districts"`
 	Gold              int                 `json:"gold"`
 	SelectedCharacter CharacterInterface  `json:"selected_character"`
+	Points            int                 `json:"points"`
 }
 
 func (p *Player) GetId() string {
@@ -112,6 +114,10 @@ func (p *Player) ReplaceDistricts(districts []DistrictInterface) {
 	for _, d := range p.Districts {
 		d.SetPlayer(p)
 	}
+}
+
+func (p *Player) AddPoints(points int) {
+	p.Points += points
 }
 
 // TODO: Temporary location for player creation

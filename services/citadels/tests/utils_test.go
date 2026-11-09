@@ -3,6 +3,8 @@ package tests
 import (
 	"testing"
 
+	"github.com/Zadigo/citadels/internal/districts"
+	"github.com/Zadigo/citadels/internal/models"
 	"github.com/Zadigo/citadels/internal/utils"
 	"github.com/stretchr/testify/assert"
 )
@@ -33,5 +35,53 @@ func TestExchangeDistricts(t *testing.T) {
 
 		assert.Len(t, p1.GetDistricts(), 3)
 		assert.Len(t, p2.GetDistricts(), 1)
+	})
+}
+
+func TestCalculateScore(t *testing.T) {
+	t.Run("should be 0", func(t *testing.T) {
+		t.Parallel()
+
+		player := models.NewPlayer()
+
+		player.AddDistrict(&districts.District{})
+		player.AddDistrict(&districts.District{})
+
+		assert.Equal(t, 0, utils.CalculateScore(player, utils.ScoringOptions{}))
+	})
+
+	t.Run("should be equal to 2", func(t *testing.T) {
+		t.Parallel()
+
+		player := models.NewPlayer()
+
+		player.AddDistrict(&districts.District{Cost: 1})
+		player.AddDistrict(&districts.District{Cost: 1})
+
+		assert.Equal(t, 2, utils.CalculateScore(player, utils.ScoringOptions{}))
+	})
+
+	t.Run("should be equal to 8 when each types", func(t *testing.T) {
+		t.Parallel()
+
+		player := models.NewPlayer()
+
+		player.AddDistrict(&districts.District{Cost: 1, Symbol: districts.Religious})
+		player.AddDistrict(&districts.District{Cost: 1, Symbol: districts.Nobel})
+		player.AddDistrict(&districts.District{Cost: 1, Symbol: districts.Military})
+		player.AddDistrict(&districts.District{Cost: 1, Symbol: districts.Trade})
+		player.AddDistrict(&districts.District{Cost: 1, Symbol: districts.Unique})
+		// 1 + 1 + 1 + 1 + 1 + 3
+		assert.Equal(t, 8, utils.CalculateScore(player, utils.ScoringOptions{}))
+	})
+
+	t.Run("should be equal to 5 when finished first", func(t *testing.T) {
+		t.Parallel()
+
+		player := models.NewPlayer()
+
+		player.AddDistrict(&districts.District{Cost: 1})
+
+		assert.Equal(t, 5, utils.CalculateScore(player, utils.ScoringOptions{FinishedFirst: true}))
 	})
 }

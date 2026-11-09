@@ -20,6 +20,10 @@ type DistrictInterface interface {
 	GetPlayer() PlayerInterface
 	SetPlayer(player PlayerInterface)
 	Buy(player PlayerInterface) error
+	GetCost() int
+	GetSymbol() string
+	IsUniqueDistrict() bool
+	Resolve() error
 }
 
 type BaseDistrict struct {
@@ -30,4 +34,24 @@ type BaseDistrict struct {
 	Level  int             `yaml:"level" json:"level"`
 	Symbol string          `yaml:"symbol" json:"symbol"`
 	Player PlayerInterface `yaml:"player" json:"player"`
+}
+
+func (b *BaseDistrict) GetCost() int {
+	return b.Cost
+}
+
+func (b *BaseDistrict) GetSymbol() string {
+	return b.Symbol
+}
+
+func (b *BaseDistrict) GetId() string {
+	return b.ID
+}
+
+func (b *BaseDistrict) IsUniqueDistrict() bool {
+	return b.Symbol == UniqueDistrict
+}
+
+func (b *BaseDistrict) Resolve() error {
+	return nil
 }
