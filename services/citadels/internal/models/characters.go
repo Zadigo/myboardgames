@@ -22,6 +22,7 @@ type CharacterInterface interface {
 	// 	options := models.CharacterOptions{Target: characters.Architect{}}
 	// 	character.Resolve(options) // is called to perform the action.
 	Resolve(options CharacterOptions) error
+	ResolveSecondary() error
 	GetId() string
 	GetName() string
 	IsKilled() bool
@@ -42,4 +43,8 @@ type BaseCharacter struct {
 	Killed    bool
 	Bewitched bool
 	Player    PlayerInterface
+}
+
+func (b *BaseCharacter) ResolveSecondary() error {
+	return nil
 }

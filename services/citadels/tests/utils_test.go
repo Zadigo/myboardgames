@@ -21,14 +21,17 @@ func TestExchangeDistricts(t *testing.T) {
 	})
 
 	t.Run("players exhange districts", func(t *testing.T) {
-		helperAddDistrictsToPlayers(players)
+		helperAddDistrictsToPlayers(p1, p2)
+
+		assert.Len(t, p1.GetDistricts(), 1)
+		assert.Len(t, p2.GetDistricts(), 3)
+
 		utils.ExchangeDistricts(p1, p2)
 
 		assert.Greater(t, len(p1.GetDistricts()), 0)
 		assert.Greater(t, len(p2.GetDistricts()), 0)
 
-		for _, d := range p1.GetDistricts() {
-			assert.Equal(t, d.GetPlayer(), p1.GetId())
-		}
+		assert.Len(t, p1.GetDistricts(), 3)
+		assert.Len(t, p2.GetDistricts(), 1)
 	})
 }

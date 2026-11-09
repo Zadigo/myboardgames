@@ -3,9 +3,9 @@ package tests
 import (
 	"testing"
 
-	"github.com/Zadigo/citadels/game"
 	"github.com/Zadigo/citadels/internal/characters"
 	"github.com/Zadigo/citadels/internal/districts"
+	"github.com/Zadigo/citadels/internal/game"
 	"github.com/Zadigo/citadels/internal/models"
 )
 
@@ -47,8 +47,22 @@ func helperCreatePlayers(n int) []models.PlayerInterface {
 	return players
 }
 
-func helperAddDistrictsToPlayers(players []models.PlayerInterface) {
-	for _, p := range players {
-		p.AddDistrict(&districts.District{})
+func helperAddDistrictsToPlayers(a models.PlayerInterface, b models.PlayerInterface) {
+	v := []districts.District{
+		{ID: "Z1", Name: "Z1"},
+	}
+
+	l := []districts.District{
+		{ID: "D1", Name: "D1"},
+		{ID: "D2", Name: "D2"},
+		{ID: "D3", Name: "D3"},
+	}
+
+	for _, d := range v {
+		a.AddDistrict(&d)
+	}
+
+	for _, d := range l {
+		b.AddDistrict(&d)
 	}
 }
