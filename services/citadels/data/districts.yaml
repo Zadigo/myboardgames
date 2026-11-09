@@ -1,0 +1,58 @@
+districts:
+  unique:
+    - name: Dragoon Gate
+      name_fr: 
+      cost: 3
+      level: 1
+    - name: Factory
+      name_fr: 
+      cost: 3
+      level: 1
+    - name: Haunted Quarter
+      name_fr: 
+      cost: 3
+      level: 1
+    - name: Imperial Treasury
+      name_fr: 
+      cost: 3
+      level: 1
+    - name: Keep
+      name_fr: 
+      cost: 3
+      level: 1
+    - name: Laboratory
+      name_fr: 
+      cost: 3
+      level: 1
+    - name: Library
+      name_fr: 
+      cost: 3
+      level: 1
+    - name: Map Room
+      name_fr: 
+      cost: 3
+      level: 1
+    - name: Quarry
+      name_fr: 
+      cost: 3
+      level: 1
+    - name: School of Magic
+      name_fr: 
+      cost: 3
+      level: 1
+    - name: Smithy
+      name_fr: 
+      cost: 3
+      level: 1
+    - name: Statue
+      name_fr: 
+      cost: 3
+      level: 1
+    - name: Thieve's Den
+      name_fr: 
+      cost: 3
+      level: 1
+    - name: Wishing Well
+      name_fr: 
+      cost: 3
+      level: 1

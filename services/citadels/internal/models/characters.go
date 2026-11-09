@@ -3,17 +3,17 @@ package models
 // MagicianOptions are specific options
 // for the Magician carachter
 type MagicianOptions struct {
-	Choice          string
-	DiscardQuantity int
+	Choice          string `json:"choice"`
+	DiscardQuantity int    `json:"discard_quantity"`
 }
 
 // CharacterOptions holds info for resolving a character's action.
 //   - Target: the character being targeted
 //   - CurrentGame: the game context
 type CharacterOptions struct {
-	Target      CharacterInterface
-	CurrentGame GameInterface
-	Magician    MagicianOptions
+	Target      CharacterInterface `json:"target"`
+	CurrentGame GameInterface      `json:"current_game"`
+	Magician    MagicianOptions    `json:"magician"`
 }
 
 type CharacterInterface interface {
@@ -36,13 +36,13 @@ type CharacterInterface interface {
 }
 
 type BaseCharacter struct {
-	ID        string
-	Level     int
-	Name      string
-	Image     string
-	Killed    bool
-	Bewitched bool
-	Player    PlayerInterface
+	ID        string          `json:"id"`
+	Level     int             `json:"level"`
+	Name      string          `json:"name"`
+	Image     string          `json:"image"`
+	Killed    bool            `json:"killed"`
+	Bewitched bool            `json:"bewitched"`
+	Player    PlayerInterface `json:"player"`
 }
 
 func (b *BaseCharacter) ResolveSecondary() error {

@@ -33,10 +33,10 @@ type PlayerInterface interface {
 }
 
 type Player struct {
-	ID                string
-	Districts         []DistrictInterface
-	Gold              int
-	SelectedCharacter CharacterInterface
+	ID                string              `json:"id"`
+	Districts         []DistrictInterface `json:"districts"`
+	Gold              int                 `json:"gold"`
+	SelectedCharacter CharacterInterface  `json:"selected_character"`
 }
 
 func (p *Player) GetId() string {
