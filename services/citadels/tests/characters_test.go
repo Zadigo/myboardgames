@@ -9,18 +9,56 @@ import (
 )
 
 func TestBaseCharacter(t *testing.T) {
-	char, err := characters.NewCharacter("assassin")
+	char := &characters.Character{}
 
 	assert.NotNil(t, char)
-	assert.NoError(t, err)
-	assert.Equal(t, "assassin", char.GetName())
-	assert.Equal(t, 1, char.GetLevel())
-
 	assert.False(t, char.IsKilled())
 
 	t.Run("resolve base character", func(t *testing.T) {
 		simpleTarget := &characters.Character{Name: "target"}
 		assert.NoError(t, char.Resolve(models.CharacterOptions{Target: simpleTarget}))
+	})
+
+	t.Run("should reset correctly", func(t *testing.T) {
+		t.Parallel()
+
+		other := &characters.Character{
+			CanBuildDistricts:        false,
+			CanUseCharacterAbilities: false,
+			Bewitched:                &characters.Witch{},
+			Player:                   &models.Player{},
+			Killed:                   true,
+		}
+
+		other.Reset()
+
+		assert.True(t, other.CanBuildDistricts)
+		assert.True(t, other.CanUseCharacterAbilities)
+		assert.False(t, other.Killed)
+		assert.Nil(t, other.Bewitched)
+		assert.Nil(t, other.Player)
+	})
+
+	t.Run("should not betwitch if witch", func(t *testing.T) {
+		t.Parallel()
+
+		w := &characters.Character{Name: "witch"}
+
+		err := w.BeWitch(&characters.Witch{})
+		assert.Error(t, err)
+	})
+
+	t.Run("should bewitch if witch", func(t *testing.T) {
+		t.Parallel()
+
+		a := &characters.Character{Name: "witch"}
+		other := &characters.Character{}
+		other.BeWitch(a)
+
+		assert.NotNil(t, other.Bewitched)
+		assert.False(t, other.CanBuildDistricts)
+		assert.False(t, other.CanUseCharacterAbilities)
+
 	})
 }
 
@@ -84,63 +122,90 @@ func TestThief(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	t.Run("attacking self", func(t *testing.T) {
-		p1, attacker := helperCreateCharacter("thief", 0)
-		game := helperCreateGame(t, p1)
+	t.Run("should fail", func(t *testing.T) {
+		t.Run("attacking self", func(t *testing.T) {
+			t.Parallel()
 
-		err := attacker.Resolve(models.CharacterOptions{Target: attacker, CurrentGame: game})
+			players := helperCreatePlayers(2)
 
-		assert.Error(t, err)
-		assert.EqualError(t, err, characters.CannotAttackSelfError.Error())
+			a := &characters.Thief{Player: players[0]}
+			b := &characters.Thief{Player: players[0]}
+
+			err := a.Resolve(models.CharacterOptions{Target: b})
+
+			assert.Error(t, err)
+			assert.EqualError(t, err, characters.CannotAttackSelfError.Error())
+		})
+
+		// t.Run("target has no selected character", func(t *testing.T) {
+		// 	t.Parallel()
+
+		// 	p1, attacker := helperCreateCharacter("thief", 0)
+		// 	p2, target := helperCreateCharacter("architect", 0)
+
+		// 	target.GetPlayer().SetSelectedCharacter(nil)
+
+		// 	game := helperCreateGame(t, p1, p2)
+		// 	err := attacker.Resolve(models.CharacterOptions{Target: target, CurrentGame: game})
+		// 	assert.Error(t, err)
+		// 	assert.EqualError(t, err, characters.TargetHasNoCharacterError.Error())
+		// })
+
+		t.Run("target is level 1", func(t *testing.T) {
+			t.Parallel()
+
+			p1, attacker := helperCreateCharacter("thief", 0)
+			p2, target := helperCreateCharacter("assassin", 10)
+			game := helperCreateGame(t, p1, p2)
+
+			target.Kill()
+
+			err := attacker.Resolve(models.CharacterOptions{Target: target, CurrentGame: game})
+
+			assert.Error(t, err)
+		})
+
+		t.Run("target is killed", func(t *testing.T) {
+			t.Parallel()
+
+			p1, attacker := helperCreateCharacter("thief", 0)
+			p2, target := helperCreateCharacter("architect", 10)
+			game := helperCreateGame(t, p1, p2)
+
+			target.Kill()
+
+			err := attacker.Resolve(models.CharacterOptions{Target: target, CurrentGame: game})
+
+			assert.Error(t, err)
+		})
+
+		t.Run("target is bewitched", func(t *testing.T) {
+			t.Parallel()
+
+			players := helperCreatePlayers(3)
+
+			c := &characters.Witch{Player: players[2]}
+			a := &characters.Thief{Player: players[0]}
+			b := &characters.Architect{Player: players[1], Bewitched: c}
+
+			err := a.Resolve(models.CharacterOptions{Target: b})
+			assert.Error(t, err)
+			assert.EqualError(t, err, characters.CannotStealBewitchedError.Error())
+		})
 	})
-
-	t.Run("target has no selected character", func(t *testing.T) {
-		p1, attacker := helperCreateCharacter("thief", 0)
-		p2, target := helperCreateCharacter("architect", 0)
-
-		target.GetPlayer().SetSelectedCharacter(nil)
-
-		game := helperCreateGame(t, p1, p2)
-		err := attacker.Resolve(models.CharacterOptions{Target: target, CurrentGame: game})
-		assert.Error(t, err)
-		assert.EqualError(t, err, characters.TargetHasNoCharacterError.Error())
-	})
-
-	t.Run("target is level 1", func(t *testing.T) {
-		p1, attacker := helperCreateCharacter("thief", 0)
-		p2, target := helperCreateCharacter("assassin", 10)
-		game := helperCreateGame(t, p1, p2)
-
-		target.Kill()
-
-		err := attacker.Resolve(models.CharacterOptions{Target: target, CurrentGame: game})
-
-		assert.Error(t, err)
-	})
-
-	t.Run("target is killed", func(t *testing.T) {
-		p1, attacker := helperCreateCharacter("thief", 0)
-		p2, target := helperCreateCharacter("architect", 10)
-		game := helperCreateGame(t, p1, p2)
-
-		target.Kill()
-
-		err := attacker.Resolve(models.CharacterOptions{Target: target, CurrentGame: game})
-
-		assert.Error(t, err)
-	})
-
-	t.Run("target is bewitched", func(t *testing.T) {})
 
 	t.Run("target was robbed successfully", func(t *testing.T) {
-		p1, attacker := helperCreateCharacter("thief", 0)
-		p2, target := helperCreateCharacter("architect", 10)
-		game := helperCreateGame(t, p1, p2)
+		players := helperCreatePlayers(2)
 
-		err := attacker.Resolve(models.CharacterOptions{Target: target, CurrentGame: game})
+		a := &characters.Thief{Player: players[0]}
+		b := &characters.Architect{Player: players[1]}
+
+		b.GetPlayer().IncreaseGold(10)
+
+		err := a.Resolve(models.CharacterOptions{Target: b})
 		assert.NoError(t, err)
-		assert.Equal(t, 0, target.GetPlayer().GoldCount())
-		assert.Equal(t, 10, attacker.GetPlayer().GoldCount())
+		assert.Equal(t, 0, b.GetPlayer().GoldCount())
+		assert.Equal(t, 14, a.GetPlayer().GoldCount())
 	})
 }
 

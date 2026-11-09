@@ -5,7 +5,6 @@ import (
 	"uuid"
 
 	"github.com/Zadigo/citadels/internal/models"
-	"github.com/Zadigo/citadels/internal/utils"
 )
 
 // const (
@@ -58,111 +57,8 @@ func (c *Character) Resolve(options models.CharacterOptions) error {
 	return nil
 }
 
-func (c *Character) GetId() string {
-	return c.ID
-}
-
-func (c *Character) GetName() string {
-	return c.Name
-}
-
-func (c *Character) IsKilled() bool {
-	return c.Killed
-}
-
-func (c *Character) IsBewitched() bool {
-	return c.Bewitched != nil
-}
-
-func (c *Character) GetLevel() int {
-	return c.Level
-}
-
 func (c *Character) Kill() {
 	c.Killed = true
-}
-
-func (c *Character) SetPlayer(player models.PlayerInterface) {
-	c.Player = player
-}
-
-func (c *Character) GetPlayer() models.PlayerInterface {
-	return c.Player
-}
-
-// Call the name of another character whom you wish to rob.
-// When a player reveals that character to take their turn, you immediately
-// take all of their gold. You cannot rob the rank 1 character (Assassin, Witch, or Magistrate),
-// the killed character, or the bewitched character.
-type Thief struct {
-	Character
-}
-
-func (t *Thief) Resolve(options models.CharacterOptions) error {
-	if options.Target.GetPlayer() == nil {
-		return fmt.Errorf("Target has no player")
-	}
-
-	if options.CurrentGame == nil {
-		return fmt.Errorf("No game")
-	}
-
-	for _, p := range options.CurrentGame.GetPlayers() {
-		// Skip the player that is attacking which is "self"
-		if t.GetPlayer() == options.Target.GetPlayer() {
-			return CannotAttackSelfError
-		}
-
-		selectedCharacter := p.GetSelectedCharacter()
-		if selectedCharacter == nil {
-			return TargetHasNoCharacterError
-		}
-
-		if p.GetSelectedCharacter().GetId() == options.Target.GetId() {
-			if selectedCharacter.GetLevel() == 1 {
-				return CannotStealLevelOneError
-			}
-
-			if selectedCharacter.IsKilled() {
-				return CannotStealKilledError
-			}
-
-			if selectedCharacter.IsBewitched() {
-				return CannotStealBewitchedError
-			}
-
-			_char := selectedCharacter
-
-			// if options.ForPlayer != nil {
-			// 	_char = options.ForPlayer.GetSelectedCharacter()
-			// }
-
-			goldCount := _char.GetPlayer().GoldCount()
-			_char.GetPlayer().DecreaseGold(goldCount)
-			t.GetPlayer().IncreaseGold(goldCount)
-
-		}
-	}
-	return nil
-}
-
-type Magician struct {
-	Character
-}
-
-func (m *Magician) Resolve(options models.CharacterOptions) error {
-	if err := checkOptions(options); err == nil {
-		switch options.Magician.Choice {
-		case "exchange":
-			utils.ExchangeDistricts(m.GetPlayer(), options.Target.GetPlayer())
-		case "discard":
-		default:
-			return InvalidMagicianChoiceError
-		}
-		return nil
-	} else {
-		return err
-	}
 }
 
 type King struct {

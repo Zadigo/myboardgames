@@ -1,5 +1,7 @@
 package models
 
+import "fmt"
+
 // MagicianOptions are specific options
 // for the Magician carachter
 type MagicianOptions struct {
@@ -43,7 +45,7 @@ type CharacterInterface interface {
 	SetPlayer(player PlayerInterface)
 	// GetPlayer returns the player controlling this character.
 	GetPlayer() PlayerInterface
-	BeWitch(witch CharacterInterface)
+	BeWitch(witch CharacterInterface) error
 	Reset()
 }
 
@@ -63,14 +65,58 @@ type BaseCharacter struct {
 	CanUseCharacterAbilities bool `json:"can_use_character_abilities"`
 }
 
+func (b *BaseCharacter) GetId() string {
+	return b.ID
+}
+
+func (b *BaseCharacter) GetName() string {
+	return b.Name
+}
+
+func (b *BaseCharacter) GetLevel() int {
+	return b.Level
+}
+
 func (b *BaseCharacter) ResolveSecondary() error {
 	return nil
 }
 
-func (b *BaseCharacter) BeWitch(witch CharacterInterface) {
+// BeWitch is used by the other characters when the witch resolves itself.
+//
+//	w := characters.Character{Name: "witch"}
+//	other := characters.Character{}
+//	other.BeWitch(w)
+//
+// This is equivalent to calling `Resolve` on the witch itself which then calls
+// ``BeWitch`` on the other character
+//
+//	w.Resolve(models.CharacterOptions{Target: other})
+func (b *BaseCharacter) BeWitch(witch CharacterInterface) error {
+	if b.Name == "witch" {
+		return fmt.Errorf("Cannot witch own self")
+	}
+
 	b.Bewitched = witch
 	b.CanBuildDistricts = false
 	b.CanUseCharacterAbilities = false
+
+	return nil
+}
+
+func (b *BaseCharacter) SetPlayer(player PlayerInterface) {
+	b.Player = player
+}
+
+func (b *BaseCharacter) GetPlayer() PlayerInterface {
+	return b.Player
+}
+
+func (b *BaseCharacter) IsKilled() bool {
+	return b.Killed
+}
+
+func (b *BaseCharacter) IsBewitched() bool {
+	return b.Bewitched != nil
 }
 
 func (b *BaseCharacter) Reset() {
