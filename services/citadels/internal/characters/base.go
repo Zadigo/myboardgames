@@ -48,7 +48,7 @@ func checkOptions(options models.CharacterOptions) error {
 	}
 
 	return nil
-} 
+}
 
 type Character struct {
 	models.BaseCharacter
@@ -71,7 +71,7 @@ func (c *Character) IsKilled() bool {
 }
 
 func (c *Character) IsBewitched() bool {
-	return c.Bewitched
+	return c.Bewitched != nil
 }
 
 func (c *Character) GetLevel() int {
@@ -88,19 +88,6 @@ func (c *Character) SetPlayer(player models.PlayerInterface) {
 
 func (c *Character) GetPlayer() models.PlayerInterface {
 	return c.Player
-}
-
-type Assassin struct {
-	Character
-}
-
-func (a *Assassin) Resolve(options models.CharacterOptions) error {
-	if options.Target == nil {
-		return fmt.Errorf("Assassin needs target")
-	} else {
-		options.Target.Kill()
-		return nil
-	}
 }
 
 // Call the name of another character whom you wish to rob.
@@ -121,8 +108,7 @@ func (t *Thief) Resolve(options models.CharacterOptions) error {
 	}
 
 	for _, p := range options.CurrentGame.GetPlayers() {
-		// Skip the player that is attacking
-		// which is "self"
+		// Skip the player that is attacking which is "self"
 		if t.GetPlayer() == options.Target.GetPlayer() {
 			return CannotAttackSelfError
 		}
@@ -145,9 +131,16 @@ func (t *Thief) Resolve(options models.CharacterOptions) error {
 				return CannotStealBewitchedError
 			}
 
-			goldCount := selectedCharacter.GetPlayer().GoldCount()
-			selectedCharacter.GetPlayer().DecreaseGold(goldCount)
+			_char := selectedCharacter
+
+			// if options.ForPlayer != nil {
+			// 	_char = options.ForPlayer.GetSelectedCharacter()
+			// }
+
+			goldCount := _char.GetPlayer().GoldCount()
+			_char.GetPlayer().DecreaseGold(goldCount)
 			t.GetPlayer().IncreaseGold(goldCount)
+
 		}
 	}
 	return nil
@@ -208,7 +201,7 @@ func NewCharacter(name string) (models.CharacterInterface, error) {
 		Name:      "",
 		Image:     "",
 		Killed:    false,
-		Bewitched: false,
+		Bewitched: nil,
 		Player:    nil,
 	}
 

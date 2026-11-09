@@ -26,6 +26,8 @@ func TestBaseCharacter(t *testing.T) {
 
 func TestAssassin(t *testing.T) {
 	t.Run("with valid target", func(t *testing.T) {
+		t.Parallel()
+
 		char := characters.Assassin{
 			BaseCharacter: models.BaseCharacter{},
 		}
@@ -35,14 +37,41 @@ func TestAssassin(t *testing.T) {
 		}
 
 		err := char.Resolve(models.CharacterOptions{Target: &target})
+
 		assert.NoError(t, err)
 		assert.True(t, target.IsKilled())
 	})
 
-	t.Run("with invalid target", func(t *testing.T) {
+	t.Run("should be ReplacedTarget when set", func(t *testing.T) {
+		t.Parallel()
+
 		char := characters.Assassin{}
-		err := char.Resolve(models.CharacterOptions{Target: nil})
-		assert.Error(t, err)
+		target := characters.Architect{}
+
+		err := char.Resolve(models.CharacterOptions{ReplacedTarget: &target})
+
+		assert.NoError(t, err)
+		assert.True(t, target.IsKilled())
+	})
+
+	t.Run("should raise errors", func(t *testing.T) {
+		t.Run("with invalid targets", func(t *testing.T) {
+			t.Parallel()
+
+			char := characters.Assassin{}
+			err := char.Resolve(models.CharacterOptions{Target: nil, ReplacedTarget: nil})
+			assert.Error(t, err)
+			assert.EqualError(t, err, characters.MissingTargetError.Error())
+		})
+
+		t.Run("ambiguous target", func(t *testing.T) {
+			t.Parallel()
+
+			w := characters.Assassin{}
+			err := w.Resolve(models.CharacterOptions{Target: &characters.Assassin{}, ReplacedTarget: &characters.Architect{}})
+			assert.Error(t, err)
+			assert.EqualError(t, err, characters.AmbiguousTargetError.Error())
+		})
 	})
 }
 
@@ -112,5 +141,34 @@ func TestThief(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, 0, target.GetPlayer().GoldCount())
 		assert.Equal(t, 10, attacker.GetPlayer().GoldCount())
+	})
+}
+
+func TestWitch(t *testing.T) {
+	players := helperCreatePlayers(3)
+
+	t.Run("should bewitch character", func(t *testing.T) {
+		a := characters.Assassin{
+			Player: players[0],
+		}
+
+		w := characters.Witch{
+			Player: players[1],
+		}
+
+		z := characters.Architect{
+			Player: players[2],
+		}
+
+		err := w.Resolve(models.CharacterOptions{
+			Target:         &a,
+			ReplacedTarget: &z,
+		})
+
+		assert.NoError(t, err)
+		assert.True(t, a.IsBewitched())
+		assert.False(t, a.CanBuildDistricts)
+		assert.False(t, a.CanUseCharacterAbilities)
+		assert.True(t, z.IsKilled())
 	})
 }
