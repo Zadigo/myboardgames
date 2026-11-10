@@ -9,13 +9,14 @@ type ObserverMessage struct {
 type SubjectInterface interface {
 	GetName() string
 	GetID() string
-	Update(ObserverMessage)
+	Update(ObserverMessage) error
 }
 
 type ObserverInterface interface {
 	SubjectCount() int
 	Register(observer SubjectInterface)
 	Deregister(observer SubjectInterface)
+	Notify(nameOrId string, message ObserverMessage)
 	NotifyAll(message ObserverMessage)
 }
 

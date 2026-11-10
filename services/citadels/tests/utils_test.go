@@ -66,11 +66,11 @@ func TestCalculateScore(t *testing.T) {
 
 		player := models.NewPlayer()
 
-		player.AddDistrict(&districts.District{Cost: 1, Symbol: districts.Religious})
-		player.AddDistrict(&districts.District{Cost: 1, Symbol: districts.Nobel})
-		player.AddDistrict(&districts.District{Cost: 1, Symbol: districts.Military})
-		player.AddDistrict(&districts.District{Cost: 1, Symbol: districts.Trade})
-		player.AddDistrict(&districts.District{Cost: 1, Symbol: districts.Unique})
+		player.AddDistrict(&districts.District{Cost: 1, DistrictType: districts.Religious})
+		player.AddDistrict(&districts.District{Cost: 1, DistrictType: districts.Nobel})
+		player.AddDistrict(&districts.District{Cost: 1, DistrictType: districts.Military})
+		player.AddDistrict(&districts.District{Cost: 1, DistrictType: districts.Trade})
+		player.AddDistrict(&districts.District{Cost: 1, DistrictType: districts.Unique})
 		// 1 + 1 + 1 + 1 + 1 + 3
 		assert.Equal(t, 8, utils.CalculateScore(player, utils.ScoringOptions{}))
 	})

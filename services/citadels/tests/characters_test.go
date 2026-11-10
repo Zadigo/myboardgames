@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/Zadigo/citadels/internal/characters"
+	"github.com/Zadigo/citadels/internal/districts"
 	"github.com/Zadigo/citadels/internal/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -256,5 +257,100 @@ func TestMagistrate(t *testing.T) {
 		assert.True(t, a.SignedWarrant)
 		assert.True(t, b.UnsignedWarrant)
 		assert.True(t, c.WarrantMarkerBack)
+	})
+}
+
+func TestMerchant(t *testing.T) {
+	t.Run("should add points for trade district", func(t *testing.T) {
+		t.Parallel()
+
+		players := helperCreatePlayers(1)
+		p1 := players[0]
+
+		d1 := &districts.District{DistrictType: districts.Trade}
+		p1.AddDistrict(d1)
+
+		merchant := characters.Merchant{Player: p1}
+		merchant.Resolve(models.CharacterOptions{})
+
+		assert.Equal(t, p1.GetPoints(), 2)
+	})
+
+	t.Run("no trade district", func(t *testing.T) {
+		t.Parallel()
+
+		players := helperCreatePlayers(1)
+		p1 := players[0]
+
+		d1 := &districts.District{DistrictType: districts.Nobel}
+		p1.AddDistrict(d1)
+
+		merchant := characters.Merchant{Player: p1}
+		merchant.Resolve(models.CharacterOptions{})
+
+		assert.Equal(t, p1.GetPoints(), 1)
+	})
+}
+
+func TestNavigator(t *testing.T) {
+	t.Run("should gain four golds", func(t *testing.T) {
+		t.Parallel()
+
+		players := helperCreatePlayers(1)
+		p1 := players[0]
+
+		navigator := characters.Navigator{Player: p1}
+		err := navigator.Resolve(models.CharacterOptions{
+			Navigator: models.NavigatorOptions{
+				GainFourGolds: true,
+			},
+		})
+
+		assert.NoError(t, err)
+		assert.Equal(t, p1.GoldCount(), 6)
+	})
+
+	t.Run("should gain four cards", func(t *testing.T) {
+		t.Skip("Not implemented yet")
+		t.Parallel()
+
+		players := helperCreatePlayers(1)
+		p1 := players[0]
+
+		d1 := &districts.District{DistrictType: districts.Nobel}
+		p1.AddDistrict(d1)
+
+		navigator := characters.Navigator{Player: p1}
+		err := navigator.Resolve(models.CharacterOptions{
+			Navigator: models.NavigatorOptions{
+				GainFourCards: true,
+			},
+		})
+
+		assert.NoError(t, err)
+		assert.Equal(t, p1.GetPoints(), 1)
+	})
+
+	t.Run("should raise errors", func(t *testing.T) {
+		t.Parallel()
+
+		t.Run("both options true", func(t *testing.T) {
+			navigator := characters.Navigator{}
+			err := navigator.Resolve(models.CharacterOptions{
+				Navigator: models.NavigatorOptions{
+					GainFourGolds: true,
+					GainFourCards: true,
+				},
+			})
+			assert.Error(t, err)
+		})
+
+		t.Run("both options false", func(t *testing.T) {
+			navigator := characters.Navigator{}
+			err := navigator.Resolve(models.CharacterOptions{
+				Navigator: models.NavigatorOptions{},
+			})
+			assert.Error(t, err)
+		})
 	})
 }

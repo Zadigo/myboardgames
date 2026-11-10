@@ -31,6 +31,7 @@ type PlayerInterface interface {
 	AddDistrict(district DistrictInterface)
 	ReplaceDistricts(districts []DistrictInterface)
 	AddPoints(points int)
+	GetPoints() int
 }
 
 type Player struct {
@@ -118,6 +119,9 @@ func (p *Player) ReplaceDistricts(districts []DistrictInterface) {
 
 func (p *Player) AddPoints(points int) {
 	p.Points += points
+}
+func (p *Player) GetPoints() int {
+	return p.Points
 }
 
 // TODO: Temporary location for player creation

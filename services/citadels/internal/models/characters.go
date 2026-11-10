@@ -21,6 +21,11 @@ type MagistrateOptions struct {
 	UnsignedWarrant   CharacterInterface `json:"unsigned_warrant"`
 }
 
+type NavigatorOptions struct {
+	GainFourGolds bool
+	GainFourCards bool
+}
+
 // CharacterOptions holds info for resolving a character's action.
 // The options can be used to target a character for an action
 //
@@ -37,6 +42,7 @@ type CharacterOptions struct {
 	CurrentGame    GameInterface      `json:"current_game"`
 	Magician       MagicianOptions    `json:"magician"`
 	Magistrate     MagistrateOptions  `json:"magistrate"`
+	Navigator      NavigatorOptions   `json:"navigator"`
 	// The player for whom this action is taken. In other words,
 	// the resolve (gains) of the targetted character will go to this player
 	// (the one controlling the attacker)

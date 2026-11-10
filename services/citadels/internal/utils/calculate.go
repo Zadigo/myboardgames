@@ -27,7 +27,7 @@ func CalculateScore(player models.PlayerInterface, options ScoringOptions) int {
 
 	for _, d := range player.GetDistricts() {
 		score += d.GetCost()
-		districtTypes[d.GetSymbol()] = true
+		districtTypes[d.GetDistrictType()] = true
 	}
 
 	var builtTypes int
