@@ -16,5 +16,7 @@ const (
 	AmbiguousTargetError      CharacterError = "Ambiguous target. Either set Target or ReplacedTarget"
 	MissingTargetError        CharacterError = "Target cannot be nil for this character"
 
+	InvalidMagistrateTargetError CharacterError = "Invalid magistrate target. Set UnsignedWarrant, SignedWarrant and WarrantMarkerBack"
+
 	InvalidMagicianChoiceError CharacterError = "Magician can either discard or exchange cards"
 )

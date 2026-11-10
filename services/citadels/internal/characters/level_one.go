@@ -55,3 +55,11 @@ func (w *Witch) Resolve(options models.CharacterOptions) error {
 type Magistrate struct {
 	Character
 }
+
+func (m *Magistrate) Resolve(options models.CharacterOptions) error {
+	if options.Magistrate.UnsignedWarrant == nil && options.Magistrate.SignedWarrant == nil && options.Magistrate.WarrantMarkerBack == nil {
+		return InvalidMagistrateTargetError
+	}
+
+	return nil
+}

@@ -2,6 +2,8 @@ package characters
 
 import (
 	"fmt"
+	"slices"
+	"uuid"
 
 	"github.com/Zadigo/citadels/internal/models"
 )
@@ -48,4 +50,34 @@ func (t *Thief) Resolve(options models.CharacterOptions) error {
 	_targettedPlayer.DecreaseGold(_targettedPlayer.GoldCount())
 
 	return nil
+}
+
+type Blackmailer struct {
+	Character
+}
+
+type Spy struct {
+	Character
+}
+
+func NewLevelOneCharacter(name string) (models.CharacterInterface, error) {
+	a := []string{AssassinCharacter, WitchCharacter, MagistrateCharacter}
+	if !slices.Contains(a, name) {
+		return nil, fmt.Errorf("not level one")
+	}
+
+	baseCharacter := models.BaseCharacter{
+		ID:    uuid.New().String(),
+		Level: 1,
+	}
+
+	switch name {
+	case AssassinCharacter:
+		return &Assassin{BaseCharacter: baseCharacter}, nil
+	case WitchCharacter:
+		return &Witch{BaseCharacter: baseCharacter}, nil
+	case MagistrateCharacter:
+		return &Magistrate{BaseCharacter: baseCharacter}, nil
+	}
+	return nil, fmt.Errorf("unknown level one character")
 }

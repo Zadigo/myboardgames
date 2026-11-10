@@ -7,35 +7,35 @@ import (
 	"github.com/Zadigo/citadels/internal/models"
 )
 
-// const (
-// 	Assassin = "assassin"
-//  Witch = "witch"
-//  Magistrate = "magistrate"
-//  Thief = "thief"
-//  Spy = "spy"
-//  Magician = "magician"
-//  Blackmailer = "blackmailer"
-//  Wizard = "wizard"
-//  Seer = "seer"
-//  King = "king"
-//  Patrician = "patrician"
-// 	Emperor = "emperor"
-//  Bishop = "bishop"
-//  Abbot = "abbot"
-// 	Alchemist = "alchemist"
-//	Trader = "trader"
-// 	Architect = "architect"
-//  Cardinal = "cardinal"
-//  Navigator = "navigator"
-//  Merchant = "merchant"
-//  Scholar = "scholar"
-//  Warlord = "warlord"
-//  Queen = "queen"
-//  Diplomat = "diplomat"
-//  Artist = "artist"
-//  TaxCollector = "tax_collector"
-//  Marshal = "marshal"
-// )
+const (
+	AssassinCharacter     string = "assassin"
+	WitchCharacter        string = "witch"
+	MagistrateCharacter   string = "magistrate"
+	ThiefCharacter        string = "thief"
+	SpyCharacter          string = "spy"
+	MagicianCharacter     string = "magician"
+	BlackmailerCharacter  string = "blackmailer"
+	WizardCharacter       string = "wizard"
+	SeerCharacter         string = "seer"
+	KingCharacter         string = "king"
+	PatricianCharacter    string = "patrician"
+	EmperorCharacter      string = "emperor"
+	BishopCharacter       string = "bishop"
+	AbbotCharacter        string = "abbot"
+	AlchemistCharacter    string = "alchemist"
+	TraderCharacter       string = "trader"
+	ArchitectCharacter    string = "architect"
+	CardinalCharacter     string = "cardinal"
+	NavigatorCharacter    string = "navigator"
+	MerchantCharacter     string = "merchant"
+	ScholarCharacter      string = "scholar"
+	WarlordCharacter      string = "warlord"
+	QueenCharacter        string = "queen"
+	DiplomatCharacter     string = "diplomat"
+	ArtistCharacter       string = "artist"
+	TaxCollectorCharacter string = "tax_collector"
+	MarshalCharacter      string = "marshal"
+)
 
 func checkOptions(options models.CharacterOptions) error {
 	if options.Target.GetPlayer() == nil {
@@ -61,26 +61,6 @@ func (c *Character) Kill() {
 	c.Killed = true
 }
 
-type King struct {
-	Character
-}
-
-type Bishop struct {
-	Character
-}
-
-type Merchant struct {
-	Character
-}
-
-type Architect struct {
-	Character
-}
-
-type Warlord struct {
-	Character
-}
-
 // NewCharacter creates a new Citadels character:
 //
 //	character := NewCharacter()
@@ -92,48 +72,58 @@ type Warlord struct {
 func NewCharacter(name string) (models.CharacterInterface, error) {
 	characterId := uuid.New().String()
 	baseCharacter := models.BaseCharacter{
-		ID:        characterId,
-		Level:     0,
-		Name:      "",
-		Image:     "",
-		Killed:    false,
-		Bewitched: nil,
-		Player:    nil,
+		ID:                       characterId,
+		Level:                    0,
+		Name:                     "",
+		Image:                    "",
+		Killed:                   false,
+		Bewitched:                nil,
+		Player:                   nil,
+		CanBuildDistricts:        true,
+		CanUseCharacterAbilities: true,
 	}
 
 	switch name {
-	case "assassin":
+	case AssassinCharacter:
 		baseCharacter.Level = 1
-		baseCharacter.Name = "assassin"
+		baseCharacter.Name = AssassinCharacter
 		return &Assassin{Character: Character{baseCharacter}}, nil
-	case "thief":
+	case ThiefCharacter:
 		baseCharacter.Level = 2
-		baseCharacter.Name = "thief"
+		baseCharacter.Name = ThiefCharacter
 		return &Thief{Character: Character{baseCharacter}}, nil
-	case "magician":
+	case MagicianCharacter:
 		baseCharacter.Level = 3
-		baseCharacter.Name = "magician"
+		baseCharacter.Name = MagicianCharacter
 		return &Magician{Character: Character{baseCharacter}}, nil
-	case "king":
+	case KingCharacter:
 		baseCharacter.Level = 4
-		baseCharacter.Name = "king"
+		baseCharacter.Name = KingCharacter
 		return &King{Character: Character{baseCharacter}}, nil
-	case "bishop":
+	case BishopCharacter:
 		baseCharacter.Level = 5
-		baseCharacter.Name = "bishop"
+		baseCharacter.Name = BishopCharacter
 		return &Bishop{Character: Character{baseCharacter}}, nil
-	case "merchant":
+	case MerchantCharacter:
 		baseCharacter.Level = 6
-		baseCharacter.Name = "merchant"
+		baseCharacter.Name = MerchantCharacter
 		return &Merchant{Character: Character{baseCharacter}}, nil
-	case "warlord":
+	case WarlordCharacter:
 		baseCharacter.Level = 8
-		baseCharacter.Name = "warlord"
+		baseCharacter.Name = WarlordCharacter
 		return &Warlord{Character: Character{baseCharacter}}, nil
-	case "architect":
+	case ArchitectCharacter:
 		baseCharacter.Level = 8
-		baseCharacter.Name = "architect"
+		baseCharacter.Name = ArchitectCharacter
 		return &Architect{Character: Character{baseCharacter}}, nil
+	case QueenCharacter:
+		baseCharacter.Level = 7
+		baseCharacter.Name = QueenCharacter
+		return &Queen{Character: Character{baseCharacter}}, nil
+	case TaxCollectorCharacter:
+		baseCharacter.Level = 7
+		baseCharacter.Name = TaxCollectorCharacter
+		return &TaxCollector{Character: Character{baseCharacter}}, nil
 	}
 	return nil, fmt.Errorf("unknown character: %s", name)
 }

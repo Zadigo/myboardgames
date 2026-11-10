@@ -23,3 +23,11 @@ func (m *Magician) Resolve(options models.CharacterOptions) error {
 		return err
 	}
 }
+
+type Seer struct {
+	Character
+}
+
+type Wizard struct {
+	Character
+}

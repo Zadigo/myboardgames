@@ -2,6 +2,12 @@ package models
 
 import "fmt"
 
+const (
+	SignedWarrant     string = "SignedWarrant"
+	UnsignedWarrant   string = "UnsignedWarrant"
+	WarrantMarkerBack string = "WarrantMarkerBack"
+)
+
 // MagicianOptions are specific options
 // for the Magician carachter
 type MagicianOptions struct {
@@ -9,9 +15,18 @@ type MagicianOptions struct {
 	DiscardQuantity int    `json:"discard_quantity"`
 }
 
+type MagistrateOptions struct {
+	WarrantMarkerBack CharacterInterface `json:"warrant_marker_back"`
+	SignedWarrant     CharacterInterface `json:"signed_warrant"`
+	UnsignedWarrant   CharacterInterface `json:"unsigned_warrant"`
+}
+
 // CharacterOptions holds info for resolving a character's action.
-//   - Target: the character being targeted
-//   - CurrentGame: the game context
+// The options can be used to target a character for an action
+//
+//	c := &characters.Character{}
+//	other := &characters.Character{}
+//	c.Resolve(models.CharacterOptions{Target: other})
 type CharacterOptions struct {
 	// The character that a card wants to attack/affect
 	Target CharacterInterface `json:"target"`
@@ -21,6 +36,7 @@ type CharacterOptions struct {
 	ReplacedTarget CharacterInterface `json:"replaced_target"`
 	CurrentGame    GameInterface      `json:"current_game"`
 	Magician       MagicianOptions    `json:"magician"`
+	Magistrate     MagistrateOptions  `json:"magistrate"`
 	// The player for whom this action is taken. In other words,
 	// the resolve (gains) of the targetted character will go to this player
 	// (the one controlling the attacker)
@@ -30,7 +46,7 @@ type CharacterOptions struct {
 type CharacterInterface interface {
 	// Resolve calls the character's action with the given options.
 	//
-	// 	options := models.CharacterOptions{Target: characters.Architect{}}
+	// 	options := models.CharacterOptions{Target: &characters.Architect{}}
 	// 	character.Resolve(options) // is called to perform the action.
 	Resolve(options CharacterOptions) error
 	// Resolve secondary actions of the card e.g. gaining points etc.
@@ -46,6 +62,9 @@ type CharacterInterface interface {
 	// GetPlayer returns the player controlling this character.
 	GetPlayer() PlayerInterface
 	BeWitch(witch CharacterInterface) error
+	PlaceWarrantMarkerBack(magistrate CharacterInterface) error
+	PlaceSignedWarrant(magistrate CharacterInterface) error
+	PlaceUnsignedWarrant(magistrate CharacterInterface) error
 	Reset()
 }
 
@@ -63,6 +82,9 @@ type BaseCharacter struct {
 	CanBuildDistricts bool `json:"can_build_districts"`
 	// Whether the character can use abilities this turn
 	CanUseCharacterAbilities bool `json:"can_use_character_abilities"`
+	UnsignedWarrant          bool `json:"unsigned_warrant"`
+	SignedWarrant            bool `json:"signed_warrant"`
+	WarrantMarkerBack        bool `json:"warrant_marker_back"`
 }
 
 func (b *BaseCharacter) GetId() string {
@@ -88,7 +110,7 @@ func (b *BaseCharacter) ResolveSecondary() error {
 //	other.BeWitch(w)
 //
 // This is equivalent to calling `Resolve` on the witch itself which then calls
-// ``BeWitch`` on the other character
+// “BeWitch“ on the other character
 //
 //	w.Resolve(models.CharacterOptions{Target: other})
 func (b *BaseCharacter) BeWitch(witch CharacterInterface) error {
@@ -101,6 +123,40 @@ func (b *BaseCharacter) BeWitch(witch CharacterInterface) error {
 	b.CanUseCharacterAbilities = false
 
 	return nil
+}
+
+func (b *BaseCharacter) checkWarrantState() error {
+	if b.WarrantMarkerBack || b.SignedWarrant || b.UnsignedWarrant {
+		return fmt.Errorf("warrant already placed")
+	}
+	return nil
+}
+
+func (b *BaseCharacter) PlaceSignedWarrant(magistrate CharacterInterface) error {
+	if err := b.checkWarrantState(); err != nil {
+		return err
+	} else {
+		b.SignedWarrant = true
+		return nil
+	}
+}
+
+func (b *BaseCharacter) PlaceUnsignedWarrant(magistrate CharacterInterface) error {
+	if err := b.checkWarrantState(); err != nil {
+		return err
+	} else {
+		b.UnsignedWarrant = true
+		return nil
+	}
+}
+
+func (b *BaseCharacter) PlaceWarrantMarkerBack(magistrate CharacterInterface) error {
+	if err := b.checkWarrantState(); err != nil {
+		return err
+	} else {
+		b.WarrantMarkerBack = true
+		return nil
+	}
 }
 
 func (b *BaseCharacter) SetPlayer(player PlayerInterface) {
@@ -125,4 +181,7 @@ func (b *BaseCharacter) Reset() {
 	b.Player = nil
 	b.CanBuildDistricts = true
 	b.CanUseCharacterAbilities = true
+	b.UnsignedWarrant = false
+	b.SignedWarrant = false
+	b.WarrantMarkerBack = false
 }

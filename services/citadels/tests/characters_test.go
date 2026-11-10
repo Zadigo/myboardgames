@@ -237,3 +237,24 @@ func TestWitch(t *testing.T) {
 		assert.True(t, z.IsKilled())
 	})
 }
+
+func TestMagistrate(t *testing.T) {
+	t.Run("cannot place warrant on self", func(t *testing.T) {})
+
+	t.Run("can place warrant on other characters", func(t *testing.T) {
+		players := helperCreatePlayers(3)
+
+		m := &characters.Magistrate{Player: players[0]}
+		a := &characters.Architect{Player: players[1]}
+		b := &characters.Scholar{Player: players[2]}
+		c := &characters.Blackmailer{Player: players[2]}
+
+		a.PlaceSignedWarrant(m)
+		b.PlaceUnsignedWarrant(m)
+		c.PlaceWarrantMarkerBack(m)
+
+		assert.True(t, a.SignedWarrant)
+		assert.True(t, b.UnsignedWarrant)
+		assert.True(t, c.WarrantMarkerBack)
+	})
+}
