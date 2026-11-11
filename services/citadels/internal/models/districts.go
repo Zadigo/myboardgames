@@ -9,11 +9,11 @@ const (
 )
 
 const (
-	RedSymbol    string = "red"    // Military
-	GreenSymbol  string = "green"  // Trade
-	BlueSymbol   string = "blue"   // Noble
-	YellowSymbol string = "yellow" // Religious
-	PurpleSymbol string = "purple" // Unique
+	RedSymbolDistrict    string = "red"    // Military
+	GreenSymbolDistrict  string = "green"  // Trade
+	BlueSymbolDistrict   string = "blue"   // Noble
+	YellowSymbolDistrict string = "yellow" // Religious
+	PurpleSymbolDistrict string = "purple" // Unique
 )
 
 type DistrictInterface interface {
@@ -49,15 +49,15 @@ func (b *BaseDistrict) GetDistrictType() string {
 func (b *BaseDistrict) GetSymbol() string {
 	switch b.DistrictType {
 	case TradeDistrict:
-		return GreenSymbol
+		return GreenSymbolDistrict
 	case MilitaryDistrict:
-		return RedSymbol
+		return RedSymbolDistrict
 	case NobleDistrict:
-		return BlueSymbol
+		return BlueSymbolDistrict
 	case ReligeousDistrict:
-		return YellowSymbol
+		return YellowSymbolDistrict
 	case UniqueDistrict:
-		return PurpleSymbol
+		return PurpleSymbolDistrict
 	}
 	return ""
 }
