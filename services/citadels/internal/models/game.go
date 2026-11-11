@@ -13,7 +13,8 @@ const (
 // communicates with Nuxt. Eeach action/phase allows the websocket to
 // implement a certain logic
 const (
-	WaitingForPlayers string = "waiting_for_players"
+	WaitingForPlayers  string = "waiting_for_players"
+	AcceptingNewPlayer string = "accepting_new_player"
 	// Stage used when initializing the game
 	// 	1. Place the character reminder cards on the table in order of rank
 	//	2. Shuffle the 14 unique district cards with the 54 basic ones

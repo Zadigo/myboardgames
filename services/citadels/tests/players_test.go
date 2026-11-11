@@ -10,7 +10,7 @@ import (
 
 func TestPlayers(t *testing.T) {
 	t.Run("should instiantiate player", func(t *testing.T) {
-		player := models.NewPlayer()
+		player := models.NewPlayer(nil)
 
 		assert.IsType(t, player, &models.Player{})
 		assert.Len(t, player.GetDistricts(), 0)
@@ -22,7 +22,7 @@ func TestPlayers(t *testing.T) {
 	t.Run("should get ID", func(t *testing.T) {
 		t.Parallel()
 
-		player := models.NewPlayer()
+		player := models.NewPlayer(nil)
 
 		result := player.GetId()
 		assert.NotEmpty(t, result)
@@ -32,7 +32,7 @@ func TestPlayers(t *testing.T) {
 		t.Parallel()
 
 		t.Run("take two golds", func(t *testing.T) {
-			player := models.NewPlayer()
+			player := models.NewPlayer(nil)
 			choices := models.PlayerChoices{GatherResources: true, TakeTwoGolds: true}
 
 			player.ApplyChoice(choices)
@@ -52,7 +52,7 @@ func TestPlayers(t *testing.T) {
 	t.Run("should increase gold", func(t *testing.T) {
 		t.Parallel()
 
-		player := models.NewPlayer()
+		player := models.NewPlayer(nil)
 
 		player.IncreaseGold(2)
 		assert.Equal(t, player.GoldCount(), 4)
@@ -66,7 +66,7 @@ func TestPlayers(t *testing.T) {
 	t.Run("should descrease gold by margin", func(t *testing.T) {
 		t.Parallel()
 
-		player := models.NewPlayer()
+		player := models.NewPlayer(nil)
 
 		player.DecreaseGold(1)
 		assert.Equal(t, 1, player.GoldCount())
@@ -75,7 +75,7 @@ func TestPlayers(t *testing.T) {
 	t.Run("should descrease beyond available gold to zero", func(t *testing.T) {
 		t.Parallel()
 
-		player := models.NewPlayer()
+		player := models.NewPlayer(nil)
 
 		player.DecreaseGold(15)
 		assert.Equal(t, 0, player.GoldCount())
@@ -84,7 +84,7 @@ func TestPlayers(t *testing.T) {
 	t.Run("should increase points", func(t *testing.T) {
 		t.Parallel()
 
-		player := models.NewPlayer()
+		player := models.NewPlayer(nil)
 		player.AddPoints(1)
 		assert.Equal(t, 1, player.GetPoints())
 	})
@@ -92,7 +92,7 @@ func TestPlayers(t *testing.T) {
 	t.Run("should set selected character", func(t *testing.T) {
 		t.Parallel()
 
-		player := models.NewPlayer()
+		player := models.NewPlayer(nil)
 		player.SetSelectedCharacter(&characters.King{})
 		assert.IsType(t, &characters.King{}, player.GetSelectedCharacter())
 	})

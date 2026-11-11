@@ -1,12 +1,16 @@
 package tests
 
 import (
+	"net/http"
+	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/Zadigo/citadels/internal/characters"
 	"github.com/Zadigo/citadels/internal/districts"
 	"github.com/Zadigo/citadels/internal/game"
 	"github.com/Zadigo/citadels/internal/models"
+	"github.com/gorilla/websocket"
 )
 
 // helper to create an empty target character (with no player, no gold)
@@ -20,7 +24,7 @@ func helperCreateEmptyTarget(t *testing.T) *characters.Architect {
 func helperCreateCharacter(name string, gold int) (models.PlayerInterface, models.CharacterInterface) {
 	c, _ := characters.NewCharacter(name)
 
-	p := models.NewPlayer()
+	p := models.NewPlayer(nil)
 
 	c.SetPlayer(p)
 	p.IncreaseGold(gold)
@@ -43,7 +47,7 @@ func helperCreatePlayers(n int) []models.PlayerInterface {
 	players := make([]models.PlayerInterface, n)
 
 	for i := range players {
-		players[i] = models.NewPlayer()
+		players[i] = models.NewPlayer(nil)
 	}
 
 	return players
@@ -67,4 +71,16 @@ func helperAddDistrictsToPlayers(a models.PlayerInterface, b models.PlayerInterf
 	for _, d := range l {
 		b.AddDistrict(&d)
 	}
+}
+
+func helperCreateConnection(t *testing.T, path string) (*websocket.Conn, *httptest.Server, *httptest.ResponseRecorder, error) {
+	t.Helper()
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
+	recorder := httptest.NewRecorder()
+
+	wsURL := "ws" + strings.TrimPrefix(server.URL, "http") + path
+	conn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+
+	return conn, server, recorder, err
 }

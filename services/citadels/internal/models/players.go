@@ -2,6 +2,8 @@ package models
 
 import (
 	"uuid"
+
+	"github.com/gorilla/websocket"
 )
 
 // On his turn, a player can:
@@ -40,6 +42,7 @@ type Player struct {
 	Gold              int                 `json:"gold"`
 	SelectedCharacter CharacterInterface  `json:"selected_character"`
 	Points            int                 `json:"points"`
+	conn              *websocket.Conn     `json:"-"`
 }
 
 func (p *Player) GetId() string {
@@ -125,11 +128,13 @@ func (p *Player) GetPoints() int {
 }
 
 // TODO: Temporary location for player creation
-func NewPlayer() PlayerInterface {
+func NewPlayer(conn *websocket.Conn) PlayerInterface {
 	return &Player{
 		ID:                uuid.New().String(),
+		Districts:         make([]DistrictInterface, 20),
 		Gold:              2,
-		Districts:         []DistrictInterface{},
 		SelectedCharacter: nil,
+		Points:            0,
+		conn:              conn,
 	}
 }

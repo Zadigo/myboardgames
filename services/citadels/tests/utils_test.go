@@ -42,7 +42,7 @@ func TestCalculateScore(t *testing.T) {
 	t.Run("should be 0", func(t *testing.T) {
 		t.Parallel()
 
-		player := models.NewPlayer()
+		player := models.NewPlayer(nil)
 
 		player.AddDistrict(&districts.District{})
 		player.AddDistrict(&districts.District{})
@@ -53,7 +53,7 @@ func TestCalculateScore(t *testing.T) {
 	t.Run("should be equal to 2", func(t *testing.T) {
 		t.Parallel()
 
-		player := models.NewPlayer()
+		player := models.NewPlayer(nil)
 
 		player.AddDistrict(&districts.District{Cost: 1})
 		player.AddDistrict(&districts.District{Cost: 1})
@@ -64,7 +64,7 @@ func TestCalculateScore(t *testing.T) {
 	t.Run("should be equal to 8 when each types", func(t *testing.T) {
 		t.Parallel()
 
-		player := models.NewPlayer()
+		player := models.NewPlayer(nil)
 
 		player.AddDistrict(&districts.District{Cost: 1, DistrictType: districts.Religious})
 		player.AddDistrict(&districts.District{Cost: 1, DistrictType: districts.Nobel})
@@ -78,7 +78,7 @@ func TestCalculateScore(t *testing.T) {
 	t.Run("should be equal to 5 when finished first", func(t *testing.T) {
 		t.Parallel()
 
-		player := models.NewPlayer()
+		player := models.NewPlayer(nil)
 
 		player.AddDistrict(&districts.District{Cost: 1})
 
