@@ -3,6 +3,7 @@ module github.com/Zadigo/citadels
 go 1.27.3
 
 require (
+	github.com/joho/godotenv v1.5.1
 	github.com/stretchr/testify v1.12.1
 	gopkg.in/yaml.v3 v3.0.1
 )

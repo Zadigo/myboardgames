@@ -3,6 +3,7 @@ package tests
 import (
 	"testing"
 
+	"github.com/Zadigo/citadels/internal/characters"
 	"github.com/Zadigo/citadels/internal/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -14,6 +15,7 @@ func TestPlayers(t *testing.T) {
 		assert.IsType(t, player, &models.Player{})
 		assert.Len(t, player.GetDistricts(), 0)
 		assert.Equal(t, player.GoldCount(), 2)
+		assert.Equal(t, 0, player.GetPoints())
 		assert.Nil(t, player.GetSelectedCharacter())
 	})
 
@@ -32,9 +34,9 @@ func TestPlayers(t *testing.T) {
 		t.Run("take two golds", func(t *testing.T) {
 			player := models.NewPlayer()
 			choices := models.PlayerChoices{GatherResources: true, TakeTwoGolds: true}
-			
+
 			player.ApplyChoice(choices)
-			
+
 			assert.Equal(t, 4, player.GoldCount())
 		})
 
@@ -54,6 +56,11 @@ func TestPlayers(t *testing.T) {
 
 		player.IncreaseGold(2)
 		assert.Equal(t, player.GoldCount(), 4)
+
+		t.Run("should reset increase", func(t *testing.T) {
+			player.ResetGold()
+			assert.Equal(t, 2, player.GoldCount())
+		})
 	})
 
 	t.Run("should descrease gold by margin", func(t *testing.T) {
@@ -65,12 +72,28 @@ func TestPlayers(t *testing.T) {
 		assert.Equal(t, 1, player.GoldCount())
 	})
 
-	t.Run("should descrease equals to zero", func(t *testing.T) {
+	t.Run("should descrease beyond available gold to zero", func(t *testing.T) {
 		t.Parallel()
 
 		player := models.NewPlayer()
 
 		player.DecreaseGold(15)
 		assert.Equal(t, 0, player.GoldCount())
+	})
+
+	t.Run("should increase points", func(t *testing.T) {
+		t.Parallel()
+
+		player := models.NewPlayer()
+		player.AddPoints(1)
+		assert.Equal(t, 1, player.GetPoints())
+	})
+
+	t.Run("should set selected character", func(t *testing.T) {
+		t.Parallel()
+
+		player := models.NewPlayer()
+		player.SetSelectedCharacter(&characters.King{})
+		assert.IsType(t, &characters.King{}, player.GetSelectedCharacter())
 	})
 }
