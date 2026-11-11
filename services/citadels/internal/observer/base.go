@@ -28,12 +28,14 @@ func (g *BaseObserver) Deregister(observer SubjectInterface) {
 	}
 }
 
-func (g *BaseObserver) Notify(nameOrId string, message ObserverMessage) {
-	// for _, o := range g.subjectsList {
-	// 	if o.GetID() == nameOrId || o.GetName() == nameOrId {
-	// 		chErrors <- o.Update(message)
-	// 	}
-	// }
+func (g *BaseObserver) Notify(nameOrId string, message ObserverMessage) error {
+	for _, o := range g.subjectsList {
+		if o.GetID() == nameOrId || o.GetName() == nameOrId {
+			return o.Update(message)
+		}
+	}
+	
+	return fmt.Errorf("subject not found")
 }
 
 func (g *BaseObserver) NotifyAll(message ObserverMessage) {

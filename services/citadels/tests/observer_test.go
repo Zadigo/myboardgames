@@ -38,6 +38,20 @@ func TestBaseObserver(t *testing.T) {
 		assert.Equal(t, 1, o.SubjectCount())
 	})
 
+	t.Run("notify by name", func(t *testing.T) {
+		t.Parallel()
+
+		o := observer.NewBaseObserver()
+		assert.IsType(t, o, &observer.BaseObserver{})
+
+		s := &SimpleSubject{Name: "Kendall"}
+		o.Register(s)
+		err := o.Notify("Kendall", observer.ObserverMessage{StrMessage: "Great"})
+
+		assert.NoError(t, err)
+		assert.Equal(t, 1, o.SubjectCount())
+	})
+
 	t.Run("erroring subject", func(t *testing.T) {
 		t.Parallel()
 

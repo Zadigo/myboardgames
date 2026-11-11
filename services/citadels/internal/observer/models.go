@@ -16,7 +16,7 @@ type ObserverInterface interface {
 	SubjectCount() int
 	Register(observer SubjectInterface)
 	Deregister(observer SubjectInterface)
-	Notify(nameOrId string, message ObserverMessage)
+	Notify(nameOrId string, message ObserverMessage) error
 	NotifyAll(message ObserverMessage)
 }
 
