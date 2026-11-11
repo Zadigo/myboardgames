@@ -33,7 +33,9 @@ func helperCreateCharacter(name string, gold int) (models.PlayerInterface, model
 func helperCreateGame(t *testing.T, players ...models.PlayerInterface) models.GameInterface {
 	t.Helper()
 	return &game.Game{
-		Players: players,
+		Table: &models.BaseTable{
+			Players: players,
+		},
 	}
 }
 

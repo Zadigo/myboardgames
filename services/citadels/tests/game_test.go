@@ -3,6 +3,7 @@ package tests
 import (
 	"testing"
 
+	"github.com/Zadigo/citadels/internal/characters"
 	"github.com/Zadigo/citadels/internal/game"
 	"github.com/Zadigo/citadels/internal/models"
 	"github.com/stretchr/testify/assert"
@@ -32,5 +33,24 @@ func TestGame(t *testing.T) {
 			remainders = append(remainders, rem)
 			assert.IsDecreasing(t, remainders, rem)
 		}
+	})
+}
+
+func TestCreateIndicators(t *testing.T) {
+	t.Run("should create indicators", func(t *testing.T) {
+		characters := []models.CharacterInterface{
+			&characters.Character{Name: "A", Level: 8},
+			&characters.Character{Name: "A", Level: 7},
+			&characters.Character{Name: "A", Level: 6},
+			&characters.Character{Name: "A", Level: 5},
+			&characters.Character{Name: "A", Level: 4},
+			&characters.Character{Name: "A", Level: 3},
+			&characters.Character{Name: "B", Level: 2},
+			&characters.Character{Name: "C", Level: 1},
+		}
+
+		table := &models.BaseTable{ResolutionIndicator: make([]models.BaseCharacterIndicator, 8)}
+		err := game.CreateIndicators(table, characters)
+		assert.NoError(t, err)
 	})
 }

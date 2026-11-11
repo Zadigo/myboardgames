@@ -82,14 +82,17 @@ type GameInterface interface {
 }
 
 type BaseTable struct {
-	// Players at the table
-	Players      []PlayerInterface
-	Characters   []string
-	Crown        PlayerInterface
-	Stage        string
-	DistrictPile PileInterface[DistrictInterface]
-	Phase        string
-	mu           sync.Mutex
+	// A helper to track character resolution order. There can
+	// only be 8 characters at most. With two players, the
+	// Emperor cannot be selected
+	ResolutionIndicator []BaseCharacterIndicator
+	Players             []PlayerInterface
+	Characters          []string
+	Crown               PlayerInterface
+	Stage               string
+	DistrictPile        PileInterface[DistrictInterface]
+	Phase               string
+	mu                  sync.Mutex
 }
 
 func (b *BaseTable) AddPlayer(player PlayerInterface) (remainingPlaces int) {
@@ -112,8 +115,8 @@ func (b *BaseTable) AddPlayer(player PlayerInterface) (remainingPlaces int) {
 // BaseGame represents an ongoing game.
 // Each game has a table for players to sit at.
 type BaseGame struct {
-	BaseTable
-	ID string
+	Table *BaseTable
+	ID    string
 }
 
 func (g *BaseGame) GetID() string {
@@ -121,21 +124,21 @@ func (g *BaseGame) GetID() string {
 }
 
 func (g *BaseGame) GetPlayers() []PlayerInterface {
-	return g.Players
+	return g.Table.Players
 }
 
 func (g *BaseGame) GetStage() string {
-	return g.Stage
+	return g.Table.Stage
 }
 
 func (g *BaseGame) GetCrownOwner() PlayerInterface {
-	return g.Crown
+	return g.Table.Crown
 }
 
 func (g *BaseGame) GetCharacters() []string {
-	return g.Characters
+	return g.Table.Characters
 }
 
 func (g *BaseGame) GetTable() *BaseTable {
-	return &g.BaseTable
+	return g.Table
 }

@@ -191,3 +191,11 @@ func (b *BaseCharacter) Reset() {
 	b.SignedWarrant = false
 	b.WarrantMarkerBack = false
 }
+
+// BaseCharacterIndicator is used by the computer on
+// the turn phase to keep track of the carachter
+// being resolved
+type BaseCharacterIndicator struct {
+	Name  string
+	Level int
+}

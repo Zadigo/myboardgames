@@ -9,6 +9,23 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestNewCharacterFunctions(t *testing.T) {
+	t.Run("create a single character", func(t *testing.T) {
+		char, err := characters.NewCharacter(characters.KingCharacter)
+		assert.NoError(t, err)
+		assert.NotNil(t, char)
+	})
+
+	t.Run("create new characters", func(t *testing.T) {
+		chars, err := characters.NewCharacters(characters.AssassinCharacter, characters.ThiefCharacter)
+
+		assert.NoError(t, err)
+		assert.Len(t, chars, 2)
+		assert.IsType(t, &characters.Assassin{}, chars[0])
+		assert.IsType(t, &characters.Thief{}, chars[1])
+	})
+}
+
 func TestBaseCharacter(t *testing.T) {
 	char := &characters.Character{}
 

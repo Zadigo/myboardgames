@@ -36,14 +36,19 @@ func (g *Game) Start() error {
 }
 
 func NewGame() models.GameInterface {
+	table := &models.BaseTable{
+		ResolutionIndicator: make([]models.BaseCharacterIndicator, 8),
+		Crown:               nil,
+		Characters:          make([]string, 8),
+		Players:             make([]models.PlayerInterface, 8),
+		Stage:               models.WaitingForPlayers,
+		DistrictPile:        nil,
+		Phase:               models.WaitingForPlayers,
+	}
+
 	game := &Game{
-		ID:           uuid.New().String(),
-		Crown:        nil,
-		Characters:   make([]string, 8),
-		Players:      make([]models.PlayerInterface, 8),
-		Stage:        models.WaitingForPlayers,
-		DistrictPile: nil,
-		Phase:        models.WaitingForPlayers,
+		ID:    uuid.New().String(),
+		Table: table,
 	}
 	return game
 }

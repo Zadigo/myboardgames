@@ -1,5 +1,11 @@
 package models
 
+type CharacterSelection struct {
+	Names  []string `json:"names"`
+	Random bool     `json:"random"`
+}
+
 type WebsocketMessage struct {
-	Action string `json:"action"`
+	CharacterSelection `json:"character_selection"`
+	Action             string `json:"action"`
 }

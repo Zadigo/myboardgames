@@ -5,6 +5,7 @@ import (
 	"uuid"
 
 	"github.com/Zadigo/citadels/internal/models"
+	"github.com/Zadigo/citadels/internal/utils"
 )
 
 const (
@@ -126,4 +127,21 @@ func NewCharacter(name string) (models.CharacterInterface, error) {
 		return &TaxCollector{Character: Character{baseCharacter}}, nil
 	}
 	return nil, fmt.Errorf("unknown character: %s", name)
+}
+
+func NewCharacters(names ...string) (characters []models.CharacterInterface, err error) {
+	characters = make([]models.CharacterInterface, len(names))
+
+	if utils.HasDuplicates(names) {
+		return nil, fmt.Errorf("duplicates found")
+	}
+
+	for i, n := range names {
+		c, err := NewCharacter(n)
+		if err != nil {
+			return nil, err
+		}
+		characters[i] = c
+	}
+	return
 }
