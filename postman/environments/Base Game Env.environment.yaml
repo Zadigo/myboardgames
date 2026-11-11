@@ -1,4 +1,0 @@
-name: Base Game Env
-values:
-  - key: golang
-    value: ''

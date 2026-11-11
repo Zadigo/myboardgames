@@ -3,6 +3,7 @@ package game
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/Zadigo/citadels/internal/utils"
 	"github.com/gorilla/websocket"
@@ -45,4 +46,14 @@ var CustomRequestUpgrader = websocket.Upgrader{
 
 		return utils.AllowedOrigins[origin]
 	},
+}
+
+func WsMiddleware(conn *websocket.Conn) {
+	conn.SetReadLimit(1024)
+	conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+
+	conn.SetPongHandler(func(string) error {
+		conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+		return nil
+	})
 }

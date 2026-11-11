@@ -15,7 +15,13 @@ func (h *GameHandler) Get(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to upgrade", http.StatusInternalServerError)
 		return
 	}
+
+	WsMiddleware(conn)
+
+	message := models.WebsocketMessage{Action: "must_identify"}
+	conn.WriteJSON(message)
 	defer conn.Close()
+
 	for {
 		var message models.WebsocketMessage
 		err = conn.ReadJSON(&message)

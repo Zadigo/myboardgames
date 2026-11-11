@@ -12,7 +12,7 @@ func (a *Application) loadRoutes() {
 
 	a.router.Use(middleware.RequestID)
 	a.router.Use(middleware.RealIP)
-	// a.router.Use(Cors)
+	a.router.Use(Cors)
 	// a.router.Use(Authorization)
 	a.router.Use(middleware.AllowContentType("application/json"))
 	a.router.Use(middleware.Throttle(1000))

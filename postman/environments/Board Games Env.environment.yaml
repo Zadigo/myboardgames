@@ -1,0 +1,6 @@
+name: Board Games Env
+values:
+  - key: golang
+    value: ''
+  - key: golangUrlV2
+    value: ''

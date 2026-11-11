@@ -27,7 +27,7 @@ func initApplication(ctx context.Context) error {
 	// Check the validity of the port
 	port := os.Getenv("CITADELS_PORT")
 	if port == "" {
-		os.Setenv("CITADELS_PORT", "8080")
+		os.Setenv("CITADELS_PORT", "8000")
 	} else {
 		port, err := strconv.Atoi(port)
 		if err != nil {
