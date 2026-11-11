@@ -17,7 +17,7 @@ func TestGame(t *testing.T) {
 		assert.Len(t, instance.GetPlayers(), 8)
 		assert.Len(t, instance.GetCharacters(), 8)
 		assert.Nil(t, instance.GetCrownOwner())
-		assert.Equal(t, instance.GetStage(), models.StageWaiting)
+		assert.Equal(t, instance.GetStage(), models.WaitingForPlayers)
 	})
 
 	t.Run("should add player when below 8", func(t *testing.T) {

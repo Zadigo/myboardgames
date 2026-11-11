@@ -1,11 +1,7 @@
 package districts
 
 import (
-	"os"
-	"path/filepath"
-
 	"github.com/Zadigo/citadels/internal/models"
-	"gopkg.in/yaml.v3"
 )
 
 const (
@@ -41,22 +37,5 @@ func (d *District) Buy(player models.PlayerInterface) error {
 type DistrictYaml struct {
 	Districts struct {
 		Unique []District
-	}
-}
-
-func ReadYamlFile() (districts *DistrictYaml, err error) {
-	absPath, err := filepath.Abs("../data/districts.yaml")
-	if err != nil {
-		return nil, err
-	}
-
-	if fileContent, err := os.ReadFile(absPath); err != nil {
-		return nil, err
-	} else {
-		if err := yaml.Unmarshal(fileContent, &districts); err != nil {
-			return nil, err
-		} else {
-			return districts, nil
-		}
 	}
 }
