@@ -75,4 +75,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	instance.NotifyAll(observer.ObserverMessage{StrMessage: "Citadels initialized"})
 }

@@ -1,11 +1,13 @@
 package observer
 
-import "sync"
+import (
+	"fmt"
+	"sync"
+)
 
 type BaseObserver struct {
 	BaseSubject
 	subjectsList []SubjectInterface `json:"-"`
-	chErrors     chan error         `json:"-"`
 }
 
 func (g *BaseObserver) SubjectCount() int {
@@ -27,37 +29,42 @@ func (g *BaseObserver) Deregister(observer SubjectInterface) {
 }
 
 func (g *BaseObserver) Notify(nameOrId string, message ObserverMessage) {
-	for _, o := range g.subjectsList {
-		if o.GetID() == nameOrId || o.GetName() == nameOrId {
-			g.chErrors <- o.Update(message)
-		}
-	}
+	// for _, o := range g.subjectsList {
+	// 	if o.GetID() == nameOrId || o.GetName() == nameOrId {
+	// 		chErrors <- o.Update(message)
+	// 	}
+	// }
 }
 
 func (g *BaseObserver) NotifyAll(message ObserverMessage) {
 	var wg sync.WaitGroup
+	chErrors := make(chan error, len(g.subjectsList))
 
 	for _, o := range g.subjectsList {
 		wg.Add(1)
 		go func(o SubjectInterface) {
-			if message.Sender == nil {
-				message.Sender = o
+			defer wg.Done()
+			_message := message
+			if _message.Sender == nil {
+				_message.Sender = o
 			}
-			g.chErrors <- o.Update(message)
-			wg.Done()
+			chErrors <- o.Update(_message)
 		}(o)
 	}
 
 	wg.Wait()
+	close(chErrors)
 
-	<-g.chErrors
-
-	close(g.chErrors)
+	for err := range chErrors {
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
 }
 
 func NewBaseObserver() ObserverInterface {
 	return &BaseObserver{
 		subjectsList: []SubjectInterface{},
-		chErrors:     make(chan error),
+		// chErrors:     make(chan error),
 	}
 }

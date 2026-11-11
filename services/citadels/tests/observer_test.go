@@ -25,8 +25,6 @@ func (s *ErroringSubject) Update(msg observer.ObserverMessage) error {
 }
 
 func TestBaseObserver(t *testing.T) {
-	t.Skip()
-
 	t.Run("simple subject", func(t *testing.T) {
 		t.Parallel()
 
