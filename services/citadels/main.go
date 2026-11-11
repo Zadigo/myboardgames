@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"uuid"
 
+	"github.com/Zadigo/citadels/internal/game"
 	"github.com/Zadigo/citadels/internal/observer"
 	"github.com/joho/godotenv"
 )
@@ -77,4 +78,7 @@ func main() {
 	}
 
 	instance.NotifyAll(observer.ObserverMessage{StrMessage: "Citadels initialized"})
+
+	app := game.NewHttpApplication()
+	app.Start(context)
 }

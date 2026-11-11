@@ -88,6 +88,7 @@ type BaseTable struct {
 	Crown        PlayerInterface
 	Stage        string
 	DistrictPile PileInterface[DistrictInterface]
+	Phase        string
 	mu           sync.Mutex
 }
 

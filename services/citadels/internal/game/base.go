@@ -43,6 +43,7 @@ func NewGame() models.GameInterface {
 		Players:      make([]models.PlayerInterface, 8),
 		Stage:        models.WaitingForPlayers,
 		DistrictPile: nil,
+		Phase:        models.WaitingForPlayers,
 	}
 	return game
 }
