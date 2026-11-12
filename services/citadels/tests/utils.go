@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -76,11 +77,21 @@ func helperAddDistrictsToPlayers(a models.PlayerInterface, b models.PlayerInterf
 func helperCreateConnection(t *testing.T, path string) (*websocket.Conn, *httptest.Server, *httptest.ResponseRecorder, error) {
 	t.Helper()
 
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
+	h := game.GameHandler{}
+	server := httptest.NewServer(http.HandlerFunc(h.Get))
 	recorder := httptest.NewRecorder()
 
 	wsURL := "ws" + strings.TrimPrefix(server.URL, "http") + path
-	conn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+	conn, response, err := websocket.DefaultDialer.Dial(wsURL, http.Header{"Origin": []string{"GoTest"}})
+
+	if err != nil {
+		if response != nil {
+			body, _ := io.ReadAll(response.Body)
+			response.Body.Close()
+			t.Fatalf("websocket dial failed (status %d): %v | body: %s", response.StatusCode, err, string(body))
+		}
+		t.Fatalf("websocket dial failed: %v", err)
+	}
 
 	return conn, server, recorder, err
 }

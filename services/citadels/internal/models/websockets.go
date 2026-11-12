@@ -7,5 +7,7 @@ type CharacterSelection struct {
 
 type WebsocketMessage struct {
 	CharacterSelection `json:"character_selection"`
-	Action             string `json:"action"`
+	Action             string         `json:"action"`
+	Data               map[string]any `json:"data"`
+	Message            string         `json:"message"`
 }

@@ -40,7 +40,7 @@ func NewGame() models.GameInterface {
 		ResolutionIndicator: make([]models.BaseCharacterIndicator, 8),
 		Crown:               nil,
 		Characters:          make([]string, 8),
-		Players:             make([]models.PlayerInterface, 8),
+		Players:             make([]models.PlayerInterface, 0, 8),
 		Stage:               models.WaitingForPlayers,
 		DistrictPile:        nil,
 		Phase:               models.WaitingForPlayers,

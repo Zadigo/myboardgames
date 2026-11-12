@@ -13,6 +13,7 @@ const (
 // communicates with Nuxt. Eeach action/phase allows the websocket to
 // implement a certain logic
 const (
+	NewGame            string = "new_game"
 	WaitingForPlayers  string = "waiting_for_players"
 	AcceptingNewPlayer string = "accepting_new_player"
 	// Stage used when initializing the game
@@ -97,20 +98,8 @@ type BaseTable struct {
 }
 
 func (b *BaseTable) AddPlayer(player PlayerInterface) (remainingPlaces int) {
-	for i := range b.Players {
-		if b.Players[i] == nil {
-			b.Players[i] = player
-			break
-		}
-	}
-
-	for i := range b.Players {
-		if b.Players[i] == nil {
-			remainingPlaces++
-		}
-	}
-
-	return remainingPlaces
+	b.Players = append(b.Players, player)
+	return 8 - len(b.Players)
 }
 
 // BaseGame represents an ongoing game.
