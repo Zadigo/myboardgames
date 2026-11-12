@@ -50,5 +50,7 @@ func NewGame() models.GameInterface {
 		ID:    uuid.New().String(),
 		Table: table,
 	}
+
+	game.Started.Store(true)
 	return game
 }

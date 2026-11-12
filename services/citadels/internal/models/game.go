@@ -2,6 +2,7 @@ package models
 
 import (
 	"sync"
+	"sync/atomic"
 )
 
 const (
@@ -81,6 +82,7 @@ type GameInterface interface {
 	GetID() string
 	Start() error
 	GetTable() *BaseTable
+	IsStarted() bool
 }
 
 type BaseTable struct {
@@ -105,8 +107,9 @@ func (b *BaseTable) AddPlayer(player PlayerInterface) (remainingPlaces int) {
 // BaseGame represents an ongoing game.
 // Each game has a table for players to sit at.
 type BaseGame struct {
-	Table *BaseTable
-	ID    string
+	ID      string
+	Table   *BaseTable
+	Started atomic.Bool
 }
 
 func (g *BaseGame) GetID() string {
@@ -131,4 +134,8 @@ func (g *BaseGame) GetCharacters() []string {
 
 func (g *BaseGame) GetTable() *BaseTable {
 	return g.Table
+}
+
+func (g *BaseGame) IsStarted() bool {
+	return g.Started.Load()
 }

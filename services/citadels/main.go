@@ -80,5 +80,7 @@ func main() {
 	instance.NotifyAll(observer.ObserverMessage{StrMessage: "Citadels initialized"})
 
 	app := game.NewHttpApplication()
-	app.Start(context)
+	go app.Start(context)
+
+	// registry := game.NewGames()
 }
