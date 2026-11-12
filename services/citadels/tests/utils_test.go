@@ -18,23 +18,23 @@ func TestExchangeDistricts(t *testing.T) {
 	t.Run("players have no districts", func(t *testing.T) {
 		utils.ExchangeDistricts(p1, p2)
 
-		assert.Len(t, p1.GetDistricts(), 0)
-		assert.Len(t, p2.GetDistricts(), 0)
+		assert.Len(t, p1.GetBuiltDistricts(), 0)
+		assert.Len(t, p2.GetBuiltDistricts(), 0)
 	})
 
 	t.Run("players exhange districts", func(t *testing.T) {
 		helperAddDistrictsToPlayers(p1, p2)
 
-		assert.Len(t, p1.GetDistricts(), 1)
-		assert.Len(t, p2.GetDistricts(), 3)
+		assert.Len(t, p1.GetBuiltDistricts(), 1)
+		assert.Len(t, p2.GetBuiltDistricts(), 3)
 
 		utils.ExchangeDistricts(p1, p2)
 
-		assert.Greater(t, len(p1.GetDistricts()), 0)
-		assert.Greater(t, len(p2.GetDistricts()), 0)
+		assert.Greater(t, len(p1.GetBuiltDistricts()), 0)
+		assert.Greater(t, len(p2.GetBuiltDistricts()), 0)
 
-		assert.Len(t, p1.GetDistricts(), 3)
-		assert.Len(t, p2.GetDistricts(), 1)
+		assert.Len(t, p1.GetBuiltDistricts(), 3)
+		assert.Len(t, p2.GetBuiltDistricts(), 1)
 	})
 }
 
@@ -44,8 +44,8 @@ func TestCalculateScore(t *testing.T) {
 
 		player := models.NewPlayer(nil)
 
-		player.AddDistrict(&districts.District{})
-		player.AddDistrict(&districts.District{})
+		player.BuildDistrict(&districts.District{})
+		player.BuildDistrict(&districts.District{})
 
 		assert.Equal(t, 0, utils.CalculateScore(player, utils.ScoringOptions{}))
 	})
@@ -55,8 +55,8 @@ func TestCalculateScore(t *testing.T) {
 
 		player := models.NewPlayer(nil)
 
-		player.AddDistrict(&districts.District{Cost: 1})
-		player.AddDistrict(&districts.District{Cost: 1})
+		player.BuildDistrict(&districts.District{Cost: 1})
+		player.BuildDistrict(&districts.District{Cost: 1})
 
 		assert.Equal(t, 2, utils.CalculateScore(player, utils.ScoringOptions{}))
 	})
@@ -66,11 +66,11 @@ func TestCalculateScore(t *testing.T) {
 
 		player := models.NewPlayer(nil)
 
-		player.AddDistrict(&districts.District{Cost: 1, DistrictType: districts.Religious})
-		player.AddDistrict(&districts.District{Cost: 1, DistrictType: districts.Nobel})
-		player.AddDistrict(&districts.District{Cost: 1, DistrictType: districts.Military})
-		player.AddDistrict(&districts.District{Cost: 1, DistrictType: districts.Trade})
-		player.AddDistrict(&districts.District{Cost: 1, DistrictType: districts.Unique})
+		player.BuildDistrict(&districts.District{Cost: 1, DistrictType: districts.Religious})
+		player.BuildDistrict(&districts.District{Cost: 1, DistrictType: districts.Nobel})
+		player.BuildDistrict(&districts.District{Cost: 1, DistrictType: districts.Military})
+		player.BuildDistrict(&districts.District{Cost: 1, DistrictType: districts.Trade})
+		player.BuildDistrict(&districts.District{Cost: 1, DistrictType: districts.Unique})
 		// 1 + 1 + 1 + 1 + 1 + 3
 		assert.Equal(t, 8, utils.CalculateScore(player, utils.ScoringOptions{}))
 	})
@@ -80,8 +80,15 @@ func TestCalculateScore(t *testing.T) {
 
 		player := models.NewPlayer(nil)
 
-		player.AddDistrict(&districts.District{Cost: 1})
+		player.BuildDistrict(&districts.District{Cost: 1})
 
 		assert.Equal(t, 5, utils.CalculateScore(player, utils.ScoringOptions{FinishedFirst: true}))
 	})
+}
+
+func TestFilter(t *testing.T) {
+	res := models.Filter([]int{1, 2, 3}, func(v int) bool {
+		return v > 1
+	})
+	assert.Equal(t, []int{2, 3}, res)
 }

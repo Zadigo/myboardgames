@@ -1,15 +1,13 @@
 package utils
 
-import (
-	"github.com/Zadigo/citadels/internal/models"
-)
+import "github.com/Zadigo/citadels/internal/models"
 
 type ScoringOptions struct {
 	FinishedFirst bool
 }
 
 func calculateUniqueDistrictsPoints(player models.PlayerInterface) {
-	for _, d := range player.GetDistricts() {
+	for _, d := range player.GetBuiltDistricts() {
 		d.Resolve()
 	}
 }
@@ -25,7 +23,7 @@ func CalculateScore(player models.PlayerInterface, options ScoringOptions) int {
 
 	score := 0
 
-	for _, d := range player.GetDistricts() {
+	for _, d := range player.GetBuiltDistricts() {
 		score += d.GetCost()
 		districtTypes[d.GetDistrictType()] = true
 	}

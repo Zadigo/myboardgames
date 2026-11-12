@@ -285,7 +285,7 @@ func TestMerchant(t *testing.T) {
 		p1 := players[0]
 
 		d1 := &districts.District{DistrictType: districts.Trade}
-		p1.AddDistrict(d1)
+		p1.BuildDistrict(d1)
 
 		merchant := &characters.Merchant{Player: p1}
 		merchant.Resolve(models.CharacterOptions{})
@@ -301,7 +301,7 @@ func TestMerchant(t *testing.T) {
 		p1 := players[0]
 
 		d1 := &districts.District{DistrictType: districts.Nobel}
-		p1.AddDistrict(d1)
+		p1.BuildDistrict(d1)
 
 		merchant := characters.Merchant{Player: p1}
 		merchant.Resolve(models.CharacterOptions{})
@@ -337,7 +337,7 @@ func TestNavigator(t *testing.T) {
 		p1 := players[0]
 
 		d1 := &districts.District{DistrictType: districts.Nobel}
-		p1.AddDistrict(d1)
+		p1.BuildDistrict(d1)
 
 		navigator := characters.Navigator{Player: p1}
 		err := navigator.Resolve(models.CharacterOptions{

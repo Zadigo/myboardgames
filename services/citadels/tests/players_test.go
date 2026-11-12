@@ -13,7 +13,7 @@ func TestPlayers(t *testing.T) {
 		player := models.NewPlayer(nil)
 
 		assert.IsType(t, player, &models.Player{})
-		assert.Len(t, player.GetDistricts(), 0)
+		assert.Len(t, player.GetBuiltDistricts(), 0)
 		assert.Equal(t, player.GoldCount(), 2)
 		assert.Equal(t, 0, player.GetPoints())
 		assert.Nil(t, player.GetSelectedCharacter())

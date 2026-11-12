@@ -15,7 +15,7 @@ func (m *Merchant) Resolve(options models.CharacterOptions) error {
 	player := m.GetPlayer()
 
 	// You gain one gold for each trade district in your city.
-	for _, d := range player.GetDistricts() {
+	for _, d := range player.GetBuiltDistricts() {
 		if d == nil {
 			continue
 		}

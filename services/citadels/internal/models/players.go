@@ -1,6 +1,7 @@
 package models
 
 import (
+	"sync/atomic"
 	"uuid"
 
 	"github.com/gorilla/websocket"
@@ -28,20 +29,25 @@ type PlayerInterface interface {
 	DecreaseGold(by int)
 	ResetGold()
 	GetSelectedCharacter() CharacterInterface
+	GetBuiltDistricts() []DistrictInterface
+	GetCurrentHand() []DistrictInterface
+	GetPoints() int
 	SetSelectedCharacter(c CharacterInterface)
-	GetDistricts() []DistrictInterface
-	AddDistrict(district DistrictInterface)
+	BuildDistrict(district DistrictInterface)
+	DrawDistricts(district []DistrictInterface)
 	ReplaceDistricts(districts []DistrictInterface)
 	AddPoints(points int)
-	GetPoints() int
+	HasCrown() bool
 }
 
 type Player struct {
 	ID                string              `json:"id"`
-	Districts         []DistrictInterface `json:"districts"`
+	BuiltDistricts    []DistrictInterface `json:"built_districts"`
+	CurrentHand       []DistrictInterface `json:"current_hand"`
 	Gold              int                 `json:"gold"`
 	SelectedCharacter CharacterInterface  `json:"selected_character"`
 	Points            int                 `json:"points"`
+	Crown             atomic.Bool         `json:"-"`
 	conn              *websocket.Conn     `json:"-"`
 }
 
@@ -98,24 +104,28 @@ func (p *Player) GetSelectedCharacter() CharacterInterface {
 	return p.SelectedCharacter
 }
 
+func (p *Player) GetCurrentHand() []DistrictInterface {
+	return p.CurrentHand
+}
+
 func (p *Player) SetSelectedCharacter(c CharacterInterface) {
 	p.SelectedCharacter = c
 }
 
-func (p *Player) GetDistricts() []DistrictInterface {
-	return p.Districts
+func (p *Player) GetBuiltDistricts() []DistrictInterface {
+	return p.BuiltDistricts
 }
 
 // AddDistrict adds a new district to the player
-func (p *Player) AddDistrict(district DistrictInterface) {
+func (p *Player) BuildDistrict(district DistrictInterface) {
 	// TODO: Check if the player was able to buy the district
-	p.Districts = append(p.Districts, district)
+	p.BuiltDistricts = append(p.BuiltDistricts, district)
 }
 
 // ReplaceDistricts replaces all districts of the player with new ones
 func (p *Player) ReplaceDistricts(districts []DistrictInterface) {
-	p.Districts = districts
-	for _, d := range p.Districts {
+	p.BuiltDistricts = districts
+	for _, d := range p.BuiltDistricts {
 		d.SetPlayer(p)
 	}
 }
@@ -123,15 +133,29 @@ func (p *Player) ReplaceDistricts(districts []DistrictInterface) {
 func (p *Player) AddPoints(points int) {
 	p.Points += points
 }
+
 func (p *Player) GetPoints() int {
 	return p.Points
+}
+
+func (p *Player) HasCrown() bool {
+	return p.Crown.Load()
+}
+
+func (p *Player) SetCrown(has bool) {
+	p.Crown.Store(has)
+}
+
+func (p *Player) DrawDistricts(d []DistrictInterface) {
+	p.CurrentHand = append(p.CurrentHand, d...)
 }
 
 // TODO: Temporary location for player creation
 func NewPlayer(conn *websocket.Conn) PlayerInterface {
 	return &Player{
 		ID:                uuid.New().String(),
-		Districts:         make([]DistrictInterface, 20),
+		BuiltDistricts:    make([]DistrictInterface, 20),
+		CurrentHand:       []DistrictInterface{},
 		Gold:              2,
 		SelectedCharacter: nil,
 		Points:            0,

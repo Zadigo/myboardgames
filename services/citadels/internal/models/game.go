@@ -1,7 +1,6 @@
 package models
 
 import (
-	"sync"
 	"sync/atomic"
 )
 
@@ -67,13 +66,6 @@ const (
 	GameEnd string = "game_end"
 )
 
-type PileInterface[T any] interface {
-	Shuffle()
-	GetFirstCard() T
-	GetXCards(k int) []T
-	PlaceCardAtBottom(cards ...T)
-}
-
 type GameInterface interface {
 	GetPlayers() []PlayerInterface
 	GetStage() string
@@ -83,25 +75,6 @@ type GameInterface interface {
 	Start() error
 	GetTable() *BaseTable
 	IsStarted() bool
-}
-
-type BaseTable struct {
-	// A helper to track character resolution order. There can
-	// only be 8 characters at most. With two players, the
-	// Emperor cannot be selected
-	ResolutionIndicator []BaseCharacterIndicator
-	Players             []PlayerInterface
-	Characters          []string
-	Crown               PlayerInterface
-	Stage               string
-	DistrictPile        PileInterface[DistrictInterface]
-	Phase               string
-	mu                  sync.Mutex
-}
-
-func (b *BaseTable) AddPlayer(player PlayerInterface) (remainingPlaces int) {
-	b.Players = append(b.Players, player)
-	return 8 - len(b.Players)
 }
 
 // BaseGame represents an ongoing game.

@@ -66,11 +66,11 @@ func helperAddDistrictsToPlayers(a models.PlayerInterface, b models.PlayerInterf
 	}
 
 	for _, d := range v {
-		a.AddDistrict(&d)
+		a.BuildDistrict(&d)
 	}
 
 	for _, d := range l {
-		b.AddDistrict(&d)
+		b.BuildDistrict(&d)
 	}
 }
 
