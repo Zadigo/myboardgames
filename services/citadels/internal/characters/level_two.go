@@ -8,6 +8,8 @@ import (
 	"github.com/Zadigo/citadels/internal/models"
 )
 
+// TODO: Fail against missing player on character
+
 // Call the name of another character whom you wish to rob.
 // When a player reveals that character to take their turn, you immediately
 // take all of their gold. You cannot rob the rank 1 character (Assassin, Witch, or Magistrate),
@@ -46,8 +48,9 @@ func (t *Thief) Resolve(options models.CharacterOptions) error {
 	}
 
 	_targettedPlayer := options.Target.GetPlayer()
-	t.Player.IncreaseGold(_targettedPlayer.GoldCount())
-	_targettedPlayer.DecreaseGold(_targettedPlayer.GoldCount())
+	goldCount := _targettedPlayer.GoldCount()
+	t.Player.IncreaseGold(goldCount)
+	_targettedPlayer.DecreaseGold(goldCount)
 
 	return nil
 }

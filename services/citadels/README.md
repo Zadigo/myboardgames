@@ -23,3 +23,23 @@ echo 'export PATH=$PATH:$GOPATH/bin' >> ~/.zshrc
 
 source ~/.zshrc
 ```
+
+```Shell
+
+# Profile CPU usage
+go test -run=^$ -bench=BenchmarkGames -benchmem -cpuprofile=cpu.out -memprofile=mem.out
+
+go tool pprof -top mem.out
+
+# Save your current output to a text file...
+go test -bench=. -benchmem > old.txt
+
+# ... make a code optimization, save the new output
+go test -bench=. -benchmem > new.txt
+
+# compare them using Go's official benchstat tool (golang.org/x/perf/cmd/benchstat) 
+# to verify whether improvements are statistically significant.
+
+# 
+go build -gcflags="-m" ./...
+```

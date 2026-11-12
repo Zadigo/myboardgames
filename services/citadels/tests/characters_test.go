@@ -287,10 +287,11 @@ func TestMerchant(t *testing.T) {
 		d1 := &districts.District{DistrictType: districts.Trade}
 		p1.AddDistrict(d1)
 
-		merchant := characters.Merchant{Player: p1}
+		merchant := &characters.Merchant{Player: p1}
 		merchant.Resolve(models.CharacterOptions{})
 
-		assert.Equal(t, p1.GetPoints(), 2)
+		assert.Equal(t, 1, p1.GetPoints())
+		assert.Equal(t, 3, p1.GoldCount())
 	})
 
 	t.Run("no trade district", func(t *testing.T) {
@@ -305,7 +306,8 @@ func TestMerchant(t *testing.T) {
 		merchant := characters.Merchant{Player: p1}
 		merchant.Resolve(models.CharacterOptions{})
 
-		assert.Equal(t, p1.GetPoints(), 1)
+		assert.Equal(t, 0, p1.GetPoints())
+		assert.Equal(t, 3, p1.GoldCount())
 	})
 }
 

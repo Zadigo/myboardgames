@@ -22,6 +22,25 @@ func TestGames(t *testing.T) {
 	})
 
 	t.Run("should remove game", func(t *testing.T) {
+		t.Parallel()
 
+		registry := game.NewGames()
+		id := registry.Create()
+		registry.Remove(id)
+
+		_, s := registry.Get(id)
+		assert.False(t, s)
 	})
+}
+
+func BenchmarkGames(b *testing.B) {
+	b.ResetTimer()
+
+	for b.Loop() {
+		registry := game.NewGames()
+		result := registry.Create()
+		if result == "" {
+			b.Fatal("expected non-empty result")
+		}
+	}
 }
