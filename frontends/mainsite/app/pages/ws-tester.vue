@@ -2,32 +2,32 @@
   <section id="test" class="relative">
     <div class="grid grid-cols-2">
       <div class="p-5 space-x-2">
-        <nuxt-button @click="ws.open()">
+        <u-button @click="ws.open()">
           1. Open
-        </nuxt-button>
+        </u-button>
         
-        <nuxt-button @click="identify">
+        <u-button @click="identify">
           2. Identify
-        </nuxt-button>
+        </u-button>
         
-        <nuxt-button @click="createTable">
+        <u-button @click="createTable">
           3. Create table
-        </nuxt-button>
+        </u-button>
 
-        <nuxt-button @click="startGame">
+        <u-button @click="startGame">
           3. Start game
-        </nuxt-button>
+        </u-button>
 
-        <nuxt-button @click="ws.close()">
+        <u-button @click="ws.close()">
           Simulate close
-        </nuxt-button>
+        </u-button>
       </div>
   
       <div class="p-5 bg-primary-100/10 shadow-2xl backdrop-blur-3xl w-full h-screen overflow-y-scroll space-y-3">
         <div class="p-2">
-          <nuxt-button @click="() => messages = []">
+          <u-button @click="() => messages = []">
             <icon name="lucide:trash" />
-          </nuxt-button>
+          </u-button>
         </div>
         
         <pre v-for="(message, idx) in messages" :key="idx" class="overflow-x-scroll p-3 bg-primary-50 dark:bg-primary-950 rounded-lg">

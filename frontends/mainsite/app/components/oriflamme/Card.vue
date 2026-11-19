@@ -4,9 +4,9 @@
       <nuxt-img :src="cardImage" :alt="card.name" class="w-full h-full absolute top-0 left-0 z-9 rounded-lg" @click="displayOptions(indexInQueue)" />
 
       <lazy-nuxt-popover mode="hover" hydrate-on-idle>
-        <nuxt-button class="absolute top-0 right-0 z-10">
+        <u-button class="absolute top-0 right-0 z-10">
           Help
-        </nuxt-button>
+        </u-button>
 
         <template #content>
           <div class="w-70 h-auto p-4">

@@ -32,10 +32,6 @@ export default defineNuxtConfig({
       }
     }
   },
-  
-  ui: {
-    prefix: 'Nuxt'
-  },
 
   fonts: {
     families: [
@@ -50,5 +46,11 @@ export default defineNuxtConfig({
 
   app: {
     pageTransition: { name: 'fade', mode: 'out-in' }
+  },
+
+  imports: {
+     dirs: [
+      '~/constants'
+     ]
   }
 })

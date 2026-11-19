@@ -10,9 +10,9 @@
 
         <div class="p-20">
           <div class="absolute left-5 top-1/2 -translate-y-1/2">
-            <nuxt-button id="previous-player">
+            <u-button id="previous-player">
               <icon name="lucide:arrow-left" />
-            </nuxt-button>
+            </u-button>
           </div>
 
           <div class="grid grid-cols-12 gap-2">
@@ -26,9 +26,9 @@
           </div>
 
           <div class="absolute right-5 top-1/2 -translate-y-1/2">
-            <nuxt-button id="next-player">
+            <u-button id="next-player">
               <icon name="lucide:arrow-right" />
-            </nuxt-button>
+            </u-button>
           </div>
         </div>
       </div>

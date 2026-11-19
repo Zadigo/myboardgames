@@ -1,15 +1,15 @@
 <template>
   <section id="some-game">
-    <nuxt-button to="/games/knarr">
+    <u-button to="/games/knarr">
       Knarr
-    </nuxt-button>
+    </u-button>
 
-    <nuxt-button to="/games/flip-seven">
+    <u-button to="/games/flip-seven">
       Flip Seven
-    </nuxt-button>
+    </u-button>
 
-    <nuxt-button to="/games/oriflamme">
+    <u-button to="/games/oriflamme">
       Oriflamme
-    </nuxt-button>
+    </u-button>
   </section>
 </template>

@@ -10,10 +10,10 @@
     </div>
 
     <div v-if="!isConnected" class="rounded-lg bg-primary-200 w-full p-10 text-center space-y-4">
-      <nuxt-button @click="reconnect">
+      <u-button @click="reconnect">
         <icon name="lucide:refresh-cw" />
         Reconnect
-      </nuxt-button>
+      </u-button>
     </div>
 
     <!-- Dev -->
@@ -21,13 +21,13 @@
 
     <!-- Actions -->
     <lazy-base-actions color="bg-flip-seven-200" hydrate-on-idle>
-      <nuxt-button>
+      <u-button>
         Action 1
-      </nuxt-button>
+      </u-button>
 
-      <nuxt-button>
+      <u-button>
         Action 2
-      </nuxt-button>
+      </u-button>
     </lazy-base-actions>
   </section>
 </template>

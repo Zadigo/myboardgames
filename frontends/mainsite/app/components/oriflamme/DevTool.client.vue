@@ -3,21 +3,21 @@
     <nuxt-badge :label="isOpen ? 'Connected' : 'Disconnected'" :color="isOpen ? 'success' : 'error'" />
 
     <div class="w-full space-x-2 space-y-2 mt-5">
-      <nuxt-button block @click="openConnection">
+      <u-button block @click="openConnection">
         Open
-      </nuxt-button>
+      </u-button>
 
-      <nuxt-button block @click="createGame">
+      <u-button block @click="createGame">
         Create game
-      </nuxt-button>
+      </u-button>
 
-      <nuxt-button block :to="`/games/oriflamme/live?table=${tableUuid}`" :disabled="!tableUuid" @click="startGame">
+      <u-button block :to="`/games/oriflamme/live?table=${tableUuid}`" :disabled="!tableUuid" @click="startGame">
         Join
-      </nuxt-button>
+      </u-button>
 
-      <nuxt-button block color="error" @click="quitTable">
+      <u-button block color="error" @click="quitTable">
         Close
-      </nuxt-button>
+      </u-button>
     </div>
   </div>
 </template>

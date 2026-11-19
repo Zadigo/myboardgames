@@ -1,19 +1,19 @@
 <template>
   <div id="actions" ref="actionEl" class="absolute top-0 right-0 bg-primary-500/20 backdrop-blur-2xl shadow-sm w-auto h-auto rounded-bl-2xl py-5 px-3 z-50 flex flex-col gap-2">
-    <nuxt-button variant="outline" @click="() => { togglePlayerHands() }">
+    <u-button variant="outline" @click="() => { togglePlayerHands() }">
       <icon name="lucide:hand" />
       Hands
-    </nuxt-button>
+    </u-button>
 
-    <nuxt-button variant="outline" @click="() => { toggleExploration() }">
+    <u-button variant="outline" @click="() => { toggleExploration() }">
       <icon name="lucide:map" />
       Exploration
-    </nuxt-button>
+    </u-button>
 
-    <nuxt-button variant="outline" @click="() => { toggleExploration() }">
+    <u-button variant="outline" @click="() => { toggleExploration() }">
       <icon name="lucide:message-circle" />
       Discussion
-    </nuxt-button>
+    </u-button>
   </div>
 </template>
 

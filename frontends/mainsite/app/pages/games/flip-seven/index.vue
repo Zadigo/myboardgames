@@ -1,16 +1,16 @@
 <template>
   <section id="some-game">
-    <nuxt-button @click="createTable">
+    <u-button @click="createTable">
       Open Flip 7 Game
-    </nuxt-button>
+    </u-button>
 
-    <!-- <nuxt-button @click="create">
+    <!-- <u-button @click="create">
       Create Flip 7 Game
-    </nuxt-button> -->
+    </u-button> -->
 
-    <nuxt-button :to="`/games/flip-seven/live?table=${tableId}`" :disabled="!tableId">
+    <u-button :to="`/games/flip-seven/live?table=${tableId}`" :disabled="!tableId">
       Join Flip 7 Game
-    </nuxt-button>
+    </u-button>
   </section>
 </template>
 

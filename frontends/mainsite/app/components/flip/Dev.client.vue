@@ -1,9 +1,9 @@
 <template>
   <dev-only>
     <div ref="devEl" class="fixed top-0 left-0 rounded-lg bg-primary-200/20 backdrop-blur-2xl shadow-md p-10 cursor-grab" :style="style">
-      <nuxt-button @click="getDeck">
+      <u-button @click="getDeck">
         Get deck
-      </nuxt-button>
+      </u-button>
 
       <div class="my-2">
         <p class="font-bol">

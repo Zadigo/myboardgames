@@ -1,7 +1,7 @@
 <template>
   <section id="some-game">
-    <nuxt-button to="/games/knarr/1">
+    <u-button to="/games/knarr/1">
       Game
-    </nuxt-button>
+    </u-button>
   </section>
 </template>

@@ -8,9 +8,9 @@
     <modals-help />
 
     <!-- Fabs -->
-    <nuxt-button size="xl" class="rounded-full fixed bottom-4 right-4" @click="() => { toggleShowHelpModal() }">
+    <u-button size="xl" class="rounded-full fixed bottom-4 right-4" @click="() => { toggleShowHelpModal() }">
       <icon name="lucide:circle-question-mark" /> {{ showHelpModal }}
-    </nuxt-button>
+    </u-button>
   </section>
 </template>
 
