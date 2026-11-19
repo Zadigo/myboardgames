@@ -10,6 +10,7 @@ import (
 )
 
 type ServerApp struct {
+	models.BaseServerApp
 }
 
 func (s *ServerApp) Start(ctx context.Context) {
@@ -19,7 +20,7 @@ func (s *ServerApp) Start(ctx context.Context) {
 
 	fmt.Print("Initializing main server")
 
-	http := httpapp.NewHttpApp(ctx)
+	http := httpapp.NewHttpApp(ctx, s)
 	go func(ctx context.Context) {
 		http.Start(ctx)
 	}(ctx)
@@ -40,6 +41,6 @@ func (s *ServerApp) Start(ctx context.Context) {
 	}
 }
 
-func NewServerApp(ctx context.Context, options *models.ServerAppOptions) models.AppInterface {
+func NewServerApp(ctx context.Context, options *models.ServerAppOptions) models.ServerAppInterface {
 	return &ServerApp{}
 }
