@@ -284,7 +284,7 @@ func TestMerchant(t *testing.T) {
 		players := helperCreatePlayers(1)
 		p1 := players[0]
 
-		d1 := &districts.District{DistrictType: districts.Trade}
+		d1 := &districts.District{DistrictType: districts.TradeDistrict}
 		p1.BuildDistrict(d1)
 
 		merchant := &characters.Merchant{Player: p1}
@@ -300,7 +300,7 @@ func TestMerchant(t *testing.T) {
 		players := helperCreatePlayers(1)
 		p1 := players[0]
 
-		d1 := &districts.District{DistrictType: districts.Nobel}
+		d1 := &districts.District{DistrictType: districts.NobelDistrict}
 		p1.BuildDistrict(d1)
 
 		merchant := characters.Merchant{Player: p1}
@@ -336,7 +336,7 @@ func TestNavigator(t *testing.T) {
 		players := helperCreatePlayers(1)
 		p1 := players[0]
 
-		d1 := &districts.District{DistrictType: districts.Nobel}
+		d1 := &districts.District{DistrictType: districts.NobelDistrict}
 		p1.BuildDistrict(d1)
 
 		navigator := characters.Navigator{Player: p1}

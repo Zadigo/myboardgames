@@ -73,3 +73,11 @@ func (b *BaseDistrict) IsUniqueDistrict() bool {
 func (b *BaseDistrict) Resolve() error {
 	return nil
 }
+
+func (d *BaseDistrict) GetPlayer() PlayerInterface {
+	return d.Player
+}
+
+func (d *BaseDistrict) SetPlayer(player PlayerInterface) {
+	d.Player = player
+}

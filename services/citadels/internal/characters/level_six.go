@@ -20,7 +20,7 @@ func (m *Merchant) Resolve(options models.CharacterOptions) error {
 			continue
 		}
 
-		if d.GetDistrictType() == districts.Trade {
+		if d.GetDistrictType() == districts.TradeDistrict {
 			points++
 		}
 	}
