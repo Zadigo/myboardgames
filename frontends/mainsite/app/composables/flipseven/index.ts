@@ -1,4 +1,4 @@
-import { WsActions, type Deck, type ReceiveMessage, type SendMessage, type TableDetails } from '~/types'
+import { WsActions, FlipSevenWsActions, type Deck, type ReceiveMessage, type SendMessage, type TableDetails } from '~/types'
 
 export const TEST_USERNAME = 'Player 1'
 
@@ -56,7 +56,7 @@ export const useFlipSevenLiveGameComposable = createGlobalState(() => {
             }
             break
 
-          case WsActions.CardFlipped:
+          case FlipSevenWsActions.CardFlipped:
             console.log('Received card flipped message:', message)
 
             tableDetails.value = message.tableDetails
@@ -125,7 +125,7 @@ export const useFlipSevenLiveGameComposable = createGlobalState(() => {
 
   function flipCard() {
     wsObject.send(encode<SendMessage>({
-      action: WsActions.FlipCard,
+      action: FlipSevenWsActions.FlipCard,
       tableId: tableId.value,
       playerId: TEST_USERNAME
     }))
