@@ -3,6 +3,7 @@ package games
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"myboardgames/minimalgo/internal/models"
 	"sync"
 	"uuid"
@@ -15,7 +16,20 @@ type GameServerApp struct {
 }
 
 func (g *GameServerApp) Start(ctx context.Context) {
-	fmt.Println("Initializing game server")
+	slog.Info("Initializing game server")
+
+	in := g.server.GetInternalChannel()
+	for {
+		select {
+		case msg, ok := <-in:
+			if !ok {
+				return
+			}
+			fmt.Print(msg)
+		case <-ctx.Done():
+			return
+		}
+	}
 }
 
 func (g *GameServerApp) CreateTable() {

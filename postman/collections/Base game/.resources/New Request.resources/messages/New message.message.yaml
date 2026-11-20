@@ -1,0 +1,8 @@
+$kind: websocket-message
+content: |-
+  {
+      "action": "create_table",
+      "user": "1234"
+  }
+contentType: json
+order: 1000

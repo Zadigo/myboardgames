@@ -1,10 +1,13 @@
 package http
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"myboardgames/minimalgo/internal/models"
 	"net/http"
+	"time"
 )
 
 type BaseHandlers struct {
@@ -20,19 +23,27 @@ func (b *BaseHandlers) JoinWebsite(w http.ResponseWriter, r *http.Request) {
 	WsMiddleware(conn)
 	client := NewWebsocketClient(conn)
 
-	defer func() {
-		b.app.RemoveClient(client)
-		err := conn.Close()
-		fmt.Println(err)
-	}()
-
 	b.app.AddClient(client)
+	defer b.app.RemoveClient(client)
+
+	send := func(value string) {
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+
+		message := models.InternalMessage{Client: client, Sender: models.HttpAppSender, StrMessage: value}
+		if err := b.app.server.WriteInternalMessage(ctx, message); err != nil {
+			slog.Warn("internal message dropped", "err", err)
+		}
+	}
+
+	send(models.ClientConnected)
+	defer send(models.ClientDisconnected)
 
 	for {
 		var message models.BaseWebsocketMessage
 		err = conn.ReadJSON(&message)
 		if err != nil {
-			fmt.Print(errors.Join(InvalidMessageError, err))
+			slog.Error(errors.Join(InvalidMessageError, err).Error())
 			break
 		}
 

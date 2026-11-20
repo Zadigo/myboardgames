@@ -3,6 +3,7 @@ package http
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"myboardgames/minimalgo/internal/models"
 	"net/http"
 
@@ -34,7 +35,8 @@ func (h *HttpApp) RemoveClient(client models.WebsocketClientInterface) {
 }
 
 func (h *HttpApp) Start(ctx context.Context) {
-	fmt.Println("Initializing HTTP server")
+	slog.Info("Initializing HTTP server")
+
 	server := &http.Server{Addr: ":9000", Handler: h.router}
 	err := server.ListenAndServe()
 	if err != nil {

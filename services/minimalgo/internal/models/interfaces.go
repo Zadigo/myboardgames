@@ -19,4 +19,6 @@ type WebsocketClientInterface interface {
 type ServerAppInterface interface {
 	AppInterface
 	UpdateClients(clients []WebsocketClientInterface)
+	WriteInternalMessage(ctx context.Context, msg InternalMessage) error
+	GetInternalChannel() <-chan InternalMessage
 }
