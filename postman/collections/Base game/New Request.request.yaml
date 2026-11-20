@@ -1,0 +1,7 @@
+$kind: websocket-request
+description: ""
+url: "{{golang}}"
+headers:
+  Origin: Postman/x
+settings: {}
+order: 1790073978742

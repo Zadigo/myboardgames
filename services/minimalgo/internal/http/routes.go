@@ -8,8 +8,8 @@ func (h *HttpApp) loadRoutes() {
 }
 
 func (h *HttpApp) loadBaseRoutes(r chi.Router) {
-	base := &BaseHandlers{}
-	r.Get("/create", base.JoinWebsite)
+	base := &BaseHandlers{app: h}
+	r.Get("/", base.JoinWebsite)
 	r.Route("/{tableId}", func(r chi.Router) {
 		r.Get("/join", base.JoinTable)
 		r.Get("/observe", base.ObserveTable)

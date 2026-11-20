@@ -43,7 +43,10 @@ func (h *HttpApp) Start(ctx context.Context) {
 }
 
 func NewHttpApp(ctx context.Context, server models.ServerAppInterface) models.AppInterface {
-	app := &HttpApp{server: server}
+	app := &HttpApp{
+		clients: []models.WebsocketClientInterface{},
+		server:  server,
+	}
 	app.loadRoutes()
 	return app
 }

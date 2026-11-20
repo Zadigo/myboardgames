@@ -5,6 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Minimal Go",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/services/minimalgo",
+            "presentation": {
+                "hidden": false,
+                "group": "Go",
+                "order": 1
+            }
+        },
+        {
             "name": "Generic Application",
             "type": "go",
             "request": "launch",

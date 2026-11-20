@@ -14,6 +14,7 @@ func (b *BaseHandlers) JoinWebsite(w http.ResponseWriter, r *http.Request) {
 	conn, err := CustomRequestUpgrader.Upgrade(w, r, nil)
 	if err != nil {
 		http.Error(w, "upgrade failed", http.StatusInternalServerError)
+		return
 	}
 	WsMiddleware(conn)
 	client := NewWebsocketClient(conn)

@@ -1,5 +1,7 @@
 package models
 
+import "fmt"
+
 type BaseHttpApp struct {
 }
 
@@ -11,6 +13,7 @@ type BaseServerApp struct {
 
 func (s *BaseServerApp) UpdateClients(clients []WebsocketClientInterface) {
 	s._clients = append(s._clients, clients...)
+	fmt.Printf("%d active clients", len(s._clients))
 }
 
 type ServerAppOptions struct{}
