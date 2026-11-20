@@ -3,14 +3,22 @@ package server
 import (
 	"context"
 	"fmt"
+	"myboardgames/minimalgo/internal/backend"
 	"myboardgames/minimalgo/internal/games"
 	httpapp "myboardgames/minimalgo/internal/http"
 	"myboardgames/minimalgo/internal/models"
 	"time"
+
+	"github.com/redis/go-redis/v9"
 )
 
 type ServerApp struct {
 	models.BaseServerApp
+	_redis *redis.Client
+}
+
+func (s *ServerApp) GetRedis() *redis.Client {
+	return s._redis
 }
 
 func (s *ServerApp) Start(ctx context.Context) {
@@ -20,15 +28,17 @@ func (s *ServerApp) Start(ctx context.Context) {
 
 	fmt.Println("Initializing main server")
 
-	http := httpapp.NewHttpApp(ctx, s)
+	httpApp := httpapp.NewHttpApp(ctx, s)
 	go func(ctx context.Context) {
-		http.Start(ctx)
+		httpApp.Start(ctx)
 	}(ctx)
 
 	gameApp := games.NewGameServerApp(ctx)
 	go func(ctx context.Context) {
 		gameApp.Start(ctx)
 	}(ctx)
+
+	go checkDjangoBackend(serverCtx, chError)
 
 	select {
 	case err := <-chError:
@@ -42,5 +52,9 @@ func (s *ServerApp) Start(ctx context.Context) {
 }
 
 func NewServerApp(ctx context.Context, options *models.ServerAppOptions) models.ServerAppInterface {
-	return &ServerApp{}
+	instance, err := backend.CreateRedisConnection()
+	if err != nil {
+		panic(err)
+	}
+	return &ServerApp{_redis: instance}
 }

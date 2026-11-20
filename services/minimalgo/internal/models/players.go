@@ -24,6 +24,10 @@ func (w *WebsocketClient) SetConn(conn *websocket.Conn) {
 	w.isActive.Store(true)
 }
 
+func (w *WebsocketClient) GetConn() *websocket.Conn {
+	return w.conn
+}
+
 func (w *WebsocketClient) IsActive() bool {
 	return w.isActive.Load()
 }

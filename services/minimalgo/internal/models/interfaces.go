@@ -13,6 +13,7 @@ type AppInterface interface {
 type WebsocketClientInterface interface {
 	IsActive() bool
 	SetConn(conn *websocket.Conn)
+	GetConn() *websocket.Conn
 }
 
 type ServerAppInterface interface {
