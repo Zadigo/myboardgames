@@ -3,6 +3,7 @@ package tests
 import (
 	"context"
 	"myboardgames/minimalgo/internal/games"
+	"myboardgames/minimalgo/internal/logic"
 	"myboardgames/minimalgo/internal/models"
 	"myboardgames/minimalgo/tests/utils"
 	"testing"
@@ -35,8 +36,23 @@ func TestGameServer(t *testing.T) {
 
 		ms, _ := utils.HelperMainServer(t)
 		s := games.NewGameServerApp(tCtx, ms)
-		s.CreateTable(nil)
+		s.CreateTable(tCtx, nil)
 
+		assert.Len(t, s.GetTables(), 1)
+	})
+}
+
+func TestCreateTable(t *testing.T) {
+	t.Run("should be able to run a table", func(t *testing.T) {
+		tCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		ms, _ := utils.HelperMainServer(t)
+		s := games.NewGameServerApp(tCtx, ms)
+		table := s.CreateTable(tCtx, nil)
+
+		assert.NotNil(t, table)
+		assert.IsType(t, table, &logic.ExampleTable{})
 		assert.Len(t, s.GetTables(), 1)
 	})
 }

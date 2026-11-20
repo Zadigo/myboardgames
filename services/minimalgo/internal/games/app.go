@@ -3,15 +3,15 @@ package games
 import (
 	"context"
 	"log/slog"
+	"myboardgames/minimalgo/internal/logic"
 	"myboardgames/minimalgo/internal/models"
 	"sync"
-	"uuid"
 )
 
 type GameServerApp struct {
 	tables map[string]models.TableInterface
 	server models.ServerAppInterface
-	mu     sync.Mutex
+	mu     sync.RWMutex
 }
 
 // Start listens for messages coming from the Chi HTTP
@@ -33,7 +33,7 @@ func (g *GameServerApp) Start(ctx context.Context) error {
 
 			switch msg.Action {
 			case models.CreateTable:
-				_, table := g.CreateTable(nil)
+				table := g.CreateTable(ctx, nil)
 				g.server.WriteInternalMessage(ctx, models.InternalMessage{
 					Table: table,
 				})
@@ -44,15 +44,24 @@ func (g *GameServerApp) Start(ctx context.Context) error {
 	}
 }
 
-func (g *GameServerApp) CreateTable(game models.GameInterface) (string, models.TableInterface) {
+// CreateTable creates a goroutine for the specific table and returns it to the caller
+func (g *GameServerApp) CreateTable(ctx context.Context, game models.GameLogicInterface) models.TableInterface {
+	table := logic.NewExampleTable()
+	table.Setup(game)
+
 	g.mu.Lock()
-	defer g.mu.Unlock()
-
-	table := &models.Table{ID: uuid.New().String()}
-	table.SetGame(game)
-
 	g.tables[table.ID] = table
-	return table.ID, table
+	g.mu.Unlock()
+
+	go func() {
+		table.Run(ctx)
+
+		g.mu.Lock()
+		delete(g.tables, table.ID) // cleanup when the table ends
+		g.mu.Unlock()
+	}()
+
+	return table
 }
 
 func (g *GameServerApp) GetTables() []models.TableInterface {
@@ -60,6 +69,7 @@ func (g *GameServerApp) GetTables() []models.TableInterface {
 	for _, v := range g.tables {
 		values = append(values, v)
 	}
+
 	return values
 }
 

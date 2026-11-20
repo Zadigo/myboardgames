@@ -12,7 +12,7 @@ type AppInterface interface {
 
 type GameServerInterface interface {
 	AppInterface
-	CreateTable(game GameInterface) (string, TableInterface)
+	CreateTable(ctx context.Context, game GameLogicInterface) TableInterface
 	GetTables() []TableInterface
 }
 
