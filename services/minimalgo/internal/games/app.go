@@ -2,7 +2,6 @@ package games
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"myboardgames/minimalgo/internal/models"
 	"sync"
@@ -31,14 +30,14 @@ func (g *GameServerApp) Start(ctx context.Context) {
 			if msg.Sender != models.HttpAppSender {
 				continue
 			}
-			fmt.Println(msg)
-			// switch msg.StrMessage {
-			// case models.CreateTable:
-			// 	_, table := g.CreateTable(nil)
-			// 	g.server.WriteInternalMessage(ctx, models.InternalMessage{
-			// 		Table: table,
-			// 	})
-			// }
+
+			switch msg.Action {
+			case models.CreateTable:
+				_, table := g.CreateTable(nil)
+				g.server.WriteInternalMessage(ctx, models.InternalMessage{
+					Table: table,
+				})
+			}
 		case <-ctx.Done():
 			return
 		}

@@ -20,11 +20,12 @@ const (
 )
 
 type InternalMessage struct {
-	Client      WebsocketClientInterface
-	Sender      string
-	StrMessage  string
-	JsonMessage map[string]any
-	Table       TableInterface
+	Client      WebsocketClientInterface `json:"-"`
+	Sender      string                   `json:"sender"`
+	Action      string                   `json:"action"`
+	StrMessage  string                   `json:"str_message"`
+	JsonMessage map[string]any           `json:"json_message"`
+	Table       TableInterface           `json:"-"`
 }
 
 type InternalErrorMessage struct {

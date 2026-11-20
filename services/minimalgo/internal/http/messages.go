@@ -9,6 +9,8 @@ func authenticationMessage(app *HttpApp, client models.WebsocketClientInterface,
 	switch message.Action {
 	case models.HelloPing:
 		client.GetConn().WriteMessage(1, []byte("Hello"))
+	default:
+		return
 	}
 }
 
@@ -23,9 +25,11 @@ func gameRelatedMessage(app *HttpApp, client models.WebsocketClientInterface, me
 	switch message.Action {
 	case models.CreateTable:
 		app.server.WriteInternalMessage(context.TODO(), models.InternalMessage{
-			Client:     client,
-			Sender:     models.HttpAppSender,
-			StrMessage: models.CreateTable,
+			Client: client,
+			Action: models.CreateTable,
+			Sender: models.HttpAppSender,
 		})
+	default:
+		return
 	}
 }
