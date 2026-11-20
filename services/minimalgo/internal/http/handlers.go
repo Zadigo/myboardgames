@@ -33,6 +33,9 @@ func (b *BaseHandlers) JoinWebsite(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 		fmt.Print(message)
+
+		authenticationMessage(client, message)
+		gameRelatedMessage(client, message)
 	}
 }
 

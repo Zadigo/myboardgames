@@ -1,9 +1,26 @@
 package http
 
-import "github.com/go-chi/chi/v5"
+import (
+	"time"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+)
 
 func (h *HttpApp) loadRoutes() {
 	h.router = chi.NewRouter()
+
+	h.router.Use(middleware.RequestID)
+	h.router.Use(middleware.ClientIPFromRemoteAddr)
+	h.router.Use(Cors)
+	// h.router.Use(Authorization)
+	h.router.Use(middleware.AllowContentType("application/json"))
+	h.router.Use(middleware.Throttle(1000))
+	h.router.Use(middleware.Logger)
+	h.router.Use(middleware.Recoverer)
+	// h.router.Use(JsonHeartbeat("/health"))
+	h.router.Use(middleware.Timeout(60 * time.Second))
+
 	h.router.Route("/v1/", h.loadBaseRoutes)
 }
 

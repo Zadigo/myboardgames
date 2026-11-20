@@ -6,15 +6,19 @@ import (
 	"myboardgames/minimalgo/internal/server"
 	"os"
 	"os/signal"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	err := godotenv.Load(".env")
+	if err != nil {
+		panic(err)
+	}
+
 	ctx := context.Background()
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt, os.Kill)
 	defer cancel()
-
-	// app := app.NewHttpApp(ctx)
-	// app.Start()
 
 	server := server.NewServerApp(ctx, &models.ServerAppOptions{})
 	server.Start(ctx)

@@ -1,3 +1,10 @@
 package models
 
-type BaseWebsocketMessage struct{}
+const (
+	StartGame    string = "start_game"
+	MustIdentify string = "must_identify"
+)
+
+type BaseWebsocketMessage struct {
+	Action string
+}
