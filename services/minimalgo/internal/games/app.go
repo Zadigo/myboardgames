@@ -56,7 +56,15 @@ func (g *GameServerApp) CreateTable(game models.GameInterface) (string, models.T
 	return table.ID, table
 }
 
-func NewGameServerApp(ctx context.Context, server models.ServerAppInterface) models.AppInterface {
+func (g *GameServerApp) GetTables() []models.TableInterface {
+	values := []models.TableInterface{}
+	for _, v := range g.tables {
+		values = append(values, v)
+	}
+	return values
+}
+
+func NewGameServerApp(ctx context.Context, server models.ServerAppInterface) models.GameServerInterface {
 	return &GameServerApp{
 		tables: make(map[string]models.TableInterface),
 		server: server,

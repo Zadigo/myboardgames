@@ -9,6 +9,7 @@ import (
 	"myboardgames/minimalgo/internal/http"
 	"myboardgames/minimalgo/internal/models"
 	"sync"
+	"sync/atomic"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -19,6 +20,11 @@ type ServerApp struct {
 	// Channel that allows the HTTP app to communicate
 	// with gameApp and inversely
 	ChInternal chan models.InternalMessage
+	isActive   atomic.Bool
+}
+
+func (s *ServerApp) GetState() bool {
+	return s.isActive.Load()
 }
 
 func (s *ServerApp) WriteInternalMessage(ctx context.Context, msg models.InternalMessage) error {
@@ -87,6 +93,8 @@ func (s *ServerApp) Start(ctx context.Context) {
 	// 	checkDjangoBackend(serverCtx, chError)
 	// })
 
+	s.isActive.Store(true)
+
 	<-serverCtx.Done()
 
 	wg.Wait()
@@ -100,5 +108,6 @@ func NewServerApp(ctx context.Context, options *models.ServerAppOptions) models.
 	return &ServerApp{
 		_redis:     instance,
 		ChInternal: make(chan models.InternalMessage, 64),
+		isActive:   atomic.Bool{},
 	}
 }
