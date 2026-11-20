@@ -29,3 +29,7 @@ TAB --> CL(Clients)
 ### Logic
 
 The logic itself of the game that is being implemented should be located under the [the logic folder](services/minimalgo/logic).
+
+## Testing
+
+Testing for the logic of the game should be written under [tests/logic](/services/minimalgo/tests/logic)

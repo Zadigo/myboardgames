@@ -1,17 +1,28 @@
 package http
 
 import (
-	"fmt"
+	"context"
 	"myboardgames/minimalgo/internal/models"
 )
 
-func authenticationMessage(client models.WebsocketClientInterface, message models.BaseWebsocketMessage) {
-	switch message.Action {
-	case models.MustIdentify:
-		fmt.Println(message)
-	}
+func authenticationMessage(app *HttpApp, client models.WebsocketClientInterface, message models.BaseWebsocketMessage) {
+	// handle auth messages here
 }
 
-func gameRelatedMessage(client models.WebsocketClientInterface, message models.BaseWebsocketMessage) {
+func globalGameMessage(app *HttpApp, client models.WebsocketClientInterface, message models.BaseWebsocketMessage) {
+	// handle global game messages here
+}
 
+// gameRelatedMessage must implement all the related websocket logic to interact with the
+// logic of the game in the backend
+func gameRelatedMessage(app *HttpApp, client models.WebsocketClientInterface, message models.BaseWebsocketMessage) {
+	// handle game messages here
+	switch message.Action {
+	case models.CreateTable:
+		app.server.WriteInternalMessage(context.TODO(), models.InternalMessage{
+			Client:     client,
+			Sender:     models.HttpAppSender,
+			StrMessage: models.CreateTable,
+		})
+	}
 }

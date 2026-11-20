@@ -5,6 +5,8 @@ const (
 	MustIdentify       string = "must_identify"
 	ClientConnected    string = "client_connected"
 	ClientDisconnected string = "client_disconnected"
+	CreateTable        string = "create_table"
+	JoinTable          string = "join_table"
 )
 
 type BaseWebsocketMessage struct {
@@ -21,8 +23,13 @@ type InternalMessage struct {
 	Sender      string
 	StrMessage  string
 	JsonMessage map[string]any
+	Table       TableInterface
 }
 
 type InternalErrorMessage struct {
 	InternalMessage
+}
+
+func (i *InternalMessage) MatchesClient(client WebsocketClientInterface) bool {
+	return i.Client == client
 }

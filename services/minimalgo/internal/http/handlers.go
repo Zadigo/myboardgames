@@ -14,6 +14,25 @@ type BaseHandlers struct {
 	app *HttpApp
 }
 
+// func (b *BaseHandlers) getClientMessages(client models.WebsocketClientInterface) {
+// 	incoming := b.app.server.GetInternalChannel()
+// 	for msg := range incoming {
+// 		if msg.Client == client {
+
+// 		}
+// 	}
+// }
+
+func (b *BaseHandlers) send(client models.WebsocketClientInterface, value string) {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
+	message := models.InternalMessage{Client: client, Sender: models.HttpAppSender, StrMessage: value}
+	if err := b.app.server.WriteInternalMessage(ctx, message); err != nil {
+		slog.Warn("internal message dropped", "err", err)
+	}
+}
+
 func (b *BaseHandlers) JoinWebsite(w http.ResponseWriter, r *http.Request) {
 	conn, err := CustomRequestUpgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -26,18 +45,8 @@ func (b *BaseHandlers) JoinWebsite(w http.ResponseWriter, r *http.Request) {
 	b.app.AddClient(client)
 	defer b.app.RemoveClient(client)
 
-	send := func(value string) {
-		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-		defer cancel()
-
-		message := models.InternalMessage{Client: client, Sender: models.HttpAppSender, StrMessage: value}
-		if err := b.app.server.WriteInternalMessage(ctx, message); err != nil {
-			slog.Warn("internal message dropped", "err", err)
-		}
-	}
-
-	send(models.ClientConnected)
-	defer send(models.ClientDisconnected)
+	b.send(client, models.ClientConnected)
+	defer b.send(client, models.ClientDisconnected)
 
 	for {
 		var message models.BaseWebsocketMessage
@@ -49,8 +58,9 @@ func (b *BaseHandlers) JoinWebsite(w http.ResponseWriter, r *http.Request) {
 
 		fmt.Print(message)
 
-		authenticationMessage(client, message)
-		gameRelatedMessage(client, message)
+		authenticationMessage(b.app, client, message)
+		globalGameMessage(b.app, client, message)
+		gameRelatedMessage(b.app, client, message)
 	}
 }
 

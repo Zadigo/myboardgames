@@ -15,6 +15,8 @@ type GameServerApp struct {
 	mu     sync.Mutex
 }
 
+// Start listens for messages coming from the Chi HTTP
+// handler and executes actions based on messages
 func (g *GameServerApp) Start(ctx context.Context) {
 	slog.Info("Initializing game server")
 
@@ -25,20 +27,33 @@ func (g *GameServerApp) Start(ctx context.Context) {
 			if !ok {
 				return
 			}
-			fmt.Print(msg)
+
+			if msg.Sender != models.HttpAppSender {
+				continue
+			}
+			fmt.Println(msg)
+			// switch msg.StrMessage {
+			// case models.CreateTable:
+			// 	_, table := g.CreateTable(nil)
+			// 	g.server.WriteInternalMessage(ctx, models.InternalMessage{
+			// 		Table: table,
+			// 	})
+			// }
 		case <-ctx.Done():
 			return
 		}
 	}
 }
 
-func (g *GameServerApp) CreateTable() {
+func (g *GameServerApp) CreateTable(game models.GameInterface) (string, models.TableInterface) {
 	g.mu.Lock()
 	defer g.mu.Unlock()
-	table := &models.Table{
-		ID: uuid.New().String(),
-	}
+
+	table := &models.Table{ID: uuid.New().String()}
+	table.SetGame(game)
+
 	g.tables[table.ID] = table
+	return table.ID, table
 }
 
 func NewGameServerApp(ctx context.Context, server models.ServerAppInterface) models.AppInterface {
