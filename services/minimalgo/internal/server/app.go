@@ -34,7 +34,7 @@ func (s *ServerApp) Start(ctx context.Context) {
 		httpApp.Start(ctx)
 	}(ctx)
 
-	gameApp := games.NewGameServerApp(ctx)
+	gameApp := games.NewGameServerApp(ctx, s)
 	go func(ctx context.Context) {
 		gameApp.Start(ctx)
 	}(ctx)

@@ -1,5 +1,9 @@
 package models
 
-type TableInterface struct {
-	players []WebsocketClientInterface
+type TableInterface interface {
+}
+
+type Table struct {
+	ID       string
+	_players []WebsocketClientInterface
 }
