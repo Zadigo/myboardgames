@@ -18,7 +18,7 @@ func (s *ServerApp) Start(ctx context.Context) {
 
 	serverCtx := context.WithValue(ctx, "state", true)
 
-	fmt.Print("Initializing main server")
+	fmt.Println("Initializing main server")
 
 	http := httpapp.NewHttpApp(ctx, s)
 	go func(ctx context.Context) {

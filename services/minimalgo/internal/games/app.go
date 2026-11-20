@@ -14,7 +14,7 @@ type GameServerApp struct {
 }
 
 func (g *GameServerApp) Start(ctx context.Context) {
-	fmt.Print("Initializing game server")
+	fmt.Println("Initializing game server")
 }
 
 func NewGameServerApp(ctx context.Context) models.AppInterface {

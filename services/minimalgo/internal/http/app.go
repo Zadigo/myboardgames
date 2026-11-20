@@ -34,7 +34,7 @@ func (h *HttpApp) RemoveClient(client models.WebsocketClientInterface) {
 }
 
 func (h *HttpApp) Start(ctx context.Context) {
-	fmt.Print("Initializing HTTP server")
+	fmt.Println("Initializing HTTP server")
 	server := &http.Server{Addr: ":9000", Handler: h.router}
 	err := server.ListenAndServe()
 	if err != nil {

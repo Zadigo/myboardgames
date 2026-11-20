@@ -4,14 +4,14 @@ import "github.com/go-chi/chi/v5"
 
 func (h *HttpApp) loadRoutes() {
 	h.router = chi.NewRouter()
-	h.router.Route("v1/", h.loadBaseRoutes)
+	h.router.Route("/v1/", h.loadBaseRoutes)
 }
 
 func (h *HttpApp) loadBaseRoutes(r chi.Router) {
 	base := &BaseHandlers{}
-	r.Get("create/", base.JoinWebsite)
-	r.Route("{tableId}/", func(r chi.Router) {
-		r.Get("join/", base.JoinTable)
-		r.Get("observe/", base.ObserveTable)
+	r.Get("/create", base.JoinWebsite)
+	r.Route("/{tableId}", func(r chi.Router) {
+		r.Get("/join", base.JoinTable)
+		r.Get("/observe", base.ObserveTable)
 	})
 }
