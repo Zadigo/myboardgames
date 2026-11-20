@@ -1,6 +1,7 @@
 package http
 
 import (
+	"errors"
 	"fmt"
 	"myboardgames/minimalgo/internal/models"
 	"net/http"
@@ -13,7 +14,7 @@ type BaseHandlers struct {
 func (b *BaseHandlers) JoinWebsite(w http.ResponseWriter, r *http.Request) {
 	conn, err := CustomRequestUpgrader.Upgrade(w, r, nil)
 	if err != nil {
-		http.Error(w, "upgrade failed", http.StatusInternalServerError)
+		http.Error(w, ConnectionUpgradeFailError.Error(), http.StatusInternalServerError)
 		return
 	}
 	WsMiddleware(conn)
@@ -21,7 +22,8 @@ func (b *BaseHandlers) JoinWebsite(w http.ResponseWriter, r *http.Request) {
 
 	defer func() {
 		b.app.RemoveClient(client)
-		conn.Close()
+		err := conn.Close()
+		fmt.Println(err)
 	}()
 
 	b.app.AddClient(client)
@@ -30,8 +32,10 @@ func (b *BaseHandlers) JoinWebsite(w http.ResponseWriter, r *http.Request) {
 		var message models.BaseWebsocketMessage
 		err = conn.ReadJSON(&message)
 		if err != nil {
+			fmt.Print(errors.Join(InvalidMessageError, err))
 			break
 		}
+
 		fmt.Print(message)
 
 		authenticationMessage(client, message)

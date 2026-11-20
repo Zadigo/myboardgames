@@ -10,7 +10,7 @@ import (
 
 func checkDjangoBackend(ctx context.Context, chError chan<- error) {
 	scheduler := gocron.NewScheduler(time.UTC)
-	scheduler.Every(10).Second().Do(func() {
+	scheduler.Every(40).Second().Do(func() {
 		select {
 		case <-time.After(time.Second):
 			// ping backend here

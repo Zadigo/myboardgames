@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"myboardgames/minimalgo/internal/backend"
 	"myboardgames/minimalgo/internal/games"
@@ -54,7 +55,7 @@ func (s *ServerApp) Start(ctx context.Context) {
 func NewServerApp(ctx context.Context, options *models.ServerAppOptions) models.ServerAppInterface {
 	instance, err := backend.CreateRedisConnection()
 	if err != nil {
-		panic(err)
+		panic(errors.Join(FailedToLoadRedisError, err))
 	}
 	return &ServerApp{_redis: instance}
 }
