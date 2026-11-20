@@ -4,5 +4,5 @@ url: "{{golang}}"
 headers:
   Origin: Postman/x
 settings: {}
-messages: .resources/New Request.resources/messages
+messages: .resources/Site WS.resources/messages
 order: 1790073978742
