@@ -24,7 +24,7 @@ func gameRelatedMessage(app *HttpApp, client models.WebsocketClientInterface, me
 	// handle game messages here
 	switch message.Action {
 	case models.CreateTable:
-		app.server.WriteInternalMessage(context.TODO(), models.InternalMessage{
+		app.server.SendInstruction(context.TODO(), models.InternalInstruction{
 			Client: client,
 			Action: models.CreateTable,
 			Sender: models.HttpAppSender,

@@ -19,7 +19,7 @@ type GameServerApp struct {
 func (g *GameServerApp) Start(ctx context.Context) error {
 	slog.Info("Initializing game server")
 
-	in := g.server.GetInternalChannel()
+	in := g.server.GetInstructions()
 	for {
 		select {
 		case msg, ok := <-in:
@@ -34,7 +34,7 @@ func (g *GameServerApp) Start(ctx context.Context) error {
 			switch msg.Action {
 			case models.CreateTable:
 				table := g.CreateTable(ctx, nil)
-				g.server.WriteInternalMessage(ctx, models.InternalMessage{
+				g.server.SendInstruction(ctx, models.InternalInstruction{
 					Table: table,
 				})
 			}

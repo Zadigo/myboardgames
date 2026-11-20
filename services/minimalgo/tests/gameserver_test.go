@@ -21,7 +21,7 @@ func TestGameServer(t *testing.T) {
 		s := games.NewGameServerApp(tCtx, ms)
 		s.Start(tCtx)
 
-		ch <- models.InternalMessage{Sender: "test_client"}
+		ch <- models.InternalInstruction{Sender: "test_client"}
 		msg, ok := <-ch
 		if ok {
 			assert.True(t, msg.Sender == "test_client")

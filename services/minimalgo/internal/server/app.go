@@ -17,25 +17,25 @@ type ServerApp struct {
 	options *models.ServerAppOptions
 	// Channel that allows the HTTP app to communicate
 	// with gameApp and inversely
-	ChInternal chan models.InternalMessage
-	isActive   atomic.Bool
+	Instructions chan models.InternalInstruction
+	isActive     atomic.Bool
 }
 
 func (s *ServerApp) GetState() bool {
 	return s.isActive.Load()
 }
 
-func (s *ServerApp) WriteInternalMessage(ctx context.Context, msg models.InternalMessage) error {
+func (s *ServerApp) SendInstruction(ctx context.Context, msg models.InternalInstruction) error {
 	select {
-	case s.ChInternal <- msg:
+	case s.Instructions <- msg:
 		return nil
 	case <-ctx.Done():
 		return ctx.Err()
 	}
 }
 
-func (s *ServerApp) GetInternalChannel() <-chan models.InternalMessage {
-	return s.ChInternal
+func (s *ServerApp) GetInstructions() <-chan models.InternalInstruction {
+	return s.Instructions
 }
 
 func (s *ServerApp) GetRedis() *redis.Client {
@@ -120,8 +120,8 @@ func (s *ServerApp) Start(ctx context.Context) error {
 
 func NewServerApp(ctx context.Context, options *models.ServerAppOptions) models.ServerAppInterface {
 	return &ServerApp{
-		options:    options,
-		ChInternal: make(chan models.InternalMessage, 64),
-		isActive:   atomic.Bool{},
+		options:      options,
+		Instructions: make(chan models.InternalInstruction, 64),
+		isActive:     atomic.Bool{},
 	}
 }

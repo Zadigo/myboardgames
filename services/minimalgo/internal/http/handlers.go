@@ -30,8 +30,8 @@ func (b *BaseHandlers) send(client models.WebsocketClientInterface, value string
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
-	message := models.InternalMessage{Client: client, Sender: models.HttpAppSender, Action: value}
-	if err := b.app.server.WriteInternalMessage(ctx, message); err != nil {
+	message := models.InternalInstruction{Client: client, Sender: models.HttpAppSender, Action: value}
+	if err := b.app.server.SendInstruction(ctx, message); err != nil {
 		slog.Warn("internal message dropped", "err", err)
 	}
 }

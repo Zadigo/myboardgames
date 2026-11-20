@@ -7,13 +7,13 @@ import (
 	"testing"
 )
 
-func HelperMainServer(t *testing.T) (*server.ServerApp, chan models.InternalMessage) {
+func HelperMainServer(t *testing.T) (*server.ServerApp, chan models.InternalInstruction) {
 	t.Helper()
 
-	ch := make(chan models.InternalMessage, 10)
+	ch := make(chan models.InternalInstruction, 10)
 
 	s := &server.ServerApp{
-		ChInternal: ch,
+		Instructions: ch,
 	}
 
 	return s, ch
@@ -24,11 +24,11 @@ func HelperHttpServer(t *testing.T) *http.HttpApp {
 	return &http.HttpApp{}
 }
 
-func HelperFullServer(t *testing.T) (*server.ServerApp, *http.HttpApp, chan models.InternalMessage) {
-	ch := make(chan models.InternalMessage, 10)
+func HelperFullServer(t *testing.T) (*server.ServerApp, *http.HttpApp, chan models.InternalInstruction) {
+	ch := make(chan models.InternalInstruction, 10)
 
 	s := &server.ServerApp{
-		ChInternal: ch,
+		Instructions: ch,
 	}
 
 	h := &http.HttpApp{}

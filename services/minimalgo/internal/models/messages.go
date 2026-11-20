@@ -19,7 +19,7 @@ const (
 	HttpAppSender string = "HttpAppSender"
 )
 
-type InternalMessage struct {
+type InternalInstruction struct {
 	Client      WebsocketClientInterface `json:"-"`
 	Sender      string                   `json:"sender"`
 	Action      string                   `json:"action"`
@@ -29,9 +29,9 @@ type InternalMessage struct {
 }
 
 type InternalErrorMessage struct {
-	InternalMessage
+	InternalInstruction
 }
 
-func (i *InternalMessage) MatchesClient(client WebsocketClientInterface) bool {
+func (i *InternalInstruction) MatchesClient(client WebsocketClientInterface) bool {
 	return i.Client == client
 }
