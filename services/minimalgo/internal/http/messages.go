@@ -6,7 +6,10 @@ import (
 )
 
 func authenticationMessage(app *HttpApp, client models.WebsocketClientInterface, message models.BaseWebsocketMessage) {
-	// handle auth messages here
+	switch message.Action {
+	case models.HelloPing:
+		client.GetConn().WriteMessage(1, []byte("Hello"))
+	}
 }
 
 func globalGameMessage(app *HttpApp, client models.WebsocketClientInterface, message models.BaseWebsocketMessage) {

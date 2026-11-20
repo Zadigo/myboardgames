@@ -3,7 +3,6 @@ package http
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log/slog"
 	"myboardgames/minimalgo/internal/models"
 	"net/http"
@@ -22,6 +21,10 @@ type BaseHandlers struct {
 // 		}
 // 	}
 // }
+
+func (h *BaseHandlers) SetApp(app models.AppInterface) {
+	h.app = app.(*HttpApp)
+}
 
 func (b *BaseHandlers) send(client models.WebsocketClientInterface, value string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
@@ -42,7 +45,16 @@ func (b *BaseHandlers) JoinWebsite(w http.ResponseWriter, r *http.Request) {
 	WsMiddleware(conn)
 	client := NewWebsocketClient(conn)
 
-	b.app.AddClient(client)
+	if b.app == nil {
+		http.Error(w, "An internal server error occured", http.StatusInternalServerError)
+		return
+	}
+
+	if err := b.app.AddClient(client); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	defer b.app.RemoveClient(client)
 
 	b.send(client, models.ClientConnected)
@@ -55,8 +67,6 @@ func (b *BaseHandlers) JoinWebsite(w http.ResponseWriter, r *http.Request) {
 			slog.Error(errors.Join(InvalidMessageError, err).Error())
 			break
 		}
-
-		fmt.Print(message)
 
 		authenticationMessage(b.app, client, message)
 		globalGameMessage(b.app, client, message)

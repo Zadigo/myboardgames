@@ -1,6 +1,7 @@
 package models
 
 const (
+	HelloPing          string = "hello_ping"
 	StartGame          string = "start_game"
 	MustIdentify       string = "must_identify"
 	ClientConnected    string = "client_connected"
@@ -10,7 +11,7 @@ const (
 )
 
 type BaseWebsocketMessage struct {
-	Action string
+	Action string `json:"action"`
 }
 
 const (

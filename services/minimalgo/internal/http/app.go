@@ -19,9 +19,17 @@ type HttpApp struct {
 	router  *chi.Mux
 }
 
-func (h *HttpApp) AddClient(client models.WebsocketClientInterface) {
+func (h *HttpApp) SetServer(s models.ServerAppInterface) {
+	h.server = s
+}
+
+func (h *HttpApp) AddClient(client models.WebsocketClientInterface) error {
 	h.clients = append(h.clients, client)
+	if h.server == nil {
+		return fmt.Errorf("No server was set on the handler")
+	}
 	h.server.UpdateClients(h.clients)
+	return nil
 }
 
 func (h *HttpApp) RemoveClient(client models.WebsocketClientInterface) {
