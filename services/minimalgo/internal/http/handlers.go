@@ -55,5 +55,3 @@ func (b *BaseHandlers) JoinWebsite(w http.ResponseWriter, r *http.Request) {
 }
 
 func (b *BaseHandlers) JoinTable(w http.ResponseWriter, r *http.Request) {}
-
-func (b *BaseHandlers) ObserveTable(w http.ResponseWriter, r *http.Request) {}

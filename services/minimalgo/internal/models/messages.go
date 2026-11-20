@@ -17,7 +17,12 @@ const (
 )
 
 type InternalMessage struct {
-	Client     WebsocketClientInterface
-	Sender     string
-	StrMessage string
+	Client      WebsocketClientInterface
+	Sender      string
+	StrMessage  string
+	JsonMessage map[string]any
+}
+
+type InternalErrorMessage struct {
+	InternalMessage
 }

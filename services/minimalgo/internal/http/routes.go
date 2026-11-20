@@ -29,6 +29,5 @@ func (h *HttpApp) loadBaseRoutes(r chi.Router) {
 	r.Get("/", base.JoinWebsite)
 	r.Route("/{tableId}", func(r chi.Router) {
 		r.Get("/join", base.JoinTable)
-		r.Get("/observe", base.ObserveTable)
 	})
 }
