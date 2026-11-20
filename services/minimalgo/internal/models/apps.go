@@ -1,6 +1,10 @@
 package models
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/redis/go-redis/v9"
+)
 
 type BaseHttpApp struct {
 }
@@ -20,4 +24,10 @@ func (s *BaseServerApp) UpdateClients(clients []WebsocketClientInterface) {
 	fmt.Printf("%d active clients\n", len(s._clients))
 }
 
-type ServerAppOptions struct{}
+// ServerAppOptions is used to set main global
+// options the main server application
+type ServerAppOptions struct {
+	Name        string
+	RedisClient *redis.Client
+	Port        int
+}

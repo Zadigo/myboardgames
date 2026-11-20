@@ -2,9 +2,7 @@ package server
 
 import (
 	"context"
-	"errors"
 	"log/slog"
-	"myboardgames/minimalgo/internal/backend"
 	"myboardgames/minimalgo/internal/games"
 	httpapp "myboardgames/minimalgo/internal/http"
 	"myboardgames/minimalgo/internal/models"
@@ -16,7 +14,7 @@ import (
 
 type ServerApp struct {
 	models.BaseServerApp
-	_redis *redis.Client
+	options *models.ServerAppOptions
 	// Channel that allows the HTTP app to communicate
 	// with gameApp and inversely
 	ChInternal chan models.InternalMessage
@@ -41,7 +39,7 @@ func (s *ServerApp) GetInternalChannel() <-chan models.InternalMessage {
 }
 
 func (s *ServerApp) GetRedis() *redis.Client {
-	return s._redis
+	return s.options.RedisClient
 }
 
 func (s *ServerApp) Start(ctx context.Context) error {
@@ -121,12 +119,8 @@ func (s *ServerApp) Start(ctx context.Context) error {
 }
 
 func NewServerApp(ctx context.Context, options *models.ServerAppOptions) models.ServerAppInterface {
-	instance, err := backend.CreateRedisConnection()
-	if err != nil {
-		panic(errors.Join(FailedToLoadRedisError, err))
-	}
 	return &ServerApp{
-		_redis:     instance,
+		options:    options,
 		ChInternal: make(chan models.InternalMessage, 64),
 		isActive:   atomic.Bool{},
 	}
