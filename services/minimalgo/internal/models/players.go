@@ -11,6 +11,7 @@ type Player struct{}
 
 type WebsocketClient struct {
 	Player
+	ID       string
 	conn     *websocket.Conn
 	isActive atomic.Bool
 	mu       sync.Mutex

@@ -18,6 +18,12 @@ func (b *BaseHandlers) JoinWebsite(w http.ResponseWriter, r *http.Request) {
 	}
 	WsMiddleware(conn)
 	client := NewWebsocketClient(conn)
+
+	defer func() {
+		b.app.RemoveClient(client)
+		conn.Close()
+	}()
+
 	b.app.AddClient(client)
 
 	for {
