@@ -16,7 +16,7 @@ type GameServerApp struct {
 
 // Start listens for messages coming from the Chi HTTP
 // handler and executes actions based on messages
-func (g *GameServerApp) Start(ctx context.Context) {
+func (g *GameServerApp) Start(ctx context.Context) error {
 	slog.Info("Initializing game server")
 
 	in := g.server.GetInternalChannel()
@@ -24,7 +24,7 @@ func (g *GameServerApp) Start(ctx context.Context) {
 		select {
 		case msg, ok := <-in:
 			if !ok {
-				return
+				return nil
 			}
 
 			if msg.Sender != models.HttpAppSender {
@@ -39,7 +39,7 @@ func (g *GameServerApp) Start(ctx context.Context) {
 				})
 			}
 		case <-ctx.Done():
-			return
+			return ctx.Err()
 		}
 	}
 }

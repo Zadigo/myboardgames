@@ -2,10 +2,12 @@ package http
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"myboardgames/minimalgo/internal/models"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -42,13 +44,26 @@ func (h *HttpApp) RemoveClient(client models.WebsocketClientInterface) {
 	h.server.UpdateClients(h.clients)
 }
 
-func (h *HttpApp) Start(ctx context.Context) {
+func (h *HttpApp) Start(ctx context.Context) error {
 	slog.Info("Initializing HTTP server")
 
+	errCh := make(chan error, 1)
 	server := &http.Server{Addr: ":9000", Handler: h.router}
-	err := server.ListenAndServe()
-	if err != nil {
-		fmt.Println(err)
+
+	go func() {
+		errCh <- server.ListenAndServe()
+	}()
+
+	select {
+	case err := <-errCh:
+		if errors.Is(err, http.ErrServerClosed) {
+			return nil
+		}
+		return err
+	case <-ctx.Done():
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		return server.Shutdown(shutdownCtx)
 	}
 }
 

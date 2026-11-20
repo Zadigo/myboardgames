@@ -6,12 +6,12 @@ import (
 	"log/slog"
 	"myboardgames/minimalgo/internal/backend"
 	"myboardgames/minimalgo/internal/games"
-	"myboardgames/minimalgo/internal/http"
+	httpapp "myboardgames/minimalgo/internal/http"
 	"myboardgames/minimalgo/internal/models"
-	"sync"
 	"sync/atomic"
 
 	"github.com/redis/go-redis/v9"
+	"golang.org/x/sync/errgroup"
 )
 
 type ServerApp struct {
@@ -44,10 +44,9 @@ func (s *ServerApp) GetRedis() *redis.Client {
 	return s._redis
 }
 
-func (s *ServerApp) Start(ctx context.Context) {
+func (s *ServerApp) Start(ctx context.Context) error {
 	// chError := make(chan error)
-
-	serverCtx := context.WithValue(ctx, "state", true)
+	// serverCtx := context.WithValue(ctx, "state", true)
 
 	slog.Info("Initializing main server")
 
@@ -73,31 +72,52 @@ func (s *ServerApp) Start(ctx context.Context) {
 	// 	fmt.Printf("server stopped %v", timeoutCtx.Err())
 	// }
 
-	var wg sync.WaitGroup
+	// var wg sync.WaitGroup
 
-	wg.Add(2)
-	wg.Go(func() {
-		defer wg.Done()
-		httpApp := http.NewHttpApp(ctx, s)
-		httpApp.Start(ctx)
-	})
+	// wg.Add(2)
+	// wg.Go(func() {
+	// 	defer wg.Done()
+	// 	httpApp := http.NewHttpApp(ctx, s)
+	// 	httpApp.Start(ctx)
+	// })
 
-	wg.Go(func() {
-		defer wg.Done()
-		gameApp := games.NewGameServerApp(ctx, s)
-		gameApp.Start(ctx)
-	})
+	// wg.Go(func() {
+	// 	defer wg.Done()
+	// 	gameApp := games.NewGameServerApp(ctx, s)
+	// 	gameApp.Start(ctx)
+	// })
 
 	// wg.Go(func() {
 	// 	defer wg.Done()
 	// 	checkDjangoBackend(serverCtx, chError)
 	// })
 
+	// <-serverCtx.Done()
+
+	// wg.Wait()
+
+	g, gCtx := errgroup.WithContext(ctx)
+
+	httpApp := httpapp.NewHttpApp(ctx, s)
+	gameApp := games.NewGameServerApp(ctx, s)
+
+	g.Go(func() error {
+		return httpApp.Start(gCtx)
+	})
+
+	g.Go(func() error {
+		return gameApp.Start(gCtx)
+	})
+
 	s.isActive.Store(true)
+	defer s.isActive.Store(false)
+	defer func() {
+		for _, c := range s.Clients() {
+			c.GetConn().Close()
+		}
+	}()
 
-	<-serverCtx.Done()
-
-	wg.Wait()
+	return g.Wait()
 }
 
 func NewServerApp(ctx context.Context, options *models.ServerAppOptions) models.ServerAppInterface {

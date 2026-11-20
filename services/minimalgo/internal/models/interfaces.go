@@ -7,7 +7,7 @@ import (
 )
 
 type AppInterface interface {
-	Start(ctx context.Context)
+	Start(ctx context.Context) error
 }
 
 type GameServerInterface interface {
