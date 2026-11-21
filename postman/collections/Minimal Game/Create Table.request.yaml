@@ -1,9 +1,26 @@
 $kind: grpc-request
+description: ""
 url: "{{golangGrPC}}"
-methodPath: minimalgame.TableService.GetTable
-methodDescriptor: CrUCChFtaW5pbWFsZ2FtZS5wcm90bxILbWluaW1hbGdhbWUiIQoPR2V0VGFibGVSZXF1ZXN0Eg4KAmlkGAEgASgJQgIQASKBAQoNVGFibGVSZXNwb25zZRIOCgJpZBgBIAEoCUICEAESGAoMY3VycmVudFJvdW5kGAIgASgJQgIQARIZCg1jdXJyZW50UGxheWVyGAMgASgJQgIQARIVCgl1cGRhdGVkQXQYBCABKAlCAhABEhQKCGNyZWF0ZUF0GAUgASgJQgIQATJUCgxUYWJsZVNlcnZpY2USRAoIR2V0VGFibGUSHC5taW5pbWFsZ2FtZS5HZXRUYWJsZVJlcXVlc3QaGi5taW5pbWFsZ2FtZS5UYWJsZVJlc3BvbnNlQhZaFHNlcnZpY2VzL21pbmltYWxnYW1l
+methodPath: minimalgame.TableService.CreateTable
+methodDescriptor: CsQCChFtaW5pbWFsZ2FtZS5wcm90bxILbWluaW1hbGdhbWUiKgoSQ3JlYXRlVGFibGVSZXF1ZXN0EhQKCGNsaWVudElkGAEgASgJQgIQASKBAQoNVGFibGVSZXNwb25zZRIOCgJpZBgBIAEoCUICEAESGAoMY3VycmVudFJvdW5kGAIgASgFQgIQARIZCg1jdXJyZW50UGxheWVyGAMgASgJQgIQARIVCgl1cGRhdGVkQXQYBCABKAlCAhABEhQKCGNyZWF0ZUF0GAUgASgJQgIQATJaCgxUYWJsZVNlcnZpY2USSgoLQ3JlYXRlVGFibGUSHy5taW5pbWFsZ2FtZS5DcmVhdGVUYWJsZVJlcXVlc3QaGi5taW5pbWFsZ2FtZS5UYWJsZVJlc3BvbnNlQhZaFHNlcnZpY2VzL21pbmltYWxnYW1l
+message:
+  content: |-
+    {
+        "clientId": "aliqua"
+    }
 settings: {}
 schema:
   source: file
   location: /Volumes/Coding/Projects/Websites/myboardgames/services/minimalgame/minimalgame.proto
+scripts:
+  - type: afterResponse
+    code: ""
+    language: text/javascript
+  - type: onIncomingMessage
+    code: |-
+      pm.test("save table id", async () => {
+          const jsonResponse = await pm.message.data
+          pm.environment.set("tableId", jsonResponse["id"])
+      })
+    language: text/javascript
 order: 1000

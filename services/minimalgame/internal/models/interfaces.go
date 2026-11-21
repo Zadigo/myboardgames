@@ -7,8 +7,13 @@ type BaseActionsInterface interface {
 
 type GameRegistryInterface interface {
 	BaseActionsInterface
+	AddTable(table TableInterface) error
+	GetTable(id string) (TableInterface, error)
+	RemoveTable(table TableInterface) error
 }
 
 type TableInterface interface {
 	BaseActionsInterface
+	GetID() string
+	Execute(*Instruction) error
 }

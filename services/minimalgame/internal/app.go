@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"myboardgames/minimalgame/internal/backend"
+	"myboardgames/minimalgame/internal/logic"
 	"myboardgames/minimalgame/internal/models"
 	minimalgame "myboardgames/minimalgame/minimalgameproto"
 	"net"
@@ -30,7 +31,7 @@ func (a *App) Start(ctx context.Context) error {
 	defer listener.Close()
 
 	// Game Registry
-	registry := backend.NewGameRegistry()
+	registry := logic.NewGameRegistry()
 
 	// Redis
 	client, err := backend.CreateRedisConnection()

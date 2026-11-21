@@ -55,6 +55,7 @@ message DistributeCardsRequest {
 
 message NextTurnRequest {
     string tableId = 1;
+    bool reverse = 2;
 }
 
 message NextRoundRequest {
@@ -98,8 +99,26 @@ message Card {
     string id = 1;
 }
 
+enum EventName {
+    TABLE_EVENT_CREATED = 0;
+    TABLE_EVENT_IDLE = 1;
+    TABLE_EVENT_WAITING = 2;
+    TABLE_EVENT_UPDATED = 3;
+    TABLE_EVENT_DELETED = 4;
+    TABLE_EVENT_ADD_PLAYER = 5;
+    TABLE_EVENT_REMOVE_PLAYER = 6;
+    TABLE_EVENT_BAN_PLAYER = 7;
+	TABLE_EVENT_CREATE_DECK = 8;
+	TABLE_EVENT_SHUFFLE_DECK = 9;
+	TABLE_EVENT_DISTRIBUTE_CARDS         = 10;
+	TABLE_EVENT_EXCHANGE_CARDS_WITH_PLAYER = 11;
+	TABLE_EVENT_EXCHANGE_CARDS_WITH_DECK   = 12;
+	TABLE_EVENT_NEXT_TURN    = 13;
+	TABLE_EVENT_REVERSE_TURN = 14;
+}
+
 message TableEventDetails {
-    string eventName = 1;
+    EventName eventName = 1;
     repeated string from = 2;
     repeated string to = 3;
     Card card = 4;
@@ -132,6 +151,7 @@ message TableResponse {
     string id = 1;
     int32 currentRound = 2;
     string currentPlayer = 3; // The id of the current player
-    string updatedAt = 4;
-    string createAt = 5;
+    optional TableEvent event = 4; // The event that occurred (if applicable)
+    string updatedAt = 5;
+    string createAt = 6;
 }
