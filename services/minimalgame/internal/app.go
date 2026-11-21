@@ -67,7 +67,13 @@ func (a *App) Start(ctx context.Context) error {
 		}),
 
 		// Order matters: recovery goes first so it wraps everything else
-		grpc.ChainUnaryInterceptor(recoveryUnary /*, loggingUnary, authUnary */),
+		grpc.ChainUnaryInterceptor(
+			recoveryUnary, // 1. catch panics from everything below
+			loggingUnary,  // 2. log every outcome, including rejections
+			// authUnary(&backend.Verifier{}), // 3. who are you?
+			// RateLimitUnary(limiter), // 4. needs the caller from auth; cheap, drops floods early
+			// ValidationUnary,         // 5. only well-formed requests reach the handler
+		),
 		grpc.ChainStreamInterceptor(recoveryStream),
 	)
 

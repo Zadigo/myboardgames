@@ -41,3 +41,10 @@ which protoc-gen-go-grpc
 
 protoc --go_out=./minimalgameproto --go_opt=paths=source_relative --go-grpc_out=./minimalgameproto --go-grpc_opt=paths=source_relative minimalgame.proto
 ```
+
+```Shell
+
+# Generate cryptographic key for authentication
+
+ssh-keygen -t ed25519 -C "email@example.com"
+```
