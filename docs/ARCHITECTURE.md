@@ -38,20 +38,22 @@ Estimation for one user campaign:
 ```mermaid
 flowchart
 
-N(Nuxt) --> |Websocket|S(Server)
-S --> T((Tickers))
-S --> G(Game Handler)
-S --> C(Chi Handler)
+N(Nuxt) <--> |Websocket|S(Server)
 
+S <--> |GrPC|G(Game)
+S <--> |GrPC|G2(Game2)
 
-
+G --> T((Tickers))
+G --> C(Chi Handler)
 G --> TA(Game Tables)
 
-C <--> |Channels|G
+C <--> |Channels|TA
 
 TA --> TAB(Table)
 TAB --> L[[Logic]]
 TAB --> CL(Clients)
+
+G2 --> O(...)
 ```
 
 ## System Workflow 🔄

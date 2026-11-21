@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package minimalgame;
+
+option go_package = "services/minimalgame";
+
+service TableService {
+    rpc CreateTable (CreateTableRequest) returns (TableResponse);
+    rpc GetTable (GetTableRequest) returns (TableResponse);
+}
+
+message CreateTableRequest {
+    string clientId = 1;
+}
+
+message GetTableRequest {
+    string id = 1;
+}
+
+message TableResponse {
+    string id = 1;
+}
