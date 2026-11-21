@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package minimalgame;
 
-option go_package = "services/minimalgame";
+option go_package = "myboardgames/minimalgame/minimalgameproto;minimalgame";
 
 service TableService {
     rpc CreateTable (CreateTableRequest) returns (TableResponse);
@@ -100,21 +100,22 @@ message Card {
 }
 
 enum EventName {
-    TABLE_EVENT_CREATED = 0;
-    TABLE_EVENT_IDLE = 1;
-    TABLE_EVENT_WAITING = 2;
-    TABLE_EVENT_UPDATED = 3;
-    TABLE_EVENT_DELETED = 4;
-    TABLE_EVENT_ADD_PLAYER = 5;
-    TABLE_EVENT_REMOVE_PLAYER = 6;
-    TABLE_EVENT_BAN_PLAYER = 7;
-	TABLE_EVENT_CREATE_DECK = 8;
-	TABLE_EVENT_SHUFFLE_DECK = 9;
-	TABLE_EVENT_DISTRIBUTE_CARDS         = 10;
-	TABLE_EVENT_EXCHANGE_CARDS_WITH_PLAYER = 11;
-	TABLE_EVENT_EXCHANGE_CARDS_WITH_DECK   = 12;
-	TABLE_EVENT_NEXT_TURN    = 13;
-	TABLE_EVENT_REVERSE_TURN = 14;
+    TABLE_EVENT_UNSPECIFIED = 0;
+    TABLE_EVENT_CREATED = 1;
+    TABLE_EVENT_IDLE = 2;
+    TABLE_EVENT_WAITING = 3;
+    TABLE_EVENT_UPDATED = 4;
+    TABLE_EVENT_DELETED = 5;
+    TABLE_EVENT_ADD_PLAYER = 6;
+    TABLE_EVENT_REMOVE_PLAYER = 7;
+    TABLE_EVENT_BAN_PLAYER = 8;
+	TABLE_EVENT_CREATE_DECK = 9;
+	TABLE_EVENT_SHUFFLE_DECK = 10;
+	TABLE_EVENT_DISTRIBUTE_CARDS = 11;
+	TABLE_EVENT_EXCHANGE_CARDS_WITH_PLAYER = 12;
+	TABLE_EVENT_EXCHANGE_CARDS_WITH_DECK = 13;
+	TABLE_EVENT_NEXT_TURN = 14;
+	TABLE_EVENT_REVERSE_TURN = 15;
 }
 
 message TableEventDetails {
@@ -153,5 +154,5 @@ message TableResponse {
     string currentPlayer = 3; // The id of the current player
     optional TableEvent event = 4; // The event that occurred (if applicable)
     string updatedAt = 5;
-    string createAt = 6;
+    string createdAt = 6;
 }

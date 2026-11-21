@@ -24,58 +24,61 @@ const (
 type EventName int32
 
 const (
-	EventName_TABLE_EVENT_CREATED                    EventName = 0
-	EventName_TABLE_EVENT_IDLE                       EventName = 1
-	EventName_TABLE_EVENT_WAITING                    EventName = 2
-	EventName_TABLE_EVENT_UPDATED                    EventName = 3
-	EventName_TABLE_EVENT_DELETED                    EventName = 4
-	EventName_TABLE_EVENT_ADD_PLAYER                 EventName = 5
-	EventName_TABLE_EVENT_REMOVE_PLAYER              EventName = 6
-	EventName_TABLE_EVENT_BAN_PLAYER                 EventName = 7
-	EventName_TABLE_EVENT_CREATE_DECK                EventName = 8
-	EventName_TABLE_EVENT_SHUFFLE_DECK               EventName = 9
-	EventName_TABLE_EVENT_DISTRIBUTE_CARDS           EventName = 10
-	EventName_TABLE_EVENT_EXCHANGE_CARDS_WITH_PLAYER EventName = 11
-	EventName_TABLE_EVENT_EXCHANGE_CARDS_WITH_DECK   EventName = 12
-	EventName_TABLE_EVENT_NEXT_TURN                  EventName = 13
-	EventName_TABLE_EVENT_REVERSE_TURN               EventName = 14
+	EventName_TABLE_EVENT_UNSPECIFIED                EventName = 0
+	EventName_TABLE_EVENT_CREATED                    EventName = 1
+	EventName_TABLE_EVENT_IDLE                       EventName = 2
+	EventName_TABLE_EVENT_WAITING                    EventName = 3
+	EventName_TABLE_EVENT_UPDATED                    EventName = 4
+	EventName_TABLE_EVENT_DELETED                    EventName = 5
+	EventName_TABLE_EVENT_ADD_PLAYER                 EventName = 6
+	EventName_TABLE_EVENT_REMOVE_PLAYER              EventName = 7
+	EventName_TABLE_EVENT_BAN_PLAYER                 EventName = 8
+	EventName_TABLE_EVENT_CREATE_DECK                EventName = 9
+	EventName_TABLE_EVENT_SHUFFLE_DECK               EventName = 10
+	EventName_TABLE_EVENT_DISTRIBUTE_CARDS           EventName = 11
+	EventName_TABLE_EVENT_EXCHANGE_CARDS_WITH_PLAYER EventName = 12
+	EventName_TABLE_EVENT_EXCHANGE_CARDS_WITH_DECK   EventName = 13
+	EventName_TABLE_EVENT_NEXT_TURN                  EventName = 14
+	EventName_TABLE_EVENT_REVERSE_TURN               EventName = 15
 )
 
 // Enum value maps for EventName.
 var (
 	EventName_name = map[int32]string{
-		0:  "TABLE_EVENT_CREATED",
-		1:  "TABLE_EVENT_IDLE",
-		2:  "TABLE_EVENT_WAITING",
-		3:  "TABLE_EVENT_UPDATED",
-		4:  "TABLE_EVENT_DELETED",
-		5:  "TABLE_EVENT_ADD_PLAYER",
-		6:  "TABLE_EVENT_REMOVE_PLAYER",
-		7:  "TABLE_EVENT_BAN_PLAYER",
-		8:  "TABLE_EVENT_CREATE_DECK",
-		9:  "TABLE_EVENT_SHUFFLE_DECK",
-		10: "TABLE_EVENT_DISTRIBUTE_CARDS",
-		11: "TABLE_EVENT_EXCHANGE_CARDS_WITH_PLAYER",
-		12: "TABLE_EVENT_EXCHANGE_CARDS_WITH_DECK",
-		13: "TABLE_EVENT_NEXT_TURN",
-		14: "TABLE_EVENT_REVERSE_TURN",
+		0:  "TABLE_EVENT_UNSPECIFIED",
+		1:  "TABLE_EVENT_CREATED",
+		2:  "TABLE_EVENT_IDLE",
+		3:  "TABLE_EVENT_WAITING",
+		4:  "TABLE_EVENT_UPDATED",
+		5:  "TABLE_EVENT_DELETED",
+		6:  "TABLE_EVENT_ADD_PLAYER",
+		7:  "TABLE_EVENT_REMOVE_PLAYER",
+		8:  "TABLE_EVENT_BAN_PLAYER",
+		9:  "TABLE_EVENT_CREATE_DECK",
+		10: "TABLE_EVENT_SHUFFLE_DECK",
+		11: "TABLE_EVENT_DISTRIBUTE_CARDS",
+		12: "TABLE_EVENT_EXCHANGE_CARDS_WITH_PLAYER",
+		13: "TABLE_EVENT_EXCHANGE_CARDS_WITH_DECK",
+		14: "TABLE_EVENT_NEXT_TURN",
+		15: "TABLE_EVENT_REVERSE_TURN",
 	}
 	EventName_value = map[string]int32{
-		"TABLE_EVENT_CREATED":                    0,
-		"TABLE_EVENT_IDLE":                       1,
-		"TABLE_EVENT_WAITING":                    2,
-		"TABLE_EVENT_UPDATED":                    3,
-		"TABLE_EVENT_DELETED":                    4,
-		"TABLE_EVENT_ADD_PLAYER":                 5,
-		"TABLE_EVENT_REMOVE_PLAYER":              6,
-		"TABLE_EVENT_BAN_PLAYER":                 7,
-		"TABLE_EVENT_CREATE_DECK":                8,
-		"TABLE_EVENT_SHUFFLE_DECK":               9,
-		"TABLE_EVENT_DISTRIBUTE_CARDS":           10,
-		"TABLE_EVENT_EXCHANGE_CARDS_WITH_PLAYER": 11,
-		"TABLE_EVENT_EXCHANGE_CARDS_WITH_DECK":   12,
-		"TABLE_EVENT_NEXT_TURN":                  13,
-		"TABLE_EVENT_REVERSE_TURN":               14,
+		"TABLE_EVENT_UNSPECIFIED":                0,
+		"TABLE_EVENT_CREATED":                    1,
+		"TABLE_EVENT_IDLE":                       2,
+		"TABLE_EVENT_WAITING":                    3,
+		"TABLE_EVENT_UPDATED":                    4,
+		"TABLE_EVENT_DELETED":                    5,
+		"TABLE_EVENT_ADD_PLAYER":                 6,
+		"TABLE_EVENT_REMOVE_PLAYER":              7,
+		"TABLE_EVENT_BAN_PLAYER":                 8,
+		"TABLE_EVENT_CREATE_DECK":                9,
+		"TABLE_EVENT_SHUFFLE_DECK":               10,
+		"TABLE_EVENT_DISTRIBUTE_CARDS":           11,
+		"TABLE_EVENT_EXCHANGE_CARDS_WITH_PLAYER": 12,
+		"TABLE_EVENT_EXCHANGE_CARDS_WITH_DECK":   13,
+		"TABLE_EVENT_NEXT_TURN":                  14,
+		"TABLE_EVENT_REVERSE_TURN":               15,
 	}
 )
 
@@ -928,7 +931,7 @@ func (x *TableEventDetails) GetEventName() EventName {
 	if x != nil {
 		return x.EventName
 	}
-	return EventName_TABLE_EVENT_CREATED
+	return EventName_TABLE_EVENT_UNSPECIFIED
 }
 
 func (x *TableEventDetails) GetFrom() []string {
@@ -1138,12 +1141,12 @@ func (x *TableEvent) GetSnapshot() *TableSnapshot {
 
 type TableResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // A unique id for the response which is generally a uuid string
 	CurrentRound  int32                  `protobuf:"varint,2,opt,name=currentRound,proto3" json:"currentRound,omitempty"`
 	CurrentPlayer string                 `protobuf:"bytes,3,opt,name=currentPlayer,proto3" json:"currentPlayer,omitempty"` // The id of the current player
 	Event         *TableEvent            `protobuf:"bytes,4,opt,name=event,proto3,oneof" json:"event,omitempty"`           // The event that occurred (if applicable)
 	UpdatedAt     string                 `protobuf:"bytes,5,opt,name=updatedAt,proto3" json:"updatedAt,omitempty"`
-	CreateAt      string                 `protobuf:"bytes,6,opt,name=createAt,proto3" json:"createAt,omitempty"`
+	CreatedAt     string                 `protobuf:"bytes,6,opt,name=createdAt,proto3" json:"createdAt,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1213,9 +1216,9 @@ func (x *TableResponse) GetUpdatedAt() string {
 	return ""
 }
 
-func (x *TableResponse) GetCreateAt() string {
+func (x *TableResponse) GetCreatedAt() string {
 	if x != nil {
-		return x.CreateAt
+		return x.CreatedAt
 	}
 	return ""
 }
@@ -1283,32 +1286,33 @@ const file_minimalgame_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
 	"\atableId\x18\x02 \x01(\tR\atableId\x128\n" +
 	"\adetails\x18\x03 \x01(\v2\x1e.minimalgame.TableEventDetailsR\adetails\x126\n" +
-	"\bsnapshot\x18\x04 \x01(\v2\x1a.minimalgame.TableSnapshotR\bsnapshot\"\xe1\x01\n" +
+	"\bsnapshot\x18\x04 \x01(\v2\x1a.minimalgame.TableSnapshotR\bsnapshot\"\xe3\x01\n" +
 	"\rTableResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\"\n" +
 	"\fcurrentRound\x18\x02 \x01(\x05R\fcurrentRound\x12$\n" +
 	"\rcurrentPlayer\x18\x03 \x01(\tR\rcurrentPlayer\x122\n" +
 	"\x05event\x18\x04 \x01(\v2\x17.minimalgame.TableEventH\x00R\x05event\x88\x01\x01\x12\x1c\n" +
-	"\tupdatedAt\x18\x05 \x01(\tR\tupdatedAt\x12\x1a\n" +
-	"\bcreateAt\x18\x06 \x01(\tR\bcreateAtB\b\n" +
-	"\x06_event*\xc8\x03\n" +
-	"\tEventName\x12\x17\n" +
-	"\x13TABLE_EVENT_CREATED\x10\x00\x12\x14\n" +
-	"\x10TABLE_EVENT_IDLE\x10\x01\x12\x17\n" +
-	"\x13TABLE_EVENT_WAITING\x10\x02\x12\x17\n" +
-	"\x13TABLE_EVENT_UPDATED\x10\x03\x12\x17\n" +
-	"\x13TABLE_EVENT_DELETED\x10\x04\x12\x1a\n" +
-	"\x16TABLE_EVENT_ADD_PLAYER\x10\x05\x12\x1d\n" +
-	"\x19TABLE_EVENT_REMOVE_PLAYER\x10\x06\x12\x1a\n" +
-	"\x16TABLE_EVENT_BAN_PLAYER\x10\a\x12\x1b\n" +
-	"\x17TABLE_EVENT_CREATE_DECK\x10\b\x12\x1c\n" +
-	"\x18TABLE_EVENT_SHUFFLE_DECK\x10\t\x12 \n" +
-	"\x1cTABLE_EVENT_DISTRIBUTE_CARDS\x10\n" +
-	"\x12*\n" +
-	"&TABLE_EVENT_EXCHANGE_CARDS_WITH_PLAYER\x10\v\x12(\n" +
-	"$TABLE_EVENT_EXCHANGE_CARDS_WITH_DECK\x10\f\x12\x19\n" +
-	"\x15TABLE_EVENT_NEXT_TURN\x10\r\x12\x1c\n" +
-	"\x18TABLE_EVENT_REVERSE_TURN\x10\x0e2\xd2\t\n" +
+	"\tupdatedAt\x18\x05 \x01(\tR\tupdatedAt\x12\x1c\n" +
+	"\tcreatedAt\x18\x06 \x01(\tR\tcreatedAtB\b\n" +
+	"\x06_event*\xe5\x03\n" +
+	"\tEventName\x12\x1b\n" +
+	"\x17TABLE_EVENT_UNSPECIFIED\x10\x00\x12\x17\n" +
+	"\x13TABLE_EVENT_CREATED\x10\x01\x12\x14\n" +
+	"\x10TABLE_EVENT_IDLE\x10\x02\x12\x17\n" +
+	"\x13TABLE_EVENT_WAITING\x10\x03\x12\x17\n" +
+	"\x13TABLE_EVENT_UPDATED\x10\x04\x12\x17\n" +
+	"\x13TABLE_EVENT_DELETED\x10\x05\x12\x1a\n" +
+	"\x16TABLE_EVENT_ADD_PLAYER\x10\x06\x12\x1d\n" +
+	"\x19TABLE_EVENT_REMOVE_PLAYER\x10\a\x12\x1a\n" +
+	"\x16TABLE_EVENT_BAN_PLAYER\x10\b\x12\x1b\n" +
+	"\x17TABLE_EVENT_CREATE_DECK\x10\t\x12\x1c\n" +
+	"\x18TABLE_EVENT_SHUFFLE_DECK\x10\n" +
+	"\x12 \n" +
+	"\x1cTABLE_EVENT_DISTRIBUTE_CARDS\x10\v\x12*\n" +
+	"&TABLE_EVENT_EXCHANGE_CARDS_WITH_PLAYER\x10\f\x12(\n" +
+	"$TABLE_EVENT_EXCHANGE_CARDS_WITH_DECK\x10\r\x12\x19\n" +
+	"\x15TABLE_EVENT_NEXT_TURN\x10\x0e\x12\x1c\n" +
+	"\x18TABLE_EVENT_REVERSE_TURN\x10\x0f2\xd2\t\n" +
 	"\fTableService\x12J\n" +
 	"\vCreateTable\x12\x1f.minimalgame.CreateTableRequest\x1a\x1a.minimalgame.TableResponse\x12D\n" +
 	"\bGetTable\x12\x1c.minimalgame.GetTableRequest\x1a\x1a.minimalgame.TableResponse\x12F\n" +
@@ -1326,7 +1330,7 @@ const file_minimalgame_proto_rawDesc = "" +
 	"\x15ExchangeCardsWithDeck\x12).minimalgame.ExchangeCardsWithDeckRequest\x1a\x1a.minimalgame.TableResponse\x12X\n" +
 	"\x12ExecuteInstruction\x12&.minimalgame.ExecuteInstructionRequest\x1a\x1a.minimalgame.TableResponse\x12>\n" +
 	"\x05Reset\x12\x19.minimalgame.ResetRequest\x1a\x1a.minimalgame.TableResponse\x12<\n" +
-	"\x04Ping\x12\x18.minimalgame.PingRequest\x1a\x1a.minimalgame.TableResponseB\x16Z\x14services/minimalgameb\x06proto3"
+	"\x04Ping\x12\x18.minimalgame.PingRequest\x1a\x1a.minimalgame.TableResponseB7Z5myboardgames/minimalgame/minimalgameproto;minimalgameb\x06proto3"
 
 var (
 	file_minimalgame_proto_rawDescOnce sync.Once
