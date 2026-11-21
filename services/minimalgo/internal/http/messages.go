@@ -5,6 +5,7 @@ import (
 	"myboardgames/minimalgo/internal/models"
 )
 
+
 func authenticationMessage(app *HttpApp, client models.WebsocketClientInterface, message models.BaseWebsocketMessage) {
 	switch message.Action {
 	case models.HelloPing:
@@ -28,7 +29,13 @@ func gameRelatedMessage(app *HttpApp, client models.WebsocketClientInterface, me
 			Client: client,
 			Action: models.CreateTable,
 			Sender: models.HttpAppSender,
+			TableOptions: &models.TableOptions{
+				MainServer: app.server,
+				Redis:      app.server.GetOptions().RedisClient,
+			},
 		})
+
+		
 	default:
 		return
 	}

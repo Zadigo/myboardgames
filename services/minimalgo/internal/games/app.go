@@ -33,9 +33,11 @@ func (g *GameServerApp) Start(ctx context.Context) error {
 
 			switch msg.Action {
 			case models.CreateTable:
-				table := g.CreateTable(ctx, nil)
-				g.server.SendInstruction(ctx, models.InternalInstruction{
-					Table: table,
+				table := g.CreateTable(ctx, msg.TableOptions)
+
+				g.server.SendInstructionResponse(ctx, models.InternalInstructionResponse{
+					Table:      table,
+					StrMessage: "Table created successfully",
 				})
 			}
 		case <-ctx.Done():
@@ -45,9 +47,9 @@ func (g *GameServerApp) Start(ctx context.Context) error {
 }
 
 // CreateTable creates a goroutine for the specific table and returns it to the caller
-func (g *GameServerApp) CreateTable(ctx context.Context, game models.GameLogicInterface) models.TableInterface {
+func (g *GameServerApp) CreateTable(ctx context.Context, options *models.TableOptions) models.TableInterface {
 	table := logic.NewExampleTable()
-	table.Setup(game)
+	table.Setup(options.Game)
 
 	g.mu.Lock()
 	g.tables[table.ID] = table

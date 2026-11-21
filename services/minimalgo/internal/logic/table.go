@@ -13,6 +13,7 @@ type ExampleTable struct {
 }
 
 func (e *ExampleTable) Run(ctx context.Context) {
+	// db := &TableRedis{client: e.}
 	for {
 		select {
 		case instruction, ok := <-e.GetInbox():

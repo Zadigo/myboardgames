@@ -3,6 +3,8 @@ package models
 import (
 	"context"
 	"time"
+
+	"github.com/redis/go-redis/v9"
 )
 
 type GameOptions struct{}
@@ -121,4 +123,10 @@ func (t *Table) Setup(g GameLogicInterface) {
 
 func (t *Table) GetInbox() <-chan TableEvent {
 	return t.inbox
+}
+
+type TableOptions struct {
+	Redis      *redis.Client
+	MainServer ServerAppInterface
+	Game       GameLogicInterface
 }

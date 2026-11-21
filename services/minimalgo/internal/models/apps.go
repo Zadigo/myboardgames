@@ -24,9 +24,13 @@ func (s *BaseServerApp) UpdateClients(clients []WebsocketClientInterface) {
 	fmt.Printf("%d active clients\n", len(s._clients))
 }
 
+// type BaseAppOptions struct {
+// }
+
 // ServerAppOptions is used to set main global
 // options the main server application
 type ServerAppOptions struct {
+	// BaseAppOptions
 	Name        string
 	RedisClient *redis.Client
 	Port        int
