@@ -13,6 +13,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/keepalive"
 )
 
 type App struct {
@@ -43,9 +44,33 @@ func (a *App) Start(ctx context.Context) error {
 
 	// GrPC server
 	grpcServer := grpc.NewServer(
-		grpc.MaxRecvMsgSize(1 << 20),
-		// grpc.WithChainUnaryInterceptor()
+		// Reject messages above 1 MiB (the default is 4 MiB)
+		grpc.MaxRecvMsgSize(1<<20),
+		grpc.MaxSendMsgSize(1<<20),
+
+		// Cap concurrent streams per connection
+		grpc.MaxConcurrentStreams(100),
+
+		// Server-side keepalive: detect dead connections and recycle old ones
+		grpc.KeepaliveParams(keepalive.ServerParameters{
+			MaxConnectionIdle:     5 * time.Minute,  // close connections idle this long
+			MaxConnectionAge:      30 * time.Minute, // force periodic reconnects
+			MaxConnectionAgeGrace: 10 * time.Second, // let in-flight RPCs finish
+			Time:                  1 * time.Minute,  // ping the client if inactive this long
+			Timeout:               20 * time.Second, // close if no ping ack in this time
+		}),
+
+		// What the server tolerates from clients
+		grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{
+			MinTime:             30 * time.Second, // clients may not ping more often than this
+			PermitWithoutStream: true,             // allow pings with no active RPC
+		}),
+
+		// Order matters: recovery goes first so it wraps everything else
+		grpc.ChainUnaryInterceptor(recoveryUnary /*, loggingUnary, authUnary */),
+		grpc.ChainStreamInterceptor(recoveryStream),
 	)
+
 	minimalgame.RegisterTableServiceServer(grpcServer, &GameServices{
 		gameRegistry: registry,
 		redisClient:  client,

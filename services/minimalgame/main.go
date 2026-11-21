@@ -20,6 +20,9 @@ func main() {
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
 	defer cancel()
 
-	app := internal.NewApp(ctx, &models.ServerOptions{Port: 9001})
+	app := internal.NewApp(ctx, &models.ServerOptions{
+		Host: "localhost", 
+		Port: 9001,
+	})
 	app.Start(ctx)
 }
