@@ -32,6 +32,7 @@ const (
 	TableService_BanPlayer_FullMethodName               = "/minimalgame.TableService/BanPlayer"
 	TableService_ExchangeCardsWithPlayer_FullMethodName = "/minimalgame.TableService/ExchangeCardsWithPlayer"
 	TableService_ExchangeCardsWithDeck_FullMethodName   = "/minimalgame.TableService/ExchangeCardsWithDeck"
+	TableService_ExecuteInstruction_FullMethodName      = "/minimalgame.TableService/ExecuteInstruction"
 	TableService_Reset_FullMethodName                   = "/minimalgame.TableService/Reset"
 	TableService_Ping_FullMethodName                    = "/minimalgame.TableService/Ping"
 )
@@ -53,6 +54,7 @@ type TableServiceClient interface {
 	BanPlayer(ctx context.Context, in *BanPlayerRequest, opts ...grpc.CallOption) (*TableResponse, error)
 	ExchangeCardsWithPlayer(ctx context.Context, in *ExchangeCardsWithPlayerRequest, opts ...grpc.CallOption) (*TableResponse, error)
 	ExchangeCardsWithDeck(ctx context.Context, in *ExchangeCardsWithDeckRequest, opts ...grpc.CallOption) (*TableResponse, error)
+	ExecuteInstruction(ctx context.Context, in *ExecuteInstructionRequest, opts ...grpc.CallOption) (*TableResponse, error)
 	Reset(ctx context.Context, in *ResetRequest, opts ...grpc.CallOption) (*TableResponse, error)
 	Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*TableResponse, error)
 }
@@ -195,6 +197,16 @@ func (c *tableServiceClient) ExchangeCardsWithDeck(ctx context.Context, in *Exch
 	return out, nil
 }
 
+func (c *tableServiceClient) ExecuteInstruction(ctx context.Context, in *ExecuteInstructionRequest, opts ...grpc.CallOption) (*TableResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TableResponse)
+	err := c.cc.Invoke(ctx, TableService_ExecuteInstruction_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *tableServiceClient) Reset(ctx context.Context, in *ResetRequest, opts ...grpc.CallOption) (*TableResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(TableResponse)
@@ -232,6 +244,7 @@ type TableServiceServer interface {
 	BanPlayer(context.Context, *BanPlayerRequest) (*TableResponse, error)
 	ExchangeCardsWithPlayer(context.Context, *ExchangeCardsWithPlayerRequest) (*TableResponse, error)
 	ExchangeCardsWithDeck(context.Context, *ExchangeCardsWithDeckRequest) (*TableResponse, error)
+	ExecuteInstruction(context.Context, *ExecuteInstructionRequest) (*TableResponse, error)
 	Reset(context.Context, *ResetRequest) (*TableResponse, error)
 	Ping(context.Context, *PingRequest) (*TableResponse, error)
 	mustEmbedUnimplementedTableServiceServer()
@@ -282,6 +295,9 @@ func (UnimplementedTableServiceServer) ExchangeCardsWithPlayer(context.Context, 
 }
 func (UnimplementedTableServiceServer) ExchangeCardsWithDeck(context.Context, *ExchangeCardsWithDeckRequest) (*TableResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ExchangeCardsWithDeck not implemented")
+}
+func (UnimplementedTableServiceServer) ExecuteInstruction(context.Context, *ExecuteInstructionRequest) (*TableResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ExecuteInstruction not implemented")
 }
 func (UnimplementedTableServiceServer) Reset(context.Context, *ResetRequest) (*TableResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Reset not implemented")
@@ -544,6 +560,24 @@ func _TableService_ExchangeCardsWithDeck_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TableService_ExecuteInstruction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExecuteInstructionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableServiceServer).ExecuteInstruction(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TableService_ExecuteInstruction_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableServiceServer).ExecuteInstruction(ctx, req.(*ExecuteInstructionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _TableService_Reset_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ResetRequest)
 	if err := dec(in); err != nil {
@@ -638,6 +672,10 @@ var TableService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ExchangeCardsWithDeck",
 			Handler:    _TableService_ExchangeCardsWithDeck_Handler,
+		},
+		{
+			MethodName: "ExecuteInstruction",
+			Handler:    _TableService_ExecuteInstruction_Handler,
 		},
 		{
 			MethodName: "Reset",

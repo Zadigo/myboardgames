@@ -18,6 +18,7 @@ service TableService {
     rpc BanPlayer (BanPlayerRequest) returns (TableResponse);
     rpc ExchangeCardsWithPlayer (ExchangeCardsWithPlayerRequest) returns (TableResponse);
     rpc ExchangeCardsWithDeck (ExchangeCardsWithDeckRequest) returns (TableResponse);
+    rpc ExecuteInstruction (ExecuteInstructionRequest) returns (TableResponse);
     rpc Reset (ResetRequest) returns (TableResponse);
     rpc Ping (PingRequest) returns (TableResponse);
 }
@@ -93,14 +94,6 @@ message Card {
     string id = 1;
 }
 
-message TableResponse {
-    string id = 1;
-    string currentRound = 2;
-    string currentPlayer = 3;
-    string updatedAt = 4;
-    string createAt = 5;
-}
-
 message TableEventDetails {
     string eventName = 1;
     repeated string from = 2;
@@ -112,9 +105,27 @@ message TableSnapshot {
     repeated Card deck = 1;
 }
 
+// Executes a none-conventional or specific game
+// related instruction that the game developper
+// must implement for custom/tailored game logic
+message ExecuteInstructionRequest {
+    string tableId = 1;
+    string instruction = 2;
+    string from = 3;
+    string to = 4;
+}
+
 message TableEvent {
     string id = 1;
     string tableId = 2; 
     TableEventDetails details = 3;
     TableSnapshot snapshot = 4;
+}
+
+message TableResponse {
+    string id = 1;
+    string currentRound = 2;
+    string currentPlayer = 3;
+    string updatedAt = 4;
+    string createAt = 5;
 }

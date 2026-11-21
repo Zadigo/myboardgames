@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"myboardgames/minimalgame/internal/backend"
 	"myboardgames/minimalgame/internal/models"
 	minimalgame "myboardgames/minimalgame/minimalgameproto"
 	"net"
@@ -28,8 +29,21 @@ func (a *App) Start(ctx context.Context) error {
 
 	defer listener.Close()
 
+	// Game Registry
+	registry := backend.NewGameRegistry()
+
+	// Redis
+	client, err := backend.CreateRedisConnection()
+	if err != nil {
+		return err
+	}
+
+	// GrPC server
 	grpcServer := grpc.NewServer()
-	minimalgame.RegisterTableServiceServer(grpcServer, &Server{})
+	minimalgame.RegisterTableServiceServer(grpcServer, &GameServices{
+		gameRegistry: registry,
+		redisClient:  client,
+	})
 
 	slog.Info("Server registered")
 	a.errCh <- grpcServer.Serve(listener)
