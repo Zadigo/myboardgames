@@ -8,3 +8,7 @@ values:
     value: ''
   - key: tableId
     value: ''
+    description: ID of the current table
+  - key: currentPlayer
+    value: ''
+    description: The ID of the current player

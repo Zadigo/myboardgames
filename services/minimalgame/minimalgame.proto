@@ -148,7 +148,7 @@ message TableEvent {
 }
 
 message TableResponse {
-    string id = 1;
+    string id = 1; // A unique id for the response which is generally a uuid string
     int32 currentRound = 2;
     string currentPlayer = 3; // The id of the current player
     optional TableEvent event = 4; // The event that occurred (if applicable)

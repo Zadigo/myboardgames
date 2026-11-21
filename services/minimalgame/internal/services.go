@@ -6,6 +6,7 @@ import (
 	"myboardgames/minimalgame/internal/logic"
 	"myboardgames/minimalgame/internal/models"
 	pb "myboardgames/minimalgame/minimalgameproto"
+	"uuid"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -32,19 +33,47 @@ func (s *GameServices) CreateTable(ctx context.Context, req *pb.CreateTableReque
 	if err := s.gameRegistry.AddTable(table); err != nil {
 		return nil, err
 	}
-	return &pb.TableResponse{Id: table.GetID()}, nil
+	return &pb.TableResponse{
+		Id: uuid.New().String(),
+		Event: &pb.TableEvent{
+			TableId: table.GetID(),
+			Details: &pb.TableEventDetails{
+				EventName: pb.EventName_TABLE_EVENT_CREATED,
+			},
+		},
+	}, nil
 }
 
 func (s *GameServices) GetTable(ctx context.Context, req *pb.GetTableRequest) (*pb.TableResponse, error) {
 	if table, err := s.localGetTable(req.GetId()); err != nil {
-		return nil, errors.Join(err, TableNotFound)
+		return nil, err
 	} else {
-		return &pb.TableResponse{Id: table.GetID()}, nil
+		return &pb.TableResponse{
+			Id: uuid.New().String(),
+			Event: &pb.TableEvent{
+				TableId: table.GetID(),
+				Details: &pb.TableEventDetails{},
+			},
+		}, nil
 	}
 }
 
 func (s *GameServices) JoinTable(ctx context.Context, req *pb.JoinTableRequest) (*pb.TableResponse, error) {
-	return &pb.TableResponse{}, nil
+	if table, err := s.localGetTable(req.GetTableId()); err != nil {
+		return nil, err
+	} else {
+		player := s.gameRegistry.AddPlayer(req.GetClientId())
+		table.AddPlayer(player)
+		return &pb.TableResponse{
+			Id: uuid.New().String(),
+			Event: &pb.TableEvent{
+				TableId: table.GetID(),
+				Details: &pb.TableEventDetails{
+					EventName: pb.EventName_TABLE_EVENT_ADD_PLAYER,
+				},
+			},
+		}, nil
+	}
 }
 
 func (s *GameServices) LeaveTable(ctx context.Context, req *pb.LeaveTableRequest) (*pb.TableResponse, error) {
