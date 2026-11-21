@@ -19,19 +19,21 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	TableService_CreateTable_FullMethodName     = "/minimalgame.TableService/CreateTable"
-	TableService_GetTable_FullMethodName        = "/minimalgame.TableService/GetTable"
-	TableService_JoinTable_FullMethodName       = "/minimalgame.TableService/JoinTable"
-	TableService_LeaveTable_FullMethodName      = "/minimalgame.TableService/LeaveTable"
-	TableService_StartGame_FullMethodName       = "/minimalgame.TableService/StartGame"
-	TableService_EndGame_FullMethodName         = "/minimalgame.TableService/EndGame"
-	TableService_DistributeCards_FullMethodName = "/minimalgame.TableService/DistributeCards"
-	TableService_NextRound_FullMethodName       = "/minimalgame.TableService/NextRound"
-	TableService_NextTurn_FullMethodName        = "/minimalgame.TableService/NextTurn"
-	TableService_ShuffleCards_FullMethodName    = "/minimalgame.TableService/ShuffleCards"
-	TableService_BanPlayer_FullMethodName       = "/minimalgame.TableService/BanPlayer"
-	TableService_Reset_FullMethodName           = "/minimalgame.TableService/Reset"
-	TableService_Ping_FullMethodName            = "/minimalgame.TableService/Ping"
+	TableService_CreateTable_FullMethodName             = "/minimalgame.TableService/CreateTable"
+	TableService_GetTable_FullMethodName                = "/minimalgame.TableService/GetTable"
+	TableService_JoinTable_FullMethodName               = "/minimalgame.TableService/JoinTable"
+	TableService_LeaveTable_FullMethodName              = "/minimalgame.TableService/LeaveTable"
+	TableService_StartGame_FullMethodName               = "/minimalgame.TableService/StartGame"
+	TableService_EndGame_FullMethodName                 = "/minimalgame.TableService/EndGame"
+	TableService_DistributeCards_FullMethodName         = "/minimalgame.TableService/DistributeCards"
+	TableService_NextRound_FullMethodName               = "/minimalgame.TableService/NextRound"
+	TableService_NextTurn_FullMethodName                = "/minimalgame.TableService/NextTurn"
+	TableService_ShuffleCards_FullMethodName            = "/minimalgame.TableService/ShuffleCards"
+	TableService_BanPlayer_FullMethodName               = "/minimalgame.TableService/BanPlayer"
+	TableService_ExchangeCardsWithPlayer_FullMethodName = "/minimalgame.TableService/ExchangeCardsWithPlayer"
+	TableService_ExchangeCardsWithDeck_FullMethodName   = "/minimalgame.TableService/ExchangeCardsWithDeck"
+	TableService_Reset_FullMethodName                   = "/minimalgame.TableService/Reset"
+	TableService_Ping_FullMethodName                    = "/minimalgame.TableService/Ping"
 )
 
 // TableServiceClient is the client API for TableService service.
@@ -49,6 +51,8 @@ type TableServiceClient interface {
 	NextTurn(ctx context.Context, in *NextTurnRequest, opts ...grpc.CallOption) (*TableResponse, error)
 	ShuffleCards(ctx context.Context, in *ShuffleCardsRequest, opts ...grpc.CallOption) (*TableResponse, error)
 	BanPlayer(ctx context.Context, in *BanPlayerRequest, opts ...grpc.CallOption) (*TableResponse, error)
+	ExchangeCardsWithPlayer(ctx context.Context, in *ExchangeCardsWithPlayerRequest, opts ...grpc.CallOption) (*TableResponse, error)
+	ExchangeCardsWithDeck(ctx context.Context, in *ExchangeCardsWithDeckRequest, opts ...grpc.CallOption) (*TableResponse, error)
 	Reset(ctx context.Context, in *ResetRequest, opts ...grpc.CallOption) (*TableResponse, error)
 	Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*TableResponse, error)
 }
@@ -171,6 +175,26 @@ func (c *tableServiceClient) BanPlayer(ctx context.Context, in *BanPlayerRequest
 	return out, nil
 }
 
+func (c *tableServiceClient) ExchangeCardsWithPlayer(ctx context.Context, in *ExchangeCardsWithPlayerRequest, opts ...grpc.CallOption) (*TableResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TableResponse)
+	err := c.cc.Invoke(ctx, TableService_ExchangeCardsWithPlayer_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tableServiceClient) ExchangeCardsWithDeck(ctx context.Context, in *ExchangeCardsWithDeckRequest, opts ...grpc.CallOption) (*TableResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TableResponse)
+	err := c.cc.Invoke(ctx, TableService_ExchangeCardsWithDeck_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *tableServiceClient) Reset(ctx context.Context, in *ResetRequest, opts ...grpc.CallOption) (*TableResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(TableResponse)
@@ -206,6 +230,8 @@ type TableServiceServer interface {
 	NextTurn(context.Context, *NextTurnRequest) (*TableResponse, error)
 	ShuffleCards(context.Context, *ShuffleCardsRequest) (*TableResponse, error)
 	BanPlayer(context.Context, *BanPlayerRequest) (*TableResponse, error)
+	ExchangeCardsWithPlayer(context.Context, *ExchangeCardsWithPlayerRequest) (*TableResponse, error)
+	ExchangeCardsWithDeck(context.Context, *ExchangeCardsWithDeckRequest) (*TableResponse, error)
 	Reset(context.Context, *ResetRequest) (*TableResponse, error)
 	Ping(context.Context, *PingRequest) (*TableResponse, error)
 	mustEmbedUnimplementedTableServiceServer()
@@ -250,6 +276,12 @@ func (UnimplementedTableServiceServer) ShuffleCards(context.Context, *ShuffleCar
 }
 func (UnimplementedTableServiceServer) BanPlayer(context.Context, *BanPlayerRequest) (*TableResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method BanPlayer not implemented")
+}
+func (UnimplementedTableServiceServer) ExchangeCardsWithPlayer(context.Context, *ExchangeCardsWithPlayerRequest) (*TableResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ExchangeCardsWithPlayer not implemented")
+}
+func (UnimplementedTableServiceServer) ExchangeCardsWithDeck(context.Context, *ExchangeCardsWithDeckRequest) (*TableResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ExchangeCardsWithDeck not implemented")
 }
 func (UnimplementedTableServiceServer) Reset(context.Context, *ResetRequest) (*TableResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Reset not implemented")
@@ -476,6 +508,42 @@ func _TableService_BanPlayer_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TableService_ExchangeCardsWithPlayer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExchangeCardsWithPlayerRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableServiceServer).ExchangeCardsWithPlayer(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TableService_ExchangeCardsWithPlayer_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableServiceServer).ExchangeCardsWithPlayer(ctx, req.(*ExchangeCardsWithPlayerRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TableService_ExchangeCardsWithDeck_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExchangeCardsWithDeckRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableServiceServer).ExchangeCardsWithDeck(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TableService_ExchangeCardsWithDeck_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableServiceServer).ExchangeCardsWithDeck(ctx, req.(*ExchangeCardsWithDeckRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _TableService_Reset_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ResetRequest)
 	if err := dec(in); err != nil {
@@ -562,6 +630,14 @@ var TableService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "BanPlayer",
 			Handler:    _TableService_BanPlayer_Handler,
+		},
+		{
+			MethodName: "ExchangeCardsWithPlayer",
+			Handler:    _TableService_ExchangeCardsWithPlayer_Handler,
+		},
+		{
+			MethodName: "ExchangeCardsWithDeck",
+			Handler:    _TableService_ExchangeCardsWithDeck_Handler,
 		},
 		{
 			MethodName: "Reset",

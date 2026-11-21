@@ -16,6 +16,8 @@ service TableService {
     rpc NextTurn (NextTurnRequest) returns (TableResponse);
     rpc ShuffleCards (ShuffleCardsRequest) returns (TableResponse);
     rpc BanPlayer (BanPlayerRequest) returns (TableResponse);
+    rpc ExchangeCardsWithPlayer (ExchangeCardsWithPlayerRequest) returns (TableResponse);
+    rpc ExchangeCardsWithDeck (ExchangeCardsWithDeckRequest) returns (TableResponse);
     rpc Reset (ResetRequest) returns (TableResponse);
     rpc Ping (PingRequest) returns (TableResponse);
 }
@@ -73,6 +75,18 @@ message PingRequest {
 message BanPlayerRequest {
     string clientId = 1;
     string tableId = 2;
+}
+
+message ExchangeCardsWithPlayerRequest {
+    string tableId = 1;
+    string from = 2; // The player giving cards
+    string to = 3; // The player receiving cards
+    repeated string cards = 4;
+}
+
+message ExchangeCardsWithDeckRequest {
+    string tableId = 1;
+    repeated string cards = 2;
 }
 
 message Card {
