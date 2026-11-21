@@ -436,6 +436,7 @@ func (x *NextRoundRequest) GetTableId() string {
 type ShuffleCardsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TableId       string                 `protobuf:"bytes,1,opt,name=tableId,proto3" json:"tableId,omitempty"`
+	Cards         []*Card                `protobuf:"bytes,2,rep,name=cards,proto3" json:"cards,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -475,6 +476,13 @@ func (x *ShuffleCardsRequest) GetTableId() string {
 		return x.TableId
 	}
 	return ""
+}
+
+func (x *ShuffleCardsRequest) GetCards() []*Card {
+	if x != nil {
+		return x.Cards
+	}
+	return nil
 }
 
 type ResetRequest struct {
@@ -521,6 +529,8 @@ func (x *ResetRequest) GetTableId() string {
 	return ""
 }
 
+// *
+// Check if the table is alive
 type PingRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TableId       string                 `protobuf:"bytes,1,opt,name=tableId,proto3" json:"tableId,omitempty"`
@@ -893,6 +903,7 @@ func (x *TableSnapshot) GetDeck() []*Card {
 	return nil
 }
 
+// *
 // Executes a none-conventional or specific game
 // related instruction that the game developper
 // must implement for custom/tailored game logic
@@ -1035,8 +1046,8 @@ func (x *TableEvent) GetSnapshot() *TableSnapshot {
 type TableResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	CurrentRound  string                 `protobuf:"bytes,2,opt,name=currentRound,proto3" json:"currentRound,omitempty"`
-	CurrentPlayer string                 `protobuf:"bytes,3,opt,name=currentPlayer,proto3" json:"currentPlayer,omitempty"`
+	CurrentRound  int32                  `protobuf:"varint,2,opt,name=currentRound,proto3" json:"currentRound,omitempty"`
+	CurrentPlayer string                 `protobuf:"bytes,3,opt,name=currentPlayer,proto3" json:"currentPlayer,omitempty"` // The id of the current player
 	UpdatedAt     string                 `protobuf:"bytes,4,opt,name=updatedAt,proto3" json:"updatedAt,omitempty"`
 	CreateAt      string                 `protobuf:"bytes,5,opt,name=createAt,proto3" json:"createAt,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -1080,11 +1091,11 @@ func (x *TableResponse) GetId() string {
 	return ""
 }
 
-func (x *TableResponse) GetCurrentRound() string {
+func (x *TableResponse) GetCurrentRound() int32 {
 	if x != nil {
 		return x.CurrentRound
 	}
-	return ""
+	return 0
 }
 
 func (x *TableResponse) GetCurrentPlayer() string {
@@ -1132,9 +1143,10 @@ const file_minimalgame_proto_rawDesc = "" +
 	"\x0fNextTurnRequest\x12\x18\n" +
 	"\atableId\x18\x01 \x01(\tR\atableId\",\n" +
 	"\x10NextRoundRequest\x12\x18\n" +
-	"\atableId\x18\x01 \x01(\tR\atableId\"/\n" +
+	"\atableId\x18\x01 \x01(\tR\atableId\"X\n" +
 	"\x13ShuffleCardsRequest\x12\x18\n" +
-	"\atableId\x18\x01 \x01(\tR\atableId\"(\n" +
+	"\atableId\x18\x01 \x01(\tR\atableId\x12'\n" +
+	"\x05cards\x18\x02 \x03(\v2\x11.minimalgame.CardR\x05cards\"(\n" +
 	"\fResetRequest\x12\x18\n" +
 	"\atableId\x18\x01 \x01(\tR\atableId\"'\n" +
 	"\vPingRequest\x12\x18\n" +
@@ -1172,7 +1184,7 @@ const file_minimalgame_proto_rawDesc = "" +
 	"\bsnapshot\x18\x04 \x01(\v2\x1a.minimalgame.TableSnapshotR\bsnapshot\"\xa3\x01\n" +
 	"\rTableResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\"\n" +
-	"\fcurrentRound\x18\x02 \x01(\tR\fcurrentRound\x12$\n" +
+	"\fcurrentRound\x18\x02 \x01(\x05R\fcurrentRound\x12$\n" +
 	"\rcurrentPlayer\x18\x03 \x01(\tR\rcurrentPlayer\x12\x1c\n" +
 	"\tupdatedAt\x18\x04 \x01(\tR\tupdatedAt\x12\x1a\n" +
 	"\bcreateAt\x18\x05 \x01(\tR\bcreateAt2\xd2\t\n" +
@@ -1232,47 +1244,48 @@ var file_minimalgame_proto_goTypes = []any{
 	(*TableResponse)(nil),                  // 20: minimalgame.TableResponse
 }
 var file_minimalgame_proto_depIdxs = []int32{
-	15, // 0: minimalgame.TableEventDetails.card:type_name -> minimalgame.Card
-	15, // 1: minimalgame.TableSnapshot.deck:type_name -> minimalgame.Card
-	16, // 2: minimalgame.TableEvent.details:type_name -> minimalgame.TableEventDetails
-	17, // 3: minimalgame.TableEvent.snapshot:type_name -> minimalgame.TableSnapshot
-	0,  // 4: minimalgame.TableService.CreateTable:input_type -> minimalgame.CreateTableRequest
-	1,  // 5: minimalgame.TableService.GetTable:input_type -> minimalgame.GetTableRequest
-	2,  // 6: minimalgame.TableService.JoinTable:input_type -> minimalgame.JoinTableRequest
-	3,  // 7: minimalgame.TableService.LeaveTable:input_type -> minimalgame.LeaveTableRequest
-	4,  // 8: minimalgame.TableService.StartGame:input_type -> minimalgame.StartGameRequest
-	5,  // 9: minimalgame.TableService.EndGame:input_type -> minimalgame.EndGameRequest
-	6,  // 10: minimalgame.TableService.DistributeCards:input_type -> minimalgame.DistributeCardsRequest
-	8,  // 11: minimalgame.TableService.NextRound:input_type -> minimalgame.NextRoundRequest
-	7,  // 12: minimalgame.TableService.NextTurn:input_type -> minimalgame.NextTurnRequest
-	9,  // 13: minimalgame.TableService.ShuffleCards:input_type -> minimalgame.ShuffleCardsRequest
-	12, // 14: minimalgame.TableService.BanPlayer:input_type -> minimalgame.BanPlayerRequest
-	13, // 15: minimalgame.TableService.ExchangeCardsWithPlayer:input_type -> minimalgame.ExchangeCardsWithPlayerRequest
-	14, // 16: minimalgame.TableService.ExchangeCardsWithDeck:input_type -> minimalgame.ExchangeCardsWithDeckRequest
-	18, // 17: minimalgame.TableService.ExecuteInstruction:input_type -> minimalgame.ExecuteInstructionRequest
-	10, // 18: minimalgame.TableService.Reset:input_type -> minimalgame.ResetRequest
-	11, // 19: minimalgame.TableService.Ping:input_type -> minimalgame.PingRequest
-	20, // 20: minimalgame.TableService.CreateTable:output_type -> minimalgame.TableResponse
-	20, // 21: minimalgame.TableService.GetTable:output_type -> minimalgame.TableResponse
-	20, // 22: minimalgame.TableService.JoinTable:output_type -> minimalgame.TableResponse
-	20, // 23: minimalgame.TableService.LeaveTable:output_type -> minimalgame.TableResponse
-	20, // 24: minimalgame.TableService.StartGame:output_type -> minimalgame.TableResponse
-	20, // 25: minimalgame.TableService.EndGame:output_type -> minimalgame.TableResponse
-	20, // 26: minimalgame.TableService.DistributeCards:output_type -> minimalgame.TableResponse
-	20, // 27: minimalgame.TableService.NextRound:output_type -> minimalgame.TableResponse
-	20, // 28: minimalgame.TableService.NextTurn:output_type -> minimalgame.TableResponse
-	20, // 29: minimalgame.TableService.ShuffleCards:output_type -> minimalgame.TableResponse
-	20, // 30: minimalgame.TableService.BanPlayer:output_type -> minimalgame.TableResponse
-	20, // 31: minimalgame.TableService.ExchangeCardsWithPlayer:output_type -> minimalgame.TableResponse
-	20, // 32: minimalgame.TableService.ExchangeCardsWithDeck:output_type -> minimalgame.TableResponse
-	20, // 33: minimalgame.TableService.ExecuteInstruction:output_type -> minimalgame.TableResponse
-	20, // 34: minimalgame.TableService.Reset:output_type -> minimalgame.TableResponse
-	20, // 35: minimalgame.TableService.Ping:output_type -> minimalgame.TableResponse
-	20, // [20:36] is the sub-list for method output_type
-	4,  // [4:20] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	15, // 0: minimalgame.ShuffleCardsRequest.cards:type_name -> minimalgame.Card
+	15, // 1: minimalgame.TableEventDetails.card:type_name -> minimalgame.Card
+	15, // 2: minimalgame.TableSnapshot.deck:type_name -> minimalgame.Card
+	16, // 3: minimalgame.TableEvent.details:type_name -> minimalgame.TableEventDetails
+	17, // 4: minimalgame.TableEvent.snapshot:type_name -> minimalgame.TableSnapshot
+	0,  // 5: minimalgame.TableService.CreateTable:input_type -> minimalgame.CreateTableRequest
+	1,  // 6: minimalgame.TableService.GetTable:input_type -> minimalgame.GetTableRequest
+	2,  // 7: minimalgame.TableService.JoinTable:input_type -> minimalgame.JoinTableRequest
+	3,  // 8: minimalgame.TableService.LeaveTable:input_type -> minimalgame.LeaveTableRequest
+	4,  // 9: minimalgame.TableService.StartGame:input_type -> minimalgame.StartGameRequest
+	5,  // 10: minimalgame.TableService.EndGame:input_type -> minimalgame.EndGameRequest
+	6,  // 11: minimalgame.TableService.DistributeCards:input_type -> minimalgame.DistributeCardsRequest
+	8,  // 12: minimalgame.TableService.NextRound:input_type -> minimalgame.NextRoundRequest
+	7,  // 13: minimalgame.TableService.NextTurn:input_type -> minimalgame.NextTurnRequest
+	9,  // 14: minimalgame.TableService.ShuffleCards:input_type -> minimalgame.ShuffleCardsRequest
+	12, // 15: minimalgame.TableService.BanPlayer:input_type -> minimalgame.BanPlayerRequest
+	13, // 16: minimalgame.TableService.ExchangeCardsWithPlayer:input_type -> minimalgame.ExchangeCardsWithPlayerRequest
+	14, // 17: minimalgame.TableService.ExchangeCardsWithDeck:input_type -> minimalgame.ExchangeCardsWithDeckRequest
+	18, // 18: minimalgame.TableService.ExecuteInstruction:input_type -> minimalgame.ExecuteInstructionRequest
+	10, // 19: minimalgame.TableService.Reset:input_type -> minimalgame.ResetRequest
+	11, // 20: minimalgame.TableService.Ping:input_type -> minimalgame.PingRequest
+	20, // 21: minimalgame.TableService.CreateTable:output_type -> minimalgame.TableResponse
+	20, // 22: minimalgame.TableService.GetTable:output_type -> minimalgame.TableResponse
+	20, // 23: minimalgame.TableService.JoinTable:output_type -> minimalgame.TableResponse
+	20, // 24: minimalgame.TableService.LeaveTable:output_type -> minimalgame.TableResponse
+	20, // 25: minimalgame.TableService.StartGame:output_type -> minimalgame.TableResponse
+	20, // 26: minimalgame.TableService.EndGame:output_type -> minimalgame.TableResponse
+	20, // 27: minimalgame.TableService.DistributeCards:output_type -> minimalgame.TableResponse
+	20, // 28: minimalgame.TableService.NextRound:output_type -> minimalgame.TableResponse
+	20, // 29: minimalgame.TableService.NextTurn:output_type -> minimalgame.TableResponse
+	20, // 30: minimalgame.TableService.ShuffleCards:output_type -> minimalgame.TableResponse
+	20, // 31: minimalgame.TableService.BanPlayer:output_type -> minimalgame.TableResponse
+	20, // 32: minimalgame.TableService.ExchangeCardsWithPlayer:output_type -> minimalgame.TableResponse
+	20, // 33: minimalgame.TableService.ExchangeCardsWithDeck:output_type -> minimalgame.TableResponse
+	20, // 34: minimalgame.TableService.ExecuteInstruction:output_type -> minimalgame.TableResponse
+	20, // 35: minimalgame.TableService.Reset:output_type -> minimalgame.TableResponse
+	20, // 36: minimalgame.TableService.Ping:output_type -> minimalgame.TableResponse
+	21, // [21:37] is the sub-list for method output_type
+	5,  // [5:21] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_minimalgame_proto_init() }

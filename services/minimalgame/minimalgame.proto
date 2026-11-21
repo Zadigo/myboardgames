@@ -63,12 +63,16 @@ message NextRoundRequest {
 
 message ShuffleCardsRequest {
     string tableId = 1;
+    repeated Card cards = 2;
 }
 
 message ResetRequest {
     string tableId = 1;
 }
 
+/**
+ * Check if the table is alive
+ */
 message PingRequest {
     string tableId = 1;
 }
@@ -105,9 +109,11 @@ message TableSnapshot {
     repeated Card deck = 1;
 }
 
-// Executes a none-conventional or specific game
-// related instruction that the game developper
-// must implement for custom/tailored game logic
+/**
+ * Executes a none-conventional or specific game
+ * related instruction that the game developper
+ * must implement for custom/tailored game logic
+ */
 message ExecuteInstructionRequest {
     string tableId = 1;
     string instruction = 2;
@@ -124,8 +130,8 @@ message TableEvent {
 
 message TableResponse {
     string id = 1;
-    string currentRound = 2;
-    string currentPlayer = 3;
+    int32 currentRound = 2;
+    string currentPlayer = 3; // The id of the current player
     string updatedAt = 4;
     string createAt = 5;
 }
