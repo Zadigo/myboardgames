@@ -2,6 +2,7 @@ package games
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"myboardgames/minimalgo/internal/logic"
 	"myboardgames/minimalgo/internal/models"
@@ -12,6 +13,16 @@ type GameServerApp struct {
 	tables map[string]models.TableInterface
 	server models.ServerAppInterface
 	mu     sync.RWMutex
+}
+
+func (g *GameServerApp) getTable(id string) (models.TableInterface, error) {
+	g.mu.RLock()
+	defer g.mu.RUnlock()
+	table, ok := g.tables[id]
+	if !ok {
+		return nil, fmt.Errorf("Table not found")
+	}
+	return table, nil
 }
 
 // Start listens for messages coming from the Chi HTTP
@@ -39,6 +50,12 @@ func (g *GameServerApp) Start(ctx context.Context) error {
 					Table:      table,
 					StrMessage: "Table created successfully",
 				})
+			case models.TableEventStealCard:
+				if table, err := g.getTable(msg.TableID); err == nil {
+					// handle event
+				} else {
+					fmt.Printf("Got table %s", table.GetID())
+				}
 			}
 		case <-ctx.Done():
 			return ctx.Err()
@@ -56,7 +73,7 @@ func (g *GameServerApp) CreateTable(ctx context.Context, options *models.TableOp
 	g.mu.Unlock()
 
 	go func() {
-		table.Run(ctx)
+		table.Run(ctx, options)
 
 		g.mu.Lock()
 		delete(g.tables, table.ID) // cleanup when the table ends

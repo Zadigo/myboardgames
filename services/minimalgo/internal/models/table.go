@@ -19,9 +19,10 @@ type GameLogicInterface interface {
 }
 
 type TableInterface interface {
+	GetID() string
 	// Run blocks the table until the context is
 	// terminated and waits for instructions
-	Run(ctx context.Context)
+	Run(ctx context.Context, optoins *TableOptions)
 	// Join adds a player to the table
 	Join(client WebsocketClientInterface)
 	// Leave removes a player from the table
@@ -92,11 +93,12 @@ type TableSnapshot[D any] struct {
 // are also registered on Redis to recover
 // for a example a previous move
 type TableEvent struct {
-	ID        string                 `json:"id"`
-	GameID    string                 `json:"game_id"`
-	Details   TableEventDetails[any] `json:"details"`
-	Snapshot  TableSnapshot[any]     `json:"snapshot"`
-	CreatedAt time.Time              `json:"created_at"`
+	ID        string                   `json:"id"`
+	GameID    string                   `json:"game_id"`
+	Details   TableEventDetails[any]   `json:"details"`
+	Snapshot  TableSnapshot[any]       `json:"snapshot"`
+	CreatedAt time.Time                `json:"created_at"`
+	Client    WebsocketClientInterface `json:"client"`
 }
 
 // Table represents a game table with players.
@@ -113,6 +115,10 @@ type Table struct {
 	game          GameLogicInterface         `json:"-"`
 	state         bool                       `json:"-"`
 	players       []WebsocketClientInterface `json:"-"`
+}
+
+func (t *Table) GetID() string {
+	return t.ID
 }
 
 func (t *Table) Setup(g GameLogicInterface) {

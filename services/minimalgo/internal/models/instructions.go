@@ -20,11 +20,13 @@ const (
 )
 
 type BaseInstruction struct {
-	Sender      string         `json:"sender"` // The gorouting sending the instruction
-	Action      string         `json:"action"`
-	StrMessage  string         `json:"str_message"`
-	JsonMessage map[string]any `json:"json_message"`
-	Table       TableInterface `json:"table"` // The table to which the instruction is sent to
+	Sender      string                   `json:"sender"` // The gorouting sending the instruction
+	Action      string                   `json:"action"`
+	StrMessage  string                   `json:"str_message"`
+	JsonMessage map[string]any           `json:"json_message"`
+	Table       TableInterface           `json:"table"` // The table to which the instruction is sent to
+	TableID     string                   `json:"table_id"`
+	Client      WebsocketClientInterface `json:"client"`
 }
 
 // Represents an instruction to send to the game
@@ -32,8 +34,8 @@ type BaseInstruction struct {
 // transform a websocket action to game logical instruction
 type InternalInstruction struct {
 	BaseInstruction
-	Client       WebsocketClientInterface `json:"-"`
-	TableOptions *TableOptions            `json:"-"` // Options to send to a table when creating or updating it
+	Client       WebsocketClientInterface `json:"client"` // Client sending the instruction (if applicable)
+	TableOptions *TableOptions            `json:"-"`      // Options to send to a table when creating or updating it
 }
 
 type InternalInstructionResponse struct {

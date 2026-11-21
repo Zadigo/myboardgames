@@ -44,4 +44,20 @@ func TestTableCreation(t *testing.T) {
 			s.Close()
 		})
 	})
+
+	t.Run("should be able to operate on created table", func(t *testing.T) {
+		conn, s, rec, err := utils.HelperRunJoinTableConnection(t, "/join")
+		assert.Equal(t, rec.Result().StatusCode, 200)
+		assert.NoError(t, err)
+
+		conn.WriteJSON(map[string]string{"Action": models.CreateTable})
+		err = conn.WriteJSON(map[string]string{"Action": models.TableEventStealCard})
+		assert.NoError(t, err)
+
+		t.Cleanup(func() {
+			rec.Flush()
+			conn.Close()
+			s.Close()
+		})
+	})
 }

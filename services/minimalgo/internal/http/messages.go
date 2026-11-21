@@ -34,7 +34,12 @@ func gameRelatedMessage(app *HttpApp, client models.WebsocketClientInterface, me
 				Redis:      app.server.GetOptions().RedisClient,
 			},
 		})
-
+	case models.TableEventStealCard:
+		app.server.SendInstruction(context.TODO(), models.InternalInstruction{
+			Client: client,
+			Action: models.TableEventStealCard,
+			Sender: models.HttpAppSender,
+		})
 		
 	default:
 		return

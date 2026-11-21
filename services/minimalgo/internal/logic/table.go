@@ -12,18 +12,23 @@ type ExampleTable struct {
 	models.Table
 }
 
-func (e *ExampleTable) Run(ctx context.Context) {
+func (e *ExampleTable) Run(ctx context.Context, options *models.TableOptions) {
+	slog.Info("Running table", "tableId", e.ID)
+
 	// db := &TableRedis{client: e.}
+
 	for {
 		select {
-		case instruction, ok := <-e.GetInbox():
+		case event, ok := <-e.GetInbox():
 			if !ok {
 				return
 			}
 
-			switch instruction.Details.EventName {
-			case models.TableEventIdle:
-				// Do something here
+			switch event.Details.EventName {
+			case models.TableEventStealCard:
+				if event.Client != nil {
+					event.Client.GetConn().WriteMessage(1, []byte("Stole card"))
+				}
 
 			}
 		case <-ctx.Done():
