@@ -9,6 +9,7 @@ import (
 	"myboardgames/minimalgame/internal/models"
 	minimalgame "myboardgames/minimalgame/minimalgameproto"
 	"net"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"google.golang.org/grpc"
@@ -17,7 +18,6 @@ import (
 type App struct {
 	options *models.ServerOptions
 	router  *chi.Mux
-	errCh   chan error
 }
 
 func (a *App) Start(ctx context.Context) error {
@@ -34,29 +34,44 @@ func (a *App) Start(ctx context.Context) error {
 	registry := logic.NewGameRegistry()
 
 	// Redis
-	client, err := backend.CreateRedisConnection()
+	client, err := backend.CreateRedisConnection(ctx)
 	if err != nil {
 		return err
 	}
 
+	defer client.Close()
+
 	// GrPC server
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(
+		grpc.MaxRecvMsgSize(1 << 20),
+		// grpc.WithChainUnaryInterceptor()
+	)
 	minimalgame.RegisterTableServiceServer(grpcServer, &GameServices{
 		gameRegistry: registry,
 		redisClient:  client,
 	})
 
 	slog.Info("Server registered")
-	a.errCh <- grpcServer.Serve(listener)
+
+	errCh := make(chan error, 1)
+	go func() {
+		errCh <- grpcServer.Serve(listener)
+	}()
 
 	select {
-	case err := <-a.errCh:
+	case err := <-errCh:
 		return fmt.Errorf("Error running server %s", err)
 	case <-ctx.Done():
-		grpcServer.GracefulStop()
-		close(a.errCh)
+		done := make(chan struct{})
+		go func() { grpcServer.GracefulStop(); close(done) }()
 
-		slog.Info("Server stopped")
+		select {
+		case <-done:
+		case <-time.After(10 * time.Second):
+			grpcServer.Stop()
+		}
+
+		slog.Info("server stopped")
 		return nil
 	}
 }
@@ -64,6 +79,5 @@ func (a *App) Start(ctx context.Context) error {
 func NewApp(ctx context.Context, options *models.ServerOptions) *App {
 	return &App{
 		options: options,
-		errCh:   make(chan error, 32),
 	}
 }

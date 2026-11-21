@@ -1,4 +1,4 @@
-package internal
+package models
 
 type ServiceError string
 

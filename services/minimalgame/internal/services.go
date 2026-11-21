@@ -20,10 +20,10 @@ type GameServices struct {
 func (s *GameServices) localGetTable(id string) (models.TableInterface, error) {
 	table, err := s.gameRegistry.GetTable(id)
 	if err != nil {
-		return nil, errors.Join(err, TableNotFound)
+		return nil, errors.Join(err, models.TableNotFound)
 	}
 	if table == nil {
-		return nil, TableNotFound
+		return nil, models.TableNotFound
 	}
 	return table, nil
 }
@@ -125,7 +125,7 @@ func (s *GameServices) ExecuteInstruction(ctx context.Context, req *pb.ExecuteIn
 	if table, err := s.localGetTable(req.GetTableId()); err != nil {
 		return nil, err
 	} else if table == nil {
-		return nil, TableNotFound
+		return nil, models.TableNotFound
 	} else {
 		if err := table.Execute(&models.Instruction{}); err != nil {
 			return nil, err
