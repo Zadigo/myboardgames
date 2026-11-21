@@ -7,16 +7,100 @@ option go_package = "services/minimalgame";
 service TableService {
     rpc CreateTable (CreateTableRequest) returns (TableResponse);
     rpc GetTable (GetTableRequest) returns (TableResponse);
+    rpc JoinTable (JoinTableRequest) returns (TableResponse);
+    rpc LeaveTable (LeaveTableRequest) returns (TableResponse);
+    rpc StartGame (StartGameRequest) returns (TableResponse);
+    rpc EndGame (EndGameRequest) returns (TableResponse);
+    rpc DistributeCards (DistributeCardsRequest) returns (TableResponse);
+    rpc NextRound (NextRoundRequest) returns (TableResponse);
+    rpc NextTurn (NextTurnRequest) returns (TableResponse);
+    rpc ShuffleCards (ShuffleCardsRequest) returns (TableResponse);
+    rpc BanPlayer (BanPlayerRequest) returns (TableResponse);
+    rpc Reset (ResetRequest) returns (TableResponse);
+    rpc Ping (PingRequest) returns (TableResponse);
 }
 
 message CreateTableRequest {
-    string clientId = 1;
+    string clientId = 1; // The player creating the table
 }
 
 message GetTableRequest {
+    string id = 1; // The id of the table to get
+}
+
+message JoinTableRequest {
+    string clientId = 1; // The player joining the table
+    string tableId = 2;
+}
+
+message LeaveTableRequest {
+    string clientId = 1;
+    string tableId = 2;
+}
+
+message StartGameRequest {
+    string tableId = 1;
+}
+
+message EndGameRequest {
+    string tableId = 1;
+}
+
+message DistributeCardsRequest {
+    string tableId = 1;
+}
+
+message NextTurnRequest {
+    string tableId = 1;
+}
+
+message NextRoundRequest {
+    string tableId = 1;
+}
+
+message ShuffleCardsRequest {
+    string tableId = 1;
+}
+
+message ResetRequest {
+    string tableId = 1;
+}
+
+message PingRequest {
+    string tableId = 1;
+}
+
+message BanPlayerRequest {
+    string clientId = 1;
+    string tableId = 2;
+}
+
+message Card {
     string id = 1;
 }
 
 message TableResponse {
     string id = 1;
+    string currentRound = 2;
+    string currentPlayer = 3;
+    string updatedAt = 4;
+    string createAt = 5;
+}
+
+message TableEventDetails {
+    string eventName = 1;
+    repeated string from = 2;
+    repeated string to = 3;
+    Card card = 4;
+}
+
+message TableSnapshot {
+    repeated Card deck = 1;
+}
+
+message TableEvent {
+    string id = 1;
+    string tableId = 2; 
+    TableEventDetails details = 3;
+    TableSnapshot snapshot = 4;
 }

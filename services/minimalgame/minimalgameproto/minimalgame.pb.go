@@ -23,7 +23,7 @@ const (
 
 type CreateTableRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ClientId      string                 `protobuf:"bytes,1,opt,name=clientId,proto3" json:"clientId,omitempty"`
+	ClientId      string                 `protobuf:"bytes,1,opt,name=clientId,proto3" json:"clientId,omitempty"` // The player creating the table
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -67,7 +67,7 @@ func (x *CreateTableRequest) GetClientId() string {
 
 type GetTableRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // The id of the table to get
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -109,16 +109,572 @@ func (x *GetTableRequest) GetId() string {
 	return ""
 }
 
-type TableResponse struct {
+type JoinTableRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ClientId      string                 `protobuf:"bytes,1,opt,name=clientId,proto3" json:"clientId,omitempty"` // The player joining the table
+	TableId       string                 `protobuf:"bytes,2,opt,name=tableId,proto3" json:"tableId,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *JoinTableRequest) Reset() {
+	*x = JoinTableRequest{}
+	mi := &file_minimalgame_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *JoinTableRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*JoinTableRequest) ProtoMessage() {}
+
+func (x *JoinTableRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_minimalgame_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use JoinTableRequest.ProtoReflect.Descriptor instead.
+func (*JoinTableRequest) Descriptor() ([]byte, []int) {
+	return file_minimalgame_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *JoinTableRequest) GetClientId() string {
+	if x != nil {
+		return x.ClientId
+	}
+	return ""
+}
+
+func (x *JoinTableRequest) GetTableId() string {
+	if x != nil {
+		return x.TableId
+	}
+	return ""
+}
+
+type LeaveTableRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ClientId      string                 `protobuf:"bytes,1,opt,name=clientId,proto3" json:"clientId,omitempty"`
+	TableId       string                 `protobuf:"bytes,2,opt,name=tableId,proto3" json:"tableId,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LeaveTableRequest) Reset() {
+	*x = LeaveTableRequest{}
+	mi := &file_minimalgame_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LeaveTableRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LeaveTableRequest) ProtoMessage() {}
+
+func (x *LeaveTableRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_minimalgame_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LeaveTableRequest.ProtoReflect.Descriptor instead.
+func (*LeaveTableRequest) Descriptor() ([]byte, []int) {
+	return file_minimalgame_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *LeaveTableRequest) GetClientId() string {
+	if x != nil {
+		return x.ClientId
+	}
+	return ""
+}
+
+func (x *LeaveTableRequest) GetTableId() string {
+	if x != nil {
+		return x.TableId
+	}
+	return ""
+}
+
+type StartGameRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TableId       string                 `protobuf:"bytes,1,opt,name=tableId,proto3" json:"tableId,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StartGameRequest) Reset() {
+	*x = StartGameRequest{}
+	mi := &file_minimalgame_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartGameRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartGameRequest) ProtoMessage() {}
+
+func (x *StartGameRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_minimalgame_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartGameRequest.ProtoReflect.Descriptor instead.
+func (*StartGameRequest) Descriptor() ([]byte, []int) {
+	return file_minimalgame_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *StartGameRequest) GetTableId() string {
+	if x != nil {
+		return x.TableId
+	}
+	return ""
+}
+
+type EndGameRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TableId       string                 `protobuf:"bytes,1,opt,name=tableId,proto3" json:"tableId,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EndGameRequest) Reset() {
+	*x = EndGameRequest{}
+	mi := &file_minimalgame_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EndGameRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EndGameRequest) ProtoMessage() {}
+
+func (x *EndGameRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_minimalgame_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EndGameRequest.ProtoReflect.Descriptor instead.
+func (*EndGameRequest) Descriptor() ([]byte, []int) {
+	return file_minimalgame_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *EndGameRequest) GetTableId() string {
+	if x != nil {
+		return x.TableId
+	}
+	return ""
+}
+
+type DistributeCardsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TableId       string                 `protobuf:"bytes,1,opt,name=tableId,proto3" json:"tableId,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DistributeCardsRequest) Reset() {
+	*x = DistributeCardsRequest{}
+	mi := &file_minimalgame_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DistributeCardsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DistributeCardsRequest) ProtoMessage() {}
+
+func (x *DistributeCardsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_minimalgame_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DistributeCardsRequest.ProtoReflect.Descriptor instead.
+func (*DistributeCardsRequest) Descriptor() ([]byte, []int) {
+	return file_minimalgame_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *DistributeCardsRequest) GetTableId() string {
+	if x != nil {
+		return x.TableId
+	}
+	return ""
+}
+
+type NextTurnRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TableId       string                 `protobuf:"bytes,1,opt,name=tableId,proto3" json:"tableId,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NextTurnRequest) Reset() {
+	*x = NextTurnRequest{}
+	mi := &file_minimalgame_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NextTurnRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NextTurnRequest) ProtoMessage() {}
+
+func (x *NextTurnRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_minimalgame_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NextTurnRequest.ProtoReflect.Descriptor instead.
+func (*NextTurnRequest) Descriptor() ([]byte, []int) {
+	return file_minimalgame_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *NextTurnRequest) GetTableId() string {
+	if x != nil {
+		return x.TableId
+	}
+	return ""
+}
+
+type NextRoundRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TableId       string                 `protobuf:"bytes,1,opt,name=tableId,proto3" json:"tableId,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NextRoundRequest) Reset() {
+	*x = NextRoundRequest{}
+	mi := &file_minimalgame_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NextRoundRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NextRoundRequest) ProtoMessage() {}
+
+func (x *NextRoundRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_minimalgame_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NextRoundRequest.ProtoReflect.Descriptor instead.
+func (*NextRoundRequest) Descriptor() ([]byte, []int) {
+	return file_minimalgame_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *NextRoundRequest) GetTableId() string {
+	if x != nil {
+		return x.TableId
+	}
+	return ""
+}
+
+type ShuffleCardsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TableId       string                 `protobuf:"bytes,1,opt,name=tableId,proto3" json:"tableId,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ShuffleCardsRequest) Reset() {
+	*x = ShuffleCardsRequest{}
+	mi := &file_minimalgame_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ShuffleCardsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ShuffleCardsRequest) ProtoMessage() {}
+
+func (x *ShuffleCardsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_minimalgame_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ShuffleCardsRequest.ProtoReflect.Descriptor instead.
+func (*ShuffleCardsRequest) Descriptor() ([]byte, []int) {
+	return file_minimalgame_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ShuffleCardsRequest) GetTableId() string {
+	if x != nil {
+		return x.TableId
+	}
+	return ""
+}
+
+type ResetRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TableId       string                 `protobuf:"bytes,1,opt,name=tableId,proto3" json:"tableId,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResetRequest) Reset() {
+	*x = ResetRequest{}
+	mi := &file_minimalgame_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResetRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResetRequest) ProtoMessage() {}
+
+func (x *ResetRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_minimalgame_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResetRequest.ProtoReflect.Descriptor instead.
+func (*ResetRequest) Descriptor() ([]byte, []int) {
+	return file_minimalgame_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *ResetRequest) GetTableId() string {
+	if x != nil {
+		return x.TableId
+	}
+	return ""
+}
+
+type PingRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TableId       string                 `protobuf:"bytes,1,opt,name=tableId,proto3" json:"tableId,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PingRequest) Reset() {
+	*x = PingRequest{}
+	mi := &file_minimalgame_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PingRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PingRequest) ProtoMessage() {}
+
+func (x *PingRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_minimalgame_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PingRequest.ProtoReflect.Descriptor instead.
+func (*PingRequest) Descriptor() ([]byte, []int) {
+	return file_minimalgame_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *PingRequest) GetTableId() string {
+	if x != nil {
+		return x.TableId
+	}
+	return ""
+}
+
+type BanPlayerRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ClientId      string                 `protobuf:"bytes,1,opt,name=clientId,proto3" json:"clientId,omitempty"`
+	TableId       string                 `protobuf:"bytes,2,opt,name=tableId,proto3" json:"tableId,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BanPlayerRequest) Reset() {
+	*x = BanPlayerRequest{}
+	mi := &file_minimalgame_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BanPlayerRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BanPlayerRequest) ProtoMessage() {}
+
+func (x *BanPlayerRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_minimalgame_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BanPlayerRequest.ProtoReflect.Descriptor instead.
+func (*BanPlayerRequest) Descriptor() ([]byte, []int) {
+	return file_minimalgame_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *BanPlayerRequest) GetClientId() string {
+	if x != nil {
+		return x.ClientId
+	}
+	return ""
+}
+
+func (x *BanPlayerRequest) GetTableId() string {
+	if x != nil {
+		return x.TableId
+	}
+	return ""
+}
+
+type Card struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
+func (x *Card) Reset() {
+	*x = Card{}
+	mi := &file_minimalgame_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Card) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Card) ProtoMessage() {}
+
+func (x *Card) ProtoReflect() protoreflect.Message {
+	mi := &file_minimalgame_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Card.ProtoReflect.Descriptor instead.
+func (*Card) Descriptor() ([]byte, []int) {
+	return file_minimalgame_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *Card) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type TableResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	CurrentRound  string                 `protobuf:"bytes,2,opt,name=currentRound,proto3" json:"currentRound,omitempty"`
+	CurrentPlayer string                 `protobuf:"bytes,3,opt,name=currentPlayer,proto3" json:"currentPlayer,omitempty"`
+	UpdatedAt     string                 `protobuf:"bytes,4,opt,name=updatedAt,proto3" json:"updatedAt,omitempty"`
+	CreateAt      string                 `protobuf:"bytes,5,opt,name=createAt,proto3" json:"createAt,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
 func (x *TableResponse) Reset() {
 	*x = TableResponse{}
-	mi := &file_minimalgame_proto_msgTypes[2]
+	mi := &file_minimalgame_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -130,7 +686,7 @@ func (x *TableResponse) String() string {
 func (*TableResponse) ProtoMessage() {}
 
 func (x *TableResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_minimalgame_proto_msgTypes[2]
+	mi := &file_minimalgame_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -143,7 +699,7 @@ func (x *TableResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TableResponse.ProtoReflect.Descriptor instead.
 func (*TableResponse) Descriptor() ([]byte, []int) {
-	return file_minimalgame_proto_rawDescGZIP(), []int{2}
+	return file_minimalgame_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *TableResponse) GetId() string {
@@ -151,6 +707,214 @@ func (x *TableResponse) GetId() string {
 		return x.Id
 	}
 	return ""
+}
+
+func (x *TableResponse) GetCurrentRound() string {
+	if x != nil {
+		return x.CurrentRound
+	}
+	return ""
+}
+
+func (x *TableResponse) GetCurrentPlayer() string {
+	if x != nil {
+		return x.CurrentPlayer
+	}
+	return ""
+}
+
+func (x *TableResponse) GetUpdatedAt() string {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return ""
+}
+
+func (x *TableResponse) GetCreateAt() string {
+	if x != nil {
+		return x.CreateAt
+	}
+	return ""
+}
+
+type TableEventDetails struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	EventName     string                 `protobuf:"bytes,1,opt,name=eventName,proto3" json:"eventName,omitempty"`
+	From          []string               `protobuf:"bytes,2,rep,name=from,proto3" json:"from,omitempty"`
+	To            []string               `protobuf:"bytes,3,rep,name=to,proto3" json:"to,omitempty"`
+	Card          *Card                  `protobuf:"bytes,4,opt,name=card,proto3" json:"card,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TableEventDetails) Reset() {
+	*x = TableEventDetails{}
+	mi := &file_minimalgame_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TableEventDetails) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TableEventDetails) ProtoMessage() {}
+
+func (x *TableEventDetails) ProtoReflect() protoreflect.Message {
+	mi := &file_minimalgame_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TableEventDetails.ProtoReflect.Descriptor instead.
+func (*TableEventDetails) Descriptor() ([]byte, []int) {
+	return file_minimalgame_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *TableEventDetails) GetEventName() string {
+	if x != nil {
+		return x.EventName
+	}
+	return ""
+}
+
+func (x *TableEventDetails) GetFrom() []string {
+	if x != nil {
+		return x.From
+	}
+	return nil
+}
+
+func (x *TableEventDetails) GetTo() []string {
+	if x != nil {
+		return x.To
+	}
+	return nil
+}
+
+func (x *TableEventDetails) GetCard() *Card {
+	if x != nil {
+		return x.Card
+	}
+	return nil
+}
+
+type TableSnapshot struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Deck          []*Card                `protobuf:"bytes,1,rep,name=deck,proto3" json:"deck,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TableSnapshot) Reset() {
+	*x = TableSnapshot{}
+	mi := &file_minimalgame_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TableSnapshot) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TableSnapshot) ProtoMessage() {}
+
+func (x *TableSnapshot) ProtoReflect() protoreflect.Message {
+	mi := &file_minimalgame_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TableSnapshot.ProtoReflect.Descriptor instead.
+func (*TableSnapshot) Descriptor() ([]byte, []int) {
+	return file_minimalgame_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *TableSnapshot) GetDeck() []*Card {
+	if x != nil {
+		return x.Deck
+	}
+	return nil
+}
+
+type TableEvent struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	TableId       string                 `protobuf:"bytes,2,opt,name=tableId,proto3" json:"tableId,omitempty"`
+	Details       *TableEventDetails     `protobuf:"bytes,3,opt,name=details,proto3" json:"details,omitempty"`
+	Snapshot      *TableSnapshot         `protobuf:"bytes,4,opt,name=snapshot,proto3" json:"snapshot,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TableEvent) Reset() {
+	*x = TableEvent{}
+	mi := &file_minimalgame_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TableEvent) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TableEvent) ProtoMessage() {}
+
+func (x *TableEvent) ProtoReflect() protoreflect.Message {
+	mi := &file_minimalgame_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TableEvent.ProtoReflect.Descriptor instead.
+func (*TableEvent) Descriptor() ([]byte, []int) {
+	return file_minimalgame_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *TableEvent) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *TableEvent) GetTableId() string {
+	if x != nil {
+		return x.TableId
+	}
+	return ""
+}
+
+func (x *TableEvent) GetDetails() *TableEventDetails {
+	if x != nil {
+		return x.Details
+	}
+	return nil
+}
+
+func (x *TableEvent) GetSnapshot() *TableSnapshot {
+	if x != nil {
+		return x.Snapshot
+	}
+	return nil
 }
 
 var File_minimalgame_proto protoreflect.FileDescriptor
@@ -161,12 +925,68 @@ const file_minimalgame_proto_rawDesc = "" +
 	"\x12CreateTableRequest\x12\x1a\n" +
 	"\bclientId\x18\x01 \x01(\tR\bclientId\"!\n" +
 	"\x0fGetTableRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\x1f\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"H\n" +
+	"\x10JoinTableRequest\x12\x1a\n" +
+	"\bclientId\x18\x01 \x01(\tR\bclientId\x12\x18\n" +
+	"\atableId\x18\x02 \x01(\tR\atableId\"I\n" +
+	"\x11LeaveTableRequest\x12\x1a\n" +
+	"\bclientId\x18\x01 \x01(\tR\bclientId\x12\x18\n" +
+	"\atableId\x18\x02 \x01(\tR\atableId\",\n" +
+	"\x10StartGameRequest\x12\x18\n" +
+	"\atableId\x18\x01 \x01(\tR\atableId\"*\n" +
+	"\x0eEndGameRequest\x12\x18\n" +
+	"\atableId\x18\x01 \x01(\tR\atableId\"2\n" +
+	"\x16DistributeCardsRequest\x12\x18\n" +
+	"\atableId\x18\x01 \x01(\tR\atableId\"+\n" +
+	"\x0fNextTurnRequest\x12\x18\n" +
+	"\atableId\x18\x01 \x01(\tR\atableId\",\n" +
+	"\x10NextRoundRequest\x12\x18\n" +
+	"\atableId\x18\x01 \x01(\tR\atableId\"/\n" +
+	"\x13ShuffleCardsRequest\x12\x18\n" +
+	"\atableId\x18\x01 \x01(\tR\atableId\"(\n" +
+	"\fResetRequest\x12\x18\n" +
+	"\atableId\x18\x01 \x01(\tR\atableId\"'\n" +
+	"\vPingRequest\x12\x18\n" +
+	"\atableId\x18\x01 \x01(\tR\atableId\"H\n" +
+	"\x10BanPlayerRequest\x12\x1a\n" +
+	"\bclientId\x18\x01 \x01(\tR\bclientId\x12\x18\n" +
+	"\atableId\x18\x02 \x01(\tR\atableId\"\x16\n" +
+	"\x04Card\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"\xa3\x01\n" +
 	"\rTableResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id2\xa0\x01\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\"\n" +
+	"\fcurrentRound\x18\x02 \x01(\tR\fcurrentRound\x12$\n" +
+	"\rcurrentPlayer\x18\x03 \x01(\tR\rcurrentPlayer\x12\x1c\n" +
+	"\tupdatedAt\x18\x04 \x01(\tR\tupdatedAt\x12\x1a\n" +
+	"\bcreateAt\x18\x05 \x01(\tR\bcreateAt\"|\n" +
+	"\x11TableEventDetails\x12\x1c\n" +
+	"\teventName\x18\x01 \x01(\tR\teventName\x12\x12\n" +
+	"\x04from\x18\x02 \x03(\tR\x04from\x12\x0e\n" +
+	"\x02to\x18\x03 \x03(\tR\x02to\x12%\n" +
+	"\x04card\x18\x04 \x01(\v2\x11.minimalgame.CardR\x04card\"6\n" +
+	"\rTableSnapshot\x12%\n" +
+	"\x04deck\x18\x01 \x03(\v2\x11.minimalgame.CardR\x04deck\"\xa8\x01\n" +
+	"\n" +
+	"TableEvent\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
+	"\atableId\x18\x02 \x01(\tR\atableId\x128\n" +
+	"\adetails\x18\x03 \x01(\v2\x1e.minimalgame.TableEventDetailsR\adetails\x126\n" +
+	"\bsnapshot\x18\x04 \x01(\v2\x1a.minimalgame.TableSnapshotR\bsnapshot2\xb4\a\n" +
 	"\fTableService\x12J\n" +
 	"\vCreateTable\x12\x1f.minimalgame.CreateTableRequest\x1a\x1a.minimalgame.TableResponse\x12D\n" +
-	"\bGetTable\x12\x1c.minimalgame.GetTableRequest\x1a\x1a.minimalgame.TableResponseB\x16Z\x14services/minimalgameb\x06proto3"
+	"\bGetTable\x12\x1c.minimalgame.GetTableRequest\x1a\x1a.minimalgame.TableResponse\x12F\n" +
+	"\tJoinTable\x12\x1d.minimalgame.JoinTableRequest\x1a\x1a.minimalgame.TableResponse\x12H\n" +
+	"\n" +
+	"LeaveTable\x12\x1e.minimalgame.LeaveTableRequest\x1a\x1a.minimalgame.TableResponse\x12F\n" +
+	"\tStartGame\x12\x1d.minimalgame.StartGameRequest\x1a\x1a.minimalgame.TableResponse\x12B\n" +
+	"\aEndGame\x12\x1b.minimalgame.EndGameRequest\x1a\x1a.minimalgame.TableResponse\x12R\n" +
+	"\x0fDistributeCards\x12#.minimalgame.DistributeCardsRequest\x1a\x1a.minimalgame.TableResponse\x12F\n" +
+	"\tNextRound\x12\x1d.minimalgame.NextRoundRequest\x1a\x1a.minimalgame.TableResponse\x12D\n" +
+	"\bNextTurn\x12\x1c.minimalgame.NextTurnRequest\x1a\x1a.minimalgame.TableResponse\x12L\n" +
+	"\fShuffleCards\x12 .minimalgame.ShuffleCardsRequest\x1a\x1a.minimalgame.TableResponse\x12F\n" +
+	"\tBanPlayer\x12\x1d.minimalgame.BanPlayerRequest\x1a\x1a.minimalgame.TableResponse\x12>\n" +
+	"\x05Reset\x12\x19.minimalgame.ResetRequest\x1a\x1a.minimalgame.TableResponse\x12<\n" +
+	"\x04Ping\x12\x18.minimalgame.PingRequest\x1a\x1a.minimalgame.TableResponseB\x16Z\x14services/minimalgameb\x06proto3"
 
 var (
 	file_minimalgame_proto_rawDescOnce sync.Once
@@ -180,22 +1000,63 @@ func file_minimalgame_proto_rawDescGZIP() []byte {
 	return file_minimalgame_proto_rawDescData
 }
 
-var file_minimalgame_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_minimalgame_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_minimalgame_proto_goTypes = []any{
-	(*CreateTableRequest)(nil), // 0: minimalgame.CreateTableRequest
-	(*GetTableRequest)(nil),    // 1: minimalgame.GetTableRequest
-	(*TableResponse)(nil),      // 2: minimalgame.TableResponse
+	(*CreateTableRequest)(nil),     // 0: minimalgame.CreateTableRequest
+	(*GetTableRequest)(nil),        // 1: minimalgame.GetTableRequest
+	(*JoinTableRequest)(nil),       // 2: minimalgame.JoinTableRequest
+	(*LeaveTableRequest)(nil),      // 3: minimalgame.LeaveTableRequest
+	(*StartGameRequest)(nil),       // 4: minimalgame.StartGameRequest
+	(*EndGameRequest)(nil),         // 5: minimalgame.EndGameRequest
+	(*DistributeCardsRequest)(nil), // 6: minimalgame.DistributeCardsRequest
+	(*NextTurnRequest)(nil),        // 7: minimalgame.NextTurnRequest
+	(*NextRoundRequest)(nil),       // 8: minimalgame.NextRoundRequest
+	(*ShuffleCardsRequest)(nil),    // 9: minimalgame.ShuffleCardsRequest
+	(*ResetRequest)(nil),           // 10: minimalgame.ResetRequest
+	(*PingRequest)(nil),            // 11: minimalgame.PingRequest
+	(*BanPlayerRequest)(nil),       // 12: minimalgame.BanPlayerRequest
+	(*Card)(nil),                   // 13: minimalgame.Card
+	(*TableResponse)(nil),          // 14: minimalgame.TableResponse
+	(*TableEventDetails)(nil),      // 15: minimalgame.TableEventDetails
+	(*TableSnapshot)(nil),          // 16: minimalgame.TableSnapshot
+	(*TableEvent)(nil),             // 17: minimalgame.TableEvent
 }
 var file_minimalgame_proto_depIdxs = []int32{
-	0, // 0: minimalgame.TableService.CreateTable:input_type -> minimalgame.CreateTableRequest
-	1, // 1: minimalgame.TableService.GetTable:input_type -> minimalgame.GetTableRequest
-	2, // 2: minimalgame.TableService.CreateTable:output_type -> minimalgame.TableResponse
-	2, // 3: minimalgame.TableService.GetTable:output_type -> minimalgame.TableResponse
-	2, // [2:4] is the sub-list for method output_type
-	0, // [0:2] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	13, // 0: minimalgame.TableEventDetails.card:type_name -> minimalgame.Card
+	13, // 1: minimalgame.TableSnapshot.deck:type_name -> minimalgame.Card
+	15, // 2: minimalgame.TableEvent.details:type_name -> minimalgame.TableEventDetails
+	16, // 3: minimalgame.TableEvent.snapshot:type_name -> minimalgame.TableSnapshot
+	0,  // 4: minimalgame.TableService.CreateTable:input_type -> minimalgame.CreateTableRequest
+	1,  // 5: minimalgame.TableService.GetTable:input_type -> minimalgame.GetTableRequest
+	2,  // 6: minimalgame.TableService.JoinTable:input_type -> minimalgame.JoinTableRequest
+	3,  // 7: minimalgame.TableService.LeaveTable:input_type -> minimalgame.LeaveTableRequest
+	4,  // 8: minimalgame.TableService.StartGame:input_type -> minimalgame.StartGameRequest
+	5,  // 9: minimalgame.TableService.EndGame:input_type -> minimalgame.EndGameRequest
+	6,  // 10: minimalgame.TableService.DistributeCards:input_type -> minimalgame.DistributeCardsRequest
+	8,  // 11: minimalgame.TableService.NextRound:input_type -> minimalgame.NextRoundRequest
+	7,  // 12: minimalgame.TableService.NextTurn:input_type -> minimalgame.NextTurnRequest
+	9,  // 13: minimalgame.TableService.ShuffleCards:input_type -> minimalgame.ShuffleCardsRequest
+	12, // 14: minimalgame.TableService.BanPlayer:input_type -> minimalgame.BanPlayerRequest
+	10, // 15: minimalgame.TableService.Reset:input_type -> minimalgame.ResetRequest
+	11, // 16: minimalgame.TableService.Ping:input_type -> minimalgame.PingRequest
+	14, // 17: minimalgame.TableService.CreateTable:output_type -> minimalgame.TableResponse
+	14, // 18: minimalgame.TableService.GetTable:output_type -> minimalgame.TableResponse
+	14, // 19: minimalgame.TableService.JoinTable:output_type -> minimalgame.TableResponse
+	14, // 20: minimalgame.TableService.LeaveTable:output_type -> minimalgame.TableResponse
+	14, // 21: minimalgame.TableService.StartGame:output_type -> minimalgame.TableResponse
+	14, // 22: minimalgame.TableService.EndGame:output_type -> minimalgame.TableResponse
+	14, // 23: minimalgame.TableService.DistributeCards:output_type -> minimalgame.TableResponse
+	14, // 24: minimalgame.TableService.NextRound:output_type -> minimalgame.TableResponse
+	14, // 25: minimalgame.TableService.NextTurn:output_type -> minimalgame.TableResponse
+	14, // 26: minimalgame.TableService.ShuffleCards:output_type -> minimalgame.TableResponse
+	14, // 27: minimalgame.TableService.BanPlayer:output_type -> minimalgame.TableResponse
+	14, // 28: minimalgame.TableService.Reset:output_type -> minimalgame.TableResponse
+	14, // 29: minimalgame.TableService.Ping:output_type -> minimalgame.TableResponse
+	17, // [17:30] is the sub-list for method output_type
+	4,  // [4:17] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_minimalgame_proto_init() }
@@ -209,7 +1070,7 @@ func file_minimalgame_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_minimalgame_proto_rawDesc), len(file_minimalgame_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -19,8 +19,19 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	TableService_CreateTable_FullMethodName = "/minimalgame.TableService/CreateTable"
-	TableService_GetTable_FullMethodName    = "/minimalgame.TableService/GetTable"
+	TableService_CreateTable_FullMethodName     = "/minimalgame.TableService/CreateTable"
+	TableService_GetTable_FullMethodName        = "/minimalgame.TableService/GetTable"
+	TableService_JoinTable_FullMethodName       = "/minimalgame.TableService/JoinTable"
+	TableService_LeaveTable_FullMethodName      = "/minimalgame.TableService/LeaveTable"
+	TableService_StartGame_FullMethodName       = "/minimalgame.TableService/StartGame"
+	TableService_EndGame_FullMethodName         = "/minimalgame.TableService/EndGame"
+	TableService_DistributeCards_FullMethodName = "/minimalgame.TableService/DistributeCards"
+	TableService_NextRound_FullMethodName       = "/minimalgame.TableService/NextRound"
+	TableService_NextTurn_FullMethodName        = "/minimalgame.TableService/NextTurn"
+	TableService_ShuffleCards_FullMethodName    = "/minimalgame.TableService/ShuffleCards"
+	TableService_BanPlayer_FullMethodName       = "/minimalgame.TableService/BanPlayer"
+	TableService_Reset_FullMethodName           = "/minimalgame.TableService/Reset"
+	TableService_Ping_FullMethodName            = "/minimalgame.TableService/Ping"
 )
 
 // TableServiceClient is the client API for TableService service.
@@ -29,6 +40,17 @@ const (
 type TableServiceClient interface {
 	CreateTable(ctx context.Context, in *CreateTableRequest, opts ...grpc.CallOption) (*TableResponse, error)
 	GetTable(ctx context.Context, in *GetTableRequest, opts ...grpc.CallOption) (*TableResponse, error)
+	JoinTable(ctx context.Context, in *JoinTableRequest, opts ...grpc.CallOption) (*TableResponse, error)
+	LeaveTable(ctx context.Context, in *LeaveTableRequest, opts ...grpc.CallOption) (*TableResponse, error)
+	StartGame(ctx context.Context, in *StartGameRequest, opts ...grpc.CallOption) (*TableResponse, error)
+	EndGame(ctx context.Context, in *EndGameRequest, opts ...grpc.CallOption) (*TableResponse, error)
+	DistributeCards(ctx context.Context, in *DistributeCardsRequest, opts ...grpc.CallOption) (*TableResponse, error)
+	NextRound(ctx context.Context, in *NextRoundRequest, opts ...grpc.CallOption) (*TableResponse, error)
+	NextTurn(ctx context.Context, in *NextTurnRequest, opts ...grpc.CallOption) (*TableResponse, error)
+	ShuffleCards(ctx context.Context, in *ShuffleCardsRequest, opts ...grpc.CallOption) (*TableResponse, error)
+	BanPlayer(ctx context.Context, in *BanPlayerRequest, opts ...grpc.CallOption) (*TableResponse, error)
+	Reset(ctx context.Context, in *ResetRequest, opts ...grpc.CallOption) (*TableResponse, error)
+	Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*TableResponse, error)
 }
 
 type tableServiceClient struct {
@@ -59,12 +81,133 @@ func (c *tableServiceClient) GetTable(ctx context.Context, in *GetTableRequest, 
 	return out, nil
 }
 
+func (c *tableServiceClient) JoinTable(ctx context.Context, in *JoinTableRequest, opts ...grpc.CallOption) (*TableResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TableResponse)
+	err := c.cc.Invoke(ctx, TableService_JoinTable_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tableServiceClient) LeaveTable(ctx context.Context, in *LeaveTableRequest, opts ...grpc.CallOption) (*TableResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TableResponse)
+	err := c.cc.Invoke(ctx, TableService_LeaveTable_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tableServiceClient) StartGame(ctx context.Context, in *StartGameRequest, opts ...grpc.CallOption) (*TableResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TableResponse)
+	err := c.cc.Invoke(ctx, TableService_StartGame_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tableServiceClient) EndGame(ctx context.Context, in *EndGameRequest, opts ...grpc.CallOption) (*TableResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TableResponse)
+	err := c.cc.Invoke(ctx, TableService_EndGame_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tableServiceClient) DistributeCards(ctx context.Context, in *DistributeCardsRequest, opts ...grpc.CallOption) (*TableResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TableResponse)
+	err := c.cc.Invoke(ctx, TableService_DistributeCards_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tableServiceClient) NextRound(ctx context.Context, in *NextRoundRequest, opts ...grpc.CallOption) (*TableResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TableResponse)
+	err := c.cc.Invoke(ctx, TableService_NextRound_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tableServiceClient) NextTurn(ctx context.Context, in *NextTurnRequest, opts ...grpc.CallOption) (*TableResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TableResponse)
+	err := c.cc.Invoke(ctx, TableService_NextTurn_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tableServiceClient) ShuffleCards(ctx context.Context, in *ShuffleCardsRequest, opts ...grpc.CallOption) (*TableResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TableResponse)
+	err := c.cc.Invoke(ctx, TableService_ShuffleCards_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tableServiceClient) BanPlayer(ctx context.Context, in *BanPlayerRequest, opts ...grpc.CallOption) (*TableResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TableResponse)
+	err := c.cc.Invoke(ctx, TableService_BanPlayer_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tableServiceClient) Reset(ctx context.Context, in *ResetRequest, opts ...grpc.CallOption) (*TableResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TableResponse)
+	err := c.cc.Invoke(ctx, TableService_Reset_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tableServiceClient) Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*TableResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TableResponse)
+	err := c.cc.Invoke(ctx, TableService_Ping_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TableServiceServer is the server API for TableService service.
 // All implementations must embed UnimplementedTableServiceServer
 // for forward compatibility.
 type TableServiceServer interface {
 	CreateTable(context.Context, *CreateTableRequest) (*TableResponse, error)
 	GetTable(context.Context, *GetTableRequest) (*TableResponse, error)
+	JoinTable(context.Context, *JoinTableRequest) (*TableResponse, error)
+	LeaveTable(context.Context, *LeaveTableRequest) (*TableResponse, error)
+	StartGame(context.Context, *StartGameRequest) (*TableResponse, error)
+	EndGame(context.Context, *EndGameRequest) (*TableResponse, error)
+	DistributeCards(context.Context, *DistributeCardsRequest) (*TableResponse, error)
+	NextRound(context.Context, *NextRoundRequest) (*TableResponse, error)
+	NextTurn(context.Context, *NextTurnRequest) (*TableResponse, error)
+	ShuffleCards(context.Context, *ShuffleCardsRequest) (*TableResponse, error)
+	BanPlayer(context.Context, *BanPlayerRequest) (*TableResponse, error)
+	Reset(context.Context, *ResetRequest) (*TableResponse, error)
+	Ping(context.Context, *PingRequest) (*TableResponse, error)
 	mustEmbedUnimplementedTableServiceServer()
 }
 
@@ -80,6 +223,39 @@ func (UnimplementedTableServiceServer) CreateTable(context.Context, *CreateTable
 }
 func (UnimplementedTableServiceServer) GetTable(context.Context, *GetTableRequest) (*TableResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetTable not implemented")
+}
+func (UnimplementedTableServiceServer) JoinTable(context.Context, *JoinTableRequest) (*TableResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method JoinTable not implemented")
+}
+func (UnimplementedTableServiceServer) LeaveTable(context.Context, *LeaveTableRequest) (*TableResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method LeaveTable not implemented")
+}
+func (UnimplementedTableServiceServer) StartGame(context.Context, *StartGameRequest) (*TableResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method StartGame not implemented")
+}
+func (UnimplementedTableServiceServer) EndGame(context.Context, *EndGameRequest) (*TableResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method EndGame not implemented")
+}
+func (UnimplementedTableServiceServer) DistributeCards(context.Context, *DistributeCardsRequest) (*TableResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DistributeCards not implemented")
+}
+func (UnimplementedTableServiceServer) NextRound(context.Context, *NextRoundRequest) (*TableResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method NextRound not implemented")
+}
+func (UnimplementedTableServiceServer) NextTurn(context.Context, *NextTurnRequest) (*TableResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method NextTurn not implemented")
+}
+func (UnimplementedTableServiceServer) ShuffleCards(context.Context, *ShuffleCardsRequest) (*TableResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ShuffleCards not implemented")
+}
+func (UnimplementedTableServiceServer) BanPlayer(context.Context, *BanPlayerRequest) (*TableResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method BanPlayer not implemented")
+}
+func (UnimplementedTableServiceServer) Reset(context.Context, *ResetRequest) (*TableResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Reset not implemented")
+}
+func (UnimplementedTableServiceServer) Ping(context.Context, *PingRequest) (*TableResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Ping not implemented")
 }
 func (UnimplementedTableServiceServer) mustEmbedUnimplementedTableServiceServer() {}
 func (UnimplementedTableServiceServer) testEmbeddedByValue()                      {}
@@ -138,6 +314,204 @@ func _TableService_GetTable_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TableService_JoinTable_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(JoinTableRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableServiceServer).JoinTable(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TableService_JoinTable_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableServiceServer).JoinTable(ctx, req.(*JoinTableRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TableService_LeaveTable_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LeaveTableRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableServiceServer).LeaveTable(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TableService_LeaveTable_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableServiceServer).LeaveTable(ctx, req.(*LeaveTableRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TableService_StartGame_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StartGameRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableServiceServer).StartGame(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TableService_StartGame_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableServiceServer).StartGame(ctx, req.(*StartGameRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TableService_EndGame_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EndGameRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableServiceServer).EndGame(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TableService_EndGame_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableServiceServer).EndGame(ctx, req.(*EndGameRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TableService_DistributeCards_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DistributeCardsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableServiceServer).DistributeCards(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TableService_DistributeCards_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableServiceServer).DistributeCards(ctx, req.(*DistributeCardsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TableService_NextRound_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NextRoundRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableServiceServer).NextRound(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TableService_NextRound_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableServiceServer).NextRound(ctx, req.(*NextRoundRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TableService_NextTurn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NextTurnRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableServiceServer).NextTurn(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TableService_NextTurn_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableServiceServer).NextTurn(ctx, req.(*NextTurnRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TableService_ShuffleCards_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ShuffleCardsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableServiceServer).ShuffleCards(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TableService_ShuffleCards_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableServiceServer).ShuffleCards(ctx, req.(*ShuffleCardsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TableService_BanPlayer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BanPlayerRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableServiceServer).BanPlayer(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TableService_BanPlayer_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableServiceServer).BanPlayer(ctx, req.(*BanPlayerRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TableService_Reset_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ResetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableServiceServer).Reset(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TableService_Reset_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableServiceServer).Reset(ctx, req.(*ResetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TableService_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableServiceServer).Ping(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TableService_Ping_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableServiceServer).Ping(ctx, req.(*PingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TableService_ServiceDesc is the grpc.ServiceDesc for TableService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -152,6 +526,50 @@ var TableService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetTable",
 			Handler:    _TableService_GetTable_Handler,
+		},
+		{
+			MethodName: "JoinTable",
+			Handler:    _TableService_JoinTable_Handler,
+		},
+		{
+			MethodName: "LeaveTable",
+			Handler:    _TableService_LeaveTable_Handler,
+		},
+		{
+			MethodName: "StartGame",
+			Handler:    _TableService_StartGame_Handler,
+		},
+		{
+			MethodName: "EndGame",
+			Handler:    _TableService_EndGame_Handler,
+		},
+		{
+			MethodName: "DistributeCards",
+			Handler:    _TableService_DistributeCards_Handler,
+		},
+		{
+			MethodName: "NextRound",
+			Handler:    _TableService_NextRound_Handler,
+		},
+		{
+			MethodName: "NextTurn",
+			Handler:    _TableService_NextTurn_Handler,
+		},
+		{
+			MethodName: "ShuffleCards",
+			Handler:    _TableService_ShuffleCards_Handler,
+		},
+		{
+			MethodName: "BanPlayer",
+			Handler:    _TableService_BanPlayer_Handler,
+		},
+		{
+			MethodName: "Reset",
+			Handler:    _TableService_Reset_Handler,
+		},
+		{
+			MethodName: "Ping",
+			Handler:    _TableService_Ping_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
