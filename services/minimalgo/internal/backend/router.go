@@ -2,10 +2,12 @@ package backend
 
 import (
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"log/slog"
 	"myboardgames/minimalgo/internal/utils"
+	"net/url"
 	"os"
 	"path/filepath"
 
@@ -17,7 +19,7 @@ type RouterBackend struct {
 	redisDb *redis.Client
 }
 
-func (r *RouterBackend) Load(ctx context.Context, router *Router) error {
+func (r *RouterBackend) LoadFromCache(ctx context.Context, router *Router) error {
 	if r.redisDb == nil {
 		return fmt.Errorf("Redis not set")
 	}
@@ -48,18 +50,45 @@ func (r *RouterBackend) Save(ctx context.Context, router *Router) error {
 }
 
 type Route struct {
-	NameFr      string `yaml:"name_fr"`
-	NameEn      string `yaml:"name_en"`
-	Domain      string `yaml:"domain"`
-	Port        int    `yaml:"port"`
-	Active      bool   `yaml:"active"`
-	Environment string `yaml:"environment"`
-	Version     int    `yaml:"version"`
+	Hash        string `json:"hash" yaml:"-"` // Hash of the name of the route used for quick lookup
+	NameFr      string `json:"name_fr" yaml:"name_fr"`
+	NameEn      string `json:"name_en" yaml:"name_en"`
+	Domain      string `json:"domain" yaml:"domain"`
+	Port        int    `json:"port" yaml:"port"`
+	Active      bool   `json:"active" yaml:"active"`
+	Environment string `json:"environment" yaml:"environment"`
+	Version     int    `json:"version" yaml:"version"`
 }
 
 type Router struct {
 	RouterBackend
-	Routes []*Route `yaml:"routes"`
+	Routes []*Route `json:"routes" yaml:"routes"`
+}
+
+func (r *Router) Find(name string) *Route {
+	hashed := sha256.Sum256([]byte(name))
+	for _, route := range r.Routes {
+		if route.Hash == fmt.Sprintf("%x", hashed) {
+			return route
+		}
+	}
+	return nil
+}
+
+func (r *Router) FindDomain(name string) (string, error) {
+	if route := r.Find(name); route == nil {
+		return "", fmt.Errorf("route not found")
+	} else {
+		if _domain, err := url.Parse(route.Domain); err != nil {
+			return "", err
+		} else {
+			if route.Environment == "dev" || route.Environment == "test" {
+				return fmt.Sprintf("%s:%d", "localhost", route.Port), nil
+			} else {
+				return _domain.String(), nil
+			}
+		}
+	}
 }
 
 func (r *Router) Load(ctx context.Context, filePath string) error {
@@ -87,6 +116,9 @@ func NewRouter(ctx context.Context, filePath string) (*Router, error) {
 	if err := router.Load(ctx, filePath); err != nil {
 		return nil, err
 	} else {
+		for _, route := range router.Routes {
+			route.Hash = fmt.Sprintf("%x", sha256.Sum256([]byte(route.NameFr)))
+		}
 		return router, nil
 	}
 }
