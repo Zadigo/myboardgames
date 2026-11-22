@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
 	"path"
 	"path/filepath"
@@ -77,6 +78,8 @@ func LoadRules(filePath string, rule *Rule) error {
 	if err != nil {
 		return err
 	}
+
+	slog.Info("Loaded rules for game", "rules", filep)
 
 	if content, err := os.ReadFile(filep); err != nil {
 		return err

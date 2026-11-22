@@ -4,6 +4,7 @@ import (
 	"cmp"
 	"context"
 	"fmt"
+	"log/slog"
 	"os"
 	"time"
 
@@ -25,5 +26,6 @@ func CreateRedisConnection(ctx context.Context) (*redis.Client, error) {
 		return nil, err
 	}
 
+	slog.Info("Redis was loaded successfully", "address", options.Addr)
 	return instance, nil
 }

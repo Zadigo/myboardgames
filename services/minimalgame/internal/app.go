@@ -24,8 +24,6 @@ type App struct {
 }
 
 func (a *App) Start(ctx context.Context) error {
-	slog.Info("Starting server...")
-
 	port, err := strconv.ParseUint(a.options.Port, 10, 16)
 	if err != nil {
 		return err
@@ -39,6 +37,8 @@ func (a *App) Start(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("Could not start TCP server %s", err)
 	}
+
+	slog.Info("Starting gRPC server...", "port", port)
 
 	defer listener.Close()
 
@@ -85,8 +85,6 @@ func (a *App) Start(ctx context.Context) error {
 		redisDb:      a.redisDb,
 	})
 
-	slog.Info("Server registered")
-
 	errCh := make(chan error, 1)
 	go func() {
 		errCh <- grpcServer.Serve(listener)
@@ -105,7 +103,7 @@ func (a *App) Start(ctx context.Context) error {
 			grpcServer.Stop()
 		}
 
-		slog.Info("server stopped")
+		slog.Info("gRPC server stopped")
 		return nil
 	}
 }
