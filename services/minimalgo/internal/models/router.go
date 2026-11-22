@@ -1,4 +1,4 @@
-package backend
+package models
 
 import (
 	"context"
@@ -77,13 +77,13 @@ func (r *Route) Address() string {
 	if r.Domain == "" {
 		return ""
 	}
-	
+
 	return fmt.Sprintf("%s:%d", r.Domain, r.Port)
 }
 
 type Router struct {
-	RouterBackend
-	Routes []*Route `json:"routes" yaml:"routes"`
+	RouterBackend `json:"-" yaml:"-"`
+	Routes        []*Route `json:"routes" yaml:"routes"`
 }
 
 func (r *Router) Find(name string) *Route {
@@ -96,8 +96,9 @@ func (r *Router) Find(name string) *Route {
 	return nil
 }
 
-func (r *Router) LoadFile(ctx context.Context, filePath string) (*Router, error) {
-	filep, err := filepath.Abs(filepath.Join(filePath, "routes.yaml"))
+func (r *Router) LoadFile(ctx context.Context) (*Router, error) {
+	rootDir := ctx.Value("rootDir").(string)
+	filep, err := filepath.Abs(filepath.Join(rootDir, "routes.yaml"))
 	if err != nil {
 		return nil, err
 	}
@@ -128,8 +129,8 @@ func (r *Router) LoadFile(ctx context.Context, filePath string) (*Router, error)
 	return r, nil
 }
 
-func NewRouter(ctx context.Context, redisDb *redis.Client, filePath string) (*Router, error) {
+func NewRouter(ctx context.Context, redisDb *redis.Client) (*Router, error) {
 	r := &Router{}
 	r.SetRedis(redisDb)
-	return r.LoadFile(ctx, filePath)
+	return r.LoadFile(ctx)
 }

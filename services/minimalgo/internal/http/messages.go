@@ -8,8 +8,21 @@ import (
 
 func authenticationMessage(app *HttpApp, client models.WebsocketClientInterface, message models.BaseWebsocketMessage) {
 	switch message.Action {
-	case models.HelloPing:
-		client.GetConn().WriteMessage(1, []byte("Hello"))
+	case models.PingRpc:
+		rpc, ok := app.server.GetGrpcConnections()[message.Rpc]
+		if !ok {
+			client.GetConn().WriteJSON(models.BaseWebsocketMessage{
+				ClientID:   client.GetID(),
+				StrMessage: "rpc not found",
+			})
+			return
+		} else {
+			rpc.Connect()
+			client.GetConn().WriteJSON(models.BaseWebsocketMessage{
+				ClientID:   client.GetID(),
+				StrMessage: "ok",
+			})
+		}
 	default:
 		return
 	}
@@ -30,7 +43,7 @@ func gameRelatedMessage(app *HttpApp, client models.WebsocketClientInterface, me
 
 		conns := app.server.GetGrpcConnections()
 		conn, _ := conns["default"]
-		
+
 		err := conn.Invoke(context.Background(), pb.TableService_CreateTable_FullMethodName, req, nil)
 		if err != nil {
 			client.GetConn().WriteMessage(1, []byte(err.Error()))

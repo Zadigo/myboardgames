@@ -7,6 +7,7 @@ import (
 	"myboardgames/minimalgo/internal/server"
 	"os"
 	"os/signal"
+	"path/filepath"
 
 	"github.com/joho/godotenv"
 	"github.com/redis/go-redis/v9"
@@ -24,7 +25,7 @@ func preStartSetup(ctx context.Context) (*redis.Client, error) {
 	} else {
 		g := errgroup.Group{}
 		g.Go(func() error {
-			if router, err := backend.NewRouter(ctx, client, "."); err != nil {
+			if router, err := models.NewRouter(ctx, client); err != nil {
 				return err
 			} else {
 				if err := router.Save(ctx, router); err != nil {
@@ -40,6 +41,8 @@ func preStartSetup(ctx context.Context) (*redis.Client, error) {
 
 func main() {
 	ctx := context.Background()
+	rootDir, _ := filepath.Abs(".")
+	ctx = context.WithValue(ctx, "rootDir", rootDir)
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt, os.Kill)
 	defer cancel()
 

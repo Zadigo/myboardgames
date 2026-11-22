@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"myboardgames/minimalgo/internal/models"
 	"myboardgames/minimalgo/tests/utils"
 	"testing"
 
@@ -8,11 +9,21 @@ import (
 )
 
 func TestTableCreation(t *testing.T) {
-	t.Run("should be able to create table", func(t *testing.T) {
+	t.Run("should connect to websocket and receive setup", func(t *testing.T) {
 		conn, s, rec, err := utils.HelperJoinTableConnection(t, "/join")
 		assert.NoError(t, err)
 
-		err = conn.WriteJSON(map[string]string{"client_id": "1234"})
+		// Connect to the websocket and
+		// receive the routing table
+		data := &models.Router{}
+		err = conn.ReadJSON(data)
+		assert.NoError(t, err)
+		assert.NotNil(t, data)
+
+		// Select a game (by selecting a rpc route)
+		route := data.Routes[0]
+
+		err = conn.WriteJSON(map[string]string{"action": "ping_rpc", "rpc": route.Hash, "client_id": "1234"})
 		assert.NoError(t, err)
 
 		t.Cleanup(func() {

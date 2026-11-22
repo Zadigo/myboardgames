@@ -26,7 +26,7 @@ func TestMainserver(t *testing.T) {
 
 	t.Run("should start server", func(t *testing.T) {
 
-		tCtx, cancel := context.WithTimeout(t.Context(), 60*time.Second)
+		tCtx, cancel := context.WithTimeout(t.Context(), 15*time.Second)
 		defer cancel()
 
 		s, err := server.NewServerApp(t.Context(), &models.ServerAppOptions{
@@ -34,8 +34,10 @@ func TestMainserver(t *testing.T) {
 		})
 		assert.NotNil(t, s)
 		assert.NoError(t, err)
-		s.Start(tCtx)
 
+		err = s.Start(tCtx)
+
+		assert.NoError(t, err)
 		assert.True(t, s.GetState())
 	})
 }

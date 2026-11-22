@@ -36,6 +36,20 @@ func (b *BaseHandlers) JoinWebsite(w http.ResponseWriter, r *http.Request) {
 
 	defer b.app.RemoveClient(client)
 
+	// Return the routing table so that Nuxt knows what
+	// rpc servers are actually registred. When client clicks
+	// on a game, it pings the rpc server to check connectivity
+	// and the different things related to gameplay etc.
+	err = client.GetConn().WriteJSON(models.BaseWebsocketMessage{
+		Action:   models.JoinWebsite,
+		ClientID: client.GetID(),
+		Routing:  b.app.server.GetRouter(),
+	})
+	if err != nil {
+		slog.Error(err.Error())
+		return
+	}
+
 	for {
 		var message models.BaseWebsocketMessage
 		err = conn.ReadJSON(&message)

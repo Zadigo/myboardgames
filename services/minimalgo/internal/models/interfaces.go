@@ -8,13 +8,14 @@ import (
 )
 
 const (
-	HelloPing          string = "hello_ping"
+	PingRpc            string = "ping_rpc" // Tries to connect to an RPC server
 	StartGame          string = "start_game"
 	MustIdentify       string = "must_identify"
 	ClientConnected    string = "client_connected"
 	ClientDisconnected string = "client_disconnected"
 	CreateTable        string = "create_table"
 	JoinTable          string = "join_table"
+	JoinWebsite        string = "join_website"
 )
 
 type AppInterface interface {
@@ -30,6 +31,7 @@ type WebsocketClientInterface interface {
 
 type ServerAppInterface interface {
 	AppInterface
+	GetRouter() *Router
 	GetGrpcConnections() map[string]*grpc.ClientConn
 	UpdateClients(clients []WebsocketClientInterface)
 	GetState() bool
@@ -37,5 +39,10 @@ type ServerAppInterface interface {
 }
 
 type BaseWebsocketMessage struct {
-	Action string `json:"action"`
+	Action      string         `json:"action"`
+	Rpc         string         `json:"rpc"`
+	ClientID    string         `json:"client_id"`
+	StrMessage  string         `json:"message"`
+	JsonMessage map[string]any `json:"json_message"`
+	Routing     *Router        `json:"router"`
 }

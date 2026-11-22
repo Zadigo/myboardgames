@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/tls"
 	"log/slog"
-	"myboardgames/minimalgo/internal/backend"
 	httpapp "myboardgames/minimalgo/internal/http"
 	"myboardgames/minimalgo/internal/models"
 	"sync/atomic"
@@ -22,8 +21,12 @@ type ServerApp struct {
 	models.BaseServerApp
 	options         *models.ServerAppOptions
 	isActive        atomic.Bool
-	grpcRouter      *backend.Router
+	grpcRouter      *models.Router
 	grpcConnections map[string]*grpc.ClientConn
+}
+
+func (s *ServerApp) GetRouter() *models.Router {
+	return s.grpcRouter
 }
 
 func (s *ServerApp) GetGrpcConnections() map[string]*grpc.ClientConn {
@@ -65,7 +68,7 @@ func (s *ServerApp) Start(ctx context.Context) error {
 }
 
 func NewServerApp(ctx context.Context, options *models.ServerAppOptions) (models.ServerAppInterface, error) {
-	if router, err := backend.NewRouter(ctx, options.RedisClient, ".."); err != nil {
+	if router, err := models.NewRouter(ctx, options.RedisClient); err != nil {
 		return nil, err
 	} else {
 		server := &ServerApp{
