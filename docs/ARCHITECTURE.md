@@ -1,4 +1,4 @@
-# Booard Games
+# Board Games
 
 ## Requirements & Assumptions 🟠
 
@@ -15,7 +15,8 @@
 *Describes the specific features and functionalities that the system must provide*
 
 - **Mainsite** application for accessing all the games for the platform
-- **Game service** Golang application that hosts the logic for the board game
+- **Entrypoint micro-service server (minimalgo)** that communicates with Nuxt (Websocket) and with any game micro-service in gRPC
+- **Game micro-services (minimalgame)** Golang applications that hosts the logic for each board game
 
 ## Capacity Planning ⏰
 
@@ -23,9 +24,10 @@
 
 *Estimates the expected load on the system, such as the number of users, transactions, or requests per second. This helps in designing a system that can handle the anticipated traffic and scale as needed*
 
-Estimation for one user campaign:
+Estimation for three players playing a board game:
 
 - **Players** 4 to 6 players per game
+- **Interractions** depending on the game, 2 to 3 interractions per game
 
 ### Storage
 
@@ -36,24 +38,19 @@ Estimation for one user campaign:
 *Describes the overall structure of the system, including the main components and how they interact with each other. This can be illustrated using diagrams such as component diagrams or architecture diagrams.*
 
 ```mermaid
-flowchart
+flowchart LR
 
 N(Nuxt) <--> |Websocket|S(Server)
 
-S <--> |GrPC|G(Game)
-S <--> |GrPC|G2(Game2)
+S <--> |GrPC|G(Game e.g Flip 7)
 
 G --> T((Tickers))
-G --> C(Chi Handler)
-G --> TA(Game Tables)
+G --> TA(Tables)
 
-C <--> |Channels|TA
 
 TA --> TAB(Table)
 TAB --> L[[Logic]]
 TAB --> CL(Clients)
-
-G2 --> O(...)
 ```
 
 ## System Workflow 🔄
@@ -71,14 +68,17 @@ participant N@{type: "entity"} as Nuxt
 end 
 
 box Backend
-participant G@{type: "entity"} as Golang
+participant G@{type: "entity"} as MinimalGo
+participant G2@{type: "entity"} as MinimalGame
 participant R@{type: "database"} as Redis
 participant D@{type: "boundary"} as Django
 participant PG@{type: "database"} as PostgreSQL
 end
 
-U->> N: Create game
-N->> G: New Game
+U->>N: Create game
+N->>G: New Game
+G-->>G2: New Game
+G2-->>G: Game Details
 
 par storage
 G-->>R: Save game
@@ -87,6 +87,8 @@ R-->>G: Game details
 G->>()N: Create lobby
 N()<<-->>()U: Wait for players
 P->>N: Join lobby
+N->>G: Add Player
+G->>G2: Add Player
 
 alt Number of players
 N->>G: Start game
@@ -103,20 +105,18 @@ end
 end
 ```
 
-* Emailing service architecture: [services/goemailer/ARCHITECTURE.md](services/goemailer/ARCHITECTURE.md)
-
 ## Api Design 🛠️
 
 *Describes the design of the APIs that will be used for communication between different components of the system, such as the frontend and backend. This includes the endpoints, request and response formats, authentication mechanisms, and any other relevant details about how the APIs will function.*
 
+> [!NOT] Not
 > Determines also whether the system will be using RESTful APIs or GraphQL, and how the frontend will interact with these APIs to fetch and manipulate data.
 > If the system uses microservices architecture, the API design will also include details about how different microservices will communicate with each other, such as using RESTful APIs, gRPC, or message queues.
 
-| Endpoint           | Method | Description               | Request Body        | Response Body                                                      |
-| ------------------ | ------ | ------------------------- | ------------------- | ------------------------------------------------------------------ |
-| /create            | POST   | Create a new game         | { userId: number } | { tableId: string, currentPlayers: object, gameDetails: object }  |
-| /{tableId}/join    | POST   | Join a table (Websocket)  | { userId: number } | { tableId: string, currentPlayers: object, gameDetails: object } |
-| /{tableId}/observe | POST   | Observe a game on a table | { userId: number }  | { tableId: string, currentPlayers: object, gameDetails: object }  |
+| Endpoint           | Method | Description                 | Request Body        | Response Body |
+| ------------------ | ------ | --------------------------- | ------------------- | ------------- |
+| /v1/               | GET    | Start websocket for website | { userId: number } |               |
+| /v1/{tableId}/join | GET    | Join a table (Websocket)    | { userId: number } |               |
 
 ## Data storage
 
@@ -148,14 +148,18 @@ Caching will be almost exlusively done with Redis as an in-memory data store.
 ```mermaid
 flowchart LR
 
-A[User Requests] --> B(Load Balancer)
+A[Nuxt] --> B(Load Balancer)
 B --> C[Server 1]
 B --> D[Server 2]
 B --> E[Server 3]
 
-C --> G[Game Service]
-D --> H[Game Service]
-E --> I[Game Service]
+C --> G[MinimalGo]
+D --> H[MinimalGo]
+E --> I[MinimalGo]
+
+G --> J[Game 1]
+G --> K[Game 2]
+G --> L[Game 3]
 ```
 
 ---
@@ -164,13 +168,18 @@ E --> I[Game Service]
 
 *List of services and components that will be part of the system, along with their respective technologies and descriptions. This can be presented in a tabular format for clarity.*
 
-| Service   | Language/Framework | Description                            |
-| --------- | ------------------ | -------------------------------------- |
-| Mainsite  | Nuxt               | Allows users to find and play games    |
-| Flipseven | Golang             | Adaptation for the card game Flipseven |
-| Splendor  | Golang             | Adaptation for the card game Splendor  |
-| Oriflamme | Golang             | Adaptation for the card game Oriflamme |
-| Knarr     | Golang             | Adaptation for the card game Knarr     |
+| Service         | Language/Framework | Description                                                                |
+| --------------- | ------------------ | -------------------------------------------------------------------------- |
+| Mainsite        | Nuxt               | Allows users to find and play games                                        |
+| State           | Django             | Store moves and state for games                                            |
+| PyHarness       | FastApi            | Use a harness for using the games with AI and analyze moves and strategies |
+| Flipseven       | Golang             | Adaptation for the card game Flipseven                                     |
+| Splendor        | Golang             | Adaptation for the card game Splendor                                      |
+| Oriflamme       | Golang             | Adaptation for the card game Oriflamme                                     |
+| Knarr           | Golang             | Adaptation for the card game Knarr                                         |
+| Citadels        | Golang             | Adaptation for the card game Citadels                                      |
+| Skull           | Golang             | Adaptation for the card game Skull                                         |
+| Wonderful World | Golang             | Adaption of the game Wonderful World                                       |
 
 ## Technologies Used 🌳
 

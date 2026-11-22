@@ -10,6 +10,7 @@ import (
 
 type Table struct {
 	ID            string                    `json:"id"`
+	Direction     bool                      `json:"direction"`
 	TimeLimit     int                       `json:"time_limit"`
 	Duration      time.Duration             `json:"duration"`
 	CurrentRound  int                       `json:"current_index"`
@@ -18,6 +19,14 @@ type Table struct {
 	CreatedAt     time.Time                 `json:"created_at"`
 	players       map[string]*models.Player `json:"-"`
 	logic         *GameLogic                `json:"-"`
+}
+
+func (t *Table) ChangeDirection() {
+	if t.Direction {
+		t.Direction = false
+	} else {
+		t.Direction = true
+	}
 }
 
 func (t *Table) GetID() string {

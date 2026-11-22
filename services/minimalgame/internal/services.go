@@ -15,7 +15,7 @@ import (
 type GameServices struct {
 	pb.UnimplementedTableServiceServer
 	gameRegistry models.GameRegistryInterface
-	redisClient  *redis.Client
+	redisDb      *redis.Client
 }
 
 func (s *GameServices) localGetTable(id string) (models.TableInterface, error) {
@@ -159,6 +159,14 @@ func (s *GameServices) ExecuteInstruction(ctx context.Context, req *pb.ExecuteIn
 		}
 		return &pb.TableResponse{}, nil
 	}
+}
+
+func (s *GameServices) ChangeDirection(ctx context.Context, req *pb.ChangeDirectionRequest) (*pb.TableResponse, error) {
+	return &pb.TableResponse{}, nil
+}
+
+func (s *GameServices) PeekCards(ctx context.Context, req *pb.PeekCardsRequest) (*pb.TableResponse, error) {
+	return &pb.TableResponse{}, nil
 }
 
 func (s *GameServices) Reset(ctx context.Context, req *pb.ResetRequest) (*pb.TableResponse, error) {

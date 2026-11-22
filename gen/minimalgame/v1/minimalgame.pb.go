@@ -844,6 +844,132 @@ func (x *ExchangeCardsWithDeckRequest) GetCards() []string {
 }
 
 // *
+// Allows a player to either watch the cards of one or
+// multiple players or watch the top cards of the deck
+type PeekCardsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TableId       string                 `protobuf:"bytes,1,opt,name=table_id,json=tableId,proto3" json:"table_id,omitempty"`
+	Players       map[string]string      `protobuf:"bytes,2,rep,name=players,proto3" json:"players,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"` // A map where map.key peeks on the cards of map.value
+	From          []string               `protobuf:"bytes,3,rep,name=from,proto3" json:"from,omitempty"`                                                                                 // The player peeking
+	PeekDeck      bool                   `protobuf:"varint,4,opt,name=peek_deck,json=peekDeck,proto3" json:"peek_deck,omitempty"`                                                        // If true, the players specified in "from" will peek at the deck in order, if false, "players" will be used for this action
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PeekCardsRequest) Reset() {
+	*x = PeekCardsRequest{}
+	mi := &file_minimalgame_v1_minimalgame_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PeekCardsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PeekCardsRequest) ProtoMessage() {}
+
+func (x *PeekCardsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_minimalgame_v1_minimalgame_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PeekCardsRequest.ProtoReflect.Descriptor instead.
+func (*PeekCardsRequest) Descriptor() ([]byte, []int) {
+	return file_minimalgame_v1_minimalgame_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *PeekCardsRequest) GetTableId() string {
+	if x != nil {
+		return x.TableId
+	}
+	return ""
+}
+
+func (x *PeekCardsRequest) GetPlayers() map[string]string {
+	if x != nil {
+		return x.Players
+	}
+	return nil
+}
+
+func (x *PeekCardsRequest) GetFrom() []string {
+	if x != nil {
+		return x.From
+	}
+	return nil
+}
+
+func (x *PeekCardsRequest) GetPeekDeck() bool {
+	if x != nil {
+		return x.PeekDeck
+	}
+	return false
+}
+
+// *
+// Use this request to change play direction. Some games like Uno
+// require these types of reverse turns
+type ChangeDirectionRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TableId       string                 `protobuf:"bytes,1,opt,name=table_id,json=tableId,proto3" json:"table_id,omitempty"`
+	Clockwise     bool                   `protobuf:"varint,2,opt,name=clockwise,proto3" json:"clockwise,omitempty"` // Direction of play
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChangeDirectionRequest) Reset() {
+	*x = ChangeDirectionRequest{}
+	mi := &file_minimalgame_v1_minimalgame_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChangeDirectionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChangeDirectionRequest) ProtoMessage() {}
+
+func (x *ChangeDirectionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_minimalgame_v1_minimalgame_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChangeDirectionRequest.ProtoReflect.Descriptor instead.
+func (*ChangeDirectionRequest) Descriptor() ([]byte, []int) {
+	return file_minimalgame_v1_minimalgame_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *ChangeDirectionRequest) GetTableId() string {
+	if x != nil {
+		return x.TableId
+	}
+	return ""
+}
+
+func (x *ChangeDirectionRequest) GetClockwise() bool {
+	if x != nil {
+		return x.Clockwise
+	}
+	return false
+}
+
+// *
 // Executes a none-conventional or specific game
 // related instruction that the game developper
 // must implement for custom/tailored game logic
@@ -860,7 +986,7 @@ type ExecuteInstructionRequest struct {
 
 func (x *ExecuteInstructionRequest) Reset() {
 	*x = ExecuteInstructionRequest{}
-	mi := &file_minimalgame_v1_minimalgame_proto_msgTypes[15]
+	mi := &file_minimalgame_v1_minimalgame_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -872,7 +998,7 @@ func (x *ExecuteInstructionRequest) String() string {
 func (*ExecuteInstructionRequest) ProtoMessage() {}
 
 func (x *ExecuteInstructionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_minimalgame_v1_minimalgame_proto_msgTypes[15]
+	mi := &file_minimalgame_v1_minimalgame_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -885,7 +1011,7 @@ func (x *ExecuteInstructionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExecuteInstructionRequest.ProtoReflect.Descriptor instead.
 func (*ExecuteInstructionRequest) Descriptor() ([]byte, []int) {
-	return file_minimalgame_v1_minimalgame_proto_rawDescGZIP(), []int{15}
+	return file_minimalgame_v1_minimalgame_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *ExecuteInstructionRequest) GetTableId() string {
@@ -932,7 +1058,7 @@ type Card struct {
 
 func (x *Card) Reset() {
 	*x = Card{}
-	mi := &file_minimalgame_v1_minimalgame_proto_msgTypes[16]
+	mi := &file_minimalgame_v1_minimalgame_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -944,7 +1070,7 @@ func (x *Card) String() string {
 func (*Card) ProtoMessage() {}
 
 func (x *Card) ProtoReflect() protoreflect.Message {
-	mi := &file_minimalgame_v1_minimalgame_proto_msgTypes[16]
+	mi := &file_minimalgame_v1_minimalgame_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -957,7 +1083,7 @@ func (x *Card) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Card.ProtoReflect.Descriptor instead.
 func (*Card) Descriptor() ([]byte, []int) {
-	return file_minimalgame_v1_minimalgame_proto_rawDescGZIP(), []int{16}
+	return file_minimalgame_v1_minimalgame_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *Card) GetId() string {
@@ -979,7 +1105,7 @@ type TableEventDetails struct {
 
 func (x *TableEventDetails) Reset() {
 	*x = TableEventDetails{}
-	mi := &file_minimalgame_v1_minimalgame_proto_msgTypes[17]
+	mi := &file_minimalgame_v1_minimalgame_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -991,7 +1117,7 @@ func (x *TableEventDetails) String() string {
 func (*TableEventDetails) ProtoMessage() {}
 
 func (x *TableEventDetails) ProtoReflect() protoreflect.Message {
-	mi := &file_minimalgame_v1_minimalgame_proto_msgTypes[17]
+	mi := &file_minimalgame_v1_minimalgame_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1004,7 +1130,7 @@ func (x *TableEventDetails) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TableEventDetails.ProtoReflect.Descriptor instead.
 func (*TableEventDetails) Descriptor() ([]byte, []int) {
-	return file_minimalgame_v1_minimalgame_proto_rawDescGZIP(), []int{17}
+	return file_minimalgame_v1_minimalgame_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *TableEventDetails) GetEventName() EventName {
@@ -1044,7 +1170,7 @@ type TableSnapshot struct {
 
 func (x *TableSnapshot) Reset() {
 	*x = TableSnapshot{}
-	mi := &file_minimalgame_v1_minimalgame_proto_msgTypes[18]
+	mi := &file_minimalgame_v1_minimalgame_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1056,7 +1182,7 @@ func (x *TableSnapshot) String() string {
 func (*TableSnapshot) ProtoMessage() {}
 
 func (x *TableSnapshot) ProtoReflect() protoreflect.Message {
-	mi := &file_minimalgame_v1_minimalgame_proto_msgTypes[18]
+	mi := &file_minimalgame_v1_minimalgame_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1069,7 +1195,7 @@ func (x *TableSnapshot) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TableSnapshot.ProtoReflect.Descriptor instead.
 func (*TableSnapshot) Descriptor() ([]byte, []int) {
-	return file_minimalgame_v1_minimalgame_proto_rawDescGZIP(), []int{18}
+	return file_minimalgame_v1_minimalgame_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *TableSnapshot) GetDeck() []*Card {
@@ -1091,7 +1217,7 @@ type TableEvent struct {
 
 func (x *TableEvent) Reset() {
 	*x = TableEvent{}
-	mi := &file_minimalgame_v1_minimalgame_proto_msgTypes[19]
+	mi := &file_minimalgame_v1_minimalgame_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1103,7 +1229,7 @@ func (x *TableEvent) String() string {
 func (*TableEvent) ProtoMessage() {}
 
 func (x *TableEvent) ProtoReflect() protoreflect.Message {
-	mi := &file_minimalgame_v1_minimalgame_proto_msgTypes[19]
+	mi := &file_minimalgame_v1_minimalgame_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1116,7 +1242,7 @@ func (x *TableEvent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TableEvent.ProtoReflect.Descriptor instead.
 func (*TableEvent) Descriptor() ([]byte, []int) {
-	return file_minimalgame_v1_minimalgame_proto_rawDescGZIP(), []int{19}
+	return file_minimalgame_v1_minimalgame_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *TableEvent) GetId() string {
@@ -1161,7 +1287,7 @@ type TableResponse struct {
 
 func (x *TableResponse) Reset() {
 	*x = TableResponse{}
-	mi := &file_minimalgame_v1_minimalgame_proto_msgTypes[20]
+	mi := &file_minimalgame_v1_minimalgame_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1173,7 +1299,7 @@ func (x *TableResponse) String() string {
 func (*TableResponse) ProtoMessage() {}
 
 func (x *TableResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_minimalgame_v1_minimalgame_proto_msgTypes[20]
+	mi := &file_minimalgame_v1_minimalgame_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1186,7 +1312,7 @@ func (x *TableResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TableResponse.ProtoReflect.Descriptor instead.
 func (*TableResponse) Descriptor() ([]byte, []int) {
-	return file_minimalgame_v1_minimalgame_proto_rawDescGZIP(), []int{20}
+	return file_minimalgame_v1_minimalgame_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *TableResponse) GetId() string {
@@ -1274,7 +1400,18 @@ const file_minimalgame_v1_minimalgame_proto_rawDesc = "" +
 	"\x05cards\x18\x04 \x03(\tR\x05cards\"O\n" +
 	"\x1cExchangeCardsWithDeckRequest\x12\x19\n" +
 	"\btable_id\x18\x01 \x01(\tR\atableId\x12\x14\n" +
-	"\x05cards\x18\x02 \x03(\tR\x05cards\"\x96\x01\n" +
+	"\x05cards\x18\x02 \x03(\tR\x05cards\"\xe3\x01\n" +
+	"\x10PeekCardsRequest\x12\x19\n" +
+	"\btable_id\x18\x01 \x01(\tR\atableId\x12G\n" +
+	"\aplayers\x18\x02 \x03(\v2-.minimalgame.v1.PeekCardsRequest.PlayersEntryR\aplayers\x12\x12\n" +
+	"\x04from\x18\x03 \x03(\tR\x04from\x12\x1b\n" +
+	"\tpeek_deck\x18\x04 \x01(\bR\bpeekDeck\x1a:\n" +
+	"\fPlayersEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"Q\n" +
+	"\x16ChangeDirectionRequest\x12\x19\n" +
+	"\btable_id\x18\x01 \x01(\tR\atableId\x12\x1c\n" +
+	"\tclockwise\x18\x02 \x01(\bR\tclockwise\"\x96\x01\n" +
 	"\x19ExecuteInstructionRequest\x12\x19\n" +
 	"\btable_id\x18\x01 \x01(\tR\atableId\x12\x1f\n" +
 	"\vaction_name\x18\x02 \x01(\tR\n" +
@@ -1325,8 +1462,7 @@ const file_minimalgame_v1_minimalgame_proto_rawDesc = "" +
 	"%EVENT_NAME_EXCHANGE_CARDS_WITH_PLAYER\x10\f\x12'\n" +
 	"#EVENT_NAME_EXCHANGE_CARDS_WITH_DECK\x10\r\x12\x18\n" +
 	"\x14EVENT_NAME_NEXT_TURN\x10\x0e\x12\x1b\n" +
-	"\x17EVENT_NAME_REVERSE_TURN\x10\x0f2\xb2\n" +
-	"\n" +
+	"\x17EVENT_NAME_REVERSE_TURN\x10\x0f2\xda\v\n" +
 	"\fTableService\x12P\n" +
 	"\vCreateTable\x12\".minimalgame.v1.CreateTableRequest\x1a\x1d.minimalgame.v1.TableResponse\x12J\n" +
 	"\bGetTable\x12\x1f.minimalgame.v1.GetTableRequest\x1a\x1d.minimalgame.v1.TableResponse\x12L\n" +
@@ -1334,15 +1470,17 @@ const file_minimalgame_v1_minimalgame_proto_rawDesc = "" +
 	"\n" +
 	"LeaveTable\x12!.minimalgame.v1.LeaveTableRequest\x1a\x1d.minimalgame.v1.TableResponse\x12L\n" +
 	"\tStartGame\x12 .minimalgame.v1.StartGameRequest\x1a\x1d.minimalgame.v1.TableResponse\x12H\n" +
-	"\aEndGame\x12\x1e.minimalgame.v1.EndGameRequest\x1a\x1d.minimalgame.v1.TableResponse\x12X\n" +
-	"\x0fDistributeCards\x12&.minimalgame.v1.DistributeCardsRequest\x1a\x1d.minimalgame.v1.TableResponse\x12L\n" +
+	"\aEndGame\x12\x1e.minimalgame.v1.EndGameRequest\x1a\x1d.minimalgame.v1.TableResponse\x12L\n" +
 	"\tNextRound\x12 .minimalgame.v1.NextRoundRequest\x1a\x1d.minimalgame.v1.TableResponse\x12J\n" +
-	"\bNextTurn\x12\x1f.minimalgame.v1.NextTurnRequest\x1a\x1d.minimalgame.v1.TableResponse\x12R\n" +
+	"\bNextTurn\x12\x1f.minimalgame.v1.NextTurnRequest\x1a\x1d.minimalgame.v1.TableResponse\x12X\n" +
+	"\x0fDistributeCards\x12&.minimalgame.v1.DistributeCardsRequest\x1a\x1d.minimalgame.v1.TableResponse\x12R\n" +
 	"\fShuffleCards\x12#.minimalgame.v1.ShuffleCardsRequest\x1a\x1d.minimalgame.v1.TableResponse\x12L\n" +
+	"\tPeekCards\x12 .minimalgame.v1.PeekCardsRequest\x1a\x1d.minimalgame.v1.TableResponse\x12L\n" +
 	"\tBanPlayer\x12 .minimalgame.v1.BanPlayerRequest\x1a\x1d.minimalgame.v1.TableResponse\x12h\n" +
 	"\x17ExchangeCardsWithPlayer\x12..minimalgame.v1.ExchangeCardsWithPlayerRequest\x1a\x1d.minimalgame.v1.TableResponse\x12d\n" +
 	"\x15ExchangeCardsWithDeck\x12,.minimalgame.v1.ExchangeCardsWithDeckRequest\x1a\x1d.minimalgame.v1.TableResponse\x12^\n" +
-	"\x12ExecuteInstruction\x12).minimalgame.v1.ExecuteInstructionRequest\x1a\x1d.minimalgame.v1.TableResponse\x12D\n" +
+	"\x12ExecuteInstruction\x12).minimalgame.v1.ExecuteInstructionRequest\x1a\x1d.minimalgame.v1.TableResponse\x12X\n" +
+	"\x0fChangeDirection\x12&.minimalgame.v1.ChangeDirectionRequest\x1a\x1d.minimalgame.v1.TableResponse\x12D\n" +
 	"\x05Reset\x12\x1c.minimalgame.v1.ResetRequest\x1a\x1d.minimalgame.v1.TableResponse\x12B\n" +
 	"\x04Ping\x12\x1b.minimalgame.v1.PingRequest\x1a\x1d.minimalgame.v1.TableResponseB\xae\x01\n" +
 	"\x12com.minimalgame.v1B\x10MinimalgameProtoP\x01Z-myboardgames/gen/minimalgame/v1;minimalgamev1\xa2\x02\x03MXX\xaa\x02\x0eMinimalgame.V1\xca\x02\x0eMinimalgame\\V1\xe2\x02\x1aMinimalgame\\V1\\GPBMetadata\xea\x02\x0fMinimalgame::V1b\x06proto3"
@@ -1360,7 +1498,7 @@ func file_minimalgame_v1_minimalgame_proto_rawDescGZIP() []byte {
 }
 
 var file_minimalgame_v1_minimalgame_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_minimalgame_v1_minimalgame_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
+var file_minimalgame_v1_minimalgame_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
 var file_minimalgame_v1_minimalgame_proto_goTypes = []any{
 	(EventName)(0),                         // 0: minimalgame.v1.EventName
 	(*CreateTableRequest)(nil),             // 1: minimalgame.v1.CreateTableRequest
@@ -1378,58 +1516,66 @@ var file_minimalgame_v1_minimalgame_proto_goTypes = []any{
 	(*BanPlayerRequest)(nil),               // 13: minimalgame.v1.BanPlayerRequest
 	(*ExchangeCardsWithPlayerRequest)(nil), // 14: minimalgame.v1.ExchangeCardsWithPlayerRequest
 	(*ExchangeCardsWithDeckRequest)(nil),   // 15: minimalgame.v1.ExchangeCardsWithDeckRequest
-	(*ExecuteInstructionRequest)(nil),      // 16: minimalgame.v1.ExecuteInstructionRequest
-	(*Card)(nil),                           // 17: minimalgame.v1.Card
-	(*TableEventDetails)(nil),              // 18: minimalgame.v1.TableEventDetails
-	(*TableSnapshot)(nil),                  // 19: minimalgame.v1.TableSnapshot
-	(*TableEvent)(nil),                     // 20: minimalgame.v1.TableEvent
-	(*TableResponse)(nil),                  // 21: minimalgame.v1.TableResponse
+	(*PeekCardsRequest)(nil),               // 16: minimalgame.v1.PeekCardsRequest
+	(*ChangeDirectionRequest)(nil),         // 17: minimalgame.v1.ChangeDirectionRequest
+	(*ExecuteInstructionRequest)(nil),      // 18: minimalgame.v1.ExecuteInstructionRequest
+	(*Card)(nil),                           // 19: minimalgame.v1.Card
+	(*TableEventDetails)(nil),              // 20: minimalgame.v1.TableEventDetails
+	(*TableSnapshot)(nil),                  // 21: minimalgame.v1.TableSnapshot
+	(*TableEvent)(nil),                     // 22: minimalgame.v1.TableEvent
+	(*TableResponse)(nil),                  // 23: minimalgame.v1.TableResponse
+	nil,                                    // 24: minimalgame.v1.PeekCardsRequest.PlayersEntry
 }
 var file_minimalgame_v1_minimalgame_proto_depIdxs = []int32{
-	17, // 0: minimalgame.v1.ShuffleCardsRequest.cards:type_name -> minimalgame.v1.Card
-	0,  // 1: minimalgame.v1.TableEventDetails.event_name:type_name -> minimalgame.v1.EventName
-	17, // 2: minimalgame.v1.TableEventDetails.card:type_name -> minimalgame.v1.Card
-	17, // 3: minimalgame.v1.TableSnapshot.deck:type_name -> minimalgame.v1.Card
-	18, // 4: minimalgame.v1.TableEvent.details:type_name -> minimalgame.v1.TableEventDetails
-	19, // 5: minimalgame.v1.TableEvent.snapshot:type_name -> minimalgame.v1.TableSnapshot
-	20, // 6: minimalgame.v1.TableResponse.event:type_name -> minimalgame.v1.TableEvent
-	1,  // 7: minimalgame.v1.TableService.CreateTable:input_type -> minimalgame.v1.CreateTableRequest
-	2,  // 8: minimalgame.v1.TableService.GetTable:input_type -> minimalgame.v1.GetTableRequest
-	3,  // 9: minimalgame.v1.TableService.JoinTable:input_type -> minimalgame.v1.JoinTableRequest
-	4,  // 10: minimalgame.v1.TableService.LeaveTable:input_type -> minimalgame.v1.LeaveTableRequest
-	5,  // 11: minimalgame.v1.TableService.StartGame:input_type -> minimalgame.v1.StartGameRequest
-	6,  // 12: minimalgame.v1.TableService.EndGame:input_type -> minimalgame.v1.EndGameRequest
-	7,  // 13: minimalgame.v1.TableService.DistributeCards:input_type -> minimalgame.v1.DistributeCardsRequest
+	19, // 0: minimalgame.v1.ShuffleCardsRequest.cards:type_name -> minimalgame.v1.Card
+	24, // 1: minimalgame.v1.PeekCardsRequest.players:type_name -> minimalgame.v1.PeekCardsRequest.PlayersEntry
+	0,  // 2: minimalgame.v1.TableEventDetails.event_name:type_name -> minimalgame.v1.EventName
+	19, // 3: minimalgame.v1.TableEventDetails.card:type_name -> minimalgame.v1.Card
+	19, // 4: minimalgame.v1.TableSnapshot.deck:type_name -> minimalgame.v1.Card
+	20, // 5: minimalgame.v1.TableEvent.details:type_name -> minimalgame.v1.TableEventDetails
+	21, // 6: minimalgame.v1.TableEvent.snapshot:type_name -> minimalgame.v1.TableSnapshot
+	22, // 7: minimalgame.v1.TableResponse.event:type_name -> minimalgame.v1.TableEvent
+	1,  // 8: minimalgame.v1.TableService.CreateTable:input_type -> minimalgame.v1.CreateTableRequest
+	2,  // 9: minimalgame.v1.TableService.GetTable:input_type -> minimalgame.v1.GetTableRequest
+	3,  // 10: minimalgame.v1.TableService.JoinTable:input_type -> minimalgame.v1.JoinTableRequest
+	4,  // 11: minimalgame.v1.TableService.LeaveTable:input_type -> minimalgame.v1.LeaveTableRequest
+	5,  // 12: minimalgame.v1.TableService.StartGame:input_type -> minimalgame.v1.StartGameRequest
+	6,  // 13: minimalgame.v1.TableService.EndGame:input_type -> minimalgame.v1.EndGameRequest
 	9,  // 14: minimalgame.v1.TableService.NextRound:input_type -> minimalgame.v1.NextRoundRequest
 	8,  // 15: minimalgame.v1.TableService.NextTurn:input_type -> minimalgame.v1.NextTurnRequest
-	10, // 16: minimalgame.v1.TableService.ShuffleCards:input_type -> minimalgame.v1.ShuffleCardsRequest
-	13, // 17: minimalgame.v1.TableService.BanPlayer:input_type -> minimalgame.v1.BanPlayerRequest
-	14, // 18: minimalgame.v1.TableService.ExchangeCardsWithPlayer:input_type -> minimalgame.v1.ExchangeCardsWithPlayerRequest
-	15, // 19: minimalgame.v1.TableService.ExchangeCardsWithDeck:input_type -> minimalgame.v1.ExchangeCardsWithDeckRequest
-	16, // 20: minimalgame.v1.TableService.ExecuteInstruction:input_type -> minimalgame.v1.ExecuteInstructionRequest
-	11, // 21: minimalgame.v1.TableService.Reset:input_type -> minimalgame.v1.ResetRequest
-	12, // 22: minimalgame.v1.TableService.Ping:input_type -> minimalgame.v1.PingRequest
-	21, // 23: minimalgame.v1.TableService.CreateTable:output_type -> minimalgame.v1.TableResponse
-	21, // 24: minimalgame.v1.TableService.GetTable:output_type -> minimalgame.v1.TableResponse
-	21, // 25: minimalgame.v1.TableService.JoinTable:output_type -> minimalgame.v1.TableResponse
-	21, // 26: minimalgame.v1.TableService.LeaveTable:output_type -> minimalgame.v1.TableResponse
-	21, // 27: minimalgame.v1.TableService.StartGame:output_type -> minimalgame.v1.TableResponse
-	21, // 28: minimalgame.v1.TableService.EndGame:output_type -> minimalgame.v1.TableResponse
-	21, // 29: minimalgame.v1.TableService.DistributeCards:output_type -> minimalgame.v1.TableResponse
-	21, // 30: minimalgame.v1.TableService.NextRound:output_type -> minimalgame.v1.TableResponse
-	21, // 31: minimalgame.v1.TableService.NextTurn:output_type -> minimalgame.v1.TableResponse
-	21, // 32: minimalgame.v1.TableService.ShuffleCards:output_type -> minimalgame.v1.TableResponse
-	21, // 33: minimalgame.v1.TableService.BanPlayer:output_type -> minimalgame.v1.TableResponse
-	21, // 34: minimalgame.v1.TableService.ExchangeCardsWithPlayer:output_type -> minimalgame.v1.TableResponse
-	21, // 35: minimalgame.v1.TableService.ExchangeCardsWithDeck:output_type -> minimalgame.v1.TableResponse
-	21, // 36: minimalgame.v1.TableService.ExecuteInstruction:output_type -> minimalgame.v1.TableResponse
-	21, // 37: minimalgame.v1.TableService.Reset:output_type -> minimalgame.v1.TableResponse
-	21, // 38: minimalgame.v1.TableService.Ping:output_type -> minimalgame.v1.TableResponse
-	23, // [23:39] is the sub-list for method output_type
-	7,  // [7:23] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	7,  // 16: minimalgame.v1.TableService.DistributeCards:input_type -> minimalgame.v1.DistributeCardsRequest
+	10, // 17: minimalgame.v1.TableService.ShuffleCards:input_type -> minimalgame.v1.ShuffleCardsRequest
+	16, // 18: minimalgame.v1.TableService.PeekCards:input_type -> minimalgame.v1.PeekCardsRequest
+	13, // 19: minimalgame.v1.TableService.BanPlayer:input_type -> minimalgame.v1.BanPlayerRequest
+	14, // 20: minimalgame.v1.TableService.ExchangeCardsWithPlayer:input_type -> minimalgame.v1.ExchangeCardsWithPlayerRequest
+	15, // 21: minimalgame.v1.TableService.ExchangeCardsWithDeck:input_type -> minimalgame.v1.ExchangeCardsWithDeckRequest
+	18, // 22: minimalgame.v1.TableService.ExecuteInstruction:input_type -> minimalgame.v1.ExecuteInstructionRequest
+	17, // 23: minimalgame.v1.TableService.ChangeDirection:input_type -> minimalgame.v1.ChangeDirectionRequest
+	11, // 24: minimalgame.v1.TableService.Reset:input_type -> minimalgame.v1.ResetRequest
+	12, // 25: minimalgame.v1.TableService.Ping:input_type -> minimalgame.v1.PingRequest
+	23, // 26: minimalgame.v1.TableService.CreateTable:output_type -> minimalgame.v1.TableResponse
+	23, // 27: minimalgame.v1.TableService.GetTable:output_type -> minimalgame.v1.TableResponse
+	23, // 28: minimalgame.v1.TableService.JoinTable:output_type -> minimalgame.v1.TableResponse
+	23, // 29: minimalgame.v1.TableService.LeaveTable:output_type -> minimalgame.v1.TableResponse
+	23, // 30: minimalgame.v1.TableService.StartGame:output_type -> minimalgame.v1.TableResponse
+	23, // 31: minimalgame.v1.TableService.EndGame:output_type -> minimalgame.v1.TableResponse
+	23, // 32: minimalgame.v1.TableService.NextRound:output_type -> minimalgame.v1.TableResponse
+	23, // 33: minimalgame.v1.TableService.NextTurn:output_type -> minimalgame.v1.TableResponse
+	23, // 34: minimalgame.v1.TableService.DistributeCards:output_type -> minimalgame.v1.TableResponse
+	23, // 35: minimalgame.v1.TableService.ShuffleCards:output_type -> minimalgame.v1.TableResponse
+	23, // 36: minimalgame.v1.TableService.PeekCards:output_type -> minimalgame.v1.TableResponse
+	23, // 37: minimalgame.v1.TableService.BanPlayer:output_type -> minimalgame.v1.TableResponse
+	23, // 38: minimalgame.v1.TableService.ExchangeCardsWithPlayer:output_type -> minimalgame.v1.TableResponse
+	23, // 39: minimalgame.v1.TableService.ExchangeCardsWithDeck:output_type -> minimalgame.v1.TableResponse
+	23, // 40: minimalgame.v1.TableService.ExecuteInstruction:output_type -> minimalgame.v1.TableResponse
+	23, // 41: minimalgame.v1.TableService.ChangeDirection:output_type -> minimalgame.v1.TableResponse
+	23, // 42: minimalgame.v1.TableService.Reset:output_type -> minimalgame.v1.TableResponse
+	23, // 43: minimalgame.v1.TableService.Ping:output_type -> minimalgame.v1.TableResponse
+	26, // [26:44] is the sub-list for method output_type
+	8,  // [8:26] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_minimalgame_v1_minimalgame_proto_init() }
@@ -1437,14 +1583,14 @@ func file_minimalgame_v1_minimalgame_proto_init() {
 	if File_minimalgame_v1_minimalgame_proto != nil {
 		return
 	}
-	file_minimalgame_v1_minimalgame_proto_msgTypes[20].OneofWrappers = []any{}
+	file_minimalgame_v1_minimalgame_proto_msgTypes[22].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_minimalgame_v1_minimalgame_proto_rawDesc), len(file_minimalgame_v1_minimalgame_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   21,
+			NumMessages:   24,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

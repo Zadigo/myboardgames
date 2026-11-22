@@ -9,14 +9,16 @@ service TableService {
     rpc LeaveTable (LeaveTableRequest) returns (TableResponse);
     rpc StartGame (StartGameRequest) returns (TableResponse);
     rpc EndGame (EndGameRequest) returns (TableResponse);
-    rpc DistributeCards (DistributeCardsRequest) returns (TableResponse);
     rpc NextRound (NextRoundRequest) returns (TableResponse);
     rpc NextTurn (NextTurnRequest) returns (TableResponse);
+    rpc DistributeCards (DistributeCardsRequest) returns (TableResponse);
     rpc ShuffleCards (ShuffleCardsRequest) returns (TableResponse);
+    rpc PeekCards (PeekCardsRequest) returns (TableResponse);
     rpc BanPlayer (BanPlayerRequest) returns (TableResponse);
     rpc ExchangeCardsWithPlayer (ExchangeCardsWithPlayerRequest) returns (TableResponse);
     rpc ExchangeCardsWithDeck (ExchangeCardsWithDeckRequest) returns (TableResponse);
     rpc ExecuteInstruction (ExecuteInstructionRequest) returns (TableResponse);
+    rpc ChangeDirection (ChangeDirectionRequest) returns (TableResponse);
     rpc Reset (ResetRequest) returns (TableResponse);
     rpc Ping (PingRequest) returns (TableResponse);
 }
@@ -91,6 +93,26 @@ message ExchangeCardsWithPlayerRequest {
 message ExchangeCardsWithDeckRequest {
     string table_id = 1;
     repeated string cards = 2;
+}
+
+/**
+ * Allows a player to either watch the cards of one or
+ * multiple players or watch the top cards of the deck
+ */
+message PeekCardsRequest {
+    string table_id = 1;
+    map<string, string> players = 2; // A map where map.key peeks on the cards of map.value
+    repeated string from = 3; // The player peeking
+    bool peek_deck = 4; // If true, the players specified in "from" will peek at the deck in order, if false, "players" will be used for this action
+}
+
+/**
+ * Use this request to change play direction. Some games like Uno
+ * require these types of reverse turns
+ */
+message ChangeDirectionRequest {
+    string table_id = 1;
+    bool clockwise = 2; // Direction of play
 }
 
 /**

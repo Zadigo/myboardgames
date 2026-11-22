@@ -20,6 +20,7 @@ type TableInterface interface {
 	GetID() string
 	Snapshot() map[string]any
 	PlayerCount() int
+	ChangeDirection()
 	// Execute is the main entrypoint used by
 	// by a gRPC call in order to execute a
 	// move in the game

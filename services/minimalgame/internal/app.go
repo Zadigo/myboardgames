@@ -4,14 +4,14 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"myboardgames/minimalgame/internal/backend"
+	pb "myboardgames/gen/minimalgame/v1"
 	"myboardgames/minimalgame/internal/logic"
 	"myboardgames/minimalgame/internal/models"
-	pb "myboardgames/gen/minimalgame/v1"
 	"net"
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/redis/go-redis/v9"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 )
@@ -19,6 +19,7 @@ import (
 type App struct {
 	options *models.ServerOptions
 	router  *chi.Mux
+	redisDb *redis.Client
 }
 
 func (a *App) Start(ctx context.Context) error {
@@ -33,14 +34,6 @@ func (a *App) Start(ctx context.Context) error {
 
 	// Game Registry
 	registry := logic.NewGameRegistry()
-
-	// Redis
-	client, err := backend.CreateRedisConnection(ctx)
-	if err != nil {
-		return err
-	}
-
-	defer client.Close()
 
 	// GrPC server
 	grpcServer := grpc.NewServer(
@@ -79,7 +72,7 @@ func (a *App) Start(ctx context.Context) error {
 
 	pb.RegisterTableServiceServer(grpcServer, &GameServices{
 		gameRegistry: registry,
-		redisClient:  client,
+		redisDb:  a.redisDb,
 	})
 
 	slog.Info("Server registered")
@@ -107,8 +100,9 @@ func (a *App) Start(ctx context.Context) error {
 	}
 }
 
-func NewApp(ctx context.Context, options *models.ServerOptions) *App {
+func NewApp(ctx context.Context, redisDb *redis.Client, options *models.ServerOptions) *App {
 	return &App{
+		redisDb: redisDb,
 		options: options,
 	}
 }

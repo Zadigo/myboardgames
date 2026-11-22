@@ -25,14 +25,16 @@ const (
 	TableService_LeaveTable_FullMethodName              = "/minimalgame.v1.TableService/LeaveTable"
 	TableService_StartGame_FullMethodName               = "/minimalgame.v1.TableService/StartGame"
 	TableService_EndGame_FullMethodName                 = "/minimalgame.v1.TableService/EndGame"
-	TableService_DistributeCards_FullMethodName         = "/minimalgame.v1.TableService/DistributeCards"
 	TableService_NextRound_FullMethodName               = "/minimalgame.v1.TableService/NextRound"
 	TableService_NextTurn_FullMethodName                = "/minimalgame.v1.TableService/NextTurn"
+	TableService_DistributeCards_FullMethodName         = "/minimalgame.v1.TableService/DistributeCards"
 	TableService_ShuffleCards_FullMethodName            = "/minimalgame.v1.TableService/ShuffleCards"
+	TableService_PeekCards_FullMethodName               = "/minimalgame.v1.TableService/PeekCards"
 	TableService_BanPlayer_FullMethodName               = "/minimalgame.v1.TableService/BanPlayer"
 	TableService_ExchangeCardsWithPlayer_FullMethodName = "/minimalgame.v1.TableService/ExchangeCardsWithPlayer"
 	TableService_ExchangeCardsWithDeck_FullMethodName   = "/minimalgame.v1.TableService/ExchangeCardsWithDeck"
 	TableService_ExecuteInstruction_FullMethodName      = "/minimalgame.v1.TableService/ExecuteInstruction"
+	TableService_ChangeDirection_FullMethodName         = "/minimalgame.v1.TableService/ChangeDirection"
 	TableService_Reset_FullMethodName                   = "/minimalgame.v1.TableService/Reset"
 	TableService_Ping_FullMethodName                    = "/minimalgame.v1.TableService/Ping"
 )
@@ -47,14 +49,16 @@ type TableServiceClient interface {
 	LeaveTable(ctx context.Context, in *LeaveTableRequest, opts ...grpc.CallOption) (*TableResponse, error)
 	StartGame(ctx context.Context, in *StartGameRequest, opts ...grpc.CallOption) (*TableResponse, error)
 	EndGame(ctx context.Context, in *EndGameRequest, opts ...grpc.CallOption) (*TableResponse, error)
-	DistributeCards(ctx context.Context, in *DistributeCardsRequest, opts ...grpc.CallOption) (*TableResponse, error)
 	NextRound(ctx context.Context, in *NextRoundRequest, opts ...grpc.CallOption) (*TableResponse, error)
 	NextTurn(ctx context.Context, in *NextTurnRequest, opts ...grpc.CallOption) (*TableResponse, error)
+	DistributeCards(ctx context.Context, in *DistributeCardsRequest, opts ...grpc.CallOption) (*TableResponse, error)
 	ShuffleCards(ctx context.Context, in *ShuffleCardsRequest, opts ...grpc.CallOption) (*TableResponse, error)
+	PeekCards(ctx context.Context, in *PeekCardsRequest, opts ...grpc.CallOption) (*TableResponse, error)
 	BanPlayer(ctx context.Context, in *BanPlayerRequest, opts ...grpc.CallOption) (*TableResponse, error)
 	ExchangeCardsWithPlayer(ctx context.Context, in *ExchangeCardsWithPlayerRequest, opts ...grpc.CallOption) (*TableResponse, error)
 	ExchangeCardsWithDeck(ctx context.Context, in *ExchangeCardsWithDeckRequest, opts ...grpc.CallOption) (*TableResponse, error)
 	ExecuteInstruction(ctx context.Context, in *ExecuteInstructionRequest, opts ...grpc.CallOption) (*TableResponse, error)
+	ChangeDirection(ctx context.Context, in *ChangeDirectionRequest, opts ...grpc.CallOption) (*TableResponse, error)
 	Reset(ctx context.Context, in *ResetRequest, opts ...grpc.CallOption) (*TableResponse, error)
 	Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*TableResponse, error)
 }
@@ -127,16 +131,6 @@ func (c *tableServiceClient) EndGame(ctx context.Context, in *EndGameRequest, op
 	return out, nil
 }
 
-func (c *tableServiceClient) DistributeCards(ctx context.Context, in *DistributeCardsRequest, opts ...grpc.CallOption) (*TableResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TableResponse)
-	err := c.cc.Invoke(ctx, TableService_DistributeCards_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *tableServiceClient) NextRound(ctx context.Context, in *NextRoundRequest, opts ...grpc.CallOption) (*TableResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(TableResponse)
@@ -157,10 +151,30 @@ func (c *tableServiceClient) NextTurn(ctx context.Context, in *NextTurnRequest, 
 	return out, nil
 }
 
+func (c *tableServiceClient) DistributeCards(ctx context.Context, in *DistributeCardsRequest, opts ...grpc.CallOption) (*TableResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TableResponse)
+	err := c.cc.Invoke(ctx, TableService_DistributeCards_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *tableServiceClient) ShuffleCards(ctx context.Context, in *ShuffleCardsRequest, opts ...grpc.CallOption) (*TableResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(TableResponse)
 	err := c.cc.Invoke(ctx, TableService_ShuffleCards_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tableServiceClient) PeekCards(ctx context.Context, in *PeekCardsRequest, opts ...grpc.CallOption) (*TableResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TableResponse)
+	err := c.cc.Invoke(ctx, TableService_PeekCards_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -207,6 +221,16 @@ func (c *tableServiceClient) ExecuteInstruction(ctx context.Context, in *Execute
 	return out, nil
 }
 
+func (c *tableServiceClient) ChangeDirection(ctx context.Context, in *ChangeDirectionRequest, opts ...grpc.CallOption) (*TableResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TableResponse)
+	err := c.cc.Invoke(ctx, TableService_ChangeDirection_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *tableServiceClient) Reset(ctx context.Context, in *ResetRequest, opts ...grpc.CallOption) (*TableResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(TableResponse)
@@ -237,14 +261,16 @@ type TableServiceServer interface {
 	LeaveTable(context.Context, *LeaveTableRequest) (*TableResponse, error)
 	StartGame(context.Context, *StartGameRequest) (*TableResponse, error)
 	EndGame(context.Context, *EndGameRequest) (*TableResponse, error)
-	DistributeCards(context.Context, *DistributeCardsRequest) (*TableResponse, error)
 	NextRound(context.Context, *NextRoundRequest) (*TableResponse, error)
 	NextTurn(context.Context, *NextTurnRequest) (*TableResponse, error)
+	DistributeCards(context.Context, *DistributeCardsRequest) (*TableResponse, error)
 	ShuffleCards(context.Context, *ShuffleCardsRequest) (*TableResponse, error)
+	PeekCards(context.Context, *PeekCardsRequest) (*TableResponse, error)
 	BanPlayer(context.Context, *BanPlayerRequest) (*TableResponse, error)
 	ExchangeCardsWithPlayer(context.Context, *ExchangeCardsWithPlayerRequest) (*TableResponse, error)
 	ExchangeCardsWithDeck(context.Context, *ExchangeCardsWithDeckRequest) (*TableResponse, error)
 	ExecuteInstruction(context.Context, *ExecuteInstructionRequest) (*TableResponse, error)
+	ChangeDirection(context.Context, *ChangeDirectionRequest) (*TableResponse, error)
 	Reset(context.Context, *ResetRequest) (*TableResponse, error)
 	Ping(context.Context, *PingRequest) (*TableResponse, error)
 	mustEmbedUnimplementedTableServiceServer()
@@ -275,17 +301,20 @@ func (UnimplementedTableServiceServer) StartGame(context.Context, *StartGameRequ
 func (UnimplementedTableServiceServer) EndGame(context.Context, *EndGameRequest) (*TableResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method EndGame not implemented")
 }
-func (UnimplementedTableServiceServer) DistributeCards(context.Context, *DistributeCardsRequest) (*TableResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method DistributeCards not implemented")
-}
 func (UnimplementedTableServiceServer) NextRound(context.Context, *NextRoundRequest) (*TableResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method NextRound not implemented")
 }
 func (UnimplementedTableServiceServer) NextTurn(context.Context, *NextTurnRequest) (*TableResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method NextTurn not implemented")
 }
+func (UnimplementedTableServiceServer) DistributeCards(context.Context, *DistributeCardsRequest) (*TableResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DistributeCards not implemented")
+}
 func (UnimplementedTableServiceServer) ShuffleCards(context.Context, *ShuffleCardsRequest) (*TableResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ShuffleCards not implemented")
+}
+func (UnimplementedTableServiceServer) PeekCards(context.Context, *PeekCardsRequest) (*TableResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PeekCards not implemented")
 }
 func (UnimplementedTableServiceServer) BanPlayer(context.Context, *BanPlayerRequest) (*TableResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method BanPlayer not implemented")
@@ -298,6 +327,9 @@ func (UnimplementedTableServiceServer) ExchangeCardsWithDeck(context.Context, *E
 }
 func (UnimplementedTableServiceServer) ExecuteInstruction(context.Context, *ExecuteInstructionRequest) (*TableResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ExecuteInstruction not implemented")
+}
+func (UnimplementedTableServiceServer) ChangeDirection(context.Context, *ChangeDirectionRequest) (*TableResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ChangeDirection not implemented")
 }
 func (UnimplementedTableServiceServer) Reset(context.Context, *ResetRequest) (*TableResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Reset not implemented")
@@ -434,24 +466,6 @@ func _TableService_EndGame_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TableService_DistributeCards_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DistributeCardsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TableServiceServer).DistributeCards(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: TableService_DistributeCards_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TableServiceServer).DistributeCards(ctx, req.(*DistributeCardsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _TableService_NextRound_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(NextRoundRequest)
 	if err := dec(in); err != nil {
@@ -488,6 +502,24 @@ func _TableService_NextTurn_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TableService_DistributeCards_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DistributeCardsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableServiceServer).DistributeCards(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TableService_DistributeCards_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableServiceServer).DistributeCards(ctx, req.(*DistributeCardsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _TableService_ShuffleCards_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ShuffleCardsRequest)
 	if err := dec(in); err != nil {
@@ -502,6 +534,24 @@ func _TableService_ShuffleCards_Handler(srv interface{}, ctx context.Context, de
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(TableServiceServer).ShuffleCards(ctx, req.(*ShuffleCardsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TableService_PeekCards_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PeekCardsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableServiceServer).PeekCards(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TableService_PeekCards_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableServiceServer).PeekCards(ctx, req.(*PeekCardsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -578,6 +628,24 @@ func _TableService_ExecuteInstruction_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TableService_ChangeDirection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeDirectionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableServiceServer).ChangeDirection(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TableService_ChangeDirection_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableServiceServer).ChangeDirection(ctx, req.(*ChangeDirectionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _TableService_Reset_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ResetRequest)
 	if err := dec(in); err != nil {
@@ -646,10 +714,6 @@ var TableService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _TableService_EndGame_Handler,
 		},
 		{
-			MethodName: "DistributeCards",
-			Handler:    _TableService_DistributeCards_Handler,
-		},
-		{
 			MethodName: "NextRound",
 			Handler:    _TableService_NextRound_Handler,
 		},
@@ -658,8 +722,16 @@ var TableService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _TableService_NextTurn_Handler,
 		},
 		{
+			MethodName: "DistributeCards",
+			Handler:    _TableService_DistributeCards_Handler,
+		},
+		{
 			MethodName: "ShuffleCards",
 			Handler:    _TableService_ShuffleCards_Handler,
+		},
+		{
+			MethodName: "PeekCards",
+			Handler:    _TableService_PeekCards_Handler,
 		},
 		{
 			MethodName: "BanPlayer",
@@ -676,6 +748,10 @@ var TableService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ExecuteInstruction",
 			Handler:    _TableService_ExecuteInstruction_Handler,
+		},
+		{
+			MethodName: "ChangeDirection",
+			Handler:    _TableService_ChangeDirection_Handler,
 		},
 		{
 			MethodName: "Reset",
