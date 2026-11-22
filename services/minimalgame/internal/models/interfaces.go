@@ -1,5 +1,7 @@
 package models
 
+import "context"
+
 type BaseActionsInterface interface {
 	RemovePlayer(id string) error
 }
@@ -16,5 +18,9 @@ type TableInterface interface {
 	BaseActionsInterface
 	AddPlayer(*Player) error
 	GetID() string
-	Execute(*Instruction) error
+	PlayerCount() int
+	// Execute is the main entrypoint used by
+	// by a gRPC call in order to execute a
+	// move in the game
+	Execute(ctx context.Context, instruction *Instruction) error
 }

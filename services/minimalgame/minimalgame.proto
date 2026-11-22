@@ -135,10 +135,11 @@ message TableSnapshot {
  * must implement for custom/tailored game logic
  */
 message ExecuteInstructionRequest {
-    string tableId = 1;
-    string instruction = 2;
-    string from = 3;
-    string to = 4;
+    string tableId = 1; // The table to which the move will apply
+    string actionName = 2; // The name of the instruction/action to apply (will trigger game logic)
+    repeated string from = 3; // The player(s) making the move
+    repeated string to = 4; // If applicable, the target player(s) that will by affected by the move
+    repeated string cardIds = 5; // Card or cards used to make the move (should be a single ID or a groupe IDs)
 }
 
 message TableEvent {

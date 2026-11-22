@@ -1005,10 +1005,11 @@ func (x *TableSnapshot) GetDeck() []*Card {
 // must implement for custom/tailored game logic
 type ExecuteInstructionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	TableId       string                 `protobuf:"bytes,1,opt,name=tableId,proto3" json:"tableId,omitempty"`
-	Instruction   string                 `protobuf:"bytes,2,opt,name=instruction,proto3" json:"instruction,omitempty"`
-	From          string                 `protobuf:"bytes,3,opt,name=from,proto3" json:"from,omitempty"`
-	To            string                 `protobuf:"bytes,4,opt,name=to,proto3" json:"to,omitempty"`
+	TableId       string                 `protobuf:"bytes,1,opt,name=tableId,proto3" json:"tableId,omitempty"`       // The table to which the move will apply
+	ActionName    string                 `protobuf:"bytes,2,opt,name=actionName,proto3" json:"actionName,omitempty"` // The name of the instruction/action to apply (will trigger game logic)
+	From          []string               `protobuf:"bytes,3,rep,name=from,proto3" json:"from,omitempty"`             // The player(s) making the move
+	To            []string               `protobuf:"bytes,4,rep,name=to,proto3" json:"to,omitempty"`                 // If applicable, the target player(s) that will by affected by the move
+	CardIds       []string               `protobuf:"bytes,5,rep,name=cardIds,proto3" json:"cardIds,omitempty"`       // Card or cards used to make the move (should be a single ID or a groupe IDs)
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1050,25 +1051,32 @@ func (x *ExecuteInstructionRequest) GetTableId() string {
 	return ""
 }
 
-func (x *ExecuteInstructionRequest) GetInstruction() string {
+func (x *ExecuteInstructionRequest) GetActionName() string {
 	if x != nil {
-		return x.Instruction
+		return x.ActionName
 	}
 	return ""
 }
 
-func (x *ExecuteInstructionRequest) GetFrom() string {
+func (x *ExecuteInstructionRequest) GetFrom() []string {
 	if x != nil {
 		return x.From
 	}
-	return ""
+	return nil
 }
 
-func (x *ExecuteInstructionRequest) GetTo() string {
+func (x *ExecuteInstructionRequest) GetTo() []string {
 	if x != nil {
 		return x.To
 	}
-	return ""
+	return nil
+}
+
+func (x *ExecuteInstructionRequest) GetCardIds() []string {
+	if x != nil {
+		return x.CardIds
+	}
+	return nil
 }
 
 type TableEvent struct {
@@ -1275,12 +1283,15 @@ const file_minimalgame_proto_rawDesc = "" +
 	"\x02to\x18\x03 \x03(\tR\x02to\x12%\n" +
 	"\x04card\x18\x04 \x01(\v2\x11.minimalgame.CardR\x04card\"6\n" +
 	"\rTableSnapshot\x12%\n" +
-	"\x04deck\x18\x01 \x03(\v2\x11.minimalgame.CardR\x04deck\"{\n" +
+	"\x04deck\x18\x01 \x03(\v2\x11.minimalgame.CardR\x04deck\"\x93\x01\n" +
 	"\x19ExecuteInstructionRequest\x12\x18\n" +
-	"\atableId\x18\x01 \x01(\tR\atableId\x12 \n" +
-	"\vinstruction\x18\x02 \x01(\tR\vinstruction\x12\x12\n" +
-	"\x04from\x18\x03 \x01(\tR\x04from\x12\x0e\n" +
-	"\x02to\x18\x04 \x01(\tR\x02to\"\xa8\x01\n" +
+	"\atableId\x18\x01 \x01(\tR\atableId\x12\x1e\n" +
+	"\n" +
+	"actionName\x18\x02 \x01(\tR\n" +
+	"actionName\x12\x12\n" +
+	"\x04from\x18\x03 \x03(\tR\x04from\x12\x0e\n" +
+	"\x02to\x18\x04 \x03(\tR\x02to\x12\x18\n" +
+	"\acardIds\x18\x05 \x03(\tR\acardIds\"\xa8\x01\n" +
 	"\n" +
 	"TableEvent\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +

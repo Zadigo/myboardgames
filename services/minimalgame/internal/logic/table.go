@@ -1,6 +1,8 @@
 package logic
 
 import (
+	"context"
+	"encoding/json"
 	"myboardgames/minimalgame/internal/models"
 	"time"
 	"uuid"
@@ -15,6 +17,7 @@ type Table struct {
 	UpdatedAt     time.Time                 `json:"updated_at"`
 	CreatedAt     time.Time                 `json:"created_at"`
 	players       map[string]*models.Player `json:"-"`
+	logic         *GameLogic
 }
 
 func (t *Table) GetID() string {
@@ -34,14 +37,26 @@ func (t *Table) RemovePlayer(id string) error {
 	return nil
 }
 
-func (t *Table) Execute(instruction *models.Instruction) error {
-	// Implement custom logic here for the current game
+func (t *Table) PlayerCount() int {
+	return len(t.players)
+}
+
+func (t *Table) Snapshot() map[string]any {
+	if b, err := json.Marshal(t); err == nil {
+		return map[string]any{"snapshot": string(b)}
+	}
 	return nil
+}
+
+func (t *Table) Execute(ctx context.Context, instruction *models.Instruction) error {
+	instruction.TableID = t.ID
+	return t.logic.RunMove(ctx, t, instruction)
 }
 
 func NewTable() models.TableInterface {
 	return &Table{
 		ID:      uuid.New().String(),
 		players: make(map[string]*models.Player, 20),
+		logic:   &GameLogic{},
 	}
 }

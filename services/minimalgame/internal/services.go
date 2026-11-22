@@ -6,6 +6,7 @@ import (
 	"myboardgames/minimalgame/internal/logic"
 	"myboardgames/minimalgame/internal/models"
 	pb "myboardgames/minimalgame/minimalgameproto"
+	"time"
 	"uuid"
 
 	"github.com/redis/go-redis/v9"
@@ -98,7 +99,29 @@ func (s *GameServices) DistributeCards(ctx context.Context, req *pb.DistributeCa
 }
 
 func (s *GameServices) NextRound(ctx context.Context, req *pb.NextRoundRequest) (*pb.TableResponse, error) {
-	return &pb.TableResponse{}, nil
+	if table, err := s.localGetTable(req.GetTableId()); err != nil {
+		return nil, err
+	} else {
+		err := table.Execute(ctx, &models.Instruction{
+			Action:  models.TableEventNextTurn,
+			TableID: table.GetID(),
+		})
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &pb.TableResponse{
+			Id: uuid.New().String(),
+			Event: &pb.TableEvent{
+				TableId: table.GetID(),
+				Details: &pb.TableEventDetails{
+					EventName: pb.EventName_TABLE_EVENT_NEXT_TURN,
+				},
+				Snapshot: nil,
+			},
+		}, nil
+	}
 }
 
 func (s *GameServices) NextTurn(ctx context.Context, req *pb.NextTurnRequest) (*pb.TableResponse, error) {
@@ -127,7 +150,11 @@ func (s *GameServices) ExecuteInstruction(ctx context.Context, req *pb.ExecuteIn
 	} else if table == nil {
 		return nil, models.TableNotFound
 	} else {
-		if err := table.Execute(&models.Instruction{}); err != nil {
+		instCtx, cancel := context.WithDeadline(ctx, time.Now().Add(30*time.Second))
+		defer cancel()
+
+		instruction := models.NewInstruction(instCtx, req.GetActionName(), req.GetFrom())
+		if err := table.Execute(instCtx, instruction); err != nil {
 			return nil, err
 		}
 		return &pb.TableResponse{}, nil
