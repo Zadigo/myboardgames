@@ -1,6 +1,8 @@
 package http
 
 import (
+	"context"
+	pb "myboardgames/gen/minimalgame/v1"
 	"myboardgames/minimalgo/internal/models"
 )
 
@@ -24,6 +26,16 @@ func gameRelatedMessage(app *HttpApp, client models.WebsocketClientInterface, me
 	switch message.Action {
 	case models.CreateTable:
 		// Run action
+		req := &pb.CreateTableRequest{ClientId: client.GetID()}
+
+		conns := app.server.GetGrpcConnections()
+		conn, _ := conns["default"]
+		
+		err := conn.Invoke(context.Background(), pb.TableService_CreateTable_FullMethodName, req, nil)
+		if err != nil {
+			client.GetConn().WriteMessage(1, []byte(err.Error()))
+		}
+
 	case models.TableEventStealCard:
 		// Run action
 

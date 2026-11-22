@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/gorilla/websocket"
+	"google.golang.org/grpc"
 )
 
 const (
@@ -20,13 +21,8 @@ type AppInterface interface {
 	Start(ctx context.Context) error
 }
 
-type GameServerInterface interface {
-	AppInterface
-	CreateTable(ctx context.Context, options *TableOptions) TableInterface
-	GetTables() []TableInterface
-}
-
 type WebsocketClientInterface interface {
+	GetID() string
 	IsActive() bool
 	SetConn(conn *websocket.Conn)
 	GetConn() *websocket.Conn
@@ -34,6 +30,7 @@ type WebsocketClientInterface interface {
 
 type ServerAppInterface interface {
 	AppInterface
+	GetGrpcConnections() map[string]*grpc.ClientConn
 	UpdateClients(clients []WebsocketClientInterface)
 	GetState() bool
 	GetOptions() *ServerAppOptions

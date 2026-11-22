@@ -26,11 +26,11 @@ func preStartSetup(ctx context.Context) (*redis.Client, error) {
 		g.Go(func() error {
 			if router, err := backend.NewRouter(ctx, "."); err != nil {
 				return err
-			} else {	
+			} else {
 				if err := router.Save(ctx, router); err != nil {
 					return err
 				}
-			} 
+			}
 
 			return nil
 		})
@@ -48,7 +48,14 @@ func main() {
 		panic(err)
 	} else {
 		// Main server
-		server := server.NewServerApp(ctx, &models.ServerAppOptions{RedisClient: client})
+		server, err := server.NewServerApp(ctx, &models.ServerAppOptions{
+			RedisClient: client,
+		})
+
+		if err != nil {
+			panic(err)
+		}
+		
 		err = server.Start(ctx)
 		if err != nil {
 			panic(err)

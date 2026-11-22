@@ -1,7 +1,5 @@
 # My Board Games
 
-
-
 ## Commands
 
 ### Generate protocole buffer files

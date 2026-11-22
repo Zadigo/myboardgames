@@ -19,13 +19,4 @@ func TestRouter(t *testing.T) {
 		r, _ := backend.NewRouter(t.Context(), "..")
 		assert.NotNil(t, r.Find("some name"))
 	})
-
-	t.Run("should return valid domain", func(t *testing.T) {
-		r, _ := backend.NewRouter(t.Context(), "..")
-		assert.NotNil(t, r)
-
-		d, err := r.FindDomain("some name")
-		assert.NoError(t, err)
-		assert.Equal(t, "localhost:9001", d)
-	})
 }

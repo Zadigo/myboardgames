@@ -3,7 +3,7 @@ package utils
 import "strings"
 
 const (
-	storageKey = "minimalgo"
+	storageKey = "minimalgame"
 )
 
 // CreateStorageKey makes a key with the storage prefix and values

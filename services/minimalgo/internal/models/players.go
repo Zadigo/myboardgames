@@ -17,6 +17,10 @@ type WebsocketClient struct {
 	mu       sync.Mutex
 }
 
+func (w *WebsocketClient) GetID() string {
+	return w.ID
+}
+
 func (w *WebsocketClient) SetConn(conn *websocket.Conn) {
 	w.mu.Lock()
 	w.conn = conn

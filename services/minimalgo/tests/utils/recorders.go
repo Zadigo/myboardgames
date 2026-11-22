@@ -1,56 +1,46 @@
 package utils
 
-// func HelperJoinTableConnection(t *testing.T, path string) (*websocket.Conn, *httptest.Server, *httptest.ResponseRecorder, error) {
-// 	t.Helper()
+import (
+	"io"
+	"myboardgames/minimalgo/internal/http"
+	"myboardgames/minimalgo/internal/models"
+	"myboardgames/minimalgo/internal/server"
+	httpnet "net/http"
+	"net/http/httptest"
+	"strings"
+	"testing"
 
-// 	// app := HelperHttpServer(t)
-// 	_, httpApp, _ := HelperFullServer(t)
+	"github.com/gorilla/websocket"
+)
 
-// 	h := &http.BaseHandlers{}
-// 	h.SetApp(httpApp)
+func HelperJoinTableConnection(t *testing.T, path string) (*websocket.Conn, *httptest.Server, *httptest.ResponseRecorder, error) {
+	t.Helper()
 
-// 	server := httptest.NewServer(httpnet.HandlerFunc(h.JoinWebsite))
-// 	recorder := httptest.NewRecorder()
+	httpApp := &http.HttpApp{}
+	serverApp, err := server.NewServerApp(t.Context(), &models.ServerAppOptions{})
+	if err != nil {
+		return nil, nil, nil, err
+	}
 
-// 	wsURL := "ws" + strings.TrimPrefix(server.URL, "http") + path
-// 	conn, response, err := websocket.DefaultDialer.Dial(wsURL, httpnet.Header{"Origin": []string{"GoTest"}})
+	httpApp.SetServer(serverApp)
 
-// 	if err != nil {
-// 		if response != nil {
-// 			body, _ := io.ReadAll(response.Body)
-// 			response.Body.Close()
-// 			t.Fatalf("websocket dial failed (status %d): %v | body: %s", response.StatusCode, err, string(body))
-// 		}
-// 		t.Fatalf("websocket dial failed: %v", err)
-// 	}
+	h := &http.BaseHandlers{}
+	h.SetApp(httpApp)
 
-// 	return conn, server, recorder, err
-// }
+	testingServer := httptest.NewServer(httpnet.HandlerFunc(h.JoinWebsite))
 
-// func HelperRunJoinTableConnection(t *testing.T, path string) (*websocket.Conn, *httptest.Server, *httptest.ResponseRecorder, error) {
-// 	t.Helper()
+	recorder := httptest.NewRecorder()
+	wsURL := "ws" + strings.TrimPrefix(testingServer.URL, "http") + path
+	conn, response, err := websocket.DefaultDialer.Dial(wsURL, httpnet.Header{"Origin": []string{"GoTest"}})
 
-// 	s, httpApp, _ := HelperFullServer(t)
+	if err != nil {
+		if response != nil {
+			body, _ := io.ReadAll(response.Body)
+			response.Body.Close()
+			t.Fatalf("websocket dial failed (status %d): %v | body: %s", response.StatusCode, err, string(body))
+		}
+		t.Fatalf("websocket dial failed: %v", err)
+	}
 
-// 	go s.Start(t.Context())
-
-// 	h := &http.BaseHandlers{}
-// 	h.SetApp(httpApp)
-
-// 	server := httptest.NewServer(httpnet.HandlerFunc(h.JoinWebsite))
-// 	recorder := httptest.NewRecorder()
-
-// 	wsURL := "ws" + strings.TrimPrefix(server.URL, "http") + path
-// 	conn, response, err := websocket.DefaultDialer.Dial(wsURL, httpnet.Header{"Origin": []string{"GoTest"}})
-
-// 	if err != nil {
-// 		if response != nil {
-// 			body, _ := io.ReadAll(response.Body)
-// 			response.Body.Close()
-// 			t.Fatalf("websocket dial failed (status %d): %v | body: %s", response.StatusCode, err, string(body))
-// 		}
-// 		t.Fatalf("websocket dial failed: %v", err)
-// 	}
-
-// 	return conn, server, recorder, err
-// }
+	return conn, testingServer, recorder, err
+}
