@@ -47,5 +47,11 @@
             "(?:'|\"|`)([^']*)(?:'|\"|`)"
         ]
     ],
-    "python-envs.defaultEnvManager": "ms-python.python:venv"
+    "python-envs.defaultEnvManager": "ms-python.python:venv",
+    "yaml.schemas": {
+        "./rules.schema.json": [
+            "rules.yaml",
+            "**/rules/*.yaml"
+        ]
+    }
 }

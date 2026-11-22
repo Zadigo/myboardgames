@@ -1,0 +1,68 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "rules.yaml",
+    "description": "Defines the base general rules for a game being developed",
+    "type": "object",
+    "required": [
+        "rules"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "rules": {
+            "type": "object",
+            "required": [
+                "min_number_of_players",
+                "max_number_of_players",
+                "starts_first",
+                "max_points"
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "min_number_of_players": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Minimum players required to start"
+                },
+                "max_number_of_players": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "default": 10,
+                    "description": "Maximum players allowed"
+                },
+                "starts_first": {
+                    "type": "string",
+                    "enum": [
+                        "random",
+                        "oldest",
+                        "youngest"
+                    ],
+                    "description": "Determines which player goes first"
+                },
+                "max_points": {
+                    "type": [
+                        "integer",
+                        "null"
+                    ],
+                    "minimum": 1,
+                    "description": "Points needed to win, or null for unlimited"
+                },
+                "time_limit": {
+                    "type": "object",
+                    "properties": {
+                        "state": {
+                            "type": "boolean",
+                            "description": "Whether the game has a time limit",
+                            "default": false
+                        },
+                        "value": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 3600,
+                            "description": "Time limit in seconds if set"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

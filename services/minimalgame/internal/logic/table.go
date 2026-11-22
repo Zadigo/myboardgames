@@ -9,16 +9,18 @@ import (
 )
 
 type Table struct {
-	ID            string                    `json:"id"`
-	Direction     bool                      `json:"direction"`
-	TimeLimit     int                       `json:"time_limit"`
-	Duration      time.Duration             `json:"duration"`
-	CurrentRound  int                       `json:"current_index"`
-	CurrentPlayer int                       `json:"current_player"`
-	UpdatedAt     time.Time                 `json:"updated_at"`
-	CreatedAt     time.Time                 `json:"created_at"`
-	players       map[string]*models.Player `json:"-"`
-	logic         *GameLogic                `json:"-"`
+	ID                 string                    `json:"id"`
+	Direction          bool                      `json:"direction"`
+	TimeLimit          int                       `json:"time_limit"`
+	Duration           time.Duration             `json:"duration"`
+	CurrentRound       int                       `json:"current_index"`
+	CurrentPlayer      int                       `json:"current_player"`
+	UpdatedAt          time.Time                 `json:"updated_at"`
+	CreatedAt          time.Time                 `json:"created_at"`
+	IsAcceptingPlayers bool                      `json:"is_accepting_players"`
+	IsActive           bool                      `json:"is_active"`
+	players            map[string]*models.Player `json:"-"`
+	logic              *GameLogic                `json:"-"`
 }
 
 func (t *Table) ChangeDirection() {
@@ -64,14 +66,16 @@ func (t *Table) Execute(ctx context.Context, instruction *models.Instruction) er
 
 func NewTable() models.TableInterface {
 	table := &Table{
-		ID:            uuid.New().String(),
-		players:       make(map[string]*models.Player, 20),
-		TimeLimit:     0,
-		CurrentRound:  0,
-		CurrentPlayer: 0,
-		UpdatedAt:     time.Now().UTC(),
-		CreatedAt:     time.Now().UTC(),
-		logic:         &GameLogic{},
+		ID:                 uuid.New().String(),
+		players:            make(map[string]*models.Player, 20),
+		TimeLimit:          0,
+		IsAcceptingPlayers: true,
+		IsActive:           true,
+		CurrentRound:       0,
+		CurrentPlayer:      0,
+		UpdatedAt:          time.Now().UTC(),
+		CreatedAt:          time.Now().UTC(),
+		logic:              &GameLogic{},
 	}
 	table.Duration = table.CreatedAt.Sub(table.UpdatedAt)
 	return table

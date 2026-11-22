@@ -1,0 +1,8 @@
+rules:
+  min_number_of_players: 1
+  max_number_of_players: 10
+  starts_first: random
+  time_limit:
+    state: false
+    value: 3600
+  max_points:
