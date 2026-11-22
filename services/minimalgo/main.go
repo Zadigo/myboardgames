@@ -24,7 +24,7 @@ func preStartSetup(ctx context.Context) (*redis.Client, error) {
 	} else {
 		g := errgroup.Group{}
 		g.Go(func() error {
-			if router, err := backend.NewRouter(ctx, "."); err != nil {
+			if router, err := backend.NewRouter(ctx, client, "."); err != nil {
 				return err
 			} else {
 				if err := router.Save(ctx, router); err != nil {
@@ -55,7 +55,7 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		
+
 		err = server.Start(ctx)
 		if err != nil {
 			panic(err)

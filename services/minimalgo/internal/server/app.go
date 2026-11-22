@@ -65,10 +65,7 @@ func (s *ServerApp) Start(ctx context.Context) error {
 }
 
 func NewServerApp(ctx context.Context, options *models.ServerAppOptions) (models.ServerAppInterface, error) {
-	router := &backend.Router{}
-	router.SetRedis(options.RedisClient)
-
-	if err := router.LoadFromCache(ctx, router); err != nil {
+	if router, err := backend.NewRouter(ctx, options.RedisClient, ".."); err != nil {
 		return nil, err
 	} else {
 		server := &ServerApp{
@@ -100,18 +97,7 @@ func NewServerApp(ctx context.Context, options *models.ServerAppOptions) (models
 			}
 
 			server.grpcConnections[r.Hash] = conn
-			state := conn.GetState().String()
-			
-			switch state {
-			case "IDLE":
-				slog.Error("Could not connect to rpc server", "address", r.Address())
-			case "READY":
-				go func() {
-					err := conn.Close()
-					slog.Error("Failed to close gRPC connection", "error", err)
-				}()
-				slog.Info("Connected to gRPC", "address", r.Address())
-			}
+			slog.Info("Creating rpc connection", "game", r.NameEn, "address", r.Address())
 		}
 
 		return server, nil

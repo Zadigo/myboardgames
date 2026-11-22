@@ -32,6 +32,7 @@ func TestMainserver(t *testing.T) {
 		s, err := server.NewServerApp(t.Context(), &models.ServerAppOptions{
 			RedisClient: client,
 		})
+		assert.NotNil(t, s)
 		assert.NoError(t, err)
 		s.Start(tCtx)
 

@@ -70,15 +70,15 @@ type Route struct {
 }
 
 func (r *Route) Address() string {
+	if r.Environment == "test" || r.Environment == "dev" {
+		return fmt.Sprintf("localhost:%d", r.Port)
+	}
+
 	if r.Domain == "" {
 		return ""
-	} else {
-		if r.Environment == "test" || r.Environment == "dev" {
-			return fmt.Sprintf("dns:///localhost:%d", r.Port)
-		} else {
-			return fmt.Sprintf("dns:///%s:%d", r.Domain, r.Port)
-		}
 	}
+	
+	return fmt.Sprintf("%s:%d", r.Domain, r.Port)
 }
 
 type Router struct {
@@ -96,20 +96,25 @@ func (r *Router) Find(name string) *Route {
 	return nil
 }
 
-func (r *Router) LoadFile(ctx context.Context, filePath string) error {
+func (r *Router) LoadFile(ctx context.Context, filePath string) (*Router, error) {
 	filep, err := filepath.Abs(filepath.Join(filePath, "routes.yaml"))
 	if err != nil {
-		return err
+		return nil, err
+	}
+
+	_, err = os.Stat(filep)
+	if errors.Is(os.ErrNotExist, err) {
+		return nil, err
 	}
 
 	content, err := os.ReadFile(filep)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// Unmarshal into r (which is already a *Router pointer)
 	if err := yaml.Unmarshal(content, r); err != nil {
-		return err
+		return nil, err
 	}
 
 	slog.Info("Loaded routes", "file", filep)
@@ -120,14 +125,11 @@ func (r *Router) LoadFile(ctx context.Context, filePath string) error {
 
 	// Save in redis directly
 	r.Save(ctx, r)
-	return nil
+	return r, nil
 }
 
-func NewRouter(ctx context.Context, filePath string) (*Router, error) {
-	router := &Router{Routes: []*Route{}}
-	if err := router.LoadFile(ctx, filePath); err != nil {
-		return nil, err
-	} else {
-		return router, nil
-	}
+func NewRouter(ctx context.Context, redisDb *redis.Client, filePath string) (*Router, error) {
+	r := &Router{}
+	r.SetRedis(redisDb)
+	return r.LoadFile(ctx, filePath)
 }
