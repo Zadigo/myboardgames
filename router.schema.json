@@ -53,8 +53,13 @@
                     },
                     "environment": {
                         "type": "string",
-                        "description": "Environment name. Affects the manner in which the game will be displayed on Nuxt.",
+                        "description": "Environment name. Affects the manner in which the game will be displayed on Nuxt. Locally, if the test is selected, localhost and port will be used. In dev or prod, normal domains are used.",
                         "enum": ["dev", "prod", "test"]
+                    },
+                    "port": {
+                        "type": "integer",
+                        "description": "Port number",
+                        "default": 9001
                     },
                     "version": {
                         "type": "integer",

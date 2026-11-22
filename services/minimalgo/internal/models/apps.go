@@ -1,7 +1,7 @@
 package models
 
 import (
-	"fmt"
+	"log/slog"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -21,11 +21,8 @@ func (s *BaseServerApp) Clients() []WebsocketClientInterface {
 
 func (s *BaseServerApp) UpdateClients(clients []WebsocketClientInterface) {
 	s._clients = clients
-	fmt.Printf("%d active clients\n", len(s._clients))
+	slog.Info("active clients", "count", len(s._clients))
 }
-
-// type BaseAppOptions struct {
-// }
 
 // ServerAppOptions is used to set main global
 // options the main server application

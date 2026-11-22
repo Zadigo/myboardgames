@@ -6,6 +6,16 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+const (
+	HelloPing          string = "hello_ping"
+	StartGame          string = "start_game"
+	MustIdentify       string = "must_identify"
+	ClientConnected    string = "client_connected"
+	ClientDisconnected string = "client_disconnected"
+	CreateTable        string = "create_table"
+	JoinTable          string = "join_table"
+)
+
 type AppInterface interface {
 	Start(ctx context.Context) error
 }
@@ -25,9 +35,10 @@ type WebsocketClientInterface interface {
 type ServerAppInterface interface {
 	AppInterface
 	UpdateClients(clients []WebsocketClientInterface)
-	SendInstruction(ctx context.Context, msg InternalInstruction) error
-	SendInstructionResponse(ctx context.Context, msg InternalInstructionResponse) error
-	GetInstructions() <-chan InternalInstruction
 	GetState() bool
 	GetOptions() *ServerAppOptions
+}
+
+type BaseWebsocketMessage struct {
+	Action string `json:"action"`
 }

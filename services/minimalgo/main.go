@@ -9,20 +9,42 @@ import (
 	"os/signal"
 
 	"github.com/joho/godotenv"
+	"github.com/redis/go-redis/v9"
+	"golang.org/x/sync/errgroup"
 )
 
-func main() {
+func preStartSetup(ctx context.Context) (*redis.Client, error) {
 	err := godotenv.Load(".env")
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
+	if client, err := backend.CreateRedisConnection(ctx); err != nil {
+		return nil, err
+	} else {
+		g := errgroup.Group{}
+		g.Go(func() error {
+			if router, err := backend.NewRouter(ctx, "."); err != nil {
+				return err
+			} else {	
+				if err := router.Save(ctx, router); err != nil {
+					return err
+				}
+			} 
+
+			return nil
+		})
+		return client, nil
+	}
+}
+
+func main() {
 	ctx := context.Background()
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt, os.Kill)
 	defer cancel()
 
 	// Redis client
-	if client, err := backend.CreateRedisConnection(); err != nil {
+	if client, err := preStartSetup(ctx); err != nil {
 		panic(err)
 	} else {
 		// Main server

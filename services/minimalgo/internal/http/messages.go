@@ -1,10 +1,8 @@
 package http
 
 import (
-	"context"
 	"myboardgames/minimalgo/internal/models"
 )
-
 
 func authenticationMessage(app *HttpApp, client models.WebsocketClientInterface, message models.BaseWebsocketMessage) {
 	switch message.Action {
@@ -25,22 +23,10 @@ func gameRelatedMessage(app *HttpApp, client models.WebsocketClientInterface, me
 	// handle game messages here
 	switch message.Action {
 	case models.CreateTable:
-		app.server.SendInstruction(context.TODO(), models.InternalInstruction{
-			Client: client,
-			Action: models.CreateTable,
-			Sender: models.HttpAppSender,
-			TableOptions: &models.TableOptions{
-				MainServer: app.server,
-				Redis:      app.server.GetOptions().RedisClient,
-			},
-		})
+		// Run action
 	case models.TableEventStealCard:
-		app.server.SendInstruction(context.TODO(), models.InternalInstruction{
-			Client: client,
-			Action: models.TableEventStealCard,
-			Sender: models.HttpAppSender,
-		})
-		
+		// Run action
+
 	default:
 		return
 	}

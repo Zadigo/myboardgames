@@ -54,8 +54,8 @@
             "**/rules/*.yaml"
         ],
         "./router.schema.json": [
-            "router.yaml",
-            "**/router/*.yaml"
+            "routes.yaml",
+            "**/routes/*.yaml"
         ]
     }
 }

@@ -2,6 +2,7 @@ routes:
   - name_fr: some name
     name_en: another name
     domain: something.com
+    port: 9001
     active: true
     environment: dev
     version: 1
