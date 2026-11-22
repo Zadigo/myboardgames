@@ -25,7 +25,7 @@ func (r *RulesBackend) Load(ctx context.Context, rules *Rule) error {
 		return fmt.Errorf("Redis not set")
 	}
 
-	cmd := r.redisDb.HGet(ctx, CreateStorageKey("rules"), "rules")
+	cmd := r.redisDb.HGet(ctx, CreateStorageKey("global"), "rules")
 	if data, err := cmd.Bytes(); err != nil {
 		return err
 	} else {
@@ -43,7 +43,7 @@ func (r *RulesBackend) Save(ctx context.Context, rules *Rule) error {
 
 	data, _ := json.Marshal(rules)
 
-	cmd := r.redisDb.HSet(ctx, CreateStorageKey("rules"), "rules", data)
+	cmd := r.redisDb.HSet(ctx, CreateStorageKey("global"), "rules", data)
 	if cmd.Err() != nil {
 		return cmd.Err()
 	}

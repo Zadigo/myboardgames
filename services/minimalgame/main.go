@@ -25,14 +25,21 @@ func preStartSetup(ctx context.Context) (*redis.Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	g, _ := errgroup.WithContext(ctx)
 	
 	g.Go(func() error {
 		rules := &utils.Rule{}
+		if err := utils.LoadRules(".", rules); err != nil {
+			return err
+		}
+		
 		rules.SetRedis(client)
-		rules.Save(ctx, rules)
-		return utils.LoadRules(".", rules)
+		if err := rules.Save(ctx, rules); err != nil {
+			return err
+		}
+		
+		return nil
 	})
 
 	return client, g.Wait()
