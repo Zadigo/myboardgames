@@ -1,0 +1,7 @@
+routes:
+  - name_fr: some name
+    name_en: another name
+    domain: something.com
+    active: true
+    environment: dev
+    version: 1

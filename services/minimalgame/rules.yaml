@@ -1,8 +1,20 @@
 rules:
-  min_number_of_players: 1
-  max_number_of_players: 10
+  players:
+    min: 1
+    max: 2
   starts_first: random
   time_limit:
     state: false
     value: 3600
   max_points:
+
+cards:
+  initial:
+    - name_en: some name
+      name_fr: some name
+      resources:
+      points: 0
+    - name_en: some name
+      name_fr: some name
+      resources:
+      points: 0

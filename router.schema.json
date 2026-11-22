@@ -1,0 +1,69 @@
+{
+    "$schema": "http://json-schema.org/draft/2020-12/schema#",
+    "$id": "https://json.schemastore.org/router.json",
+    "title": "router.yaml",
+    "description": "Defines all the GrPC routes used by the entry server (minimalgo) to server specific games",
+    "type": "object",
+    "required": [
+        "routes"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "routes": {
+            "type": "array",
+            "additionalProperties": false,
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "name_en",
+                    "name_fr"
+                ],
+                "properties": {
+                    "name_en": {
+                        "type": "string",
+                        "description": "Name of the game in english",
+                        "minLength": 1,
+                        "maxLength": 100
+                    },
+                    "name_fr": {
+                        "type": "string",
+                        "description": "Name of the game in french",
+                        "minLength": 1,
+                        "maxLength": 100
+                    },
+                    "url": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Game's website"
+                    },
+                    "domain": {
+                        "type": "string",
+                        "description": "The domain on which the game is hosted. The final domain will be formed using this value e.g. example.com/v1/. If the value is not present, it implies an official hosting of the game.",
+                        "pattern": "[a-z]+\\.[a-z]+"
+                    },
+                    "active": {
+                        "type": "boolean",
+                        "description": "Whether the endpoint is active or not. Inactive endpoints will be completely ignored by the main Golang server",
+                        "default": true
+                    },
+                    "environment": {
+                        "type": "string",
+                        "description": "Environment name. Affects the manner in which the game will be displayed on Nuxt.",
+                        "enum": ["dev", "prod", "test"]
+                    },
+                    "version": {
+                        "type": "integer",
+                        "description": "Version number",
+                        "default": 1,
+                        "minimum": 1
+                    }
+                }
+            }
+        }
+    }
+}

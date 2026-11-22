@@ -1,5 +1,6 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$schema": "http://json-schema.org/draft/2020-12/schema#",
+    "$id": "https://json.schemastore.org/rules.json",
     "title": "rules.yaml",
     "description": "Defines the base general rules for a game being developed",
     "type": "object",
@@ -10,24 +11,32 @@
     "properties": {
         "rules": {
             "type": "object",
+            "additionalItems": false,
+            "additionalProperties": false,
             "required": [
-                "min_number_of_players",
-                "max_number_of_players",
+                "players",
                 "starts_first",
                 "max_points"
             ],
-            "additionalProperties": false,
             "properties": {
-                "min_number_of_players": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "description": "Minimum players required to start"
-                },
-                "max_number_of_players": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "default": 10,
-                    "description": "Maximum players allowed"
+                "players": {
+                    "type": "object",
+                    "description": "Details around the players",
+                    "additionalProperties": false,
+                    "properties": {
+                        "min": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 1,
+                            "description": "Minimum players required to start"
+                        },
+                        "max": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 2,
+                            "description": "Maximum players allowed"
+                        }
+                    }
                 },
                 "starts_first": {
                     "type": "string",
@@ -59,6 +68,49 @@
                             "minimum": 1,
                             "default": 3600,
                             "description": "Time limit in seconds if set"
+                        }
+                    }
+                }
+            }
+        },
+        "cards": {
+            "properties": {
+                "initial": {
+                    "type": "array",
+                    "description": "Define a default set of card names to populate the game with",
+                    "uniqueItems": true,
+                    "minItems": 1,
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "name_en",
+                            "name_fr"
+                        ],
+                        "properties": {
+                            "name_en": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ],
+                                "minLength": 5
+                            },
+                            "name_fr": {
+                                "type": "string",
+                                "minLength": 5
+                            },
+                            "resources": {
+                                "type": [
+                                    "integer",
+                                    "null"
+                                ],
+                                "description": "Resources required to acquire the card",
+                                "default": 0
+                            },
+                            "points": {
+                                "type": "integer",
+                                "description": "Points for the card",
+                                "default": 0
+                            }
                         }
                     }
                 }
