@@ -5,11 +5,13 @@ import (
 	"myboardgames/minimalgame/internal"
 	"myboardgames/minimalgame/internal/backend"
 	"myboardgames/minimalgame/internal/models"
+	"myboardgames/minimalgame/internal/utils"
 	"os"
 	"os/signal"
 
 	"github.com/joho/godotenv"
 	"github.com/redis/go-redis/v9"
+	"golang.org/x/sync/errgroup"
 )
 
 func preStartSetup(ctx context.Context) (*redis.Client, error) {
@@ -23,8 +25,17 @@ func preStartSetup(ctx context.Context) (*redis.Client, error) {
 	if err != nil {
 		return nil, err
 	}
+	
+	g, _ := errgroup.WithContext(ctx)
+	
+	g.Go(func() error {
+		rules := &utils.Rule{}
+		rules.SetRedis(client)
+		rules.Save(ctx, rules)
+		return utils.LoadRules(".", rules)
+	})
 
-	return client, nil
+	return client, g.Wait()
 }
 
 func main() {
