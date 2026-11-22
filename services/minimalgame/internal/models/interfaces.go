@@ -18,6 +18,7 @@ type TableInterface interface {
 	BaseActionsInterface
 	AddPlayer(*Player) error
 	GetID() string
+	Snapshot() map[string]any
 	PlayerCount() int
 	// Execute is the main entrypoint used by
 	// by a gRPC call in order to execute a

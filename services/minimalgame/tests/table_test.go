@@ -59,6 +59,16 @@ func TestTable(t *testing.T) {
 		assert.NotNil(t, table)
 		assert.NotEmpty(t, inst.TableID)
 	})
+
+	t.Run("should return snapshot", func(t *testing.T) {
+		t.Parallel()
+
+		table := logic.NewTable()
+		snap := table.Snapshot()
+		assert.NotNil(t, snap)
+		assert.Contains(t, snap, "snapshot")
+		t.Log(snap)
+	})
 }
 
 func BenchmarkTable(b *testing.B) {
@@ -66,7 +76,7 @@ func BenchmarkTable(b *testing.B) {
 	b.SetParallelism(30)
 
 	table := logic.NewTable()
-	
+
 	b.RunParallel(func(pb *testing.PB) {
 		for b.Loop() {
 			err := table.AddPlayer(&models.Player{ID: strconv.Itoa(b.N)})

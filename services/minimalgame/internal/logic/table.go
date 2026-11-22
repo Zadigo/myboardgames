@@ -17,7 +17,7 @@ type Table struct {
 	UpdatedAt     time.Time                 `json:"updated_at"`
 	CreatedAt     time.Time                 `json:"created_at"`
 	players       map[string]*models.Player `json:"-"`
-	logic         *GameLogic
+	logic         *GameLogic                `json:"-"`
 }
 
 func (t *Table) GetID() string {
@@ -54,9 +54,16 @@ func (t *Table) Execute(ctx context.Context, instruction *models.Instruction) er
 }
 
 func NewTable() models.TableInterface {
-	return &Table{
-		ID:      uuid.New().String(),
-		players: make(map[string]*models.Player, 20),
-		logic:   &GameLogic{},
+	table := &Table{
+		ID:            uuid.New().String(),
+		players:       make(map[string]*models.Player, 20),
+		TimeLimit:     0,
+		CurrentRound:  0,
+		CurrentPlayer: 0,
+		UpdatedAt:     time.Now().UTC(),
+		CreatedAt:     time.Now().UTC(),
+		logic:         &GameLogic{},
 	}
+	table.Duration = table.CreatedAt.Sub(table.UpdatedAt)
+	return table
 }
