@@ -8,6 +8,7 @@ import (
 	"myboardgames/minimalgame/internal/logic"
 	"myboardgames/minimalgame/internal/models"
 	"net"
+	"strconv"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -25,7 +26,16 @@ type App struct {
 func (a *App) Start(ctx context.Context) error {
 	slog.Info("Starting server...")
 
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", a.options.Port))
+	port, err := strconv.ParseUint(a.options.Port, 10, 16)
+	if err != nil {
+		return err
+	}
+
+	if port == 0 {
+		return fmt.Errorf("Invalid port")
+	}
+
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		return fmt.Errorf("Could not start TCP server %s", err)
 	}
@@ -72,7 +82,7 @@ func (a *App) Start(ctx context.Context) error {
 
 	pb.RegisterTableServiceServer(grpcServer, &GameServices{
 		gameRegistry: registry,
-		redisDb:  a.redisDb,
+		redisDb:      a.redisDb,
 	})
 
 	slog.Info("Server registered")

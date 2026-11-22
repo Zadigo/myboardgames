@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cmp"
 	"context"
 	"myboardgames/minimalgame/internal"
 	"myboardgames/minimalgame/internal/backend"
@@ -27,18 +28,18 @@ func preStartSetup(ctx context.Context) (*redis.Client, error) {
 	}
 
 	g, _ := errgroup.WithContext(ctx)
-	
+
 	g.Go(func() error {
 		rules := &utils.Rule{}
 		if err := utils.LoadRules(".", rules); err != nil {
 			return err
 		}
-		
+
 		rules.SetRedis(client)
 		if err := rules.Save(ctx, rules); err != nil {
 			return err
 		}
-		
+
 		return nil
 	})
 
@@ -55,9 +56,11 @@ func main() {
 		panic(err)
 	}
 
+	host := cmp.Or(os.Getenv("HOST"), "localhost")
+	port := cmp.Or(os.Getenv("PORT"), "9001")
 	app := internal.NewApp(ctx, client, &models.ServerOptions{
-		Host: "localhost",
-		Port: 9001,
+		Host: host,
+		Port: port,
 	})
 	app.Start(ctx)
 }
