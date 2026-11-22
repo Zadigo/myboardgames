@@ -3,6 +3,7 @@ package http
 import (
 	"log"
 	"myboardgames/minimalgo/internal/constants"
+	"myboardgames/minimalgo/internal/models"
 	"net/http"
 	"time"
 
@@ -49,11 +50,11 @@ var CustomRequestUpgrader = websocket.Upgrader{
 }
 
 func WsMiddleware(conn *websocket.Conn) {
-	conn.SetReadLimit(1024)
-	conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+	conn.SetReadLimit(models.MaxMessageSize)
+	conn.SetReadDeadline(time.Now().Add(models.PingPeriod))
 
 	conn.SetPongHandler(func(string) error {
-		conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+		conn.SetReadDeadline(time.Now().Add(models.ReadTimeout))
 		return nil
 	})
 }

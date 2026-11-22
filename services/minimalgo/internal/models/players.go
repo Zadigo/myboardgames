@@ -3,8 +3,16 @@ package models
 import (
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/gorilla/websocket"
+)
+
+const (
+	ReadTimeout    = 60 * time.Second
+	PingPeriod     = 25 * time.Second // must be well below readTimeout
+	WriteTimeout   = 10 * time.Second
+	MaxMessageSize = 1024
 )
 
 type Player struct{}
@@ -34,4 +42,15 @@ func (w *WebsocketClient) GetConn() *websocket.Conn {
 
 func (w *WebsocketClient) IsActive() bool {
 	return w.isActive.Load()
+}
+
+// WriteJSON is an enhanced version of conn.WriteJSON with timeout support
+// that sets a write deadline before sending the message
+func (w *WebsocketClient) WriteJSON(v BaseWebsocketMessage) error {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	if err := w.conn.SetWriteDeadline(time.Now().Add(WriteTimeout)); err != nil {
+		return err
+	}
+	return w.conn.WriteJSON(v)
 }

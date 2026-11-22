@@ -42,12 +42,17 @@ func gameRelatedMessage(app *HttpApp, client models.WebsocketClientInterface, me
 		req := &pb.CreateTableRequest{ClientId: client.GetID()}
 
 		conns := app.server.GetGrpcConnections()
-		conn, _ := conns["default"]
+		conn, _ := conns[message.Rpc]
 
 		err := conn.Invoke(context.Background(), pb.TableService_CreateTable_FullMethodName, req, nil)
 		if err != nil {
 			client.GetConn().WriteMessage(1, []byte(err.Error()))
 		}
+
+		client.GetConn().WriteJSON(models.BaseWebsocketMessage{
+			ClientID:   client.GetID(),
+			StrMessage: "ok",
+		})
 
 	case models.TableEventStealCard:
 		// Run action

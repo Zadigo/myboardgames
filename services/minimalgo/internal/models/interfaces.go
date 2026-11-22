@@ -27,6 +27,7 @@ type WebsocketClientInterface interface {
 	IsActive() bool
 	SetConn(conn *websocket.Conn)
 	GetConn() *websocket.Conn
+	WriteJSON(msg BaseWebsocketMessage) error
 }
 
 type ServerAppInterface interface {
