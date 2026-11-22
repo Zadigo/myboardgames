@@ -3,9 +3,9 @@ package internal
 import (
 	"context"
 	"errors"
+	pb "myboardgames/gen/minimalgame/v1"
 	"myboardgames/minimalgame/internal/logic"
 	"myboardgames/minimalgame/internal/models"
-	pb "myboardgames/minimalgame/minimalgameproto"
 	"time"
 	"uuid"
 
@@ -39,7 +39,7 @@ func (s *GameServices) CreateTable(ctx context.Context, req *pb.CreateTableReque
 		Event: &pb.TableEvent{
 			TableId: table.GetID(),
 			Details: &pb.TableEventDetails{
-				EventName: pb.EventName_TABLE_EVENT_CREATED,
+				EventName: pb.EventName_EVENT_NAME_CREATED,
 			},
 		},
 	}, nil
@@ -70,7 +70,7 @@ func (s *GameServices) JoinTable(ctx context.Context, req *pb.JoinTableRequest) 
 			Event: &pb.TableEvent{
 				TableId: table.GetID(),
 				Details: &pb.TableEventDetails{
-					EventName: pb.EventName_TABLE_EVENT_ADD_PLAYER,
+					EventName: pb.EventName_EVENT_NAME_ADD_PLAYER,
 				},
 			},
 		}, nil
@@ -116,7 +116,7 @@ func (s *GameServices) NextRound(ctx context.Context, req *pb.NextRoundRequest) 
 			Event: &pb.TableEvent{
 				TableId: table.GetID(),
 				Details: &pb.TableEventDetails{
-					EventName: pb.EventName_TABLE_EVENT_NEXT_TURN,
+					EventName: pb.EventName_EVENT_NAME_NEXT_TURN,
 				},
 				Snapshot: nil,
 			},

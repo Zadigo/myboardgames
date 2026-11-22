@@ -1,8 +1,6 @@
 syntax = "proto3";
 
-package minimalgame;
-
-option go_package = "myboardgames/minimalgame/minimalgameproto;minimalgame";
+package minimalgame.v1;
 
 service TableService {
     rpc CreateTable (CreateTableRequest) returns (TableResponse);
@@ -24,7 +22,7 @@ service TableService {
 }
 
 message CreateTableRequest {
-    string clientId = 1; // The player creating the table
+    string client_id = 1; // The player creating the table
 }
 
 message GetTableRequest {
@@ -32,67 +30,80 @@ message GetTableRequest {
 }
 
 message JoinTableRequest {
-    string clientId = 1; // The player joining the table
-    string tableId = 2;
+    string client_id = 1; // The player joining the table
+    string table_id = 2;
 }
 
 message LeaveTableRequest {
-    string clientId = 1;
-    string tableId = 2;
+    string client_id = 1;
+    string table_id = 2;
 }
 
 message StartGameRequest {
-    string tableId = 1;
+    string table_id = 1;
 }
 
 message EndGameRequest {
-    string tableId = 1;
+    string table_id = 1;
 }
 
 message DistributeCardsRequest {
-    string tableId = 1;
+    string table_id = 1;
 }
 
 message NextTurnRequest {
-    string tableId = 1;
+    string table_id = 1;
     bool reverse = 2;
 }
 
 message NextRoundRequest {
-    string tableId = 1;
+    string table_id = 1;
 }
 
 message ShuffleCardsRequest {
-    string tableId = 1;
+    string table_id = 1;
     repeated Card cards = 2;
 }
 
 message ResetRequest {
-    string tableId = 1;
+    string table_id = 1;
 }
 
 /**
  * Check if the table is alive
  */
 message PingRequest {
-    string tableId = 1;
+    string table_id = 1;
 }
 
 message BanPlayerRequest {
-    string clientId = 1;
-    string tableId = 2;
+    string client_id = 1;
+    string table_id = 2;
 }
 
 message ExchangeCardsWithPlayerRequest {
-    string tableId = 1;
+    string table_id = 1;
     string from = 2; // The player giving cards
     string to = 3; // The player receiving cards
     repeated string cards = 4;
 }
 
 message ExchangeCardsWithDeckRequest {
-    string tableId = 1;
+    string table_id = 1;
     repeated string cards = 2;
+}
+
+/**
+ * Executes a none-conventional or specific game
+ * related instruction that the game developper
+ * must implement for custom/tailored game logic
+ */
+message ExecuteInstructionRequest {
+    string table_id = 1; // The table to which the move will apply
+    string action_name = 2; // The name of the instruction/action to apply (will trigger game logic)
+    repeated string from = 3; // The player(s) making the move
+    repeated string to = 4; // If applicable, the target player(s) that will by affected by the move
+    repeated string card_ids = 5; // Card or cards used to make the move (should be a single ID or a groupe IDs)
 }
 
 message Card {
@@ -100,26 +111,26 @@ message Card {
 }
 
 enum EventName {
-    TABLE_EVENT_UNSPECIFIED = 0;
-    TABLE_EVENT_CREATED = 1;
-    TABLE_EVENT_IDLE = 2;
-    TABLE_EVENT_WAITING = 3;
-    TABLE_EVENT_UPDATED = 4;
-    TABLE_EVENT_DELETED = 5;
-    TABLE_EVENT_ADD_PLAYER = 6;
-    TABLE_EVENT_REMOVE_PLAYER = 7;
-    TABLE_EVENT_BAN_PLAYER = 8;
-	TABLE_EVENT_CREATE_DECK = 9;
-	TABLE_EVENT_SHUFFLE_DECK = 10;
-	TABLE_EVENT_DISTRIBUTE_CARDS = 11;
-	TABLE_EVENT_EXCHANGE_CARDS_WITH_PLAYER = 12;
-	TABLE_EVENT_EXCHANGE_CARDS_WITH_DECK = 13;
-	TABLE_EVENT_NEXT_TURN = 14;
-	TABLE_EVENT_REVERSE_TURN = 15;
+    EVENT_NAME_UNSPECIFIED = 0;
+    EVENT_NAME_CREATED = 1;
+    EVENT_NAME_IDLE = 2;
+    EVENT_NAME_WAITING = 3;
+    EVENT_NAME_UPDATED = 4;
+    EVENT_NAME_DELETED = 5;
+    EVENT_NAME_ADD_PLAYER = 6;
+    EVENT_NAME_REMOVE_PLAYER = 7;
+    EVENT_NAME_BAN_PLAYER = 8;
+	EVENT_NAME_CREATE_DECK = 9;
+	EVENT_NAME_SHUFFLE_DECK = 10;
+	EVENT_NAME_DISTRIBUTE_CARDS = 11;
+	EVENT_NAME_EXCHANGE_CARDS_WITH_PLAYER = 12;
+	EVENT_NAME_EXCHANGE_CARDS_WITH_DECK = 13;
+	EVENT_NAME_NEXT_TURN = 14;
+	EVENT_NAME_REVERSE_TURN = 15;
 }
 
 message TableEventDetails {
-    EventName eventName = 1;
+    EventName event_name = 1;
     repeated string from = 2;
     repeated string to = 3;
     Card card = 4;
@@ -129,31 +140,18 @@ message TableSnapshot {
     repeated Card deck = 1;
 }
 
-/**
- * Executes a none-conventional or specific game
- * related instruction that the game developper
- * must implement for custom/tailored game logic
- */
-message ExecuteInstructionRequest {
-    string tableId = 1; // The table to which the move will apply
-    string actionName = 2; // The name of the instruction/action to apply (will trigger game logic)
-    repeated string from = 3; // The player(s) making the move
-    repeated string to = 4; // If applicable, the target player(s) that will by affected by the move
-    repeated string cardIds = 5; // Card or cards used to make the move (should be a single ID or a groupe IDs)
-}
-
 message TableEvent {
     string id = 1;
-    string tableId = 2; 
+    string table_id = 2; 
     TableEventDetails details = 3;
     TableSnapshot snapshot = 4;
 }
 
 message TableResponse {
     string id = 1; // A unique id for the response which is generally a uuid string
-    int32 currentRound = 2;
-    string currentPlayer = 3; // The id of the current player
+    int32 current_round = 2;
+    string current_player = 3; // The id of the current player
     optional TableEvent event = 4; // The event that occurred (if applicable)
-    string updatedAt = 5;
-    string createdAt = 6;
+    string updated_at = 5;
+    string created_at = 6;
 }

@@ -7,7 +7,7 @@ import (
 	"myboardgames/minimalgame/internal/backend"
 	"myboardgames/minimalgame/internal/logic"
 	"myboardgames/minimalgame/internal/models"
-	minimalgame "myboardgames/minimalgame/minimalgameproto"
+	pb "myboardgames/gen/minimalgame/v1"
 	"net"
 	"time"
 
@@ -77,7 +77,7 @@ func (a *App) Start(ctx context.Context) error {
 		grpc.ChainStreamInterceptor(recoveryStream),
 	)
 
-	minimalgame.RegisterTableServiceServer(grpcServer, &GameServices{
+	pb.RegisterTableServiceServer(grpcServer, &GameServices{
 		gameRegistry: registry,
 		redisClient:  client,
 	})

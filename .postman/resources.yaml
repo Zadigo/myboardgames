@@ -4,7 +4,7 @@ workspace:
 
 localResources:
   specs:
-    - ../services/minimalgame/minimalgame.proto
+    - ../proto/minimalgame/v1/minimalgame.proto
 resourceNameMappings:
   specs:
-    - ../services/minimalgame/minimalgame.proto: minimalgame.proto
+    - ../proto/minimalgame/v1/minimalgame.proto: minimalgame.proto

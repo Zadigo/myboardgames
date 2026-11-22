@@ -14,7 +14,7 @@ import (
 	"google.golang.org/grpc/peer"
 	"google.golang.org/grpc/status"
 
-	pb "myboardgames/minimalgame/minimalgameproto"
+	pb "myboardgames/gen/minimalgame/v1"
 )
 
 func recoveryUnary(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (response interface{}, err error) {
