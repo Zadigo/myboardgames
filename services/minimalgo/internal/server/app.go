@@ -82,36 +82,34 @@ func NewServerApp(ctx context.Context, options *models.ServerAppOptions) (models
 	// } else {
 	// 	slog.Error("Failed to load signing key", "err", err)
 	// }
+
 	var priv ed25519.PrivateKey
 
-	if router, err := models.NewRouter(ctx, options.RedisClient); err != nil {
-		return nil, err
-	} else {
-		server := &ServerApp{
-			options:         options,
-			grpcRouter:      router,
-			grpcConnections: make(map[string]*grpc.ClientConn),
-		}
-
-		for _, r := range router.Routes {
-			var conn *grpc.ClientConn
-			var err error
-
-			if utils.IsProduction() {
-				conn, err = grpcclient.NewSecuredGrpcClient(r.Address(), &tls.Config{}, priv, "key-1")
-			} else {
-				slog.Warn("Using RPC server in insecure mode", "mode", os.Getenv("GRPC_ENV"))
-				conn, err = grpcclient.NewInsecureGrpcClient(r.Address())
-			}
-
-			server.grpcConnections[r.Hash] = conn
-			if err != nil {
-				slog.Error("Failed to create rpc connection", "game", r.NameEn, "err", err)
-			} else {
-				slog.Info("Creating rpc connection", "game", r.NameEn, "address", r.Address())
-			}
-		}
-
-		return server, nil
+	server := &ServerApp{
+		options:         options,
+		grpcRouter:      options.Router,
+		grpcConnections: make(map[string]*grpc.ClientConn),
 	}
+
+	for _, r := range options.Router.Routes {
+		var conn *grpc.ClientConn
+		var err error
+
+		if utils.IsProduction() {
+			conn, err = grpcclient.NewSecuredGrpcClient(r.Address(), &tls.Config{}, priv, "key-1")
+		} else {
+			conn, err = grpcclient.NewInsecureGrpcClient(r.Address())
+			slog.Warn("Using RPC server in insecure mode", "mode", os.Getenv("GRPC_ENV"))
+		}
+
+		if err != nil {
+			slog.Error("Failed to create rpc connection", "game", r.NameEn, "err", err)
+		} else {
+			slog.Info("Created RPC connection", "game", r.NameEn, "address", r.Address())
+		}
+
+		server.grpcConnections[r.Hash] = conn
+	}
+
+	return server, nil
 }

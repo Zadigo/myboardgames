@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"crypto/sha256"
+	"fmt"
 	"myboardgames/minimalgo/internal/backend"
 	"myboardgames/minimalgo/internal/models"
 	"myboardgames/minimalgo/internal/server"
@@ -11,31 +13,35 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/redis/go-redis/v9"
-	"golang.org/x/sync/errgroup"
 )
 
-func preStartSetup(ctx context.Context) (*redis.Client, error) {
+func preStartSetup(ctx context.Context) (*redis.Client, *models.Router, error) {
 	err := godotenv.Load(".env")
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	if client, err := backend.CreateRedisConnection(ctx); err != nil {
-		return nil, err
-	} else {
-		g := errgroup.Group{}
-		g.Go(func() error {
-			if router, err := models.NewRouter(ctx, client); err != nil {
-				return err
-			} else {
-				if err := router.Save(ctx, router); err != nil {
-					return err
-				}
-			}
+	var router *models.Router
 
-			return nil
-		})
-		return client, nil
+	if client, err := backend.CreateRedisConnection(ctx); err != nil {
+		return nil, nil, err
+	} else {
+		if router, err = models.NewRouter(ctx, client); err != nil {
+			return nil, nil, err
+		} else {
+			if err := router.Save(ctx, router); err != nil {
+				return nil, nil, err
+			}
+		}
+
+		// Hash each routes using the name in
+		// in english for uniqueness and for 
+		// quick lookup
+		for _, r := range router.Routes {
+			r.Hash = fmt.Sprintf("%x", sha256.Sum256([]byte(r.Address())))
+		}
+
+		return client, router, nil
 	}
 }
 
@@ -46,14 +52,14 @@ func main() {
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt, os.Kill)
 	defer cancel()
 
-	// Redis client
-	if client, err := preStartSetup(ctx); err != nil {
+	if client, router, err := preStartSetup(ctx); err != nil {
 		panic(err)
 	} else {
 		options := &models.ServerAppOptions{
 			RedisClient: client,
+			Router:      router,
 		}
-		
+
 		// Main server
 		server, err := server.NewServerApp(ctx, options)
 
