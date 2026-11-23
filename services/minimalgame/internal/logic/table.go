@@ -11,6 +11,8 @@ import (
 	"slices"
 	"time"
 	"uuid"
+
+	"github.com/redis/go-redis/v9"
 )
 
 type Table struct {
@@ -26,9 +28,58 @@ type Table struct {
 	IsAcceptingPlayers bool                      `json:"is_accepting_players"`
 	IsActive           bool                      `json:"is_active"`
 	Sub                string                    `json:"sub"` // The Redis subscription channel used to send messages to all the players
+	redisDb            *redis.Client             `json:"-"`
 	players            map[string]*models.Player `json:"-"`
 	logic              *GameLogic                `json:"-"`
 	diffusion          chan *models.Instruction  `json:"-"`
+	cancel             context.CancelFunc        `json:"-"`
+}
+
+func (t *Table) publishLoop(ctx context.Context) {
+	defer t.cancel()
+	defer func() { // a panic here would kill the whole process
+		if r := recover(); r != nil {
+			slog.Error("table publisher panic", "table", t.ID, "panic", r)
+		}
+	}()
+
+	redisDb, err := backend.CreateRedisConnection(ctx)
+	if err != nil {
+		return
+	}
+
+	defer func() {
+		err := redisDb.Close()
+		if err != nil {
+			slog.Error("Failed to close redis connection")
+		}
+	}()
+
+	slog.Info("Started subscription channel", "id", t.Sub)
+
+	for {
+		select {
+		case msg := <-t.diffusion:
+			payload, err := json.Marshal(msg)
+			if err != nil {
+				slog.Error("marshal event", "table", t.ID, "err", err)
+				continue
+			}
+
+			pubCtx, cancel := context.WithTimeout(ctx, 2*time.Second)
+			err = t.redisDb.Publish(pubCtx, t.Sub, payload).Err()
+			cancel()
+
+			if err != nil {
+				slog.Error("publish event", "table", t.ID, "err", err)
+			}
+		case <-ctx.Done():
+			timeoutCtx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+			_ = t.redisDb.Publish(timeoutCtx, t.Sub, `{"action":"table_closed"}`).Err()
+			cancel()
+			return
+		}
+	}
 }
 
 func (t *Table) GetPlayers() map[string]*models.Player {
@@ -97,7 +148,9 @@ func (t *Table) Execute(ctx context.Context, instruction *models.Instruction) er
 	return t.logic.RunMove(ctx, t, instruction)
 }
 
-func NewTable(ctx context.Context) models.TableInterface {
+func NewTable(redisDb *redis.Client) models.TableInterface {
+	ctx, cancel := context.WithCancel(context.Background())
+
 	table := &Table{
 		ID:                 uuid.New().String(),
 		Creator:            "",
@@ -109,6 +162,7 @@ func NewTable(ctx context.Context) models.TableInterface {
 		Sub:                "",
 		UpdatedAt:          time.Now().UTC(),
 		CreatedAt:          time.Now().UTC(),
+		cancel:             cancel,
 		players:            make(map[string]*models.Player, 20),
 		logic:              &GameLogic{},
 		diffusion:          make(chan *models.Instruction, 100),
@@ -116,70 +170,19 @@ func NewTable(ctx context.Context) models.TableInterface {
 
 	table.Sub = "table:" + table.ID
 	table.Duration = table.CreatedAt.Sub(table.UpdatedAt)
+	table.redisDb = redisDb
 
 	// Start a Redis pub-sub that will update the table for
 	// every player that will be listening for changes on
 	// the table
-	go func() {
-		redisDb, err := backend.CreateRedisConnection(ctx)
-		if err != nil {
-			return
-		}
+	go table.publishLoop(ctx)
 
-		defer func() {
-			err := redisDb.Close()
-			if err != nil {
-				slog.Error("Failed to close redis connection")
-			}
-		}()
-
-		slog.Info("Started subscription channel", "id", table.Sub)
-
-		table.diffusion <- &models.Instruction{
-			Action: models.TableEventConfigured,
-			MetaData: models.InstructionMetaData{
-				Description: fmt.Sprintf("Table with ID %s was created", table.ID),
-			},
-		}
-
-		for {
-			select {
-			case msg := <-table.diffusion:
-				cmd := redisDb.Publish(ctx, table.Sub, msg)
-				if cmd.Err() != nil {
-					slog.Error("Failed to publish redis message", "channel", table.Sub)
-				}
-
-			case <-ctx.Done():
-				cmd := redisDb.Publish(ctx, table.Sub, "Closing")
-				if cmd.Err() != nil {
-					slog.Error("Failed to publish redis message", "channel", table.Sub)
-				}
-
-				close(table.diffusion)
-			}
-		}
-
-		// select {
-		// case msg := <-table.diffusion:
-		// 	cmd := redisDb.Publish(ctx, table.Sub, msg)
-		// 	if cmd.Err() != nil {
-		// 		slog.Error("Failed to publish redis message", "channel", table.Sub)
-		// 	}
-
-		// case <-ctx.Done():
-		// 	ctx, cancel := context.WithTimeout(ctx, 40*time.Second)
-		// 	defer cancel()
-
-		// 	cmd := redisDb.Publish(ctx, table.Sub, "Closing")
-		// 	if cmd.Err() != nil {
-		// 		slog.Error("Failed to publish redis message", "channel", table.Sub)
-		// 	}
-
-		// 	close(table.diffusion)
-		// default:
-		// }
-	}()
+	table.PublishSubscriptionMessage(&models.Instruction{
+		Action: models.TableEventConfigured,
+		MetaData: models.InstructionMetaData{
+			Description: fmt.Sprintf("Table with ID %s was created", table.ID),
+		},
+	})
 
 	return table
 }

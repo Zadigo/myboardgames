@@ -36,12 +36,12 @@ func (s *GameServices) localGetPlayersFunc(players []string, fn func(v string)) 
 }
 
 func (s *GameServices) CreateTable(ctx context.Context, req *pb.CreateTableRequest) (*pb.TableResponse, error) {
-	table := logic.NewTable(ctx)
+	table := logic.NewTable(s.redisDb)
 	if err := s.gameRegistry.AddTable(table); err != nil {
 		return nil, err
 	}
 	return &pb.TableResponse{
-		Id: uuid.New().String(),
+		Id:  uuid.New().String(),
 		Sub: table.GetSubscriptionKey(),
 		Event: &pb.TableEvent{
 			TableId: table.GetID(),
