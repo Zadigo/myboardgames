@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"errors"
 	"log/slog"
 	"myboardgames/minimalgo/internal/models"
@@ -44,9 +45,9 @@ func (b *BaseHandlers) JoinWebsite(w http.ResponseWriter, r *http.Request) {
 
 	defer b.app.RemoveClient(client)
 
-	// ctx, cancel := context.WithCancel(r.Context())
-	// defer cancel()
-	// go keepAlive(ctx, conn)
+	ctx, cancel := context.WithCancel(r.Context())
+	defer cancel()
+	go keepAlive(ctx, conn)
 
 	// Return the routing table so that Nuxt knows what
 	// rpc servers are actually registred. When client clicks
@@ -91,8 +92,8 @@ func (b *BaseHandlers) JoinWebsite(w http.ResponseWriter, r *http.Request) {
 		// authenticationMessage(b.app, client, message)
 		// globalGameMessage(b.app, client, message)
 		// gameRelatedMessage(b.app, client, message)
-		
-		NewMessageBroker(b.app).execute(client, &message)
+
+		NewMessageBroker(b.app).execute(ctx, client, &message)
 	}
 }
 

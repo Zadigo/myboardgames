@@ -1,7 +1,9 @@
 package http
 
 import (
+	"context"
 	pb "myboardgames/gen/minimalgame/v1"
+	"myboardgames/minimalgo/internal/grpcclient"
 	"myboardgames/minimalgo/internal/models"
 )
 
@@ -62,7 +64,7 @@ import (
 // }
 
 type MessagesInterface interface {
-	execute(client models.WebsocketClientInterface, message *models.BaseWebsocketMessage)
+	execute(ctx context.Context, client models.WebsocketClientInterface, message *models.BaseWebsocketMessage)
 	setNext(MessagesInterface)
 }
 
@@ -75,30 +77,40 @@ func (b *BaseMessageBroker) setNext(next MessagesInterface) {
 	b.next = next
 }
 
-func (b *BaseMessageBroker) createMessage(client models.WebsocketClientInterface) models.BaseWebsocketMessage {
-	return models.BaseWebsocketMessage{
-		ClientID: client.GetID(),
-	}
+// Create a base message for client which always includes the client iD field
+func (b *BaseMessageBroker) createBaseMessage(client models.WebsocketClientInterface) models.BaseWebsocketMessage {
+	return models.BaseWebsocketMessage{ClientID: client.GetID()}
 }
 
 type AuthenticationMessage struct {
 	BaseMessageBroker
 }
 
-func (a *AuthenticationMessage) execute(client models.WebsocketClientInterface, message *models.BaseWebsocketMessage) {
+func (a *AuthenticationMessage) execute(ctx context.Context, client models.WebsocketClientInterface, message *models.BaseWebsocketMessage) {
 	switch message.Action {
 	case models.PingRpc:
-		returnMsg := a.createMessage(client)
-		returnMsg.StrMessage = "pong"
-		err := client.WriteJSON(returnMsg)
-		if err != nil {
-			logReadError(client, err)
-		}
+		// Create a goroutine to not block
+		// the read loop
+		go func() {
+			ctx, cancel := context.WithTimeout(context.Background(), models.WriteTimeout)
+			defer cancel()
+
+			ctx = grpcclient.WithPlayer(ctx, client.GetID())
+
+			// err := client.WriteJSON(models.BaseWebsocketMessage{
+			// 	Action:   message.Action,
+			// 	ClientID: client.GetID(),
+			// 	Rpc:      msg.Rpc,
+			// 	TableID:  resp.GetEvent().GetTableId(),
+			// })
+
+			// tryLogWriteError(client, err)
+		}()
 	case models.MustIdentify:
 		_ = &pb.CreateTableRequest{}
 		// handle ping
 	default:
-		a.next.execute(client, message)
+		a.next.execute(ctx, client, message)
 	}
 }
 
@@ -106,13 +118,15 @@ type GameRelatedMessage struct {
 	BaseMessageBroker
 }
 
-func (g *GameRelatedMessage) execute(client models.WebsocketClientInterface, message *models.BaseWebsocketMessage) {
+func (g *GameRelatedMessage) execute(ctx context.Context, client models.WebsocketClientInterface, message *models.BaseWebsocketMessage) {
 	switch message.Action {
 	default:
-		g.next.execute(client, message)
+		g.next.execute(ctx, client, message)
 	}
 }
 
+// NewMessageBroker creates the chain of message brokers
+// for handling incoming messages
 func NewMessageBroker(app *HttpApp) MessagesInterface {
 	auth := &AuthenticationMessage{app: app}
 

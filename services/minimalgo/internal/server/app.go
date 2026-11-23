@@ -4,17 +4,15 @@ import (
 	"context"
 	"crypto/tls"
 	"log/slog"
+	"myboardgames/minimalgo/internal/grpcclient"
 	httpapp "myboardgames/minimalgo/internal/http"
 	"myboardgames/minimalgo/internal/models"
+	"os"
 	"sync/atomic"
-	"time"
 
 	"github.com/redis/go-redis/v9"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/keepalive"
 )
 
 type ServerApp struct {
@@ -68,6 +66,11 @@ func (s *ServerApp) Start(ctx context.Context) error {
 }
 
 func NewServerApp(ctx context.Context, options *models.ServerAppOptions) (models.ServerAppInterface, error) {
+	priv, err := grpcclient.LoadPrivateKey(os.Getenv("GRPC_SIGNING_KEY_PATH"))
+	if err != nil {
+		return nil, err
+	}
+
 	if router, err := models.NewRouter(ctx, options.RedisClient); err != nil {
 		return nil, err
 	} else {
@@ -78,29 +81,21 @@ func NewServerApp(ctx context.Context, options *models.ServerAppOptions) (models
 		}
 
 		for _, r := range router.Routes {
-			var _credentials credentials.TransportCredentials
-			if r.Environment == "prod" {
-				_credentials = credentials.NewTLS(&tls.Config{})
-			} else {
-				_credentials = insecure.NewCredentials()
-			}
+			var conn *grpc.ClientConn
+			var err error
 
-			conn, err := grpc.NewClient(
-				r.Address(),
-				grpc.WithTransportCredentials(_credentials),
-				// grpc.WithPerRPCCredentials(_credentials),
-				grpc.WithKeepaliveParams(keepalive.ClientParameters{
-					Time:                time.Minute, // must be >= the server's MinTime (30s)
-					Timeout:             20 * time.Second,
-					PermitWithoutStream: true,
-				}),
-			)
-			if err != nil {
-				return nil, err
+			if r.Environment == "prod" {
+				conn, err = grpcclient.NewSecuredGrpcClient(r.Address(), &tls.Config{}, priv, "key-1")
+			} else {
+				conn, err = grpcclient.NewInsecureGrpcClient(r.Address())
 			}
 
 			server.grpcConnections[r.Hash] = conn
-			slog.Info("Creating rpc connection", "game", r.NameEn, "address", r.Address())
+			if err != nil {
+				slog.Error("Failed to create rpc connection", "game", r.NameEn, "err", err)
+			} else {
+				slog.Info("Creating rpc connection", "game", r.NameEn, "address", r.Address())
+			}
 		}
 
 		return server, nil

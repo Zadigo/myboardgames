@@ -52,6 +52,13 @@ func logReadError(client models.WebsocketClientInterface, err error) {
 	}
 }
 
+// Logs write errors if any occurred. If err is nil, does nothing
+func tryLogWriteError(client models.WebsocketClientInterface, err error) {
+	if err != nil {
+		slog.Warn("Websocket write failed", "id", client.GetID(), "err", err)
+	}
+}
+
 // Sends real ping control frames. Browsers answer with a pong automatically,
 // and the pong handler then extends the read deadline.
 func keepAlive(ctx context.Context, conn *websocket.Conn) {
