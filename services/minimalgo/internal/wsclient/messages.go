@@ -93,6 +93,37 @@ func (a *AuthenticationMessage) Execute(ctx context.Context, client models.Webso
 
 	switch message.Action {
 	case models.PingRpc:
+		go func() {
+			conn, err := a.app.GetGrpcConnection(message.Rpc)
+			if tryError(client, err) {
+				return
+			}
+
+			ctx, cancel := context.WithTimeout(context.Background(), models.WriteTimeout)
+			defer cancel()
+
+			ctx = grpcclient.WithPlayer(ctx, client.GetID())
+
+			out := new(pb.TableResponse)
+			err = conn.Invoke(ctx, pb.TableService_PingServer_FullMethodName, &pb.PingServerRequest{ClientId: client.GetID()}, out)
+			if tryError(client, err) {
+				return
+			}
+
+			err = client.WriteJSON(models.BaseWebsocketMessage{
+				Action:     message.Action,
+				ClientID:   client.GetID(),
+				Rpc:        message.Rpc,
+				RpcState:   conn.GetState().String(),
+				StrMessage: out.String(),
+			})
+
+			if tryError(client, err) {
+				return
+			}
+		}()
+
+	case models.CreateTable:
 		// Create a goroutine to not block the read loop
 		go func() {
 			conn, err := a.app.GetGrpcConnection(message.Rpc)
@@ -115,8 +146,8 @@ func (a *AuthenticationMessage) Execute(ctx context.Context, client models.Webso
 				Action:     message.Action,
 				ClientID:   client.GetID(),
 				Rpc:        message.Rpc,
-				StrMessage: conn.GetState().String(),
-				// TableID:  resp.GetEvent().GetTableId(),
+				RpcState:   conn.GetState().String(),
+				StrMessage: out.String(),
 			})
 
 			if tryError(client, err) {

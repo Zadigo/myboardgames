@@ -2,7 +2,7 @@ $kind: websocket-message
 content: |-
   {
       "action": "ping_rpc",
-      "rpc": "109daa7b1dd0baac9dd715a13e88e7bf78337a834f3a6429947a14f3312cfdc8",
+      "rpc": "235dc06ff2619e0500f6992bf49d5e3460565257f57d2bda03bfffeb7c572ae1",
       "client_id": "bf6f058a-1aad-4513-ad21-6ceff00b5aac"
   }
 contentType: json

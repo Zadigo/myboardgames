@@ -211,6 +211,10 @@ func (s *GameServices) Reset(ctx context.Context, req *pb.ResetRequest) (*pb.Tab
 	return &pb.TableResponse{}, nil
 }
 
-func (s *GameServices) Ping(ctx context.Context, req *pb.PingRequest) (*pb.TableResponse, error) {
+func (s *GameServices) PingServer(ctx context.Context, req *pb.PingServerRequest) (*pb.PingServerResponse, error) {
+	return &pb.PingServerResponse{Status: "ok"}, nil
+}
+
+func (s *GameServices) PingTable(ctx context.Context, req *pb.PingTableRequest) (*pb.TableResponse, error) {
 	return &pb.TableResponse{}, nil
 }

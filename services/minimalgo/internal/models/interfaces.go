@@ -43,6 +43,7 @@ type ServerAppInterface interface {
 type BaseWebsocketMessage struct {
 	Action      string         `json:"action"`
 	Rpc         string         `json:"rpc"`
+	RpcState    string         `json:"rpc_state"`
 	ClientID    string         `json:"client_id"`
 	StrMessage  string         `json:"message"`
 	JsonMessage map[string]any `json:"json_message"`

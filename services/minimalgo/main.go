@@ -35,10 +35,10 @@ func preStartSetup(ctx context.Context) (*redis.Client, *models.Router, error) {
 		}
 
 		// Hash each routes using the name in
-		// in english for uniqueness and for 
+		// in english for uniqueness and for
 		// quick lookup
 		for _, r := range router.Routes {
-			r.Hash = fmt.Sprintf("%x", sha256.Sum256([]byte(r.Address())))
+			r.Hash = fmt.Sprintf("%x", sha256.Sum256([]byte(r.NameEn)))
 		}
 
 		return client, router, nil

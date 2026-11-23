@@ -36,7 +36,8 @@ const (
 	TableService_ExecuteInstruction_FullMethodName      = "/minimalgame.v1.TableService/ExecuteInstruction"
 	TableService_ChangeDirection_FullMethodName         = "/minimalgame.v1.TableService/ChangeDirection"
 	TableService_Reset_FullMethodName                   = "/minimalgame.v1.TableService/Reset"
-	TableService_Ping_FullMethodName                    = "/minimalgame.v1.TableService/Ping"
+	TableService_PingServer_FullMethodName              = "/minimalgame.v1.TableService/PingServer"
+	TableService_PingTable_FullMethodName               = "/minimalgame.v1.TableService/PingTable"
 )
 
 // TableServiceClient is the client API for TableService service.
@@ -60,7 +61,8 @@ type TableServiceClient interface {
 	ExecuteInstruction(ctx context.Context, in *ExecuteInstructionRequest, opts ...grpc.CallOption) (*TableResponse, error)
 	ChangeDirection(ctx context.Context, in *ChangeDirectionRequest, opts ...grpc.CallOption) (*TableResponse, error)
 	Reset(ctx context.Context, in *ResetRequest, opts ...grpc.CallOption) (*TableResponse, error)
-	Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*TableResponse, error)
+	PingServer(ctx context.Context, in *PingServerRequest, opts ...grpc.CallOption) (*PingServerResponse, error)
+	PingTable(ctx context.Context, in *PingTableRequest, opts ...grpc.CallOption) (*TableResponse, error)
 }
 
 type tableServiceClient struct {
@@ -241,10 +243,20 @@ func (c *tableServiceClient) Reset(ctx context.Context, in *ResetRequest, opts .
 	return out, nil
 }
 
-func (c *tableServiceClient) Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*TableResponse, error) {
+func (c *tableServiceClient) PingServer(ctx context.Context, in *PingServerRequest, opts ...grpc.CallOption) (*PingServerResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PingServerResponse)
+	err := c.cc.Invoke(ctx, TableService_PingServer_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tableServiceClient) PingTable(ctx context.Context, in *PingTableRequest, opts ...grpc.CallOption) (*TableResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(TableResponse)
-	err := c.cc.Invoke(ctx, TableService_Ping_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, TableService_PingTable_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -272,7 +284,8 @@ type TableServiceServer interface {
 	ExecuteInstruction(context.Context, *ExecuteInstructionRequest) (*TableResponse, error)
 	ChangeDirection(context.Context, *ChangeDirectionRequest) (*TableResponse, error)
 	Reset(context.Context, *ResetRequest) (*TableResponse, error)
-	Ping(context.Context, *PingRequest) (*TableResponse, error)
+	PingServer(context.Context, *PingServerRequest) (*PingServerResponse, error)
+	PingTable(context.Context, *PingTableRequest) (*TableResponse, error)
 	mustEmbedUnimplementedTableServiceServer()
 }
 
@@ -334,8 +347,11 @@ func (UnimplementedTableServiceServer) ChangeDirection(context.Context, *ChangeD
 func (UnimplementedTableServiceServer) Reset(context.Context, *ResetRequest) (*TableResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Reset not implemented")
 }
-func (UnimplementedTableServiceServer) Ping(context.Context, *PingRequest) (*TableResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method Ping not implemented")
+func (UnimplementedTableServiceServer) PingServer(context.Context, *PingServerRequest) (*PingServerResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PingServer not implemented")
+}
+func (UnimplementedTableServiceServer) PingTable(context.Context, *PingTableRequest) (*TableResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PingTable not implemented")
 }
 func (UnimplementedTableServiceServer) mustEmbedUnimplementedTableServiceServer() {}
 func (UnimplementedTableServiceServer) testEmbeddedByValue()                      {}
@@ -664,20 +680,38 @@ func _TableService_Reset_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TableService_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PingRequest)
+func _TableService_PingServer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PingServerRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TableServiceServer).Ping(ctx, in)
+		return srv.(TableServiceServer).PingServer(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TableService_Ping_FullMethodName,
+		FullMethod: TableService_PingServer_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TableServiceServer).Ping(ctx, req.(*PingRequest))
+		return srv.(TableServiceServer).PingServer(ctx, req.(*PingServerRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TableService_PingTable_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PingTableRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TableServiceServer).PingTable(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TableService_PingTable_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TableServiceServer).PingTable(ctx, req.(*PingTableRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -758,8 +792,12 @@ var TableService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _TableService_Reset_Handler,
 		},
 		{
-			MethodName: "Ping",
-			Handler:    _TableService_Ping_Handler,
+			MethodName: "PingServer",
+			Handler:    _TableService_PingServer_Handler,
+		},
+		{
+			MethodName: "PingTable",
+			Handler:    _TableService_PingTable_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

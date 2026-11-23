@@ -20,7 +20,8 @@ service TableService {
     rpc ExecuteInstruction (ExecuteInstructionRequest) returns (TableResponse);
     rpc ChangeDirection (ChangeDirectionRequest) returns (TableResponse);
     rpc Reset (ResetRequest) returns (TableResponse);
-    rpc Ping (PingRequest) returns (TableResponse);
+    rpc PingServer(PingServerRequest) returns (PingServerResponse);
+    rpc PingTable (PingTableRequest) returns (TableResponse);
 }
 
 message CreateTableRequest {
@@ -74,7 +75,7 @@ message ResetRequest {
 /**
  * Check if the table is alive
  */
-message PingRequest {
+message PingTableRequest {
     string table_id = 1;
 }
 
@@ -128,6 +129,10 @@ message ExecuteInstructionRequest {
     repeated string card_ids = 5; // Card or cards used to make the move (should be a single ID or a groupe IDs)
 }
 
+message PingServerRequest {
+    string client_id = 1;
+}
+
 message Card {
     string id = 1;
 }
@@ -176,4 +181,8 @@ message TableResponse {
     optional TableEvent event = 4; // The event that occurred (if applicable)
     string updated_at = 5;
     string created_at = 6;
+}
+
+message PingServerResponse {
+    string status = 1;
 }
