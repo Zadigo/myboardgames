@@ -53,7 +53,7 @@ func LogReadError(client models.WebsocketClientInterface, err error) {
 }
 
 // Logs write errors if any occurred. If err is nil, does nothing
-func TryLogWriteError(client models.WebsocketClientInterface, err error) {
+func tryLogWriteError(client models.WebsocketClientInterface, err error) {
 	if err != nil {
 		slog.Warn("Websocket write failed", "id", client.GetID(), "err", err)
 	}

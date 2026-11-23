@@ -5,11 +5,19 @@ import (
 	"myboardgames/minimalgo/internal/backend"
 	"myboardgames/minimalgo/internal/models"
 	"myboardgames/minimalgo/internal/server"
+	"myboardgames/minimalgo/internal/utils"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func TestIsProduction(t *testing.T) {
+	t.Run("should return false", func(t *testing.T) {
+		result := utils.IsProduction()
+		assert.False(t, result)
+	})
+}
 
 func TestMainserver(t *testing.T) {
 	client, err := backend.CreateRedisConnection(t.Context())

@@ -19,14 +19,16 @@
             }
         },
         {
-            "name": "Generic Application",
+            "name": "Minimal Game",
             "type": "go",
             "request": "launch",
-            "mode": "debug",
-            "program": "${workspaceFolder}/services/basegame",
+            "mode": "auto",
+            "cwd": "${workspaceFolder}/services/minimalgame",
+            "program": "${workspaceFolder}/services/minimalgame/main.go",
+            "envFile": "${workspaceFolder}/services/minimalgame/.env",
             "presentation": {
                 "hidden": false,
-                "group": "Generic",
+                "group": "Go",
                 "order": 1
             }
         },
@@ -36,28 +38,21 @@
             "request": "launch",
             "mode": "debug",
             "program": "${file}",
-        },
+        }
+    ],
+    "compounds": [
         {
-            "name": "Splendor",
-            "type": "go",
-            "request": "launch",
-            "mode": "debug",
-            "program": "${workspaceFolder}/splendor",
-        },
-        {
-            "name": "Flip 7",
-            "type": "go",
-            "request": "launch",
-            "mode": "debug",
-            "program": "${workspaceFolder}/flipseven",
-        },
-        {
-            "name": "Files",
-            "type": "go",
-            "request": "launch",
-            "mode": "debug",
-            "cwd": "${workspaceFolder}/oriflamme",
-            "program": "${file}",
-        },
+            "name": "Minimal Game Server",
+            "configurations": [
+                "Minimal Go",
+                "Minimal Game"
+            ],
+            // "preLaunchTask": "GoPurchase",
+            "presentation": {
+                "hidden": false,
+                "group": "Go",
+                "order": 1
+            }
+        }
     ]
 }

@@ -90,7 +90,7 @@ func (b *BaseHandlers) JoinWebsite(w http.ResponseWriter, r *http.Request) {
 		// Any valid traffic also proves the client is alive
 		_ = conn.SetReadDeadline(time.Now().Add(models.ReadTimeout))
 
-		NewMessageBroker(b.app).execute(ctx, client, &message)
+		wsclient.NewMessageBroker(b.app.server).Execute(ctx, client, &message)
 	}
 }
 

@@ -2,13 +2,13 @@ package server
 
 import (
 	"context"
+	"crypto/ed25519"
 	"crypto/tls"
 	"log/slog"
 	"myboardgames/minimalgo/internal/grpcclient"
 	httpapp "myboardgames/minimalgo/internal/http"
 	"myboardgames/minimalgo/internal/models"
 	"myboardgames/minimalgo/internal/utils"
-	"os"
 	"sync/atomic"
 
 	"github.com/redis/go-redis/v9"
@@ -67,14 +67,13 @@ func (s *ServerApp) Start(ctx context.Context) error {
 }
 
 func NewServerApp(ctx context.Context, options *models.ServerAppOptions) (models.ServerAppInterface, error) {
-	priv, err := grpcclient.LoadPrivateKey(os.Getenv("GRPC_SIGNING_KEY_PATH"))
-	if err != nil {
-		if utils.IsProduction() {
-			return nil, err
-		} else {
-			slog.Error("Failed to load signing key", "err", err)
-		}
-	}
+	// priv, err := grpcclient.LoadPrivateKey(os.Getenv("GRPC_SIGNING_KEY_PATH"))
+	// if err != nil && utils.IsProduction() {
+	// 	return nil, err
+	// } else {
+	// 	slog.Error("Failed to load signing key", "err", err)
+	// }
+	var priv ed25519.PrivateKey
 
 	if router, err := models.NewRouter(ctx, options.RedisClient); err != nil {
 		return nil, err

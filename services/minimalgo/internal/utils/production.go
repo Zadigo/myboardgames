@@ -2,7 +2,7 @@ package utils
 
 import "os"
 
-// IsProduction checks if ENV is prod or set
+// IsProduction checks if GRPC_ENV is prod or set
 func IsProduction() bool {
-	return os.Getenv("ENV") == "prod" || os.Getenv("ENV") == "1" || os.Getenv("ENV") != ""
+	return os.Getenv("GRPC_ENV") == "prod" || os.Getenv("GRPC_ENV") == "1" || os.Getenv("GRPC_ENV") != ""
 }
