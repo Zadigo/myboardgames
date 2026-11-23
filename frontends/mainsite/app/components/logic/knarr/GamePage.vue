@@ -9,15 +9,7 @@
     </section>
 
     <!-- Exploration Section -->
-    <transition
-      mode="out-in"
-      enter-active-class="transition-all duration-800"
-      leave-active-class="transition-all duration-800"
-      enter-from-class="-translate-x-5 opacity-0"
-      enter-to-class="translate-x-0 opacity-100"
-      leave-from-class="translate-x-0 opacity-100"
-      leave-to-class="-translate-x-10 opacity-0"
-    >
+    <transition mode="out-in" enter-active-class="transition-all duration-800" leave-active-class="transition-all duration-800" enter-from-class="-translate-x-5 opacity-0" enter-to-class="translate-x-0 opacity-100" leave-from-class="translate-x-0 opacity-100" leave-to-class="-translate-x-10 opacity-0">
       <knarr-exploration-zones v-if="showExploration" />
     </transition>
 
