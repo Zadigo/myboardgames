@@ -8,4 +8,5 @@ func (e GameErrors) Error() string {
 
 const (
 	PlayerAlreadyExistsError GameErrors = "player exists"
+	PlayerNotFoundError      GameErrors = "player not found"
 )

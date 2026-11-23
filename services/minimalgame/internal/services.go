@@ -29,6 +29,12 @@ func (s *GameServices) localGetTable(id string) (models.TableInterface, error) {
 	return table, nil
 }
 
+func (s *GameServices) localGetPlayersFunc(players []string, fn func(v string)) {
+	for _, p := range players {
+		fn(p)
+	}
+}
+
 func (s *GameServices) CreateTable(ctx context.Context, req *pb.CreateTableRequest) (*pb.TableResponse, error) {
 	table := logic.NewTable()
 	if err := s.gameRegistry.AddTable(table); err != nil {
@@ -125,19 +131,51 @@ func (s *GameServices) NextRound(ctx context.Context, req *pb.NextRoundRequest) 
 }
 
 func (s *GameServices) NextTurn(ctx context.Context, req *pb.NextTurnRequest) (*pb.TableResponse, error) {
-	return &pb.TableResponse{}, nil
+	if _, err := s.localGetTable(req.GetTableId()); err != nil {
+		return nil, err
+	} else {
+		return &pb.TableResponse{}, nil
+	}
 }
 
 func (s *GameServices) ShuffleCards(ctx context.Context, req *pb.ShuffleCardsRequest) (*pb.TableResponse, error) {
-	return &pb.TableResponse{}, nil
+	if _, err := s.localGetTable(req.GetTableId()); err != nil {
+		return nil, err
+	} else {
+		return &pb.TableResponse{}, nil
+	}
 }
 
 func (s *GameServices) BanPlayer(ctx context.Context, req *pb.BanPlayerRequest) (*pb.TableResponse, error) {
-	return &pb.TableResponse{}, nil
+	if table, err := s.localGetTable(req.GetTableId()); err != nil {
+		return nil, err
+	} else {
+		if _, err := table.GetPlayer(req.GetClientId()); err != nil {
+			return nil, err
+		}
+		return &pb.TableResponse{}, nil
+	}
 }
 
 func (s *GameServices) ExchangeCardsWithPlayer(ctx context.Context, req *pb.ExchangeCardsWithPlayerRequest) (*pb.TableResponse, error) {
-	return &pb.TableResponse{}, nil
+	if _, err := s.localGetTable(req.GetTableId()); err != nil {
+		return nil, err
+	} else {
+		// lhp, err := table.GetPlayer(req.GetFrom())
+		// if err != nil {
+		// 	return nil, err
+		// }
+
+		// rhp, err := table.GetPlayer(req.GetTo())
+		// if err != nil {
+		// 	return nil, err
+		// }
+
+		// for _, c := range req.GetCards() {
+		// 	table.ExchangeCard(c, lhp, rhp)
+		// }
+		return &pb.TableResponse{}, nil
+	}
 }
 
 func (s *GameServices) ExchangeCardsWithDeck(ctx context.Context, req *pb.ExchangeCardsWithDeckRequest) (*pb.TableResponse, error) {

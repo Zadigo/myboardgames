@@ -3,7 +3,9 @@ package logic
 import (
 	"context"
 	"encoding/json"
+	"maps"
 	"myboardgames/minimalgame/internal/models"
+	"slices"
 	"time"
 	"uuid"
 )
@@ -21,6 +23,23 @@ type Table struct {
 	IsActive           bool                      `json:"is_active"`
 	players            map[string]*models.Player `json:"-"`
 	logic              *GameLogic                `json:"-"`
+}
+
+func (t *Table) GetPlayers() map[string]*models.Player {
+	return t.players
+}
+
+func (t *Table) GetPlayer(id string) (*models.Player, error) {
+	p, ok := t.players[id]
+	if !ok {
+		return nil, PlayerNotFoundError
+	}
+	return p, nil
+}
+
+func (t *Table) GetPlayerKeys() []string {
+	keys := maps.Keys(t.players)
+	return slices.Collect(keys)
 }
 
 func (t *Table) ChangeDirection() {

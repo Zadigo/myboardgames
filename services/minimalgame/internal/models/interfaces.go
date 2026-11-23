@@ -16,6 +16,9 @@ type GameRegistryInterface interface {
 
 type TableInterface interface {
 	BaseActionsInterface
+	GetPlayers() map[string]*Player
+	GetPlayer(id string) (*Player, error)
+	GetPlayerKeys() []string
 	AddPlayer(*Player) error
 	GetID() string
 	Snapshot() map[string]any
