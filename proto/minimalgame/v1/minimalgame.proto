@@ -181,6 +181,7 @@ message TableResponse {
     optional TableEvent event = 4; // The event that occurred (if applicable)
     string updated_at = 5;
     string created_at = 6;
+    string sub = 7; // The subscription key to listen for events on the the table in Redis
 }
 
 message PingServerResponse {

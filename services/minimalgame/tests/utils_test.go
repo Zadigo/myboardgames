@@ -31,3 +31,17 @@ func TestLoadRules(t *testing.T) {
 		})
 	})
 }
+
+func TestCreateRdisConnection(t *testing.T) {
+	t.Run("should open connection", func(t *testing.T) {
+		client, err := backend.CreateRedisConnection(t.Context())
+
+		defer func() {
+			client.Close()
+		}()
+
+		assert.NoError(t, err)
+		assert.NotNil(t, client)
+
+	})
+}

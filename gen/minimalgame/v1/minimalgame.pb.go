@@ -1325,6 +1325,7 @@ type TableResponse struct {
 	Event         *TableEvent            `protobuf:"bytes,4,opt,name=event,proto3,oneof" json:"event,omitempty"`                                // The event that occurred (if applicable)
 	UpdatedAt     string                 `protobuf:"bytes,5,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	CreatedAt     string                 `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	Sub           string                 `protobuf:"bytes,7,opt,name=sub,proto3" json:"sub,omitempty"` // The subscription key to listen for events on the the table in Redis
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1397,6 +1398,13 @@ func (x *TableResponse) GetUpdatedAt() string {
 func (x *TableResponse) GetCreatedAt() string {
 	if x != nil {
 		return x.CreatedAt
+	}
+	return ""
+}
+
+func (x *TableResponse) GetSub() string {
+	if x != nil {
+		return x.Sub
 	}
 	return ""
 }
@@ -1524,7 +1532,7 @@ const file_minimalgame_v1_minimalgame_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
 	"\btable_id\x18\x02 \x01(\tR\atableId\x12;\n" +
 	"\adetails\x18\x03 \x01(\v2!.minimalgame.v1.TableEventDetailsR\adetails\x129\n" +
-	"\bsnapshot\x18\x04 \x01(\v2\x1d.minimalgame.v1.TableSnapshotR\bsnapshot\"\xea\x01\n" +
+	"\bsnapshot\x18\x04 \x01(\v2\x1d.minimalgame.v1.TableSnapshotR\bsnapshot\"\xfc\x01\n" +
 	"\rTableResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12#\n" +
 	"\rcurrent_round\x18\x02 \x01(\x05R\fcurrentRound\x12%\n" +
@@ -1533,7 +1541,8 @@ const file_minimalgame_v1_minimalgame_proto_rawDesc = "" +
 	"\n" +
 	"updated_at\x18\x05 \x01(\tR\tupdatedAt\x12\x1d\n" +
 	"\n" +
-	"created_at\x18\x06 \x01(\tR\tcreatedAtB\b\n" +
+	"created_at\x18\x06 \x01(\tR\tcreatedAt\x12\x10\n" +
+	"\x03sub\x18\a \x01(\tR\x03subB\b\n" +
 	"\x06_event\",\n" +
 	"\x12PingServerResponse\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status*\xd5\x03\n" +

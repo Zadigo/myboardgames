@@ -9,6 +9,7 @@ require (
 	github.com/redis/go-redis/v9 v9.23.0
 	github.com/stretchr/testify v1.12.1
 	go.yaml.in/yaml/v3 v3.0.5
+	golang.org/x/sync v0.23.0
 	google.golang.org/grpc v1.85.0
 	myboardgames/gen v0.0.0
 )

@@ -2,10 +2,11 @@ package models
 
 // Common table events that occur in most board games
 const (
-	TableEventIdle    string = "table_event_idle"    // The table is waiting for players to join
-	TableEventWaiting string = "table_event_waiting" // The table is waiting for player(s) to take a decision
-	TableEventCreated string = "table_event_created"
-	TableEventUpdated string = "table_event_updated"
+	TableEventIdle       string = "table_event_idle"    // The table is waiting for players to join
+	TableEventWaiting    string = "table_event_waiting" // The table is waiting for player(s) to take a decision
+	TableEventCreated    string = "table_event_created"
+	TableEventConfigured string = "table_event_configured"
+	TableEventUpdated    string = "table_event_updated"
 
 	TableEventAddPlayer    string = "table_event_add_player"
 	TableEventRemovePlayer string = "table_event_remove_player"
