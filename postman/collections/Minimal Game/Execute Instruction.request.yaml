@@ -1,0 +1,34 @@
+$kind: grpc-request
+url: "{{golangGrPC}}"
+methodPath: minimalgame.v1.TableService.ExecuteInstruction
+methodDescriptor: CuwJChRtaW5pbWFsZ2FtZV92MS5wcm90bxIObWluaW1hbGdhbWUudjEiggEKGUV4ZWN1dGVJbnN0cnVjdGlvblJlcXVlc3QSFAoIdGFibGVfaWQYASABKAlCAhABEhcKC2FjdGlvbl9uYW1lGAIgASgJQgIQARIQCgRmcm9tGAMgAygJQgIQARIOCgJ0bxgEIAMoCUICEAESFAoIY2FyZF9pZHMYBSADKAlCAhABIhYKBENhcmQSDgoCaWQYASABKAlCAhABInAKEVRhYmxlRXZlbnREZXRhaWxzEiEKCmV2ZW50X25hbWUYASABKA4yCUV2ZW50TmFtZUICEAESEAoEZnJvbRgCIAMoCUICEAESDgoCdG8YAyADKAlCAhABEhYKBGNhcmQYBCABKAsyBENhcmRCAhABIicKDVRhYmxlU25hcHNob3QSFgoEZGVjaxgBIAMoCzIEQ2FyZEICEAEifwoKVGFibGVFdmVudBIOCgJpZBgBIAEoCUICEAESFAoIdGFibGVfaWQYAiABKAlCAhABEiYKB2RldGFpbHMYAyABKAsyEVRhYmxlRXZlbnREZXRhaWxzQgIQARIjCghzbmFwc2hvdBgEIAEoCzINVGFibGVTbmFwc2hvdEICEAEiwgEKDVRhYmxlUmVzcG9uc2USDgoCaWQYASABKAlCAhABEhkKDWN1cnJlbnRfcm91bmQYAiABKAVCAhABEhoKDmN1cnJlbnRfcGxheWVyGAMgASgJQgIQARIfCgVldmVudBgEIAEoCzIKVGFibGVFdmVudEICEAFIABIWCgp1cGRhdGVkX2F0GAUgASgJQgIQARIWCgpjcmVhdGVkX2F0GAYgASgJQgIQARIPCgNzdWIYByABKAlCAhABQggKBl9ldmVudCrVAwoJRXZlbnROYW1lEhoKFkVWRU5UX05BTUVfVU5TUEVDSUZJRUQQABIWChJFVkVOVF9OQU1FX0NSRUFURUQQARITCg9FVkVOVF9OQU1FX0lETEUQAhIWChJFVkVOVF9OQU1FX1dBSVRJTkcQAxIWChJFVkVOVF9OQU1FX1VQREFURUQQBBIWChJFVkVOVF9OQU1FX0RFTEVURUQQBRIZChVFVkVOVF9OQU1FX0FERF9QTEFZRVIQBhIcChhFVkVOVF9OQU1FX1JFTU9WRV9QTEFZRVIQBxIZChVFVkVOVF9OQU1FX0JBTl9QTEFZRVIQCBIaChZFVkVOVF9OQU1FX0NSRUFURV9ERUNLEAkSGwoXRVZFTlRfTkFNRV9TSFVGRkxFX0RFQ0sQChIfChtFVkVOVF9OQU1FX0RJU1RSSUJVVEVfQ0FSRFMQCxIpCiVFVkVOVF9OQU1FX0VYQ0hBTkdFX0NBUkRTX1dJVEhfUExBWUVSEAwSJwojRVZFTlRfTkFNRV9FWENIQU5HRV9DQVJEU19XSVRIX0RFQ0sQDRIYChRFVkVOVF9OQU1FX05FWFRfVFVSThAOEhsKF0VWRU5UX05BTUVfUkVWRVJTRV9UVVJOEA8ybgoMVGFibGVTZXJ2aWNlEl4KEkV4ZWN1dGVJbnN0cnVjdGlvbhIpLm1pbmltYWxnYW1lLnYxLkV4ZWN1dGVJbnN0cnVjdGlvblJlcXVlc3QaHS5taW5pbWFsZ2FtZS52MS5UYWJsZVJlc3BvbnNl
+message:
+  content: |-
+    {
+        "action_name": "incididunt Excepteur officia sit consectetur",
+        "card_ids": [
+            "consequat elit commodo enim",
+            "dolore labore Ut aute",
+            "consequat",
+            "et esse mollit ut",
+            "amet Ut est"
+        ],
+        "from": [
+            "cillum",
+            "sunt ea velit ex",
+            "fugiat et sed mollit",
+            "nulla"
+        ],
+        "table_id": "{{tableId}}",
+        "to": [
+            "exercitation culpa",
+            "est nostrud",
+            "Ut ipsum consequat anim pariatur",
+            "ut eiusmod elit"
+        ]
+    }
+settings: {}
+schema:
+  source: specification
+  specificationId: ../proto/minimalgame/v1/minimalgame.proto
+order: 6000

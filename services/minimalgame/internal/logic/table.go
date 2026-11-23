@@ -3,9 +3,9 @@ package logic
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log/slog"
 	"maps"
+	pb "myboardgames/gen/minimalgame/v1"
 	"myboardgames/minimalgame/internal/backend"
 	"myboardgames/minimalgame/internal/models"
 	"slices"
@@ -31,7 +31,7 @@ type Table struct {
 	redisDb            *redis.Client             `json:"-"`
 	players            map[string]*models.Player `json:"-"`
 	logic              *GameLogic                `json:"-"`
-	diffusion          chan *models.Instruction  `json:"-"`
+	diffusion          chan *pb.TableResponse    `json:"-"`
 	cancel             context.CancelFunc        `json:"-"`
 }
 
@@ -135,8 +135,8 @@ func (t *Table) Snapshot() map[string]any {
 	return nil
 }
 
-func (t *Table) PublishSubscriptionMessage(instruction *models.Instruction) {
-	t.diffusion <- instruction
+func (t *Table) PublishSubscriptionMessage(response *pb.TableResponse) {
+	t.diffusion <- response
 }
 
 func (t *Table) GetSubscriptionKey() string {
@@ -165,7 +165,7 @@ func NewTable(redisDb *redis.Client) models.TableInterface {
 		cancel:             cancel,
 		players:            make(map[string]*models.Player, 20),
 		logic:              &GameLogic{},
-		diffusion:          make(chan *models.Instruction, 100),
+		diffusion:          make(chan *pb.TableResponse, 100),
 	}
 
 	table.Sub = "table:" + table.ID
@@ -177,12 +177,12 @@ func NewTable(redisDb *redis.Client) models.TableInterface {
 	// the table
 	go table.publishLoop(ctx)
 
-	table.PublishSubscriptionMessage(&models.Instruction{
-		Action: models.TableEventConfigured,
-		MetaData: models.InstructionMetaData{
-			Description: fmt.Sprintf("Table with ID %s was created", table.ID),
-		},
-	})
+	// table.PublishSubscriptionMessage(&models.Instruction{
+	// 	Action: models.TableEventConfigured,
+	// 	MetaData: models.InstructionMetaData{
+	// 		Description: fmt.Sprintf("Table with ID %s was created", table.ID),
+	// 	},
+	// })
 
 	return table
 }

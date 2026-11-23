@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"myboardgames/minimalgame/internal/backend"
 	"myboardgames/minimalgame/internal/logic"
 	"myboardgames/minimalgame/internal/models"
 	"strconv"
@@ -10,10 +11,12 @@ import (
 )
 
 func TestTable(t *testing.T) {
+	client, _ := backend.CreateRedisConnection(t.Context())
+
 	t.Run("should create new table", func(t *testing.T) {
 		t.Parallel()
 
-		table := logic.NewTable(t.Context())
+		table := logic.NewTable(client)
 		assert.NotNil(t, table)
 		assert.IsType(t, &logic.Table{}, table)
 	})
@@ -72,10 +75,12 @@ func TestTable(t *testing.T) {
 }
 
 func BenchmarkTable(b *testing.B) {
+	client, _ := backend.CreateRedisConnection(b.Context())
+
 	b.ResetTimer()
 	b.SetParallelism(30)
 
-	table := logic.NewTable(b.Context())
+	table := logic.NewTable(client)
 
 	b.RunParallel(func(pb *testing.PB) {
 		for b.Loop() {

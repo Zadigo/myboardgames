@@ -35,6 +35,23 @@ func (s *GameServices) localGetPlayersFunc(players []string, fn func(v string)) 
 	}
 }
 
+func (s *GameServices) getBaseTableResponse(table models.TableInterface, event pb.EventName) *pb.TableResponse {
+	responseId := uuid.New().String()
+	return &pb.TableResponse{
+		Id:        responseId,
+		UpdatedAt: time.Now().String(),
+		CreatedAt: time.Now().String(),
+		Event: &pb.TableEvent{
+			Id:       responseId,
+			TableId:  table.GetID(),
+			Snapshot: &pb.TableSnapshot{},
+			Details: &pb.TableEventDetails{
+				EventName: event,
+			},
+		},
+	}
+}
+
 func (s *GameServices) CreateTable(ctx context.Context, req *pb.CreateTableRequest) (*pb.TableResponse, error) {
 	table := logic.NewTable(s.redisDb)
 	if err := s.gameRegistry.AddTable(table); err != nil {
@@ -196,7 +213,10 @@ func (s *GameServices) ExecuteInstruction(ctx context.Context, req *pb.ExecuteIn
 		if err := table.Execute(instCtx, instruction); err != nil {
 			return nil, err
 		}
-		return &pb.TableResponse{}, nil
+
+		response := s.getBaseTableResponse(table, pb.EventName_EVENT_NAME_UNSPECIFIED)
+		table.PublishSubscriptionMessage(response)
+		return response, nil
 	}
 }
 

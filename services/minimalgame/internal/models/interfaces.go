@@ -1,6 +1,9 @@
 package models
 
-import "context"
+import (
+	"context"
+	pb "myboardgames/gen/minimalgame/v1"
+)
 
 type BaseActionsInterface interface {
 	RemovePlayer(id string) error
@@ -25,6 +28,7 @@ type TableInterface interface {
 	PlayerCount() int
 	ChangeDirection()
 	GetSubscriptionKey() string
+	PublishSubscriptionMessage(response *pb.TableResponse)
 	// Execute is the main entrypoint used by
 	// by a gRPC call in order to execute a
 	// move in the game

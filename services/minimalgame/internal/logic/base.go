@@ -15,7 +15,7 @@ func (g *GameLogic) preMove(table *Table, instruction *models.Instruction) {
 
 func (g *GameLogic) postMove(table *Table, instruction *models.Instruction) {
 	// Post-move logic here
-	table.PublishSubscriptionMessage(instruction)
+	// table.PublishSubscriptionMessage(instruction)
 }
 
 func (g *GameLogic) RunMove(ctx context.Context, table *Table, instruction *models.Instruction) error {
