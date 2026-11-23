@@ -22,18 +22,22 @@ func LoadPrivateKey(path string) (ed25519.PrivateKey, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	block, _ := pem.Decode(raw)
 	if block == nil {
 		return nil, errors.New("no PEM block found")
 	}
+	
 	key, err := x509.ParsePKCS8PrivateKey(block.Bytes)
 	if err != nil {
 		return nil, err
 	}
+	
 	priv, ok := key.(ed25519.PrivateKey)
 	if !ok {
 		return nil, errors.New("not an ed25519 key")
 	}
+	
 	return priv, nil
 }
 

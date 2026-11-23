@@ -1,5 +1,7 @@
 # My Board Games
 
+Open source project that provides access to popular boardgames (like Flip 7...) to players.
+
 ## How to contribute
 
 **Testing for production mode**

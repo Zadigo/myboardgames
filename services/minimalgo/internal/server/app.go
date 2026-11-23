@@ -7,6 +7,7 @@ import (
 	"myboardgames/minimalgo/internal/grpcclient"
 	httpapp "myboardgames/minimalgo/internal/http"
 	"myboardgames/minimalgo/internal/models"
+	"myboardgames/minimalgo/internal/utils"
 	"os"
 	"sync/atomic"
 
@@ -68,7 +69,11 @@ func (s *ServerApp) Start(ctx context.Context) error {
 func NewServerApp(ctx context.Context, options *models.ServerAppOptions) (models.ServerAppInterface, error) {
 	priv, err := grpcclient.LoadPrivateKey(os.Getenv("GRPC_SIGNING_KEY_PATH"))
 	if err != nil {
-		return nil, err
+		if utils.IsProduction() {
+			return nil, err
+		} else {
+			slog.Error("Failed to load signing key", "err", err)
+		}
 	}
 
 	if router, err := models.NewRouter(ctx, options.RedisClient); err != nil {
@@ -84,7 +89,7 @@ func NewServerApp(ctx context.Context, options *models.ServerAppOptions) (models
 			var conn *grpc.ClientConn
 			var err error
 
-			if r.Environment == "prod" {
+			if utils.IsProduction() {
 				conn, err = grpcclient.NewSecuredGrpcClient(r.Address(), &tls.Config{}, priv, "key-1")
 			} else {
 				conn, err = grpcclient.NewInsecureGrpcClient(r.Address())
