@@ -88,9 +88,11 @@ func (b *BaseHandlers) JoinWebsite(w http.ResponseWriter, r *http.Request) {
 		// Any valid traffic also proves the client is alive
 		_ = conn.SetReadDeadline(time.Now().Add(models.ReadTimeout))
 
-		authenticationMessage(b.app, client, message)
-		globalGameMessage(b.app, client, message)
-		gameRelatedMessage(b.app, client, message)
+		// authenticationMessage(b.app, client, message)
+		// globalGameMessage(b.app, client, message)
+		// gameRelatedMessage(b.app, client, message)
+		
+		NewMessageBroker(b.app).execute(client, &message)
 	}
 }
 
