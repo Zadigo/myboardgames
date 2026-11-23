@@ -38,6 +38,35 @@
             "request": "launch",
             "mode": "debug",
             "program": "${file}",
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Nuxt: Mainsite (Client)",
+            "url": "http://localhost:3000",
+            "webRoot": "${workspaceFolder}/frontends/mainsite/app",
+            "presentation": {
+                "hidden": false,
+                "group": "Nuxt",
+                "order": 1
+            }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Nuxt: Mainsite (Server)",
+            "outputCapture": "std",
+            "cwd": "${workspaceFolder}/frontends/mainsite",
+            "program": "${workspaceFolder}/frontends/mainsite/node_modules/nuxt/bin/nuxt.mjs",
+            "envFile": "${workspaceFolder}/frontends/mainsite/.env",
+            "args": [
+                "dev"
+            ],
+            "presentation": {
+                "hidden": false,
+                "group": "Nuxt",
+                "order": 2
+            }
         }
     ],
     "compounds": [
@@ -52,6 +81,19 @@
                 "hidden": false,
                 "group": "Go",
                 "order": 1
+            }
+        },
+        {
+            "name": "Nuxt Full-Site",
+            "configurations": [
+                "Nuxt: Mainsite (Client)",
+                "Nuxt: Mainsite (Server)"
+            ],
+            "preLaunchTask": "GoPurchase",
+            "presentation": {
+                "hidden": false,
+                "group": "Nuxt",
+                "order": 3
             }
         }
     ]

@@ -1,5 +1,5 @@
 <template>
-  <nuxt-container id="knarr" class="h-screen space-y-2" as="section">
+  <u-container id="knarr" class="h-screen space-y-2" as="section">
     <!-- Artifacts Section -->
     <section id="artifacts">
       <div class="grid grid-cols-12 auto-cols-max gap-1">
@@ -32,7 +32,7 @@
 
     <!-- Action Bar -->
     <knarr-actions />
-  </nuxt-container>
+  </u-container>
 </template>
 
 <script lang="ts" setup>
