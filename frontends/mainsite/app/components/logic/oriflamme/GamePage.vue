@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useOriflammeActionsComposable, useOriflammeComposable, useQueuePossibleActions } from '~/composables/oriflamme'
+import { useOriflammeActionsComposable, useOriflammeComposable, useQueuePossibleActions } from '~/composables/_oriflamme'
 
 definePageMeta({
   layout: 'game'

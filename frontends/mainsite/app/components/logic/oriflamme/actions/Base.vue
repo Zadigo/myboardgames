@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useOriflammeActionsStore } from '~/composables/oriflamme'
+import { useOriflammeActionsStore } from '~/composables/_oriflamme'
 import type { OriflammeCard } from '~/types'
 
 const { inQueue = false } = defineProps<{

@@ -6,20 +6,20 @@
       </div>
 
       <div id="score" class="p-2 rounded-lg bg-[#fffceb] font-bold text-center flex items-center gap-2">
-        <nuxt-avatar />
+        <u-blog-posts />
         <span>{{ tableClient.username }}</span>
       </div>
     </div>
 
     <div class="flex gap-2">
-      <flip-card v-for="card in tableClient.cards" :key="card.value" :card="card" class="h-40 w-30 bg-flip-seven-900 rounded-lg" />
+      <logic-flip-card v-for="card in tableClient.cards" :key="card.value" :card="card" class="h-40 w-30 bg-flip-seven-900 rounded-lg" />
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { TransitionPresets } from '@vueuse/core'
-import { TEST_USERNAME, useFlipSevenLiveGameComposable } from '~/composables/flipseven'
+import { TEST_USERNAME, useFlipSevenLiveGameComposable } from '~/composables/_flipseven'
 import type { TableClientDetail } from '~/types'
 
 defineProps<{

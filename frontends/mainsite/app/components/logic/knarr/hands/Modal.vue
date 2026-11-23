@@ -1,5 +1,5 @@
 <template>
-  <nuxt-slideover v-model:open="showPlayerHands" side="bottom" inset title="Slideover with inset">
+  <u-slideover v-model:open="showPlayerHands" side="bottom" inset title="Slideover with inset">
     <template #content>
       <div class="relative">
         <div class="py-10 px-20 bg-primary-100/50 backdrop-blur-2xl">
@@ -33,11 +33,11 @@
         </div>
       </div>
     </template>
-  </nuxt-slideover>
+  </u-slideover>
 </template>
 
 <script setup lang="ts">
-import { usePlayerHandsStore } from '~/composables/knarr'
+import { usePlayerHandsStore } from '~/composables/_knarr'
 
 const { togglePlayerHands, showPlayerHands } = usePlayerHandsStore()
 

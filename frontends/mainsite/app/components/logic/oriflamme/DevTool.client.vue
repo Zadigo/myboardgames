@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useOriflammeComposable } from '~/composables/oriflamme'
+import { useOriflammeComposable } from '~/composables/_oriflamme'
 
 const { isOpen, createGame, openConnection, quitTable, startGame, tableUuid } = useOriflammeComposable()
 

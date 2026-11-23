@@ -3,32 +3,32 @@
     <!-- Artifacts Section -->
     <section id="artifacts">
       <div class="grid grid-cols-12 auto-cols-max gap-1">
-        <lazy-knarr-artifacts-card id="artifact-1" hydrate-on-idle />
-        <lazy-knarr-artifacts-card id="artifact-2" hydrate-on-idle />
+        <lazy-logic-knarr-artifacts-card id="artifact-1" hydrate-on-idle />
+        <lazy-logic-knarr-artifacts-card id="artifact-2" hydrate-on-idle />
       </div>
     </section>
 
     <!-- Exploration Section -->
     <transition mode="out-in" enter-active-class="transition-all duration-800" leave-active-class="transition-all duration-800" enter-from-class="-translate-x-5 opacity-0" enter-to-class="translate-x-0 opacity-100" leave-from-class="translate-x-0 opacity-100" leave-to-class="-translate-x-10 opacity-0">
-      <knarr-exploration-zones v-if="showExploration" />
+      <lazy-logic-knarr-exploration-zones v-if="showExploration" />
     </transition>
 
     <!-- Map -->
-    <knarr-map />
+    <logic-knarr-map />
 
     <!-- Recruits Section -->
-    <knarr-recruits-grid />
+    <logic-knarr-recruits-grid />
 
     <!-- Player Hands -->
-    <lazy-knarr-hands-modal hydrate-on-idle />
+    <lazy-logic-knarr-hands-modal hydrate-on-idle />
 
     <!-- Action Bar -->
-    <knarr-actions />
+    <logic-knarr-actions />
   </u-container>
 </template>
 
 <script lang="ts" setup>
-import { usePlayerHandsComposable, useExplorationComposable } from '~/composables/knarr'
+import { usePlayerHandsComposable, useExplorationComposable } from '~/composables/_knarr'
 
 definePageMeta({
   layout: 'game'

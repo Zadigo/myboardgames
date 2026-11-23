@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useFlipSevenLiveGameComposable } from '~/composables/flipseven'
+import { useFlipSevenLiveGameComposable } from '~/composables/_flipseven'
 
 const { flipCard } = useFlipSevenLiveGameComposable()
 </script>

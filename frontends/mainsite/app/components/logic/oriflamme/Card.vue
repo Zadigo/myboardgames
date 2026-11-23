@@ -46,7 +46,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useOriflammeActionsStore, useOriflammeAllCardsComposable, useQueuePossibleActionsStore } from '~/composables/oriflamme'
+import { useOriflammeActionsStore, useOriflammeAllCardsComposable, useQueuePossibleActionsStore } from '~/composables/_oriflamme'
 import type { AllCharacters, OriflammeCard } from '~/types'
 
 const props = defineProps<{

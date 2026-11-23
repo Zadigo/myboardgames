@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useExplorationStore, usePlayerHandsStore } from '~/composables/knarr'
+import { useExplorationStore, usePlayerHandsStore } from '~/composables/_knarr'
 
 const { togglePlayerHands } = usePlayerHandsStore()
 
