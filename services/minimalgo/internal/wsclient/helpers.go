@@ -52,11 +52,13 @@ func LogReadError(client models.WebsocketClientInterface, err error) {
 	}
 }
 
-// Logs write errors if any occurred. If err is nil, does nothing
-func tryLogWriteError(client models.WebsocketClientInterface, err error) {
+// Logs an error if it exists. If err is nil, does nothing
+func tryError(client models.WebsocketClientInterface, err error) bool {
 	if err != nil {
-		slog.Warn("Websocket write failed", "id", client.GetID(), "err", err)
+		slog.Warn("", "id", client.GetID(), "err", err)
+		return true
 	}
+	return false
 }
 
 // Sends real ping control frames. Browsers answer with a pong automatically,

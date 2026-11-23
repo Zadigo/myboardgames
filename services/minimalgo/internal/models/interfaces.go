@@ -34,6 +34,7 @@ type ServerAppInterface interface {
 	AppInterface
 	GetRouter() *Router
 	GetGrpcConnections() map[string]*grpc.ClientConn
+	GetGrpcConnection(id string) (*grpc.ClientConn, error)
 	UpdateClients(clients []WebsocketClientInterface)
 	GetState() bool
 	GetOptions() *ServerAppOptions

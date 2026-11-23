@@ -7,5 +7,6 @@ func (e ServerErrors) Error() string {
 }
 
 const (
-	FailedToLoadRedisError ServerErrors = "Failed to load redis"
+	FailedToLoadRedisError     ServerErrors = "Failed to load redis"
+	RpcConnectionNotFoundError ServerErrors = "RPC connection not found"
 )

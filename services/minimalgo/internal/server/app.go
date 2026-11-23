@@ -9,6 +9,7 @@ import (
 	httpapp "myboardgames/minimalgo/internal/http"
 	"myboardgames/minimalgo/internal/models"
 	"myboardgames/minimalgo/internal/utils"
+	"os"
 	"sync/atomic"
 
 	"github.com/redis/go-redis/v9"
@@ -30,6 +31,14 @@ func (s *ServerApp) GetRouter() *models.Router {
 
 func (s *ServerApp) GetGrpcConnections() map[string]*grpc.ClientConn {
 	return s.grpcConnections
+}
+
+func (s *ServerApp) GetGrpcConnection(id string) (*grpc.ClientConn, error) {
+	conn, ok := s.grpcConnections[id]
+	if !ok {
+		return nil, RpcConnectionNotFoundError
+	}
+	return conn, nil
 }
 
 func (s *ServerApp) GetState() bool {
@@ -91,6 +100,7 @@ func NewServerApp(ctx context.Context, options *models.ServerAppOptions) (models
 			if utils.IsProduction() {
 				conn, err = grpcclient.NewSecuredGrpcClient(r.Address(), &tls.Config{}, priv, "key-1")
 			} else {
+				slog.Warn("Using RPC server in insecure mode", "mode", os.Getenv("GRPC_ENV"))
 				conn, err = grpcclient.NewInsecureGrpcClient(r.Address())
 			}
 

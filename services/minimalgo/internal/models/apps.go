@@ -31,4 +31,5 @@ type ServerAppOptions struct {
 	Name        string
 	RedisClient *redis.Client
 	Port        int
+	Router      *Router
 }

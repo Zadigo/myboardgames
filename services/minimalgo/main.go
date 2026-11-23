@@ -50,10 +50,12 @@ func main() {
 	if client, err := preStartSetup(ctx); err != nil {
 		panic(err)
 	} else {
-		// Main server
-		server, err := server.NewServerApp(ctx, &models.ServerAppOptions{
+		options := &models.ServerAppOptions{
 			RedisClient: client,
-		})
+		}
+		
+		// Main server
+		server, err := server.NewServerApp(ctx, options)
 
 		if err != nil {
 			panic(err)
