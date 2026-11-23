@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log/slog"
 	"myboardgames/minimalgo/internal/models"
+	"myboardgames/minimalgo/internal/wsclient"
 	"net/http"
 	"time"
 
@@ -27,7 +28,7 @@ func (b *BaseHandlers) JoinWebsite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	conn, err := CustomRequestUpgrader.Upgrade(w, r, nil)
+	conn, err := wsclient.CustomRequestUpgrader.Upgrade(w, r, nil)
 	if err != nil {
 		slog.Warn("websocket upgrade failed", "err", err)
 		return
@@ -35,11 +36,11 @@ func (b *BaseHandlers) JoinWebsite(w http.ResponseWriter, r *http.Request) {
 
 	defer conn.Close()
 
-	WsMiddleware(conn)
-	client := NewWebsocketClient(conn)
+	wsclient.WsMiddleware(conn)
+	client := wsclient.NewWebsocketClient(conn)
 
 	if err := b.app.AddClient(client); err != nil {
-		closeWith(conn, 1011, "internal error")
+		wsclient.CloseWith(conn, 1011, "internal error")
 		return
 	}
 
@@ -47,7 +48,7 @@ func (b *BaseHandlers) JoinWebsite(w http.ResponseWriter, r *http.Request) {
 
 	ctx, cancel := context.WithCancel(r.Context())
 	defer cancel()
-	go keepAlive(ctx, conn)
+	go wsclient.KeepAlive(ctx, conn)
 
 	// Return the routing table so that Nuxt knows what
 	// rpc servers are actually registred. When client clicks
@@ -68,15 +69,15 @@ func (b *BaseHandlers) JoinWebsite(w http.ResponseWriter, r *http.Request) {
 	for {
 		var message models.BaseWebsocketMessage
 		if err = conn.ReadJSON(&message); err != nil {
-			if isFatalReadError(err) {
-				logReadError(client, err)
+			if wsclient.IsFatalReadError(err) {
+				wsclient.LogReadError(client, err)
 				return // never read again from a failed connection
 			}
 
 			// Only the payload was bad, the connection is still usable
 			invalid++
 			if invalid >= maxConsecutiveInvalid {
-				closeWith(conn, websocket.ClosePolicyViolation, "too many invalid messages")
+				wsclient.CloseWith(conn, websocket.ClosePolicyViolation, "too many invalid messages")
 				return
 			}
 
@@ -88,10 +89,6 @@ func (b *BaseHandlers) JoinWebsite(w http.ResponseWriter, r *http.Request) {
 
 		// Any valid traffic also proves the client is alive
 		_ = conn.SetReadDeadline(time.Now().Add(models.ReadTimeout))
-
-		// authenticationMessage(b.app, client, message)
-		// globalGameMessage(b.app, client, message)
-		// gameRelatedMessage(b.app, client, message)
 
 		NewMessageBroker(b.app).execute(ctx, client, &message)
 	}

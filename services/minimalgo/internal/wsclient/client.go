@@ -1,4 +1,4 @@
-package http
+package wsclient
 
 import (
 	"myboardgames/minimalgo/internal/models"

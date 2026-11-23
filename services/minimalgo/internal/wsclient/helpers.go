@@ -1,4 +1,4 @@
-package http
+package wsclient
 
 import (
 	"context"
@@ -15,7 +15,7 @@ import (
 
 // closeWith sends a close message to the websocket connection with code and reason
 // since is hijacked, can't use http.Error, use closeWith instead to close the ws connection
-func closeWith(conn *websocket.Conn, code int, reason string) {
+func CloseWith(conn *websocket.Conn, code int, reason string) {
 	_ = conn.WriteControl(
 		websocket.CloseMessage,
 		websocket.FormatCloseMessage(code, reason),
@@ -25,7 +25,7 @@ func closeWith(conn *websocket.Conn, code int, reason string) {
 
 // A decode error leaves the connection intact. Everything else
 // (network error, close frame, timeout, oversized message) is fatal.
-func isFatalReadError(err error) bool {
+func IsFatalReadError(err error) bool {
 	var syntaxErr *json.SyntaxError
 	var typeErr *json.UnmarshalTypeError
 
@@ -38,7 +38,7 @@ func isFatalReadError(err error) bool {
 	return true
 }
 
-func logReadError(client models.WebsocketClientInterface, err error) {
+func LogReadError(client models.WebsocketClientInterface, err error) {
 	var netErr net.Error
 	switch {
 	case websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway):
@@ -53,7 +53,7 @@ func logReadError(client models.WebsocketClientInterface, err error) {
 }
 
 // Logs write errors if any occurred. If err is nil, does nothing
-func tryLogWriteError(client models.WebsocketClientInterface, err error) {
+func TryLogWriteError(client models.WebsocketClientInterface, err error) {
 	if err != nil {
 		slog.Warn("Websocket write failed", "id", client.GetID(), "err", err)
 	}
@@ -61,7 +61,7 @@ func tryLogWriteError(client models.WebsocketClientInterface, err error) {
 
 // Sends real ping control frames. Browsers answer with a pong automatically,
 // and the pong handler then extends the read deadline.
-func keepAlive(ctx context.Context, conn *websocket.Conn) {
+func KeepAlive(ctx context.Context, conn *websocket.Conn) {
 	t := time.NewTicker(models.PingPeriod)
 	defer t.Stop()
 	for {

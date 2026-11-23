@@ -69,7 +69,7 @@ type MessagesInterface interface {
 }
 
 type BaseMessageBroker struct {
-	app  *HttpApp
+	app  models.AppInterface
 	next MessagesInterface
 }
 
