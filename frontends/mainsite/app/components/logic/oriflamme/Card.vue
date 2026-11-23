@@ -3,25 +3,25 @@
     <article ref="cardEl" :data-uuid="card.uuid" :class="cardTheme" class="relative h-70 min-w-50 transition-all bg-center bg-no-repeat bg-cover ease-in-out duration-500 rounded-lg p-2 hover:shadow-xl cursor-pointer overflow-hidden">
       <nuxt-img :src="cardImage" :alt="card.name" class="w-full h-full absolute top-0 left-0 z-9 rounded-lg" @click="displayOptions(indexInQueue)" />
 
-      <lazy-nuxt-popover mode="hover" hydrate-on-idle>
+      <lazy-u-popover mode="hover" hydrate-on-idle>
         <u-button class="absolute top-0 right-0 z-10">
           Help
         </u-button>
 
         <template #content>
           <div class="w-70 h-auto p-4">
-            <nuxt-badge label="Power" color="info" />
+            <u-card label="Power" color="info" />
             <h3 class="font-bold italic mb-3">
               {{ cardInfo?.power }}
             </h3>
 
-            <nuxt-badge label="Description" color="info" />
+            <u-badge label="Description" color="info" />
             <p class="font-light">
               {{ cardInfo?.description }}
             </p>
           </div>
         </template>
-      </lazy-nuxt-popover>
+      </lazy-u-popover>
 
       <!-- Actions -->
       <transition
@@ -33,14 +33,14 @@
         leave-to-class="scale-95"
       >
         <!-- v-if="isHovered" -->
-        <oriflamme-actions-base :in-queue="inQueue" :card="card" />
+        <logic-oriflamme-actions-base :in-queue="inQueue" :card="card" />
       </transition>
 
       <div v-if="inQueue" class="rounded-full w-10 h-10 bg-secondary-200/50 absolute bottom-2 left-2 animate-bounce transition-all duration-500" />
     </article>
 
     <div class="w-full flex justify-center">
-      <nuxt-badge :label="card.name" />
+      <u-badge :label="card.name" />
     </div>
   </div>
 </template>
